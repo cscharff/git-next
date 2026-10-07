@@ -87,3 +87,27 @@ describe("buildContext", () => {
 		expect(ctx.conflicts).toEqual([]);
 	});
 });
+
+describe("section dedupe", () => {
+	it("serves a section copied into several files once, under the shortest path, and says so", async () => {
+		const skill = "# Plugin storage\nPlugins store data in collections with indexes on hot fields.";
+		const files = new RepoContext(async () =>
+			memorySource({
+				main: {
+					"skills/plugins/SKILL.md": skill,
+					"templates/a/.agents/skills/plugins/SKILL.md": skill,
+					"templates/b/.agents/skills/plugins/SKILL.md": skill,
+					"docs/other.md": "# Other\nUnrelated text about themes.",
+					"pkg/changelog/0.1-to-0.9.md": "# Plugin storage changes\nPlugins store data in collections.",
+				},
+			}),
+		);
+		const ctx = await buildContext(files, { repo: "r", ref: "main", task: "plugin storage indexes", paths: [], budgetTokens: 2000 });
+		const served = ctx.sections.filter((s) => s.text === skill);
+		expect(served.map((s) => s.path)).toEqual(["skills/plugins/SKILL.md"]);
+		expect(served[0]).toMatchObject({ duplicates: 2, duplicatePaths: ["templates/a/.agents/skills/plugins/SKILL.md", "templates/b/.agents/skills/plugins/SKILL.md"] });
+		expect(ctx.manifest.find((m: any) => m.source.startsWith("skills/"))).toMatchObject({ duplicates: 2 });
+		expect(ctx.stats).toMatchObject({ markdownFiles: 4, sections: 2, duplicateSections: 2 });
+		expect(ctx.sections.some((s) => s.path.includes("changelog/"))).toBe(false);
+	});
+});

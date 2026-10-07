@@ -434,8 +434,8 @@ async function contextCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 	for (const r of ctx.rules) lines.push(`  ${r.topic.padEnd(16)} ${`${r.value}${r.strength === "must" ? " (must)" : ""}`.padEnd(38)} ${r.kind.padEnd(8)} ${r.source.replace(`${ctx.repo}/`, "")}`);
 	for (const c of ctx.conflicts) lines.push(`  ✗ ${c.topic}: ${c.explanation}`);
 	lines.push("", `Sections (${ctx.sections.length})`);
-	for (const x of ctx.sections) lines.push(`  ${`${x.path}:${x.startLine}`.padEnd(52)} ${(x.headings.at(-1) ?? "").slice(0, 48).padEnd(48)} ${String(x.tokens).padStart(5)} tok`);
-	lines.push("", `Omitted ${ctx.omitted.count} matching sections (${ctx.omitted.tokens} tokens, ${ctx.omitted.oversized} oversized). All markdown: ${s.tokensAllMarkdown} tokens in ${s.markdownFiles} files; instruction files on these paths: ${s.tokensInstructionFilesOnPath}.`);
+	for (const x of ctx.sections) lines.push(`  ${`${x.path}:${x.startLine}`.padEnd(52)} ${(x.headings.at(-1) ?? "").slice(0, 48).padEnd(48)} ${String(x.tokens).padStart(5)} tok${x.duplicates ? ` (+${x.duplicates} identical cop${x.duplicates === 1 ? "y" : "ies"})` : ""}`);
+	lines.push("", `Omitted ${ctx.omitted.count} matching sections (${ctx.omitted.tokens} tokens, ${ctx.omitted.oversized} oversized). All markdown: ${s.tokensAllMarkdown} tokens in ${s.markdownFiles} files${s.duplicateSections ? ` (${s.duplicateSections} duplicate sections indexed once)` : ""}; instruction files on these paths: ${s.tokensInstructionFilesOnPath}.`);
 	if (args.print) {
 		if (pinned?.catalog) lines.push("", "--- pinned: org catalog ---", pinned.catalog, ...pinned.relevant);
 		for (const x of ctx.sections) lines.push("", `--- ${x.path}:${x.startLine} ---`, x.text);
