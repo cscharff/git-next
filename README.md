@@ -68,6 +68,9 @@ The demo uses [cloudflare/agents](https://github.com/cloudflare/agents) (MIT, 1,
      command, commit format, changeset policy, lint strictness, allowed models, secrets and security scans. It then
      reports **overridden** rules, **conflicts** (two disagreeing "musts", or peers that disagree), policy violations
      (for example a model from a provider that isn't approved), and **drift** between instructions and config files.
+     It also reports **copy drift**: skills and instruction files vendored into several places (EmDash copies each
+     skill into nine templates) whose copies missed a change to the source, with the first line that differs.
+     Symlinked or byte-identical copies of a layer (`.claude/CLAUDE.md -> ../AGENTS.md`) are skipped and listed.
      In the Worker, rules are extracted by **Workers AI GLM-5.3-Flash** through the org gateway
      (`src/providers/instruction-stack/llm-extract.ts`). Each file goes to the model as numbered lines inside
      delimiters. Long files are split into roughly 80-line chunks at headings, with at most 4 calls at once and

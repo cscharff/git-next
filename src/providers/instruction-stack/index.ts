@@ -1,6 +1,7 @@
 import type { RepoContext } from "../../core/repo-context.ts";
 import type { Insight, InsightProvider, Severity } from "../../core/types.ts";
 import { parseJsonc } from "../../parse/jsonc.ts";
+import { describeDrift, findCopyDrift, groupDrift, symlinkTarget } from "./copy-drift.ts";
 import { configFacts, isConfigFactFile, type ConfigFact } from "./config-facts.ts";
 import { keywordExtractor } from "./extract.ts";
 import { effectiveRules, resolve, type Finding } from "./resolve.ts";
@@ -53,8 +54,6 @@ export interface LoadedStack {
 	errors: string[];
 }
 
-/** A git symlink arrives as a blob holding its target, e.g. `../AGENTS.md`. */
-export const symlinkTarget = (text: string) => text.trim().match(/^(?!\/)[^\s]*\.md$/i)?.[0] ?? null;
 const normalizePath = (path: string) => {
 	const out: string[] = [];
 	for (const seg of path.split("/")) seg === ".." ? out.pop() : seg && seg !== "." && out.push(seg);
@@ -123,7 +122,7 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 		title: "Instruction stack",
 		needs: ["tree", "files"],
 		async analyze({ repo, ref, files }) {
-			const { layers, rules, facts, skipped, errors } = await loadStack(files, repo, ref, extractor);
+			const [{ layers, rules, facts, skipped, errors }, drift] = await Promise.all([loadStack(files, repo, ref, extractor), findCopyDrift(files, repo, ref).then(groupDrift)]);
 			const findings = resolve(rules, facts);
 
 			const insights: Insight[] = findings.map((f) => ({
@@ -135,6 +134,19 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 				evidence: [...f.rules.map((r) => ({ repo: r.layer.repo, path: r.layer.path, line: r.line })), ...(f.fact ? [{ repo, path: f.fact.path }] : [])],
 				metrics: { kind: f.kind, topic: f.topic, ...(f.policyViolation ? { policyViolation: true } : {}), values: f.rules.map((r) => ({ value: r.value, strength: r.strength, layer: r.layer.name, kind: r.layer.kind, rank: r.layer.rank, path: r.layer.path, line: r.line, text: r.text })), ...(f.fact ? { configValue: f.fact.value } : {}) },
 			}));
+			// Instruction files and skills meant to be copies that no longer match their source.
+			for (const g of drift) {
+				const [lead] = g.files;
+				insights.push({
+					provider: "instruction-stack",
+					severity: "warn",
+					scope: { repo, ref, path: lead.source },
+					title: `drift: copies of ${g.unit}`,
+					detail: describeDrift(g),
+					evidence: [{ repo, path: lead.source, ...(lead.onlyInSource ? { line: lead.onlyInSource.line } : {}) }, ...lead.stale.map((path) => ({ repo, path, ...(lead.onlyInCopy?.path === path ? { line: lead.onlyInCopy.line } : {}) }))],
+					metrics: { kind: "drift", topic: "copies", ...g },
+				});
+			}
 			insights.unshift({
 				provider: "instruction-stack",
 				severity: errors.length ? "warn" : "info",
@@ -160,7 +172,7 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 						]),
 					),
 					skippedLayers: skipped,
-					counts: Object.fromEntries([...Map.groupBy(findings, (f) => f.kind)].map(([k, fs]) => [k, fs.length])),
+					counts: { ...Object.fromEntries([...Map.groupBy(findings, (f) => f.kind)].map(([k, fs]) => [k, fs.length])), ...(drift.length ? { copyDrift: drift.length } : {}) },
 				},
 			});
 			return insights;

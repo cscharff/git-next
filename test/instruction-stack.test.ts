@@ -235,3 +235,48 @@ describe("layer dedupe", () => {
 		expect((summary.metrics as any).skippedLayers).toEqual([]);
 	});
 });
+
+describe("copy drift", () => {
+	const skill = ["# Creating plugins", "| capability | what |", "| content:read | entries |", "| media:read | media |"].join("\n");
+	const newer = skill.replace("| media:read | media |", "| media:read | media |\n| bylines:read | byline profiles |");
+	const ref = "# Hooks\n- before save\n- after save";
+	const run = (main: Record<string, string>) => instructionStackProvider().analyze({ repo: "app", ref: "main", files: new RepoContext(async () => memorySource({ main })) });
+	const drift = (out: Awaited<ReturnType<typeof run>>) => out.filter((i) => (i.metrics as any)?.topic === "copies");
+
+	it("reports copies of a skill that missed a change to its source, one insight per skill", async () => {
+		const main: Record<string, string> = { "AGENTS.md": "- Use pnpm.", "skills/plugins/SKILL.md": newer, "skills/plugins/references/hooks.md": `${ref}\n- after delete` };
+		for (const t of ["a", "b", "c"]) {
+			main[`templates/${t}/.agents/skills/plugins/SKILL.md`] = skill;
+			main[`templates/${t}/.agents/skills/plugins/references/hooks.md`] = ref;
+		}
+		const [d, ...rest] = drift(await run(main));
+		expect(rest).toEqual([]);
+		expect(d.severity).toBe("warn");
+		expect(d.title).toBe("drift: copies of skills/plugins");
+		expect(d.metrics).toMatchObject({ kind: "drift", basis: "source", source: "skills/plugins", staleCopies: ["templates/a/.agents/skills/plugins", "templates/b/.agents/skills/plugins", "templates/c/.agents/skills/plugins"] });
+		expect(d.detail).toContain('skills/plugins/SKILL.md:5 has "| bylines:read | byline profiles |", which the stale copies lack');
+		expect(d.detail).toContain("2 files differ (SKILL.md, references/hooks.md)");
+		expect(d.evidence[0]).toEqual({ repo: "app", path: "skills/plugins/SKILL.md", line: 5 });
+	});
+
+	it("flags the odd copy out when most identical copies agree", async () => {
+		const agents = "# Demo\n- Run `pnpm test`.\n- Deploy with wrangler.";
+		const [d] = drift(await run({ "a/AGENTS.md": agents, "b/AGENTS.md": agents, "c/AGENTS.md": agents.replace("wrangler", "wrangler deploy --env prod") }));
+		expect(d.metrics).toMatchObject({ basis: "majority", staleCopies: ["c/AGENTS.md"] });
+		expect(d.detail).toContain("1 of 3 copies of AGENTS.md differ from the rest: c/AGENTS.md");
+		expect(d.detail).toContain('c/AGENTS.md:3 has "- Deploy with wrangler deploy --env prod." instead');
+	});
+
+	it("ignores unrelated same-named files, groups without a majority, and symlinks", async () => {
+		const out = await run({
+			"AGENTS.md": "# Root\nEverything about the monorepo.",
+			"x/AGENTS.md": "# X\nOnly about x.",
+			"y/AGENTS.md": "# Y\nOnly about y.",
+			".claude/CLAUDE.md": "../AGENTS.md",
+			"skills/s/SKILL.md": skill,
+			"t1/skills/s/SKILL.md": skill,
+			"t2/skills/s/SKILL.md": "# Something else entirely\nNo shared lines.",
+		});
+		expect(drift(out)).toEqual([]);
+	});
+});

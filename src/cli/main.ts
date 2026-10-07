@@ -7,6 +7,7 @@ import { buildContext } from "../providers/context/index.ts";
 import { costProvider, fixtureCostSource, usd } from "../providers/cost/index.ts";
 import { gatewayLogsSource, type CostSource } from "../providers/cost/logs.ts";
 import type { RollupNode } from "../providers/cost/rollup.ts";
+import { describeDrift, findCopyDrift, groupDrift } from "../providers/instruction-stack/copy-drift.ts";
 import { STACK_FILE, loadStack } from "../providers/instruction-stack/index.ts";
 import { effectiveRules, resolve, type Finding } from "../providers/instruction-stack/resolve.ts";
 import type { Rule } from "../providers/instruction-stack/types.ts";
@@ -189,7 +190,7 @@ async function rulesReport(args: ParsedArgs, io: CliIo): Promise<RulesReport> {
 	if (args.remote) return remoteRulesReport(args, io);
 	const { files, repo, ref, layersDir } = localContext(args, io);
 	const baseline = fallbackCatalog(args, io, layersDir);
-	const [stack, cat] = await Promise.all([loadStack(files, repo, ref), checkCatalog(files, repo, ref, { baseline, enforceBaseline: !!baseline })]);
+	const [stack, cat, drift] = await Promise.all([loadStack(files, repo, ref), checkCatalog(files, repo, ref, { baseline, enforceBaseline: !!baseline }), findCopyDrift(files, repo, ref)]);
 	const findings = resolve(stack.rules, stack.facts);
 	const where = loc(repo);
 	const root = gitTopLevel(io.cwd);
@@ -210,7 +211,10 @@ async function rulesReport(args: ParsedArgs, io: CliIo): Promise<RulesReport> {
 		conflicts: findings.filter((f) => f.kind === "conflict" && inScope(f)).map((f) => ({ topic: f.topic, explanation: f.explanation, evidence: ev(f) })),
 		warnings: findings
 			.filter((f) => (f.kind === "drift" || (f.policyViolation && f.kind === "overridden")) && inScope(f))
-			.map((f) => ({ topic: f.topic, kind: f.kind === "drift" ? "drift" : "policy", explanation: f.explanation, evidence: ev(f) })),
+			.map((f) => ({ topic: f.topic, kind: f.kind === "drift" ? "drift" : "policy", explanation: f.explanation, evidence: ev(f) }))
+			.concat(
+				groupDrift(drift.filter((d) => [d.source, ...d.stale].some(touched))).map((g) => ({ topic: "copies", kind: "drift", explanation: describeDrift(g), evidence: [g.source, ...g.staleCopies] })),
+			),
 		overrides: findings.filter((f) => f.kind === "overridden" && !f.policyViolation && inScope(f)).map((f) => ({ topic: f.topic, explanation: f.explanation, evidence: ev(f) })),
 		catalog: {
 			source: cat.source,
