@@ -1,0 +1,207 @@
+{
+ "_note": "MOCKED: hand-made Amazon Bedrock (prod-aws) records shaped like AI Gateway logs, tagged cloud=aws. Not read from aws; prices illustrative. Never real spend.",
+ "mocked": true,
+ "cloud": "aws",
+ "result": [
+  {
+   "id": "bedrock_0001",
+   "created_at": "2026-10-01T10:07:00Z",
+   "provider": "aws-bedrock",
+   "model": "bedrock/anthropic.claude-sonnet-5",
+   "tokens_in": 30002,
+   "tokens_out": 4762,
+   "cost": 0.16144,
+   "cached": false,
+   "success": true,
+   "mocked": true,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "review#201",
+    "cloud": "aws"
+   }
+  },
+  {
+   "id": "bedrock_0002",
+   "created_at": "2026-10-02T11:14:00Z",
+   "provider": "aws-bedrock",
+   "model": "bedrock/anthropic.claude-sonnet-5",
+   "tokens_in": 38677,
+   "tokens_out": 2632,
+   "cost": 0.15551,
+   "cached": false,
+   "success": true,
+   "mocked": true,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "review#202",
+    "cloud": "aws"
+   }
+  },
+  {
+   "id": "bedrock_0003",
+   "created_at": "2026-10-03T12:21:00Z",
+   "provider": "aws-bedrock",
+   "model": "bedrock/anthropic.claude-sonnet-5",
+   "tokens_in": 51881,
+   "tokens_out": 3598,
+   "cost": 0.20961,
+   "cached": false,
+   "success": true,
+   "mocked": true,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "review#203",
+    "cloud": "aws"
+   }
+  },
+  {
+   "id": "bedrock_0004",
+   "created_at": "2026-10-04T13:28:00Z",
+   "provider": "aws-bedrock",
+   "model": "bedrock/anthropic.claude-sonnet-5",
+   "tokens_in": 39879,
+   "tokens_out": 4256,
+   "cost": 0.18348,
+   "cached": false,
+   "success": true,
+   "mocked": true,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "review#204",
+    "cloud": "aws"
+   }
+  },
+  {
+   "id": "bedrock_0005",
+   "created_at": "2026-10-05T14:35:00Z",
+   "provider": "aws-bedrock",
+   "model": "bedrock/anthropic.claude-sonnet-5",
+   "tokens_in": 52652,
+   "tokens_out": 3629,
+   "cost": 0.21239,
+   "cached": false,
+   "success": true,
+   "mocked": true,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "review#205",
+    "cloud": "aws"
+   }
+  },
+  {
+   "id": "bedrock_0006",
+   "created_at": "2026-10-06T15:42:00Z",
+   "provider": "aws-bedrock",
+   "model": "bedrock/anthropic.claude-sonnet-5",
+   "tokens_in": 50535,
+   "tokens_out": 3908,
+   "cost": 0.21023,
+   "cached": false,
+   "success": true,
+   "mocked": true,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "review#206",
+    "cloud": "aws"
+   }
+  },
+  {
+   "id": "bedrock_0007",
+   "created_at": "2026-10-01T16:49:00Z",
+   "provider": "aws-bedrock",
+   "model": "bedrock/anthropic.claude-haiku-4.5",
+   "tokens_in": 8084,
+   "tokens_out": 742,
+   "cost": 0.01179,
+   "cached": false,
+   "success": true,
+   "mocked": true,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "chat#207",
+    "cloud": "aws"
+   }
+  },
+  {
+   "id": "bedrock_0008",
+   "created_at": "2026-10-02T09:56:00Z",
+   "provider": "aws-bedrock",
+   "model": "bedrock/anthropic.claude-haiku-4.5",
+   "tokens_in": 5871,
+   "tokens_out": 1208,
+   "cost": 0.01191,
+   "cached": false,
+   "success": true,
+   "mocked": true,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "chat#208",
+    "cloud": "aws"
+   }
+  },
+  {
+   "id": "bedrock_0009",
+   "created_at": "2026-10-03T10:03:00Z",
+   "provider": "aws-bedrock",
+   "model": "bedrock/anthropic.claude-haiku-4.5",
+   "tokens_in": 7490,
+   "tokens_out": 554,
+   "cost": 0.01026,
+   "cached": false,
+   "success": true,
+   "mocked": true,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "chat#209",
+    "cloud": "aws"
+   }
+  },
+  {
+   "id": "bedrock_0010",
+   "created_at": "2026-10-04T11:10:00Z",
+   "provider": "aws-bedrock",
+   "model": "bedrock/anthropic.claude-haiku-4.5",
+   "tokens_in": 7420,
+   "tokens_out": 968,
+   "cost": 0.01226,
+   "cached": false,
+   "success": true,
+   "mocked": true,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "chat#210",
+    "cloud": "aws"
+   }
+  }
+ ]
+}

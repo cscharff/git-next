@@ -1,0 +1,1952 @@
+{
+  "offline": true,
+  "note": "Built from a local clone of emdash-cms/emdash at d4efb97 (git objects at HEAD), no demo layers, org baseline catalog pinned, keyword extractor.",
+  "results": [
+    {
+      "repo": "emdash-demo",
+      "ref": "main",
+      "task": "Add a new storage adapter for media uploads",
+      "paths": [
+        "packages/core/src/storage/index.ts",
+        "packages/core/src/storage/types.ts"
+      ],
+      "budgetTokens": 4000,
+      "retriever": "bm25",
+      "pinned": {
+        "musts": [],
+        "catalog": "Org catalog 2026.10.5 (owner @acme/platform).\nAI only via gateway \"git-next\": env.AI.run(model, input, { gateway: { id: \"git-next\", metadata: { developer, repo, fork, agent, task } } }).\nApproved models: anthropic/claude-fable-5.1 (planning), anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).\nApproved binding types: r2_buckets [acme-*], kv_namespaces [acme-*], d1_databases [acme-*], durable_objects, queues [acme-*], workflows, ai, services, artifacts, worker_loaders, images, assets, analytics_engine_datasets.\nShared resources: UPLOADS → acme-shared-uploads.\nRequired checks: git next rules, pnpm test, security-scan.\nSecrets: never inline; use wrangler secret put or .dev.vars.",
+        "relevant": [
+          "r2_buckets: approved; names must match acme-*; owner @acme/storage",
+          "  shared r2_buckets: UPLOADS → acme-shared-uploads; \"r2_buckets\": [{ \"binding\": \"UPLOADS\", \"bucket_name\": \"acme-shared-uploads\" }]  // keys: <repo>/<yyyy>/<mm>/<uuid>"
+        ]
+      },
+      "rules": [
+        {
+          "topic": "changesetPolicy",
+          "value": "required",
+          "strength": "must",
+          "layer": "root",
+          "kind": "project",
+          "source": "emdash-demo/AGENTS.md:11",
+          "appliesTo": [
+            "packages/core/src/storage"
+          ]
+        },
+        {
+          "topic": "formatter",
+          "value": "oxfmt",
+          "strength": "should",
+          "layer": "root",
+          "kind": "project",
+          "source": "emdash-demo/AGENTS.md:416",
+          "appliesTo": [
+            "packages/core/src/storage"
+          ]
+        },
+        {
+          "topic": "indentation",
+          "value": "tabs",
+          "strength": "should",
+          "layer": "root",
+          "kind": "project",
+          "source": "emdash-demo/AGENTS.md:416",
+          "appliesTo": [
+            "packages/core/src/storage"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "sections": [
+        {
+          "id": "AGENTS.md#rules-architecture",
+          "path": "AGENTS.md",
+          "headings": [
+            "Rules",
+            "Architecture"
+          ],
+          "startLine": 56,
+          "tokens": 470,
+          "score": 21.034,
+          "text": "## Architecture\n\nEmDash is an Astro-native CMS that deploys to Cloudflare Workers or Node.js. The database is SQLite, libSQL, or PostgreSQL on Node.js, and D1 or PostgreSQL via Hyperdrive on Workers. Media storage is an R2 binding on Workers, and S3-compatible storage or the local filesystem on Node.js.\n\n- **Schema in the database.** `_emdash_collections` and `_emdash_fields` are the source of truth. Each collection gets a real SQL table (`ec_posts`, `ec_products`) with typed columns -- not EAV.\n- **Middleware chain:** runtime init -> setup check -> auth -> request context (ALS). Auth middleware checks authentication only; routes check authorization.\n- **Handler layer** (`packages/core/src/api/handlers/*.ts`) holds business logic and returns `ApiResult<T>` (`{ success: true, data } | { success: false, error: { code, message, details? } }`). Route files are thin wrappers.\n- **Storage abstraction:** `Storage` interface with `upload/download/delete/exists/list/getSignedUploadUrl/getPublicUrl`. `LocalStorage` for a local directory, `S3Storage` for S3-compatible services (including R2's S3 API), `R2Storage` (in `@emdash-cms/cloudflare`) for R2 bindings. Access via `emdash.storage` from locals.\n\nKey files:\n\n| File                                              | Purpose                                               |\n| ------------------------------------------------- | ----------------------------------------------------- |\n| `packages/core/src/emdash-runtime.ts`             | Central runtime; orchestrates DB, plugins, storage    |\n| `packages/core/src/schema/registry.ts`            | Manages `ec_*` table creation/modification            |\n| `packages/core/src/database/migrations/runner.ts` | StaticMigrationProvider; register new migrations here |\n| `packages/core/src/plugins/manager.ts`            | Loads and orchestrates plugins                        |"
+        },
+        {
+          "id": "docs/src/content/docs/reference/configuration.mdx#storage-adapters-local-config",
+          "path": "docs/src/content/docs/reference/configuration.mdx",
+          "headings": [
+            "Storage adapters",
+            "`local(config)`"
+          ],
+          "startLine": 855,
+          "tokens": 105,
+          "score": 18.162,
+          "text": "### `local(config)`\n\nLocal filesystem storage. The following example serves uploads from a local directory:\n\n| Option      | Type     | Description                |\n| ----------- | -------- | -------------------------- |\n| `directory` | `string` | Directory path             |\n| `baseUrl`   | `string` | Base URL for serving files |\n\n```js\nlocal({\n\tdirectory: \"./uploads\",\n\tbaseUrl: \"/_emdash/api/media/file\",\n});\n```"
+        },
+        {
+          "id": "docs/src/content/docs/contributing/architecture.mdx#admin-panel-internals-signed-uploads",
+          "path": "docs/src/content/docs/contributing/architecture.mdx",
+          "headings": [
+            "Admin panel internals",
+            "Signed uploads"
+          ],
+          "startLine": 259,
+          "tokens": 164,
+          "score": 17.179,
+          "text": "### Signed uploads\n\nMedia uploads use direct-to-storage signed URLs when the storage adapter supports them and a same-origin streaming endpoint otherwise:\n\n<Steps>\n\n1. The client requests an upload target from `POST /_emdash/api/media/upload-url`. EmDash creates a pending media item.\n2. The client uploads to the returned target. S3-compatible adapters can return a signed URL that bypasses application body-size limits; native R2 bindings and local storage return an EmDash streaming endpoint.\n3. The client confirms the upload with `POST /_emdash/api/media/:id/confirm`.\n4. EmDash validates the stored file and marks the media item as ready.\n\n</Steps>"
+        },
+        {
+          "id": "docs/src/content/docs/concepts/admin-panel.mdx#media",
+          "path": "docs/src/content/docs/concepts/admin-panel.mdx",
+          "headings": [
+            "Media"
+          ],
+          "startLine": 81,
+          "tokens": 154,
+          "score": 17.007,
+          "text": "## Media\n\nThe media library can show files in a grid or list, search and filter them, display metadata, and\nperform multi-item actions. Upload behavior depends on the configured storage adapter. When the\nadapter supports signed uploads, the browser sends the file to storage using a short-lived signed\nURL and then confirms the completed upload with EmDash.\n\nDeleting a media item can affect entries that refer to it. Use the media usage information and\nreplacement tools before removing an asset used on public pages. See [Media library](/guides/media-library/)\nfor the upload, replacement, and deletion workflows."
+        },
+        {
+          "id": "docs/src/content/docs/themes/seed-files.mdx#media-references",
+          "path": "docs/src/content/docs/themes/seed-files.mdx",
+          "headings": [
+            "Media references"
+          ],
+          "startLine": 448,
+          "tokens": 289,
+          "score": 16.569,
+          "text": "## Media references\n\nUse `$media` in content data to download a URL, upload it with the supplied storage adapter, create a media row, and replace the object with a media field value:\n\n```json title=\"seed/seed.json\"\n{\n  \"featured_image\": {\n    \"$media\": {\n      \"url\": \"https://example.com/images/launch.jpg\",\n      \"filename\": \"launch.jpg\",\n      \"alt\": \"A product launch on stage\",\n      \"caption\": \"Launch event\"\n    }\n  }\n}\n```\n\nIn a Portable Text `image` block or a `gallery` image, `$media` in `asset` becomes a media reference (`_type: \"reference\"`, `_ref`, `url`, `provider`), and the media's alt text and dimensions fill the image's own `alt`, `width`, and `height` when they are missing.\n\nWithin one apply call, repeated references to the same URL reuse the resolved media value. Seed media references do not accept a local `file` property. `mediaBasePath` remains in the public `SeedApplyOptions` type but the current apply engine does not read it.\n\nWhen no storage adapter is supplied, `$media` references are skipped and resolve to `null`. With `skipMediaDownload: true`, they become external media values and no storage adapter is required."
+        },
+        {
+          "id": "docs/src/content/docs/reference/configuration.mdx#integration-options-storage",
+          "path": "docs/src/content/docs/reference/configuration.mdx",
+          "headings": [
+            "Integration options",
+            "`storage`"
+          ],
+          "startLine": 71,
+          "tokens": 241,
+          "score": 15.617,
+          "text": "### `storage`\n\n**Optional.** Media storage adapter configuration. EmDash stores files in `./.emdash/uploads` and serves them through `/_emdash/api/media/file` when this option is omitted. Choose an adapter when the default local directory is not suitable:\n\n```js\n// Local filesystem (development)\nstorage: local({\n\tdirectory: \"./uploads\",\n\tbaseUrl: \"/_emdash/api/media/file\",\n});\n\n// R2 binding (Cloudflare Workers)\nstorage: r2({\n\tbinding: \"MEDIA\",\n\tpublicUrl: \"https://pub-xxxx.r2.dev\", // optional\n});\n\n// S3-compatible (any platform) — all fields from S3_* environment variables\nstorage: s3()\n\n// Or with explicit values\nstorage: s3({\n\tendpoint: \"https://s3.amazonaws.com\",\n\tbucket: \"my-bucket\",\n\taccessKeyId: process.env.S3_ACCESS_KEY_ID,\n\tsecretAccessKey: process.env.S3_SECRET_ACCESS_KEY,\n\tregion: \"us-east-1\", // optional, default: \"auto\"\n\tpublicUrl: \"https://cdn.example.com\", // optional\n});\n```\n\nSee [Storage Options](/deployment/storage/) for details."
+        },
+        {
+          "id": "docs/src/content/docs/deployment/storage.mdx#cloudflare-r2-binding-public-access",
+          "path": "docs/src/content/docs/deployment/storage.mdx",
+          "headings": [
+            "Cloudflare R2 binding",
+            "Public access"
+          ],
+          "startLine": 68,
+          "tokens": 209,
+          "score": 15.41,
+          "text": "### Public access\n\nTo serve media from a public bucket, connect a [custom domain](https://developers.cloudflare.com/r2/buckets/public-buckets/#custom-domains) with the Cloudflare API, then set its origin as `publicUrl`. Cloudflare's `r2.dev` development URL is rate-limited and is not intended for production traffic.\n\n```js\nstorage: r2({\n\tbinding: \"MEDIA\",\n\tpublicUrl: \"https://media.example.com\",\n});\n```\n\nIf the same bucket stores automatic JSON backups, a public bucket origin can expose objects under `backups/`. Use a private bucket and EmDash's media route, or restrict the public origin to media objects. See [Backups](/guides/backups/#automatic-backups-to-storage).\n\n<Aside type=\"note\">\n\tR2 bindings do not support signed upload URLs. If you need direct client uploads, use the S3\n\tadapter with R2 credentials instead.\n</Aside>"
+        },
+        {
+          "id": "packages/core/README.md#emdash-features",
+          "path": "packages/core/README.md",
+          "headings": [
+            "emdash",
+            "Features"
+          ],
+          "startLine": 11,
+          "tokens": 141,
+          "score": 15.201,
+          "text": "## Features\n\n- **Content Management** - Collections, fields, Live Collections integration\n- **Media Library** - Upload via signed URLs, S3-compatible storage\n- **Full-Text Search** - FTS5 with Porter stemming, per-collection config\n- **Navigation Menus** - Hierarchical menus with URL resolution\n- **Taxonomies** - Categories, tags, custom taxonomies\n- **Widget Areas** - Content, menu, and component widgets\n- **Sections** - Reusable content blocks\n- **Plugin System** - Hooks, storage, settings, admin pages\n- **WordPress Import** - WXR, REST API, WordPress.com"
+        },
+        {
+          "id": "docs/src/content/docs/deployment/storage.mdx#s3-compatible-storage",
+          "path": "docs/src/content/docs/deployment/storage.mdx",
+          "headings": [
+            "S3-compatible storage"
+          ],
+          "startLine": 86,
+          "tokens": 259,
+          "score": 15.112,
+          "text": "## S3-compatible storage\n\nThe S3 adapter works on Node.js with Cloudflare R2's S3 API, AWS S3, MinIO, and compatible services.\n\n<Aside type=\"caution\" title=\"Install the AWS SDK first\">\n\tEmDash uses the AWS SDK at runtime for the S3 adapter but does not bundle it — core is\n\tdeliberately SDK-agnostic so R2-only and local-only deployments stay lean. Install the SDK\n\tin your project before using `s3()`:\n\n    ```sh\n    pnpm add @aws-sdk/client-s3 @aws-sdk/s3-request-presigner\n    ```\n\n    If you skip this step, `astro build` will fail with `Rollup failed to resolve import\n    \"@aws-sdk/client-s3\"`. The R2 binding adapter (`r2()`) and local adapter do not need the\n    SDK and are unaffected.\n\n</Aside>\n\nThe following configuration resolves the endpoint, bucket, credentials, region, and optional public URL from `S3_*` variables when the Node.js process starts:\n\n```js title=\"astro.config.mjs\"\nimport emdash, { s3 } from \"emdash/astro\";\n\nexport default defineConfig({\n\tintegrations: [\n\t\temdash({\n\t\t\tstorage: s3(),\n\t\t}),\n\t],\n});\n```"
+        },
+        {
+          "id": "docs/src/content/docs/coming-from/astro.mdx#configure-a-site",
+          "path": "docs/src/content/docs/coming-from/astro.mdx",
+          "headings": [
+            "Configure a site"
+          ],
+          "startLine": 52,
+          "tokens": 236,
+          "score": 15.044,
+          "text": "## Configure a site\n\nThe current Node templates configure Astro for server output, add the EmDash integration, and use the SQLite and local-storage adapters.\n\nThe following reduced configuration contains those required pieces:\n\n```js title=\"astro.config.mjs\"\nimport node from \"@astrojs/node\";\nimport react from \"@astrojs/react\";\nimport { defineConfig } from \"astro/config\";\nimport emdash, { local } from \"emdash/astro\";\nimport { sqlite } from \"emdash/db\";\n\nexport default defineConfig({\n  output: \"server\",\n  adapter: node({ mode: \"standalone\" }),\n  integrations: [\n    react(),\n    emdash({\n      database: sqlite({ url: \"file:./data.db\" }),\n      storage: local({\n        directory: \"./uploads\",\n        baseUrl: \"/_emdash/api/media/file\",\n      }),\n    }),\n  ],\n});\n```\n\nEmDash also supplies Cloudflare templates configured for D1 and R2. Start from the template for the deployment target instead of translating the Node adapters by hand."
+        },
+        {
+          "id": "docs/src/content/docs/deployment/storage.mdx#signed-uploads",
+          "path": "docs/src/content/docs/deployment/storage.mdx",
+          "headings": [
+            "Signed uploads"
+          ],
+          "startLine": 245,
+          "tokens": 122,
+          "score": 14.862,
+          "text": "## Signed uploads\n\nThe S3 adapter supports signed upload URLs, allowing clients to upload directly to storage without passing through your server. This improves performance for large files.\n\nSigned uploads are automatic when using the S3 adapter. The admin interface uses them when available.\n\nAdapters that support signed uploads:\n\n- **S3** (including R2 via S3 API)\n\nAdapters that do not support signed uploads:\n\n- **R2 binding** (use S3 adapter with R2 credentials instead)\n- **Local**"
+        },
+        {
+          "id": "skills/creating-plugins/references/media.md#media-access",
+          "path": "skills/creating-plugins/references/media.md",
+          "headings": [
+            "Media access"
+          ],
+          "startLine": 1,
+          "tokens": 409,
+          "score": 14.721,
+          "text": "# Media access\n\nKeep media authority as narrow as the plugin's behavior permits.\n\n| Capability             | Access                                                     |\n| ---------------------- | ---------------------------------------------------------- |\n| `media:read`           | Ready-media metadata and authenticated ID-based asset URLs |\n| `media:bytes:read`     | Bounded original bytes and content hashes                  |\n| `media:metadata:write` | Alt text, caption, and complete focal-point updates        |\n| `media:write`          | Upload and delete; implies `media:read`                    |\n\n`media:read` metadata includes dimensions, alt text, caption, focal point, blurhash, dominant color, and folder ID. It excludes storage keys, author identity, content hashes, and bytes. Logged-out asset requests stop at authentication before the media lookup.\n\n`ctx.media.readBytes(id, { maxBytes })` buffers from the configured storage adapter. The default limit is 10 MiB and callers cannot request more than 16 MiB. The host enforces the limit while consuming the stream rather than trusting stored size metadata.\n\n`ctx.media.updateMetadata()` changes only alt text, caption, and a complete focal-point pair. It cannot upload, replace, move, or delete the underlying file.\n\nWith `media:write`, upload bytes through the bridge:\n\n```typescript\nconst bytes = await source.arrayBuffer();\nconst uploaded = await ctx.media!.upload(\"report.pdf\", \"application/pdf\", bytes);\n```\n\nBoth sandbox runners write through the configured media adapter and create a ready record. A sandbox does not follow a presigned upload URL directly.",
+          "duplicates": 9,
+          "duplicatePaths": [
+            "templates/blank/.agents/skills/creating-plugins/references/media.md",
+            "templates/blog-cloudflare/.agents/skills/creating-plugins/references/media.md",
+            "templates/blog/.agents/skills/creating-plugins/references/media.md",
+            "templates/marketing-cloudflare/.agents/skills/creating-plugins/references/media.md",
+            "templates/marketing/.agents/skills/creating-plugins/references/media.md",
+            "templates/portfolio-cloudflare/.agents/skills/creating-plugins/references/media.md",
+            "templates/portfolio/.agents/skills/creating-plugins/references/media.md",
+            "templates/starter-cloudflare/.agents/skills/creating-plugins/references/media.md",
+            "templates/starter/.agents/skills/creating-plugins/references/media.md"
+          ]
+        },
+        {
+          "id": "docs/src/content/docs/existing-project.mdx#install-emdash",
+          "path": "docs/src/content/docs/existing-project.mdx",
+          "headings": [
+            "Install EmDash"
+          ],
+          "startLine": 28,
+          "tokens": 649,
+          "score": 14.385,
+          "text": "## Install EmDash\n\n<Steps>\n\n1. Install EmDash, the Node.js adapter, and React support:\n\n   <Tabs>\n   <TabItem label=\"npm\">\n   ```bash\n   npm install emdash @astrojs/node @astrojs/react react react-dom\n   ```\n   </TabItem>\n   <TabItem label=\"pnpm\">\n   ```bash\n   pnpm add emdash @astrojs/node @astrojs/react react react-dom\n   ```\n   </TabItem>\n   <TabItem label=\"yarn\">\n   ```bash\n   yarn add emdash @astrojs/node @astrojs/react react react-dom\n   ```\n   </TabItem>\n   </Tabs>\n\n   EmDash uses React for the admin panel even when the public site has no React components.\n\n2. Register the adapter, React, and EmDash in `astro.config.mjs`. If the file already contains other\n   integrations or settings, keep them and add the relevant entries from this example:\n\n   ```js title=\"astro.config.mjs\"\n   import node from \"@astrojs/node\";\n   import react from \"@astrojs/react\";\n   import { defineConfig } from \"astro/config\";\n   import emdash, { local } from \"emdash/astro\";\n   import { sqlite } from \"emdash/db\";\n\n   export default defineConfig({\n       output: \"server\",\n       adapter: node({ mode: \"standalone\" }),\n       integrations: [\n           react(),\n           emdash({\n               database: sqlite({ url: \"file:./data.db\" }),\n               storage: local({\n                   directory: \"./uploads\",\n                   baseUrl: \"/_emdash/api/media/file\",\n               }),\n           }),\n       ],\n   });\n   ```\n\n   SQLite stores the content and content model in `data.db`. The local storage adapter writes media\n   to `uploads/` and serves it through EmDash's media route. Add both paths to `.gitignore` if they\n   are not already excluded.\n\n3. Create `src/live.config.ts` to connect EmDash to Astro's content system:\n\n   ```ts title=\"src/live.config.ts\"\n   import { defineLiveCollection } from \"astro:content\";\n   import { emdashLoader } from \"emdash/runtime\";\n\n   export const collections = {\n       _emdash: defineLiveCollection({ loader: emdashLoader() }),\n   };\n   ```\n\n   If the project already has `src/live.config.ts`, add the `_emdash` entry to its exported\n   `collections` object instead of replacing the file. A separate `src/content.config.ts` for\n   file-based collections continues to work alongside it.\n\n4. Generate a local encryption key and write it to `.env`:\n\n   ```bash\n   npx emdash secrets generate --write .env\n   ```\n\n   Confirm that `.env` is excluded by `.gitignore`. The key protects plugin secrets stored in the\n   database. Replacing or losing it makes those encrypted values unreadable, so keep a protected\n   backup before deploying the site.\n\n</Steps>"
+        },
+        {
+          "id": "docs/src/content/docs/reference/configuration.mdx#storage-adapters-r2-config",
+          "path": "docs/src/content/docs/reference/configuration.mdx",
+          "headings": [
+            "Storage adapters",
+            "`r2(config)`"
+          ],
+          "startLine": 871,
+          "tokens": 94,
+          "score": 13.392,
+          "text": "### `r2(config)`\n\nCloudflare R2 binding. The following example uses an R2 binding with a public URL:\n\n| Option      | Type     | Description         |\n| ----------- | -------- | ------------------- |\n| `binding`   | `string` | R2 binding name     |\n| `publicUrl` | `string` | Optional public URL |\n\n```js\nr2({\n\tbinding: \"MEDIA\",\n\tpublicUrl: \"https://pub-xxxx.r2.dev\",\n});\n```"
+        }
+      ],
+      "manifest": [
+        {
+          "id": "pinned:catalog@2026.10.5",
+          "pinned": true,
+          "source": ".gitnext/catalog.json"
+        },
+        {
+          "id": "AGENTS.md#rules-architecture",
+          "pinned": false,
+          "source": "AGENTS.md:56"
+        },
+        {
+          "id": "docs/src/content/docs/reference/configuration.mdx#storage-adapters-local-config",
+          "pinned": false,
+          "source": "docs/src/content/docs/reference/configuration.mdx:855"
+        },
+        {
+          "id": "docs/src/content/docs/contributing/architecture.mdx#admin-panel-internals-signed-uploads",
+          "pinned": false,
+          "source": "docs/src/content/docs/contributing/architecture.mdx:259"
+        },
+        {
+          "id": "docs/src/content/docs/concepts/admin-panel.mdx#media",
+          "pinned": false,
+          "source": "docs/src/content/docs/concepts/admin-panel.mdx:81"
+        },
+        {
+          "id": "docs/src/content/docs/themes/seed-files.mdx#media-references",
+          "pinned": false,
+          "source": "docs/src/content/docs/themes/seed-files.mdx:448"
+        },
+        {
+          "id": "docs/src/content/docs/reference/configuration.mdx#integration-options-storage",
+          "pinned": false,
+          "source": "docs/src/content/docs/reference/configuration.mdx:71"
+        },
+        {
+          "id": "docs/src/content/docs/deployment/storage.mdx#cloudflare-r2-binding-public-access",
+          "pinned": false,
+          "source": "docs/src/content/docs/deployment/storage.mdx:68"
+        },
+        {
+          "id": "packages/core/README.md#emdash-features",
+          "pinned": false,
+          "source": "packages/core/README.md:11"
+        },
+        {
+          "id": "docs/src/content/docs/deployment/storage.mdx#s3-compatible-storage",
+          "pinned": false,
+          "source": "docs/src/content/docs/deployment/storage.mdx:86"
+        },
+        {
+          "id": "docs/src/content/docs/coming-from/astro.mdx#configure-a-site",
+          "pinned": false,
+          "source": "docs/src/content/docs/coming-from/astro.mdx:52"
+        },
+        {
+          "id": "docs/src/content/docs/deployment/storage.mdx#signed-uploads",
+          "pinned": false,
+          "source": "docs/src/content/docs/deployment/storage.mdx:245"
+        },
+        {
+          "id": "skills/creating-plugins/references/media.md#media-access",
+          "pinned": false,
+          "source": "skills/creating-plugins/references/media.md:1",
+          "duplicates": 9,
+          "duplicatePaths": [
+            "templates/blank/.agents/skills/creating-plugins/references/media.md",
+            "templates/blog-cloudflare/.agents/skills/creating-plugins/references/media.md",
+            "templates/blog/.agents/skills/creating-plugins/references/media.md",
+            "templates/marketing-cloudflare/.agents/skills/creating-plugins/references/media.md",
+            "templates/marketing/.agents/skills/creating-plugins/references/media.md",
+            "templates/portfolio-cloudflare/.agents/skills/creating-plugins/references/media.md",
+            "templates/portfolio/.agents/skills/creating-plugins/references/media.md",
+            "templates/starter-cloudflare/.agents/skills/creating-plugins/references/media.md",
+            "templates/starter/.agents/skills/creating-plugins/references/media.md"
+          ]
+        },
+        {
+          "id": "docs/src/content/docs/existing-project.mdx#install-emdash",
+          "pinned": false,
+          "source": "docs/src/content/docs/existing-project.mdx:28"
+        },
+        {
+          "id": "docs/src/content/docs/reference/configuration.mdx#storage-adapters-r2-config",
+          "pinned": false,
+          "source": "docs/src/content/docs/reference/configuration.mdx:871"
+        }
+      ],
+      "omitted": {
+        "count": 1369,
+        "oversized": 8,
+        "tokens": 392697,
+        "unmatchedSections": 1230,
+        "top": [
+          {
+            "id": "docs/src/content/docs/reference/rest-api.mdx#media-endpoints-upload-target-flow",
+            "path": "docs/src/content/docs/reference/rest-api.mdx",
+            "title": "Upload target flow",
+            "tokens": 442,
+            "score": 14.279,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/concepts/architecture.mdx#what-astro-configures",
+            "path": "docs/src/content/docs/concepts/architecture.mdx",
+            "title": "What Astro configures",
+            "tokens": 342,
+            "score": 14.235,
+            "reason": "budget"
+          },
+          {
+            "id": "packages/core/README.md#emdash-quick-start",
+            "path": "packages/core/README.md",
+            "title": "Quick Start",
+            "tokens": 158,
+            "score": 14.197,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/reference/rest-api.mdx#media-endpoints-direct-multipart-upload",
+            "path": "docs/src/content/docs/reference/rest-api.mdx",
+            "title": "Direct multipart upload",
+            "tokens": 264,
+            "score": 13.285,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/storage.mdx#s3-compatible-storage-r2-via-s3-api",
+            "path": "docs/src/content/docs/deployment/storage.mdx",
+            "title": "R2 via S3 API",
+            "tokens": 153,
+            "score": 13.25,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/guides/ai-tools.mdx#work-with-site-content-media",
+            "path": "docs/src/content/docs/guides/ai-tools.mdx",
+            "title": "Media",
+            "tokens": 256,
+            "score": 12.73,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/storage.mdx#local-filesystem-configuration",
+            "path": "docs/src/content/docs/deployment/storage.mdx",
+            "title": "Configuration",
+            "tokens": 140,
+            "score": 12.629,
+            "reason": "budget"
+          },
+          {
+            "id": "skills/building-emdash-site/SKILL.md#building-an-emdash-site-plugins",
+            "path": "skills/building-emdash-site/SKILL.md",
+            "title": "Plugins",
+            "tokens": 247,
+            "score": 12.619,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/reference/configuration.mdx#integration-options-mediaproviders",
+            "path": "docs/src/content/docs/reference/configuration.mdx",
+            "title": "`mediaProviders`",
+            "tokens": 218,
+            "score": 12.556,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/guides/site-transfer.mdx#prepare-the-target-site",
+            "path": "docs/src/content/docs/guides/site-transfer.mdx",
+            "title": "Prepare the target site",
+            "tokens": 513,
+            "score": 12.547,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/guides/media-library.mdx#configure-storage-and-providers",
+            "path": "docs/src/content/docs/guides/media-library.mdx",
+            "title": "Configure storage and providers",
+            "tokens": 192,
+            "score": 12.488,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/storage.mdx#intro",
+            "path": "docs/src/content/docs/deployment/storage.mdx",
+            "title": "storage.mdx",
+            "tokens": 88,
+            "score": 12.484,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/reference/rest-api.mdx#media-endpoints-upload-errors",
+            "path": "docs/src/content/docs/reference/rest-api.mdx",
+            "title": "Upload errors",
+            "tokens": 263,
+            "score": 12.247,
+            "reason": "budget"
+          },
+          {
+            "id": "skills/creating-plugins/references/hooks.md#hooks-media-hooks-media-beforeupload",
+            "path": "skills/creating-plugins/references/hooks.md",
+            "title": "`media:beforeUpload`",
+            "tokens": 136,
+            "score": 12.216,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/reference/configuration.mdx#storage-adapters-s3-config",
+            "path": "docs/src/content/docs/reference/configuration.mdx",
+            "title": "`s3(config?)`",
+            "tokens": 569,
+            "score": 12.208,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/migration/from-wordpress.mdx#before-you-begin",
+            "path": "docs/src/content/docs/migration/from-wordpress.mdx",
+            "title": "Before you begin",
+            "tokens": 141,
+            "score": 12.167,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/guides/working-with-content.mdx#write-rich-text-add-a-video",
+            "path": "docs/src/content/docs/guides/working-with-content.mdx",
+            "title": "Add a video",
+            "tokens": 191,
+            "score": 12.003,
+            "reason": "budget"
+          },
+          {
+            "id": "packages/plugins/marketplace-test/README.md#marketplace-test-plugin-deliberate-exclusions",
+            "path": "packages/plugins/marketplace-test/README.md",
+            "title": "Deliberate exclusions",
+            "tokens": 482,
+            "score": 11.984,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/nodejs.mdx#configure-the-site",
+            "path": "docs/src/content/docs/deployment/nodejs.mdx",
+            "title": "Configure the site",
+            "tokens": 138,
+            "score": 11.923,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/existing-project.mdx#intro",
+            "path": "docs/src/content/docs/existing-project.mdx",
+            "title": "existing-project.mdx",
+            "tokens": 106,
+            "score": 11.917,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/updating.mdx#deploy-and-verify",
+            "path": "docs/src/content/docs/deployment/updating.mdx",
+            "title": "Deploy and verify",
+            "tokens": 247,
+            "score": 11.866,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/themes/seed-files.mdx#apply-a-seed-programmatically-seedapplyoptions",
+            "path": "docs/src/content/docs/themes/seed-files.mdx",
+            "title": "`SeedApplyOptions`",
+            "tokens": 183,
+            "score": 11.829,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/guides/working-with-content.mdx#write-rich-text",
+            "path": "docs/src/content/docs/guides/working-with-content.mdx",
+            "title": "Write rich text",
+            "tokens": 401,
+            "score": 11.429,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/guides/backups.mdx#back-up-and-restore-media-objects",
+            "path": "docs/src/content/docs/guides/backups.mdx",
+            "title": "Back up and restore media objects",
+            "tokens": 360,
+            "score": 11.407,
+            "reason": "budget"
+          },
+          {
+            "id": "AGENTS.md#code-patterns-migrations",
+            "path": "AGENTS.md",
+            "title": "Migrations",
+            "tokens": 478,
+            "score": 11.388,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/storage.mdx#storage-interface-byte-ranges",
+            "path": "docs/src/content/docs/deployment/storage.mdx",
+            "title": "Byte ranges",
+            "tokens": 268,
+            "score": 11.334,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/storage.mdx#storage-interface",
+            "path": "docs/src/content/docs/deployment/storage.mdx",
+            "title": "Storage interface",
+            "tokens": 163,
+            "score": 11.18,
+            "reason": "budget"
+          },
+          {
+            "id": ".changeset/fix-cloudflare-sandbox-media-storage.md#intro",
+            "path": ".changeset/fix-cloudflare-sandbox-media-storage.md",
+            "title": "fix-cloudflare-sandbox-media-storage.md",
+            "tokens": 125,
+            "score": 11.179,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/guides/widgets.mdx#add-a-widget-area",
+            "path": "docs/src/content/docs/guides/widgets.mdx",
+            "title": "Add a widget area",
+            "tokens": 382,
+            "score": 11.135,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/guides/media-library.mdx#upload-files-upload-while-editing-content",
+            "path": "docs/src/content/docs/guides/media-library.mdx",
+            "title": "Upload while editing content",
+            "tokens": 126,
+            "score": 11.022,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx#change-publication-state-uploading-media",
+            "path": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx",
+            "title": "Uploading media",
+            "tokens": 220,
+            "score": 10.926,
+            "reason": "budget"
+          },
+          {
+            "id": "skills/building-emdash-site/references/configuration.md#configuration-astro-config-mjs-node-js-local-development-self-hosted",
+            "path": "skills/building-emdash-site/references/configuration.md",
+            "title": "Node.js (local development / self-hosted)",
+            "tokens": 162,
+            "score": 10.892,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/migration/from-wordpress.mdx#import-through-the-admin",
+            "path": "docs/src/content/docs/migration/from-wordpress.mdx",
+            "title": "Import through the admin",
+            "tokens": 260,
+            "score": 10.88,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/guides/media-library.mdx#upload-files-upload-from-the-library",
+            "path": "docs/src/content/docs/guides/media-library.mdx",
+            "title": "Upload from the library",
+            "tokens": 182,
+            "score": 10.776,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/storage.mdx#use-separate-storage-for-separate-environments",
+            "path": "docs/src/content/docs/deployment/storage.mdx",
+            "title": "Use separate storage for separate environments",
+            "tokens": 128,
+            "score": 10.747,
+            "reason": "budget"
+          },
+          {
+            "id": "TEMPLATES.md#emdash-templates-contributing-adding-a-new-template",
+            "path": "TEMPLATES.md",
+            "title": "Adding a New Template",
+            "tokens": 132,
+            "score": 10.565,
+            "reason": "budget"
+          },
+          {
+            "id": "AGENTS.md#testing",
+            "path": "AGENTS.md",
+            "title": "Testing",
+            "tokens": 694,
+            "score": 10.55,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/cloudflare.mdx#preview-deployments-named-environments",
+            "path": "docs/src/content/docs/deployment/cloudflare.mdx",
+            "title": "Named environments",
+            "tokens": 366,
+            "score": 10.529,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/database.mdx#intro",
+            "path": "docs/src/content/docs/deployment/database.mdx",
+            "title": "database.mdx",
+            "tokens": 101,
+            "score": 10.497,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/technical-specs/issue-2344-numbered-list-continuity.md#numbered-list-continuity-across-blocks-implementation-sequence",
+            "path": "docs/technical-specs/issue-2344-numbered-list-continuity.md",
+            "title": "Implementation sequence",
+            "tokens": 339,
+            "score": 10.476,
+            "reason": "budget"
+          }
+        ]
+      },
+      "stats": {
+        "markdownFiles": 410,
+        "sections": 2613,
+        "duplicateSections": 2481,
+        "duplicateTokens": 400878,
+        "rulesTokens": 452,
+        "pinnedTokens": 317,
+        "sectionTokens": 3542,
+        "tokensServed": 3994,
+        "tokensAllMarkdown": 985327,
+        "tokensInstructionFilesOnPath": 7551,
+        "servedVsAllMarkdown": 0.004,
+        "servedVsInstructionFilesOnPath": 0.529
+      },
+      "errors": []
+    },
+    {
+      "repo": "emdash-demo",
+      "ref": "main",
+      "task": "Build a plugin that adds a reading-time field to posts",
+      "paths": [
+        "packages/plugins/reading-time/src/index.ts"
+      ],
+      "budgetTokens": 4000,
+      "retriever": "bm25",
+      "pinned": {
+        "musts": [],
+        "catalog": "Org catalog 2026.10.5 (owner @acme/platform).\nAI only via gateway \"git-next\": env.AI.run(model, input, { gateway: { id: \"git-next\", metadata: { developer, repo, fork, agent, task } } }).\nApproved models: anthropic/claude-fable-5.1 (planning), anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).\nApproved binding types: r2_buckets [acme-*], kv_namespaces [acme-*], d1_databases [acme-*], durable_objects, queues [acme-*], workflows, ai, services, artifacts, worker_loaders, images, assets, analytics_engine_datasets.\nShared resources: UPLOADS → acme-shared-uploads.\nRequired checks: git next rules, pnpm test, security-scan.\nSecrets: never inline; use wrangler secret put or .dev.vars.",
+        "relevant": [
+          "worker_loaders: approved; owner @acme/security"
+        ]
+      },
+      "rules": [
+        {
+          "topic": "changesetPolicy",
+          "value": "required",
+          "strength": "must",
+          "layer": "root",
+          "kind": "project",
+          "source": "emdash-demo/AGENTS.md:11",
+          "appliesTo": [
+            "packages/plugins/reading-time/src"
+          ]
+        },
+        {
+          "topic": "formatter",
+          "value": "oxfmt",
+          "strength": "should",
+          "layer": "root",
+          "kind": "project",
+          "source": "emdash-demo/AGENTS.md:416",
+          "appliesTo": [
+            "packages/plugins/reading-time/src"
+          ]
+        },
+        {
+          "topic": "indentation",
+          "value": "tabs",
+          "strength": "should",
+          "layer": "root",
+          "kind": "project",
+          "source": "emdash-demo/AGENTS.md:416",
+          "appliesTo": [
+            "packages/plugins/reading-time/src"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "sections": [
+        {
+          "id": "docs/src/content/docs/guides/create-a-blog.mdx#understand-the-content-model",
+          "path": "docs/src/content/docs/guides/create-a-blog.mdx",
+          "headings": [
+            "Understand the content model"
+          ],
+          "startLine": 49,
+          "tokens": 239,
+          "score": 12.72,
+          "text": "## Understand the content model\n\nThe template defines two collections in `seed/seed.json`:\n\n- `posts` enables drafts, revisions, search, and SEO through `supports`, and enables comments\n  separately with `commentsEnabled: true`;\n- `pages` supports drafts, revisions, and search.\n\nEach post has these custom fields:\n\n| Field | Purpose |\n| --- | --- |\n| `title` | Required post title |\n| `featured_image` | Optional image displayed with the post |\n| `content` | Portable Text body |\n| `excerpt` | Short text used in post lists and metadata fallbacks |\n\nEmDash adds system fields such as the stable content ID, slug, status, creation and update times,\nand publication time. The template also defines `category` and `tag` taxonomies for posts, plus\nbylines that can credit one or more authors.\n\nThe dev server generates `emdash-env.d.ts` from this schema. As a result,\n`getEmDashCollection(\"posts\")` returns entries whose `data` property is typed as `Post`."
+        },
+        {
+          "id": "docs/src/content/docs/plugins/creating-plugins/settings.mdx#default-values-and-upgrades",
+          "path": "docs/src/content/docs/plugins/creating-plugins/settings.mdx",
+          "headings": [
+            "Default values and upgrades"
+          ],
+          "startLine": 203,
+          "tokens": 184,
+          "score": 12.317,
+          "text": "## Default values and upgrades\n\nApply defaults when reading a key so existing installations receive a new setting without a migration:\n\n```typescript\nconst enabled = (await ctx.settings.get<boolean>(\"enabled\")) ?? true;\nconst maxItems = (await ctx.settings.get<number>(\"maxItems\")) ?? 100;\n```\n\nYou can persist initial values during installation:\n\n```typescript\nhooks: {\n\t\"plugin:install\": async (_event, ctx) => {\n\t\tawait ctx.settings.set(\"enabled\", true);\n\t\tawait ctx.settings.set(\"maxItems\", 100);\n\t},\n},\n```\n\n`plugin:install` runs only for a new installation. When a later release adds a setting, existing sites do not run it again. Keep the read-time fallback, or initialize the missing key idempotently during `plugin:activate`."
+        },
+        {
+          "id": "TEMPLATES.md#emdash-templates-available-templates-blog",
+          "path": "TEMPLATES.md",
+          "headings": [
+            "EmDash Templates",
+            "Available Templates",
+            "Blog"
+          ],
+          "startLine": 7,
+          "tokens": 97,
+          "score": 11.667,
+          "text": "### Blog\n\nA clean, minimal blog with posts, pages, categories, tags, and search.\n\n**Features:**\n\n- Featured post hero on homepage\n- Post grid with reading time estimates\n- Category and tag archives\n- Full-text search\n- RSS feed\n- SEO metadata and JSON-LD\n- Dark/light mode\n\n**Pages:** Homepage, post archive, single post, single page, category archive, tag archive, search results, 404"
+        },
+        {
+          "id": "docs/src/content/docs/coming-from/astro.mdx#what-emdash-adds",
+          "path": "docs/src/content/docs/coming-from/astro.mdx",
+          "headings": [
+            "What EmDash adds"
+          ],
+          "startLine": 10,
+          "tokens": 201,
+          "score": 11.449,
+          "text": "## What EmDash adds\n\n| Feature | What it provides |\n| --- | --- |\n| Admin | Browser-based collection, media, menu, taxonomy, and settings management at `/_emdash/admin` |\n| Database collections | Editor-managed content queried at request time |\n| Media library | Stored images and files with media field values for templates |\n| Drafts, revisions, and previews | Editorial work before publication |\n| Menus and widget areas | Ordered, editable site regions outside entry fields |\n| Site settings | Shared identity and display values such as title, tagline, logo, and pagination size |\n| Plugins | Hooks, routes, storage, and optional admin extensions |\n\nThese features live alongside Astro rather than replacing it. Astro still controls routing, layouts, rendering, styles, and the deployment adapter."
+        },
+        {
+          "id": "docs/src/content/docs/migration/from-wordpress.mdx#conversion-behavior-collections-and-fields",
+          "path": "docs/src/content/docs/migration/from-wordpress.mdx",
+          "headings": [
+            "Conversion behavior",
+            "Collections and fields"
+          ],
+          "startLine": 82,
+          "tokens": 113,
+          "score": 10.575,
+          "text": "### Collections and fields\n\nThe default post-type mappings include `post` to `posts` and `page` to `pages`. Custom post types use a sanitized collection slug. The prepare step adds the standard title, Portable Text content, excerpt, and featured-image fields that the analysis requires.\n\nExisting fields with compatible types are reused. A type mismatch blocks that collection mapping; the importer does not coerce an existing field to another type."
+        },
+        {
+          "id": "docs/src/content/docs/plugins/creating-plugins/storage.mdx#adding-indexes",
+          "path": "docs/src/content/docs/plugins/creating-plugins/storage.mdx",
+          "headings": [
+            "Adding indexes"
+          ],
+          "startLine": 416,
+          "tokens": 157,
+          "score": 10.34,
+          "text": "## Adding indexes\n\nWhen a plugin update adds an index, EmDash creates it the next time the plugin loads. A unique index cannot be created while existing records contain duplicate values, so check and resolve duplicates before releasing that change.\n\nWhen an update removes an index, EmDash drops it. Any query or ordering that still uses the field then fails validation. Update the code and manifest together.\n\nIndexes are part of the manifest's storage trust contract. Bump the plugin version whenever you add, remove, or change one, and use a major version when the change breaks an existing query or uniqueness assumption."
+        },
+        {
+          "id": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx#bundle-time-validation",
+          "path": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx",
+          "headings": [
+            "Bundle-time validation"
+          ],
+          "startLine": 283,
+          "tokens": 183,
+          "score": 10.322,
+          "text": "## Bundle-time validation\n\n`emdash-plugin bundle` and `emdash-plugin publish` perform additional checks:\n\n- Every declared capability must be in the recognised set (typos fail the build).\n- `network:request` requires a non-empty `allowedHosts`; `network:request:unrestricted` requires it to be empty. See [Capabilities and hosts](/plugins/creating-plugins/manifest/#capabilities-and-hosts).\n- The bundled `backend.js` can't import Node.js built-ins (`fs`, `path`, `child_process`, etc.) — sandbox runtimes don't provide them.\n\nSee [the manifest reference](/plugins/creating-plugins/manifest/#trust-contract) for the authoring fields and [Bundling and publishing](/plugins/creating-plugins/publishing/#validation) for bundle checks."
+        },
+        {
+          "id": "AGENTS.md#conventions-environment",
+          "path": "AGENTS.md",
+          "headings": [
+            "Conventions",
+            "Environment"
+          ],
+          "startLine": 376,
+          "tokens": 153,
+          "score": 10.205,
+          "text": "## Environment\n\n- Use `import.meta.env.DEV` / `import.meta.env.PROD` (Vite/Astro standard). Never `process.env.NODE_ENV`.\n- Dev-only endpoints must check `import.meta.env.DEV` and return 403 otherwise -- it's a compile-time constant, unspoofable at runtime.\n- Public build-time config pattern: `import.meta.env.EMDASH_X || import.meta.env.X || \"\"`.\n- **Secrets read `process.env` only, never `import.meta.env`** -- Vite statically inlines `import.meta.env`, which bakes build-machine secrets into the bundle and shadows runtime values set on the deployment platform. See `packages/core/src/config/secrets.ts`."
+        },
+        {
+          "id": "docs/src/content/docs/themes/creating-themes.mdx#build-server-rendered-routes",
+          "path": "docs/src/content/docs/themes/creating-themes.mdx",
+          "headings": [
+            "Build server-rendered routes"
+          ],
+          "startLine": 185,
+          "tokens": 499,
+          "score": 10.143,
+          "text": "## Build server-rendered routes\n\nCurrent EmDash templates use `output: \"server\"`. Routes query live content for each request. Do not add `getStaticPaths()` to a theme's content routes unless the template deliberately uses EmDash only as a build-time source.\n\nThe following archive orders in the database using the stored `published_at` field:\n\n```astro title=\"src/pages/posts/index.astro\"\n---\nimport { getEmDashCollection } from \"emdash\";\nimport Base from \"../../layouts/Base.astro\";\n\nconst { entries: posts, error, cacheHint } = await getEmDashCollection(\"posts\", {\n  orderBy: { published_at: \"desc\" },\n});\n\nif (error) return new Response(\"Could not load posts\", { status: 500 });\nif (Astro.cache?.enabled) Astro.cache.set(cacheHint);\n---\n\n<Base title=\"Posts\">\n  {posts.map((post) => (\n    <article>\n      <h2><a href={`/posts/${post.id}`}>{post.data.title}</a></h2>\n      {post.data.excerpt && <p>{post.data.excerpt}</p>}\n    </article>\n  ))}\n</Base>\n```\n\n`orderBy` is a field-to-direction object. Use `orderBy: { published_at: \"desc\" }`, not `sort`, `sortBy`, or a JavaScript callback.\n\nThe following route resolves and renders one post:\n\n```astro title=\"src/pages/posts/[slug].astro\"\n---\nimport { decodeSlug, getEmDashEntry } from \"emdash\";\nimport { PortableText } from \"emdash/ui\";\nimport Base from \"../../layouts/Base.astro\";\n\nconst slug = decodeSlug(Astro.params.slug);\nif (!slug) return Astro.rewrite(\"/404\");\n\nconst { entry: post, error, cacheHint } = await getEmDashEntry(\"posts\", slug);\nif (error) return new Response(\"Could not load the post\", { status: 500 });\nif (!post) return Astro.rewrite(\"/404\");\nif (Astro.cache?.enabled) Astro.cache.set(cacheHint);\n---\n\n<Base title={post.data.title} content={{ collection: \"posts\", id: post.data.id, slug }}>\n  <article>\n    <h1 {...post.edit.title}>{post.data.title}</h1>\n    <PortableText value={post.data.content} />\n  </article>\n</Base>\n```\n\nUse `post.id` in route URLs and `post.data.id` where a helper requires the stored content ID."
+        },
+        {
+          "id": "docs/src/content/docs/plugins/creating-native-plugins/your-first-native-plugin.mdx#add-another-surface",
+          "path": "docs/src/content/docs/plugins/creating-native-plugins/your-first-native-plugin.mdx",
+          "headings": [
+            "Add another surface"
+          ],
+          "startLine": 254,
+          "tokens": 149,
+          "score": 9.943,
+          "text": "## Add another surface\n\n- [React admin pages and widgets](/plugins/creating-native-plugins/react-admin/) covers settings, custom pages, dashboard widgets, field widgets, editor panels, and list columns.\n- [Portable Text rendering components](/plugins/creating-native-plugins/portable-text-components/) registers Astro components for plugin blocks.\n- [Page fragments](/plugins/creating-native-plugins/page-fragments/) adds trusted scripts or HTML to public pages.\n- [Distributing native plugins](/plugins/creating-native-plugins/distributing/) packages the build and source entrypoints for npm."
+        },
+        {
+          "id": "docs/src/content/docs/migration/from-wordpress.mdx#troubleshooting-a-collection-is-marked-incompatible",
+          "path": "docs/src/content/docs/migration/from-wordpress.mdx",
+          "headings": [
+            "Troubleshooting",
+            "A collection is marked incompatible"
+          ],
+          "startLine": 143,
+          "tokens": 68,
+          "score": 9.803,
+          "text": "### A collection is marked incompatible\n\nAn existing field has the same slug but a different type. Change the post-type mapping or reconcile the field under **Content Types** before retrying. The prepare step adds missing fields but does not change existing field types."
+        },
+        {
+          "id": "docs/src/content/docs/contributing/architecture.mdx#admin-panel-internals-manifest-driven-ui",
+          "path": "docs/src/content/docs/contributing/architecture.mdx",
+          "headings": [
+            "Admin panel internals",
+            "Manifest-driven UI"
+          ],
+          "startLine": 217,
+          "tokens": 234,
+          "score": 9.682,
+          "text": "### Manifest-driven UI\n\nThe admin does not hardcode collection schemas or plugin contributions. It fetches `GET /_emdash/api/manifest`, which describes the current collections, fields, plugins, taxonomies, authentication mode, and other configured capabilities. An abridged manifest looks like this:\n\n```json\n{\n\t\"collections\": {\n\t\t\"posts\": {\n\t\t\t\"label\": \"Blog Posts\",\n\t\t\t\"labelSingular\": \"Post\",\n\t\t\t\"supports\": [\"drafts\", \"revisions\", \"preview\"],\n\t\t\t\"fields\": {\n\t\t\t\t\"title\": { \"kind\": \"string\", \"label\": \"Title\", \"required\": true }\n\t\t\t}\n\t\t}\n\t},\n\t\"plugins\": {\n\t\t\"audit-log\": { \"version\": \"0.2.1\", \"enabled\": true }\n\t},\n\t\"taxonomies\": [\n\t\t{ \"name\": \"category\", \"label\": \"Categories\", \"hierarchical\": true }\n\t],\n\t\"version\": \"0.37.0\"\n}\n```\n\nThe admin uses the manifest to build collection navigation and field editors. Because the endpoint reads the live schema, collection and field changes appear without rebuilding the admin application."
+        },
+        {
+          "id": "docs/src/content/docs/concepts/content-model.mdx#collections-fields-and-entries",
+          "path": "docs/src/content/docs/concepts/content-model.mdx",
+          "headings": [
+            "Collections, fields, and entries"
+          ],
+          "startLine": 12,
+          "tokens": 261,
+          "score": 9.393,
+          "text": "## Collections, fields, and entries\n\nA **collection** is a kind of content, such as Posts, Products, or Authors. A **field** is one piece\nof information on that content, such as a title, body, price, or author reference. An **entry** is\none saved item in a collection.\n\nFor example, a Posts collection might have these fields:\n\n```text\nPosts\n├── Title          short text, required\n├── Excerpt        long text, optional\n├── Content        rich text, optional\n└── Featured image image, optional\n```\n\nEmDash also manages information that every entry needs, including its ID, public slug, publishing\nstate, author, creation and update times, locale, and revision references. Query results expose this\nstandard information alongside the fields defined for the collection.\n\nDeleting an entry moves it to the trash by setting its deletion time. An administrator can restore\nit until someone permanently deletes it from the trash. This entry workflow is different from\ndeleting a field or collection, which changes the schema and removes stored data."
+        },
+        {
+          "id": "docs/src/content/docs/reference/hooks.mdx#content-hooks-content-beforeschedule",
+          "path": "docs/src/content/docs/reference/hooks.mdx",
+          "headings": [
+            "Content hooks",
+            "`content:beforeSchedule`"
+          ],
+          "startLine": 235,
+          "tokens": 102,
+          "score": 9.392,
+          "text": "### `content:beforeSchedule`\n\n**Capability:** `hooks.content-policy:register`\n\nRuns before an entry receives a publication time. It uses the same decision envelope and origin fields as `content:beforePublish`, adds `scheduledAt` to the event, and returns `SCHEDULE_REJECTED` for an explicit cancellation.\n\nThere is no `content:beforeUnschedule` hook. An administrator can always cancel a future publication."
+        },
+        {
+          "id": "docs/src/content/docs/reference/api.mdx#content-types-getemdashreferences",
+          "path": "docs/src/content/docs/reference/api.mdx",
+          "headings": [
+            "Content types",
+            "`getEmDashReferences()`"
+          ],
+          "startLine": 276,
+          "tokens": 312,
+          "score": 9.339,
+          "text": "### `getEmDashReferences()`\n\nFetch one page of a single reference field, without re-reading the entry it hangs off. Use it to walk past the first page with the `nextCursor` that page returned.\n\n| Parameter    | Type     | Description      |\n| ------------ | -------- | ---------------- |\n| `collection` | `string` | Collection slug of the entry that holds the field |\n| `slugOrId`   | `string` | Entry slug or ID |\n| `field`      | `string` | Reference field slug |\n| `options`    | `{ limit?: number; cursor?: string; locale?: string }` | Optional. Defaults to 50 entries, at most 100 |\n\nThe following example loads the next 20 linked entries:\n\n```ts\nimport { getEmDashReferences } from \"emdash\";\n\nconst { entries, nextCursor, error } = await getEmDashReferences(\n\t\"posts\",\n\tpost.id,\n\t\"related_posts\",\n\t{ cursor, limit: 20 },\n);\n```\n\n`error` is set only for actual errors. An unknown field, a missing entry, or one the request may not see all resolve to an empty `entries` array.\n\nThe result also carries a `cacheHint` naming the rows the page read. A route that caches what it renders should merge it into its own hint, the way `getEmDashEntry({ references })` folds in the first page's, so that writing to one of those entries expires the page."
+        },
+        {
+          "id": "skills/creating-plugins/references/content.md#content-schema-translations-and-publication-writes-and-translations",
+          "path": "skills/creating-plugins/references/content.md",
+          "headings": [
+            "Content, schema, translations, and publication",
+            "Writes and translations"
+          ],
+          "startLine": 15,
+          "tokens": 151,
+          "score": 9.139,
+          "text": "## Writes and translations\n\n`content:write` adds create, update, and delete. Create a translation with:\n\n```typescript\nawait ctx.content!.create(\"posts\", data, { locale: \"fr\", translationOf: sourceId });\n```\n\nThe source must be an active entry in the same collection. The new row joins its translation group and inherits non-translatable fields, byline credits, and taxonomy assignments. Validation and save hooks run, with re-entrancy fencing for the creating plugin. A group permits one active row per locale.\n\nStable failures include `CONFLICT`, `NOT_FOUND`, `VALIDATION_ERROR`, and `SAVE_REJECTED`.",
+          "duplicates": 9,
+          "duplicatePaths": [
+            "templates/blank/.agents/skills/creating-plugins/references/content.md",
+            "templates/blog-cloudflare/.agents/skills/creating-plugins/references/content.md",
+            "templates/blog/.agents/skills/creating-plugins/references/content.md",
+            "templates/marketing-cloudflare/.agents/skills/creating-plugins/references/content.md",
+            "templates/marketing/.agents/skills/creating-plugins/references/content.md",
+            "templates/portfolio-cloudflare/.agents/skills/creating-plugins/references/content.md",
+            "templates/portfolio/.agents/skills/creating-plugins/references/content.md",
+            "templates/starter-cloudflare/.agents/skills/creating-plugins/references/content.md",
+            "templates/starter/.agents/skills/creating-plugins/references/content.md"
+          ]
+        },
+        {
+          "id": "docs/src/content/docs/themes/porting-wp-themes.mdx#build-the-seed",
+          "path": "docs/src/content/docs/themes/porting-wp-themes.mdx",
+          "headings": [
+            "Build the seed"
+          ],
+          "startLine": 249,
+          "tokens": 271,
+          "score": 9.08,
+          "text": "## Build the seed\n\nThe seed belongs at `seed/seed.json` in current templates, with `package.json#emdash.seed` pointing to it. Declare every collection field, taxonomy, menu, widget area, section, and sample entry that the template assumes.\n\nThe following fragment defines the route-facing fields for posts:\n\n```json title=\"seed/seed.json\"\n{\n  \"$schema\": \"https://emdashcms.com/seed.schema.json\",\n  \"version\": \"1\",\n  \"collections\": [\n    {\n      \"slug\": \"posts\",\n      \"label\": \"Posts\",\n      \"labelSingular\": \"Post\",\n      \"supports\": [\"drafts\", \"revisions\", \"search\", \"seo\"],\n      \"urlPattern\": \"/posts/{slug}\",\n      \"fields\": [\n        { \"slug\": \"title\", \"label\": \"Title\", \"type\": \"string\", \"required\": true },\n        { \"slug\": \"content\", \"label\": \"Content\", \"type\": \"portableText\" },\n        { \"slug\": \"excerpt\", \"label\": \"Excerpt\", \"type\": \"text\" },\n        { \"slug\": \"featured_image\", \"label\": \"Featured image\", \"type\": \"image\" }\n      ]\n    }\n  ]\n}\n```\n\nRead [Seed files](/themes/seed-files/) for content IDs, references, localization, media, validation, and apply options."
+        },
+        {
+          "id": "skills/creating-plugins/references/portable-text-blocks.md#portable-text-block-types",
+          "path": "skills/creating-plugins/references/portable-text-blocks.md",
+          "headings": [
+            "Portable Text Block Types"
+          ],
+          "startLine": 1,
+          "tokens": 218,
+          "score": 9.041,
+          "text": "# Portable Text Block Types\n\nPlugin CLI and registry packages cannot define Portable Text block types. `emdash-plugin build` warns that `portableTextBlocks` require trusted mode and omits them from the sandboxed manifest. Site-side rendering also needs an Astro `componentsEntry`, which is loaded with the site at build time.\n\nCore can forward declarative block metadata from a config-declared standard plugin descriptor, but that path does not make the definition portable through the registry and does not provide a site renderer. Treat custom Portable Text blocks as a native-plugin feature unless the site owns both the descriptor and the rendering components and has verified the complete editor-to-render path.\n\nPlugins can add custom block types to the Portable Text editor. These appear in the slash command menu and can be inserted into any `portableText` field.",
+          "duplicates": 9,
+          "duplicatePaths": [
+            "templates/blank/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/blog-cloudflare/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/blog/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/marketing-cloudflare/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/marketing/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/portfolio-cloudflare/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/portfolio/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/starter-cloudflare/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/starter/.agents/skills/creating-plugins/references/portable-text-blocks.md"
+          ]
+        }
+      ],
+      "manifest": [
+        {
+          "id": "pinned:catalog@2026.10.5",
+          "pinned": true,
+          "source": ".gitnext/catalog.json"
+        },
+        {
+          "id": "docs/src/content/docs/guides/create-a-blog.mdx#understand-the-content-model",
+          "pinned": false,
+          "source": "docs/src/content/docs/guides/create-a-blog.mdx:49"
+        },
+        {
+          "id": "docs/src/content/docs/plugins/creating-plugins/settings.mdx#default-values-and-upgrades",
+          "pinned": false,
+          "source": "docs/src/content/docs/plugins/creating-plugins/settings.mdx:203"
+        },
+        {
+          "id": "TEMPLATES.md#emdash-templates-available-templates-blog",
+          "pinned": false,
+          "source": "TEMPLATES.md:7"
+        },
+        {
+          "id": "docs/src/content/docs/coming-from/astro.mdx#what-emdash-adds",
+          "pinned": false,
+          "source": "docs/src/content/docs/coming-from/astro.mdx:10"
+        },
+        {
+          "id": "docs/src/content/docs/migration/from-wordpress.mdx#conversion-behavior-collections-and-fields",
+          "pinned": false,
+          "source": "docs/src/content/docs/migration/from-wordpress.mdx:82"
+        },
+        {
+          "id": "docs/src/content/docs/plugins/creating-plugins/storage.mdx#adding-indexes",
+          "pinned": false,
+          "source": "docs/src/content/docs/plugins/creating-plugins/storage.mdx:416"
+        },
+        {
+          "id": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx#bundle-time-validation",
+          "pinned": false,
+          "source": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx:283"
+        },
+        {
+          "id": "AGENTS.md#conventions-environment",
+          "pinned": false,
+          "source": "AGENTS.md:376"
+        },
+        {
+          "id": "docs/src/content/docs/themes/creating-themes.mdx#build-server-rendered-routes",
+          "pinned": false,
+          "source": "docs/src/content/docs/themes/creating-themes.mdx:185"
+        },
+        {
+          "id": "docs/src/content/docs/plugins/creating-native-plugins/your-first-native-plugin.mdx#add-another-surface",
+          "pinned": false,
+          "source": "docs/src/content/docs/plugins/creating-native-plugins/your-first-native-plugin.mdx:254"
+        },
+        {
+          "id": "docs/src/content/docs/migration/from-wordpress.mdx#troubleshooting-a-collection-is-marked-incompatible",
+          "pinned": false,
+          "source": "docs/src/content/docs/migration/from-wordpress.mdx:143"
+        },
+        {
+          "id": "docs/src/content/docs/contributing/architecture.mdx#admin-panel-internals-manifest-driven-ui",
+          "pinned": false,
+          "source": "docs/src/content/docs/contributing/architecture.mdx:217"
+        },
+        {
+          "id": "docs/src/content/docs/concepts/content-model.mdx#collections-fields-and-entries",
+          "pinned": false,
+          "source": "docs/src/content/docs/concepts/content-model.mdx:12"
+        },
+        {
+          "id": "docs/src/content/docs/reference/hooks.mdx#content-hooks-content-beforeschedule",
+          "pinned": false,
+          "source": "docs/src/content/docs/reference/hooks.mdx:235"
+        },
+        {
+          "id": "docs/src/content/docs/reference/api.mdx#content-types-getemdashreferences",
+          "pinned": false,
+          "source": "docs/src/content/docs/reference/api.mdx:276"
+        },
+        {
+          "id": "skills/creating-plugins/references/content.md#content-schema-translations-and-publication-writes-and-translations",
+          "pinned": false,
+          "source": "skills/creating-plugins/references/content.md:15",
+          "duplicates": 9,
+          "duplicatePaths": [
+            "templates/blank/.agents/skills/creating-plugins/references/content.md",
+            "templates/blog-cloudflare/.agents/skills/creating-plugins/references/content.md",
+            "templates/blog/.agents/skills/creating-plugins/references/content.md",
+            "templates/marketing-cloudflare/.agents/skills/creating-plugins/references/content.md",
+            "templates/marketing/.agents/skills/creating-plugins/references/content.md",
+            "templates/portfolio-cloudflare/.agents/skills/creating-plugins/references/content.md",
+            "templates/portfolio/.agents/skills/creating-plugins/references/content.md",
+            "templates/starter-cloudflare/.agents/skills/creating-plugins/references/content.md",
+            "templates/starter/.agents/skills/creating-plugins/references/content.md"
+          ]
+        },
+        {
+          "id": "docs/src/content/docs/themes/porting-wp-themes.mdx#build-the-seed",
+          "pinned": false,
+          "source": "docs/src/content/docs/themes/porting-wp-themes.mdx:249"
+        },
+        {
+          "id": "skills/creating-plugins/references/portable-text-blocks.md#portable-text-block-types",
+          "pinned": false,
+          "source": "skills/creating-plugins/references/portable-text-blocks.md:1",
+          "duplicates": 9,
+          "duplicatePaths": [
+            "templates/blank/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/blog-cloudflare/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/blog/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/marketing-cloudflare/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/marketing/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/portfolio-cloudflare/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/portfolio/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/starter-cloudflare/.agents/skills/creating-plugins/references/portable-text-blocks.md",
+            "templates/starter/.agents/skills/creating-plugins/references/portable-text-blocks.md"
+          ]
+        }
+      ],
+      "omitted": {
+        "count": 1584,
+        "oversized": 9,
+        "tokens": 425395,
+        "unmatchedSections": 1011,
+        "top": [
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/storage.mdx#declaring-storage-in-the-manifest",
+            "path": "docs/src/content/docs/plugins/creating-plugins/storage.mdx",
+            "title": "Declaring storage in the manifest",
+            "tokens": 353,
+            "score": 9.013,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-native-plugins/your-first-native-plugin.mdx#descriptor-and-runtime-boundary",
+            "path": "docs/src/content/docs/plugins/creating-native-plugins/your-first-native-plugin.mdx",
+            "title": "Descriptor and runtime boundary",
+            "tokens": 375,
+            "score": 9.004,
+            "reason": "budget"
+          },
+          {
+            "id": "packages/plugin-test/README.md#emdash-cms-plugin-test",
+            "path": "packages/plugin-test/README.md",
+            "title": "@emdash-cms/plugin-test",
+            "tokens": 643,
+            "score": 8.987,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/field-kit.mdx#intro",
+            "path": "docs/src/content/docs/plugins/field-kit.mdx",
+            "title": "field-kit.mdx",
+            "tokens": 135,
+            "score": 8.946,
+            "reason": "budget"
+          },
+          {
+            "id": "infra/perf-monitor/README.md#emdash-perf-monitor-first-time-setup",
+            "path": "infra/perf-monitor/README.md",
+            "title": "First-time setup",
+            "tokens": 262,
+            "score": 8.67,
+            "reason": "budget"
+          },
+          {
+            "id": "rfcs/0001-plugin-registry.md#detailed-design-plugin-types-sandboxed-plugins",
+            "path": "rfcs/0001-plugin-registry.md",
+            "title": "Sandboxed plugins",
+            "tokens": 321,
+            "score": 8.631,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/migration/porting-plugins.mdx#sandboxed-package-format",
+            "path": "docs/src/content/docs/migration/porting-plugins.mdx",
+            "title": "Sandboxed package format",
+            "tokens": 555,
+            "score": 8.553,
+            "reason": "budget"
+          },
+          {
+            "id": "packages/plugin-cli/README.md#emdash-cms-plugin-cli-authoring",
+            "path": "packages/plugin-cli/README.md",
+            "title": "Authoring",
+            "tokens": 296,
+            "score": 8.539,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-native-plugins/react-admin.mdx#generated-settings-form",
+            "path": "docs/src/content/docs/plugins/creating-native-plugins/react-admin.mdx",
+            "title": "Generated settings form",
+            "tokens": 661,
+            "score": 8.197,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/guides/seo.mdx#render-seo-metadata-on-a-content-page",
+            "path": "docs/src/content/docs/guides/seo.mdx",
+            "title": "Render SEO metadata on a content page",
+            "tokens": 653,
+            "score": 8.166,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx#change-publication-state-reading-media-metadata-and-bytes",
+            "path": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx",
+            "title": "Reading media metadata and bytes",
+            "tokens": 411,
+            "score": 8.124,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-native-plugins/react-admin.mdx#react-entrypoint",
+            "path": "docs/src/content/docs/plugins/creating-native-plugins/react-admin.mdx",
+            "title": "React entrypoint",
+            "tokens": 345,
+            "score": 8.079,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/block-kit.mdx#intro",
+            "path": "docs/src/content/docs/plugins/creating-plugins/block-kit.mdx",
+            "title": "block-kit.mdx",
+            "tokens": 243,
+            "score": 8.055,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/guides/taxonomies.mdx#build-a-taxonomy-archive",
+            "path": "docs/src/content/docs/guides/taxonomies.mdx",
+            "title": "Build a taxonomy archive",
+            "tokens": 455,
+            "score": 7.955,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-native-plugins/portable-text-components.mdx#define-the-editor-block",
+            "path": "docs/src/content/docs/plugins/creating-native-plugins/portable-text-components.mdx",
+            "title": "Define the editor block",
+            "tokens": 523,
+            "score": 7.953,
+            "reason": "budget"
+          },
+          {
+            "id": "rfcs/0001-plugin-registry.md#detailed-design-lexicons-emdash-extension-constraints",
+            "path": "rfcs/0001-plugin-registry.md",
+            "title": "Constraints",
+            "tokens": 1019,
+            "score": 7.879,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/publishing.mdx#publish-from-your-plugin-directory",
+            "path": "docs/src/content/docs/plugins/creating-plugins/publishing.mdx",
+            "title": "Publish from your plugin directory",
+            "tokens": 180,
+            "score": 7.879,
+            "reason": "budget"
+          },
+          {
+            "id": "skills/wordpress-plugin-to-emdash/SKILL.md#port-a-wordpress-plugin-to-emdash-assign-each-responsibility",
+            "path": "skills/wordpress-plugin-to-emdash/SKILL.md",
+            "title": "Assign each responsibility",
+            "tokens": 931,
+            "score": 7.866,
+            "reason": "budget"
+          },
+          {
+            "id": "skills/wordpress-theme-to-emdash/references/concept-mapping.md#map-wordpress-theme-concepts-to-emdash-site-information-and-customizer-values",
+            "path": "skills/wordpress-theme-to-emdash/references/concept-mapping.md",
+            "title": "Site information and Customizer values",
+            "tokens": 356,
+            "score": 7.839,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/guides/email.mdx#where-provider-credentials-live",
+            "path": "docs/src/content/docs/guides/email.mdx",
+            "title": "Where provider credentials live",
+            "tokens": 187,
+            "score": 7.821,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/storage.mdx#conditional-writes",
+            "path": "docs/src/content/docs/plugins/creating-plugins/storage.mdx",
+            "title": "Conditional writes",
+            "tokens": 801,
+            "score": 7.714,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx#change-publication-state-reading-and-moderating-comments",
+            "path": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx",
+            "title": "Reading and moderating comments",
+            "tokens": 374,
+            "score": 7.536,
+            "reason": "budget"
+          },
+          {
+            "id": ".opencode/agents/auto-reviewer.md#what-good-looks-like",
+            "path": ".opencode/agents/auto-reviewer.md",
+            "title": "What \"good\" looks like",
+            "tokens": 209,
+            "score": 7.503,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/coming-from/wordpress.mdx#plugin-formats",
+            "path": "docs/src/content/docs/coming-from/wordpress.mdx",
+            "title": "Plugin formats",
+            "tokens": 175,
+            "score": 7.422,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/block-kit.mdx#saved-entry-panels-and-actions",
+            "path": "docs/src/content/docs/plugins/creating-plugins/block-kit.mdx",
+            "title": "Saved-entry panels and actions",
+            "tokens": 939,
+            "score": 7.401,
+            "reason": "budget"
+          },
+          {
+            "id": "templates/blog/.agents/skills/building-emdash-site/references/schema-and-seed.md#schema-and-seed-files-applying-seeds",
+            "path": "templates/blog/.agents/skills/building-emdash-site/references/schema-and-seed.md",
+            "title": "Applying Seeds",
+            "tokens": 158,
+            "score": 7.374,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/plugin-sandbox.mdx#troubleshooting-emdash-sandboxed-plugins-are-disabled-because-wrangler-jsonc-has-no-loader-worker-loader-binding",
+            "path": "docs/src/content/docs/deployment/plugin-sandbox.mdx",
+            "title": "\"[emdash] Sandboxed plugins are disabled because wrangler.jsonc has no LOADER Worker Loader binding\"",
+            "tokens": 99,
+            "score": 7.263,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/publishing.mdx#publish",
+            "path": "docs/src/content/docs/plugins/creating-plugins/publishing.mdx",
+            "title": "Publish",
+            "tokens": 567,
+            "score": 7.21,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/reference/rest-api.mdx#media-endpoints-direct-multipart-upload",
+            "path": "docs/src/content/docs/reference/rest-api.mdx",
+            "title": "Direct multipart upload",
+            "tokens": 264,
+            "score": 7.197,
+            "reason": "budget"
+          },
+          {
+            "id": "skills/wordpress-plugin-to-emdash/SKILL.md#port-a-wordpress-plugin-to-emdash-plan-data-movement",
+            "path": "skills/wordpress-plugin-to-emdash/SKILL.md",
+            "title": "Plan data movement",
+            "tokens": 188,
+            "score": 7.196,
+            "reason": "budget"
+          },
+          {
+            "id": "packages/plugin-cli/README.md#emdash-cms-plugin-cli-development",
+            "path": "packages/plugin-cli/README.md",
+            "title": "Development",
+            "tokens": 81,
+            "score": 7.174,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/hooks.mdx#hook-configuration-configuration-options",
+            "path": "docs/src/content/docs/plugins/creating-plugins/hooks.mdx",
+            "title": "Configuration options",
+            "tokens": 350,
+            "score": 7.171,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/themes/seed-files.mdx#collections-field-properties",
+            "path": "docs/src/content/docs/themes/seed-files.mdx",
+            "title": "Field properties",
+            "tokens": 376,
+            "score": 7.164,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/concepts/content-model.mdx#one-model-two-ways-to-manage-it",
+            "path": "docs/src/content/docs/concepts/content-model.mdx",
+            "title": "One model, two ways to manage it",
+            "tokens": 336,
+            "score": 7.145,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/reference/configuration.mdx#integration-options-fonts",
+            "path": "docs/src/content/docs/reference/configuration.mdx",
+            "title": "`fonts`",
+            "tokens": 355,
+            "score": 7.14,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/manifest.mdx#validate-the-manifest",
+            "path": "docs/src/content/docs/plugins/creating-plugins/manifest.mdx",
+            "title": "Validate the manifest",
+            "tokens": 153,
+            "score": 7.126,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/testing.mdx#seed-content",
+            "path": "docs/src/content/docs/plugins/creating-plugins/testing.mdx",
+            "title": "Seed content",
+            "tokens": 143,
+            "score": 7.119,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/cloudflare.mdx#worker-secrets",
+            "path": "docs/src/content/docs/deployment/cloudflare.mdx",
+            "title": "Worker secrets",
+            "tokens": 357,
+            "score": 7.099,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/registry.mdx#install-a-registry-plugin",
+            "path": "docs/src/content/docs/plugins/registry.mdx",
+            "title": "Install a registry plugin",
+            "tokens": 286,
+            "score": 7.085,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/reference/api.mdx#site-template-api-contract",
+            "path": "docs/src/content/docs/reference/api.mdx",
+            "title": "Site-template API contract",
+            "tokens": 241,
+            "score": 7.067,
+            "reason": "budget"
+          }
+        ]
+      },
+      "stats": {
+        "markdownFiles": 410,
+        "sections": 2613,
+        "duplicateSections": 2481,
+        "duplicateTokens": 400878,
+        "rulesTokens": 408,
+        "pinnedTokens": 267,
+        "sectionTokens": 3592,
+        "tokensServed": 4000,
+        "tokensAllMarkdown": 985327,
+        "tokensInstructionFilesOnPath": 7551,
+        "servedVsAllMarkdown": 0.004,
+        "servedVsInstructionFilesOnPath": 0.53
+      },
+      "errors": []
+    },
+    {
+      "repo": "emdash-demo",
+      "ref": "main",
+      "task": "Harden the sandboxed plugin runner that loads plugin code through the Worker Loader binding",
+      "paths": [
+        "packages/cloudflare/src/sandbox/runner.ts"
+      ],
+      "budgetTokens": 3000,
+      "retriever": "bm25",
+      "pinned": {
+        "musts": [],
+        "catalog": "Org catalog 2026.10.5 (owner @acme/platform).\nAI only via gateway \"git-next\": env.AI.run(model, input, { gateway: { id: \"git-next\", metadata: { developer, repo, fork, agent, task } } }).\nApproved models: anthropic/claude-fable-5.1 (planning), anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).\nApproved binding types: r2_buckets [acme-*], kv_namespaces [acme-*], d1_databases [acme-*], durable_objects, queues [acme-*], workflows, ai, services, artifacts, worker_loaders, images, assets, analytics_engine_datasets.\nShared resources: UPLOADS → acme-shared-uploads.\nRequired checks: git next rules, pnpm test, security-scan.\nSecrets: never inline; use wrangler secret put or .dev.vars.",
+        "relevant": [
+          "worker_loaders: approved; owner @acme/security"
+        ]
+      },
+      "rules": [
+        {
+          "topic": "changesetPolicy",
+          "value": "required",
+          "strength": "must",
+          "layer": "root",
+          "kind": "project",
+          "source": "emdash-demo/AGENTS.md:11",
+          "appliesTo": [
+            "packages/cloudflare/src/sandbox"
+          ]
+        },
+        {
+          "topic": "formatter",
+          "value": "oxfmt",
+          "strength": "should",
+          "layer": "root",
+          "kind": "project",
+          "source": "emdash-demo/AGENTS.md:416",
+          "appliesTo": [
+            "packages/cloudflare/src/sandbox"
+          ]
+        },
+        {
+          "topic": "indentation",
+          "value": "tabs",
+          "strength": "should",
+          "layer": "root",
+          "kind": "project",
+          "source": "emdash-demo/AGENTS.md:416",
+          "appliesTo": [
+            "packages/cloudflare/src/sandbox"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "sections": [
+        {
+          "id": "docs/src/content/docs/deployment/plugin-sandbox.mdx#when-the-runner-is-unavailable",
+          "path": "docs/src/content/docs/deployment/plugin-sandbox.mdx",
+          "headings": [
+            "When the runner is unavailable"
+          ],
+          "startLine": 128,
+          "tokens": 291,
+          "score": 39.4,
+          "text": "## When the runner is unavailable\n\nOn Cloudflare Workers, `sandbox()` checks `wrangler.jsonc` at build time. Without a `worker_loaders` binding named `LOADER`, it leaves the runner unset and logs the following warning:\n\n```plain\n[emdash] Sandboxed plugins are disabled because wrangler.jsonc has no LOADER Worker Loader binding. Worker Loader requires a Workers paid plan.\n```\n\nA selected runner can still be unavailable at runtime: on Cloudflare Workers when the deployed `LOADER` binding or `PluginBridge` export is missing, and on Node.js when `workerd` is not installed or its binary does not run. EmDash then logs a warning with the cause the runner reports after the colon. The following warning is logged on Cloudflare Workers when the binding is missing:\n\n```plain\nEmDash: Plugin sandbox is configured but not available on this platform: the worker has no worker_loaders binding named LOADER. Sandboxed plugins will not be loaded.\n```\n\nPlugins under `sandboxed: []` are not loaded, installed marketplace and registry plugins do not run, and a new install from the admin fails with the error code `SANDBOX_NOT_AVAILABLE`. The rest of the site is unaffected."
+        },
+        {
+          "id": "docs/src/content/docs/plugins/installing.mdx#prepare-for-admin-installs",
+          "path": "docs/src/content/docs/plugins/installing.mdx",
+          "headings": [
+            "Prepare for admin installs"
+          ],
+          "startLine": 10,
+          "tokens": 531,
+          "score": 38.56,
+          "text": "## Prepare for admin installs\n\nRegistry installs require:\n\n- An administrator account with the `plugins:manage` permission.\n- [Configured storage](/deployment/storage/) for downloaded plugin bundles.\n- An available sandbox runner.\n\nOn Cloudflare Workers, use `sandbox()` from `@emdash-cms/cloudflare`:\n\n```typescript title=\"astro.config.mjs\"\nimport { sandbox } from \"@emdash-cms/cloudflare\";\nimport { defineConfig } from \"astro/config\";\nimport emdash from \"emdash/astro\";\n\nexport default defineConfig({\n\tintegrations: [\n\t\temdash({\n\t\t\tsandboxRunner: sandbox(),\n\t\t}),\n\t],\n});\n```\n\nThe Cloudflare runner uses Worker Loader to create a separate Worker for each plugin. It requires the Workers Paid plan and a `worker_loaders` binding named `LOADER`. Sandboxed plugins reach content, media, storage, network, and email APIs through `PluginBridge`, so the site's Worker entry point must export that class.\n\nThe `*-cloudflare` templates export `PluginBridge` but leave the Worker Loader binding commented out, so new projects can deploy on the Workers free plan. Enable sandboxed plugins during scaffolding or follow the [Cloudflare sandbox setup](/deployment/plugin-sandbox/#cloudflare-workers) to add the binding later. The `sandbox()` helper reads the effective Wrangler config at build time. Without `LOADER`, registry browsing remains available, but config-managed sandboxed plugins do not load and install or update requests return `SANDBOX_NOT_AVAILABLE`.\n\nOn Node.js, install the runner and its `workerd` peer dependency:\n\n```bash\nnpm install @emdash-cms/sandbox-workerd workerd\n```\n\nThe `workerd` process runs the plugin code separately from the Node.js server. Select the runner in the EmDash integration:\n\n```typescript title=\"astro.config.mjs\"\nimport { defineConfig } from \"astro/config\";\nimport emdash from \"emdash/astro\";\n\nexport default defineConfig({\n\tintegrations: [\n\t\temdash({\n\t\t\tsandboxRunner: \"@emdash-cms/sandbox-workerd/sandbox\",\n\t\t}),\n\t],\n});\n```\n\nSee [Plugin sandbox](/deployment/plugin-sandbox/) for development setup, runtime requirements, resource limits, and unavailable-runner errors on both platforms."
+        },
+        {
+          "id": "docs/src/content/docs/deployment/plugin-sandbox.mdx#cloudflare-workers",
+          "path": "docs/src/content/docs/deployment/plugin-sandbox.mdx",
+          "headings": [
+            "Cloudflare Workers"
+          ],
+          "startLine": 21,
+          "tokens": 520,
+          "score": 36.409,
+          "text": "## Cloudflare Workers\n\nDynamic Workers are available on the [Workers Paid plan](https://developers.cloudflare.com/dynamic-workers/pricing/). The `*-cloudflare` templates include the entry point export below but leave the binding commented out, so new projects deploy on the Workers free plan unless you enable sandboxed plugins during scaffolding.\n\n<Steps>\n\n1. Enable the Worker Loader binding in `wrangler.jsonc`. The runner reads it under the name `LOADER` and selects the Cloudflare sandbox only when this binding is present:\n\n   ```jsonc title=\"wrangler.jsonc\"\n   {\n   \t\"worker_loaders\": [\n   \t\t{\n   \t\t\t\"binding\": \"LOADER\",\n   \t\t},\n   \t],\n   }\n   ```\n\n   If the Wrangler config uses named environments, set `CLOUDFLARE_ENV` during the Astro build. The Cloudflare Vite plugin and `sandbox()` then read the same environment. Bindings are not inherited, so add `LOADER` to each named environment that runs sandboxed plugins.\n\n2. Export `PluginBridge` from the Worker entry point, and point `main` at that file. `PluginBridge` is the entrypoint through which sandboxed plugins reach content, media, storage, and email; the runner looks it up on the exports of the entry module:\n\n   ```ts title=\"src/worker.ts\"\n   import handler, { createScheduledHandler, PluginBridge } from \"@emdash-cms/cloudflare/worker\";\n\n   export { PluginBridge };\n\n   export default {\n   \t...handler,\n   \tscheduled: createScheduledHandler(),\n   } satisfies ExportedHandler;\n   ```\n\n   ```jsonc title=\"wrangler.jsonc\"\n   {\n   \t\"main\": \"./src/worker.ts\",\n   }\n   ```\n\n3. Select the runner in the `emdash()` integration:\n\n   ```js title=\"astro.config.mjs\"\n   import { d1, r2, sandbox } from \"@emdash-cms/cloudflare\";\n\n   emdash({\n   \tdatabase: d1({ binding: \"DB\" }),\n   \tstorage: r2({ binding: \"MEDIA\" }),\n   \tsandboxRunner: sandbox(),\n   });\n   ```\n\n</Steps>\n\n<Aside>\n\tThe bridge that sandboxed plugins use for database access talks to the D1 binding named `DB` directly, independent of the configured adapter. Sandboxed plugins are not available on a [Hyperdrive deployment](/deployment/database/).\n</Aside>"
+        },
+        {
+          "id": "docs/src/content/docs/deployment/plugin-sandbox.mdx#intro",
+          "path": "docs/src/content/docs/deployment/plugin-sandbox.mdx",
+          "headings": [],
+          "startLine": 1,
+          "tokens": 571,
+          "score": 36.174,
+          "text": "---\ntitle: Configure the plugin sandbox\ndescription: Run sandboxed plugins on Cloudflare Workers or Node.js, with the bindings, resource limits, and failure modes of each sandbox runner.\n---\n\nimport { Aside, Steps } from \"@astrojs/starlight/components\";\n\nSandboxed plugins need a platform runner in addition to their plugin declaration. Marketplace and registry installs always use that runner, as do plugins listed under `sandboxed: []`. Native plugins under `plugins: []` run in the EmDash server process and do not gain sandbox isolation.\n\nThe runner depends on the deployment platform. On Cloudflare Workers, each plugin runs as a [Dynamic Worker](https://developers.cloudflare.com/dynamic-workers/) created through the Worker Loader binding. On Node.js, the server starts [`workerd`](https://github.com/cloudflare/workerd), the open-source Workers runtime, as a child process and runs each plugin as a service inside it. The `sandboxRunner` option of `emdash()` selects the runner and enables the hosted registry catalog. Without it, plugins under `sandboxed: []` are not loaded. An explicitly configured registry remains browseable, but installing or updating a sandboxed plugin fails with `SANDBOX_NOT_AVAILABLE`.\n\nThe following table summarizes what each runner needs and enforces.\n\n|                    | Cloudflare Workers                                                                                | Node.js                                 |\n| ------------------ | ------------------------------------------------------------------------------------------------- | --------------------------------------- |\n| `sandboxRunner`    | `sandbox()` from `@emdash-cms/cloudflare`                                                          | `\"@emdash-cms/sandbox-workerd/sandbox\"` |\n| Requirements       | Workers Paid plan, a `worker_loaders` binding, `PluginBridge` exported from the Worker entry point | The `workerd` package                   |\n| Database access    | The `DB` D1 binding, independent of the configured adapter                                        | The configured database                 |\n| Enforced limits    | CPU time, subrequests, wall time                                                                  | Wall time                               |"
+        },
+        {
+          "id": "docs/src/content/docs/deployment/plugin-sandbox.mdx#troubleshooting-emdash-sandboxed-plugins-are-disabled-because-wrangler-jsonc-has-no-loader-worker-loader-binding",
+          "path": "docs/src/content/docs/deployment/plugin-sandbox.mdx",
+          "headings": [
+            "Troubleshooting",
+            "\"[emdash] Sandboxed plugins are disabled because wrangler.jsonc has no LOADER Worker Loader binding\""
+          ],
+          "startLine": 165,
+          "tokens": 99,
+          "score": 34.909,
+          "text": "### \"[emdash] Sandboxed plugins are disabled because wrangler.jsonc has no LOADER Worker Loader binding\"\n\nThe Cloudflare adapter did not select a sandbox runner because the build-time Wrangler config has no `worker_loaders` binding named `LOADER`. This is the expected configuration on the Workers free plan. On a Workers paid plan, enable the binding in `wrangler.jsonc` and rebuild the site."
+        },
+        {
+          "id": "docs/src/content/docs/plugins/creating-plugins/choosing-a-format.mdx#sandbox-runners-and-platform-support",
+          "path": "docs/src/content/docs/plugins/creating-plugins/choosing-a-format.mdx",
+          "headings": [
+            "Sandbox runners and platform support"
+          ],
+          "startLine": 64,
+          "tokens": 352,
+          "score": 30.794,
+          "text": "## Sandbox runners and platform support\n\nThe sandbox itself is pluggable. EmDash exposes a `sandboxRunner` config option and the runner decides how plugin code is isolated — there's nothing Cloudflare-specific in the plugin format itself.\n\nTwo runners ship with EmDash: `sandbox()` from `@emdash-cms/cloudflare`, which runs each plugin as a Dynamic Worker through Cloudflare's Worker Loader, and `@emdash-cms/sandbox-workerd/sandbox`, which runs plugins in a `workerd` child process on Node.js. [Plugin Sandbox](/deployment/plugin-sandbox/) covers the setup of each runner, the resource limits it enforces, and the differences between the two.\n\nIf no runner is configured, plugins listed under `sandboxed: []` are not loaded. If the configured runner is unavailable on the current platform, they are not loaded either, and EmDash logs a warning at startup.\n\nIf you want a sandboxed plugin to run on a platform without a sandbox runner, move it from `sandboxed: []` into the `plugins: []` array — it'll execute in-process. Capability declarations are still honoured (the same `PluginContext` factory gates `ctx.content`, `ctx.http`, and friends), but there is no isolation boundary, no resource limits, and a buggy or malicious plugin can call `fetch()` directly, read environment variables, or block the event loop. Without a sandbox runner active, treat every plugin as a native plugin for trust purposes."
+        },
+        {
+          "id": "docs/src/content/docs/reference/configuration.mdx#authentication-and-sandbox-adapters-sandbox",
+          "path": "docs/src/content/docs/reference/configuration.mdx",
+          "headings": [
+            "Authentication and sandbox adapters",
+            "`sandbox()`"
+          ],
+          "startLine": 989,
+          "tokens": 122,
+          "score": 30.328,
+          "text": "### `sandbox()`\n\nSelects Cloudflare Worker Loader as the plugin sandbox runner. Import it from `@emdash-cms/cloudflare` and pass its return value to [`sandboxRunner`](#sandboxrunner):\n\n```js\nimport { sandbox } from \"@emdash-cms/cloudflare\";\n\nemdash({\n\tsandboxRunner: sandbox(),\n});\n```\n\nThe site also needs a Worker Loader binding and the plugin bridge entry point. See [Plugin Sandbox: Cloudflare Workers](/deployment/plugin-sandbox/#cloudflare-workers) for those deployment settings."
+        },
+        {
+          "id": "docs/src/content/docs/plugins/creating-plugins/migrating-to-the-cli.mdx#breaking-changes-renamed-sandbox-runner-handles-use-sandboxedplugininstance",
+          "path": "docs/src/content/docs/plugins/creating-plugins/migrating-to-the-cli.mdx",
+          "headings": [
+            "Breaking changes",
+            "Renamed: sandbox-runner handles use `SandboxedPluginInstance`"
+          ],
+          "startLine": 196,
+          "tokens": 100,
+          "score": 19.518,
+          "text": "### Renamed: sandbox-runner handles use `SandboxedPluginInstance`\n\nThis affects only authors of a custom `SandboxRunner`, such as `@emdash-cms/cloudflare`. Most plugin authors can skip it.\n\nThe author-facing `SandboxedPlugin` type is available from the `emdash/plugin` authoring entry point. The runtime handle returned by `SandboxRunner.load` is exported from `emdash` as `SandboxedPluginInstance`."
+        }
+      ],
+      "manifest": [
+        {
+          "id": "pinned:catalog@2026.10.5",
+          "pinned": true,
+          "source": ".gitnext/catalog.json"
+        },
+        {
+          "id": "docs/src/content/docs/deployment/plugin-sandbox.mdx#when-the-runner-is-unavailable",
+          "pinned": false,
+          "source": "docs/src/content/docs/deployment/plugin-sandbox.mdx:128"
+        },
+        {
+          "id": "docs/src/content/docs/plugins/installing.mdx#prepare-for-admin-installs",
+          "pinned": false,
+          "source": "docs/src/content/docs/plugins/installing.mdx:10"
+        },
+        {
+          "id": "docs/src/content/docs/deployment/plugin-sandbox.mdx#cloudflare-workers",
+          "pinned": false,
+          "source": "docs/src/content/docs/deployment/plugin-sandbox.mdx:21"
+        },
+        {
+          "id": "docs/src/content/docs/deployment/plugin-sandbox.mdx#intro",
+          "pinned": false,
+          "source": "docs/src/content/docs/deployment/plugin-sandbox.mdx:1"
+        },
+        {
+          "id": "docs/src/content/docs/deployment/plugin-sandbox.mdx#troubleshooting-emdash-sandboxed-plugins-are-disabled-because-wrangler-jsonc-has-no-loader-worker-loader-binding",
+          "pinned": false,
+          "source": "docs/src/content/docs/deployment/plugin-sandbox.mdx:165"
+        },
+        {
+          "id": "docs/src/content/docs/plugins/creating-plugins/choosing-a-format.mdx#sandbox-runners-and-platform-support",
+          "pinned": false,
+          "source": "docs/src/content/docs/plugins/creating-plugins/choosing-a-format.mdx:64"
+        },
+        {
+          "id": "docs/src/content/docs/reference/configuration.mdx#authentication-and-sandbox-adapters-sandbox",
+          "pinned": false,
+          "source": "docs/src/content/docs/reference/configuration.mdx:989"
+        },
+        {
+          "id": "docs/src/content/docs/plugins/creating-plugins/migrating-to-the-cli.mdx#breaking-changes-renamed-sandbox-runner-handles-use-sandboxedplugininstance",
+          "pinned": false,
+          "source": "docs/src/content/docs/plugins/creating-plugins/migrating-to-the-cli.mdx:196"
+        }
+      ],
+      "omitted": {
+        "count": 1416,
+        "oversized": 22,
+        "tokens": 391808,
+        "unmatchedSections": 1189,
+        "top": [
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx#what-the-sandbox-enforces",
+            "path": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx",
+            "title": "What the sandbox enforces",
+            "tokens": 424,
+            "score": 28.778,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/plugin-sandbox.mdx#troubleshooting-plugin-sandbox-is-configured-but-not-available-on-this-platform",
+            "path": "docs/src/content/docs/deployment/plugin-sandbox.mdx",
+            "title": "\"Plugin sandbox is configured but not available on this platform\"",
+            "tokens": 234,
+            "score": 27.25,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/testing.mdx#intro",
+            "path": "docs/src/content/docs/plugins/creating-plugins/testing.mdx",
+            "title": "testing.mdx",
+            "tokens": 316,
+            "score": 26.89,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/cloudflare.mdx#configure-bindings",
+            "path": "docs/src/content/docs/deployment/cloudflare.mdx",
+            "title": "Configure bindings",
+            "tokens": 279,
+            "score": 26.722,
+            "reason": "budget"
+          },
+          {
+            "id": "AGENTS.md#rules-architecture",
+            "path": "AGENTS.md",
+            "title": "Architecture",
+            "tokens": 470,
+            "score": 26.311,
+            "reason": "budget"
+          },
+          {
+            "id": "AGENTS.md#conventions-cloudflare-env",
+            "path": "AGENTS.md",
+            "title": "Cloudflare Env",
+            "tokens": 214,
+            "score": 25.957,
+            "reason": "budget"
+          },
+          {
+            "id": "packages/plugin-test/README.md#emdash-cms-plugin-test",
+            "path": "packages/plugin-test/README.md",
+            "title": "@emdash-cms/plugin-test",
+            "tokens": 643,
+            "score": 25.791,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/plugin-sandbox.mdx#when-the-runner-is-unavailable-running-sandboxed-plugins-in-process",
+            "path": "docs/src/content/docs/deployment/plugin-sandbox.mdx",
+            "title": "Running sandboxed plugins in-process",
+            "tokens": 204,
+            "score": 24.62,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/plugin-sandbox.mdx#resource-limits",
+            "path": "docs/src/content/docs/deployment/plugin-sandbox.mdx",
+            "title": "Resource limits",
+            "tokens": 321,
+            "score": 24.013,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/reference/configuration.mdx#integration-options-sandboxed",
+            "path": "docs/src/content/docs/reference/configuration.mdx",
+            "title": "`sandboxed`",
+            "tokens": 163,
+            "score": 23.609,
+            "reason": "budget"
+          },
+          {
+            "id": "packages/plugins/marketplace-test/README.md#marketplace-test-plugin",
+            "path": "packages/plugins/marketplace-test/README.md",
+            "title": "Marketplace Test Plugin",
+            "tokens": 144,
+            "score": 23.487,
+            "reason": "budget"
+          },
+          {
+            "id": ".changeset/fix-cloudflare-sandbox-media-storage.md#intro",
+            "path": ".changeset/fix-cloudflare-sandbox-media-storage.md",
+            "title": "fix-cloudflare-sandbox-media-storage.md",
+            "tokens": 125,
+            "score": 23.436,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/your-first-plugin.mdx#register-the-plugin",
+            "path": "docs/src/content/docs/plugins/creating-plugins/your-first-plugin.mdx",
+            "title": "Register the plugin",
+            "tokens": 259,
+            "score": 22.584,
+            "reason": "budget"
+          },
+          {
+            "id": "packages/plugin-cli/README.md#emdash-cms-plugin-cli-authoring",
+            "path": "packages/plugin-cli/README.md",
+            "title": "Authoring",
+            "tokens": 296,
+            "score": 22.514,
+            "reason": "budget"
+          },
+          {
+            "id": "skills/creating-plugins/SKILL.md#creating-emdash-plugins-runner-parity",
+            "path": "skills/creating-plugins/SKILL.md",
+            "title": "Runner parity",
+            "tokens": 110,
+            "score": 22.457,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx#what-the-sandbox-doesn-t-enforce",
+            "path": "docs/src/content/docs/plugins/creating-plugins/capabilities.mdx",
+            "title": "What the sandbox doesn't enforce",
+            "tokens": 328,
+            "score": 22.4,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/reference/configuration.mdx#integration-options-sandboxrunner",
+            "path": "docs/src/content/docs/reference/configuration.mdx",
+            "title": "`sandboxRunner`",
+            "tokens": 118,
+            "score": 22.096,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/cloudflare.mdx#configure-emdash",
+            "path": "docs/src/content/docs/deployment/cloudflare.mdx",
+            "title": "Configure EmDash",
+            "tokens": 183,
+            "score": 21.824,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-native-plugins/your-first-native-plugin.mdx#read-secrets-and-bindings",
+            "path": "docs/src/content/docs/plugins/creating-native-plugins/your-first-native-plugin.mdx",
+            "title": "Read secrets and bindings",
+            "tokens": 571,
+            "score": 19.477,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/guides/email.mdx#production-install-a-provider-plugin-cloudflare-workers",
+            "path": "docs/src/content/docs/guides/email.mdx",
+            "title": "Cloudflare Workers",
+            "tokens": 98,
+            "score": 19.306,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/testing.mdx#test-boundaries",
+            "path": "docs/src/content/docs/plugins/creating-plugins/testing.mdx",
+            "title": "Test boundaries",
+            "tokens": 389,
+            "score": 18.834,
+            "reason": "budget"
+          },
+          {
+            "id": "packages/registry-loader/README.md#emdash-cms-registry-loader-load-a-plugin",
+            "path": "packages/registry-loader/README.md",
+            "title": "Load a plugin",
+            "tokens": 234,
+            "score": 18.616,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/cloudflare.mdx#preview-deployments-named-environments",
+            "path": "docs/src/content/docs/deployment/cloudflare.mdx",
+            "title": "Named environments",
+            "tokens": 366,
+            "score": 18.354,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/nodejs.mdx#plugin-sandbox",
+            "path": "docs/src/content/docs/deployment/nodejs.mdx",
+            "title": "Plugin sandbox",
+            "tokens": 87,
+            "score": 17.177,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/installing.mdx#choose-an-install-method",
+            "path": "docs/src/content/docs/plugins/installing.mdx",
+            "title": "Choose an install method",
+            "tokens": 371,
+            "score": 16.827,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/cloudflare.mdx#worker-secrets",
+            "path": "docs/src/content/docs/deployment/cloudflare.mdx",
+            "title": "Worker secrets",
+            "tokens": 357,
+            "score": 16.687,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/registry.mdx#enable-registry-installs",
+            "path": "docs/src/content/docs/plugins/registry.mdx",
+            "title": "Enable registry installs",
+            "tokens": 204,
+            "score": 16.362,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/hooks.mdx#hook-execution-order",
+            "path": "docs/src/content/docs/plugins/creating-plugins/hooks.mdx",
+            "title": "Hook execution order",
+            "tokens": 198,
+            "score": 16.335,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/hooks.mdx#hook-configuration-configuration-options",
+            "path": "docs/src/content/docs/plugins/creating-plugins/hooks.mdx",
+            "title": "Configuration options",
+            "tokens": 350,
+            "score": 16.296,
+            "reason": "budget"
+          },
+          {
+            "id": "packages/plugins/marketplace-test/README.md#marketplace-test-plugin-deliberate-exclusions",
+            "path": "packages/plugins/marketplace-test/README.md",
+            "title": "Deliberate exclusions",
+            "tokens": 482,
+            "score": 16.215,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/your-first-plugin.mdx#update-the-generated-test",
+            "path": "docs/src/content/docs/plugins/creating-plugins/your-first-plugin.mdx",
+            "title": "Update the generated test",
+            "tokens": 244,
+            "score": 16.149,
+            "reason": "budget"
+          },
+          {
+            "id": "rfcs/0001-plugin-registry.md#detailed-design-plugin-types-sandboxed-plugins",
+            "path": "rfcs/0001-plugin-registry.md",
+            "title": "Sandboxed plugins",
+            "tokens": 321,
+            "score": 16.009,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/overview.mdx#two-kinds-of-plugins",
+            "path": "docs/src/content/docs/plugins/overview.mdx",
+            "title": "Two kinds of plugins",
+            "tokens": 236,
+            "score": 15.77,
+            "reason": "budget"
+          },
+          {
+            "id": "skills/creating-plugins/references/sandbox-boundaries.md#sandbox-boundaries-runner-only-methods-are-not-portable",
+            "path": "skills/creating-plugins/references/sandbox-boundaries.md",
+            "title": "Runner-only methods are not portable",
+            "tokens": 74,
+            "score": 15.662,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/api-routes.mdx#common-patterns-external-api-proxy",
+            "path": "docs/src/content/docs/plugins/creating-plugins/api-routes.mdx",
+            "title": "External API proxy",
+            "tokens": 319,
+            "score": 15.49,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-plugins/testing.mdx#configure-vitest",
+            "path": "docs/src/content/docs/plugins/creating-plugins/testing.mdx",
+            "title": "Configure Vitest",
+            "tokens": 161,
+            "score": 15.167,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/reference/configuration.mdx#integration-options-sandbox",
+            "path": "docs/src/content/docs/reference/configuration.mdx",
+            "title": "`sandbox`",
+            "tokens": 127,
+            "score": 15.148,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/deployment/cloudflare.mdx#preview-deployments-worker-previews",
+            "path": "docs/src/content/docs/deployment/cloudflare.mdx",
+            "title": "Worker Previews",
+            "tokens": 1105,
+            "score": 15.082,
+            "reason": "oversized"
+          },
+          {
+            "id": "README.md#emdash-why-emdash",
+            "path": "README.md",
+            "title": "Why EmDash?",
+            "tokens": 555,
+            "score": 15.065,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/src/content/docs/plugins/creating-native-plugins/page-fragments.mdx#intro",
+            "path": "docs/src/content/docs/plugins/creating-native-plugins/page-fragments.mdx",
+            "title": "page-fragments.mdx",
+            "tokens": 183,
+            "score": 15.054,
+            "reason": "budget"
+          }
+        ]
+      },
+      "stats": {
+        "markdownFiles": 410,
+        "sections": 2613,
+        "duplicateSections": 2481,
+        "duplicateTokens": 400878,
+        "rulesTokens": 407,
+        "pinnedTokens": 267,
+        "sectionTokens": 2586,
+        "tokensServed": 2993,
+        "tokensAllMarkdown": 985327,
+        "tokensInstructionFilesOnPath": 7551,
+        "servedVsAllMarkdown": 0.003,
+        "servedVsInstructionFilesOnPath": 0.396
+      },
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,3801 @@
+{
+  "offline": true,
+  "note": "Offline run over a local clone of emdash-cms/emdash at d4efb97 (git objects at HEAD) as emdash-demo, no demo layers, checked against the org baseline catalog (?catalog=org), keyword extractor; no AI Gateway logs for this repo.",
+  "repo": "emdash-demo",
+  "ref": "main",
+  "base": null,
+  "ms": 9543,
+  "providers": [
+    {
+      "id": "resource-map",
+      "ok": true,
+      "ms": 9311,
+      "count": 27
+    },
+    {
+      "id": "instruction-stack",
+      "ok": true,
+      "ms": 9535,
+      "count": 5
+    },
+    {
+      "id": "cost",
+      "ok": true,
+      "ms": 23,
+      "count": 1
+    },
+    {
+      "id": "owners",
+      "ok": true,
+      "ms": 191,
+      "count": 1
+    },
+    {
+      "id": "catalog",
+      "ok": true,
+      "ms": 9303,
+      "count": 60
+    }
+  ],
+  "insights": [
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/aggregator/wrangler.jsonc"
+      },
+      "title": "emdash-aggregator: 9 bindings (incl. 4 queue consumers)",
+      "detail": "durable_objects: RECORDS_DO, LABEL_INGEST_DO; d1_databases: DB; queues: RECORDS_QUEUE → emdash-aggregator-records, BACKFILL_QUEUE → emdash-aggregator-backfill, emdash-aggregator-records (consumer), emdash-aggregator-records-dlq (consumer), emdash-aggregator-backfill (consumer), emdash-aggregator-backfill-dlq (consumer)",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/aggregator/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-aggregator",
+        "bindings": {
+          "durable_objects": [
+            {
+              "type": "durable_objects",
+              "name": "RECORDS_DO",
+              "resource": "RecordsJetstreamDO"
+            },
+            {
+              "type": "durable_objects",
+              "name": "LABEL_INGEST_DO",
+              "resource": "LabelIngestDO"
+            }
+          ],
+          "d1_databases": [
+            {
+              "type": "d1_databases",
+              "name": "DB",
+              "resource": "emdash-aggregator"
+            }
+          ],
+          "queues": [
+            {
+              "type": "queues",
+              "name": "RECORDS_QUEUE",
+              "resource": "emdash-aggregator-records"
+            },
+            {
+              "type": "queues",
+              "name": "BACKFILL_QUEUE",
+              "resource": "emdash-aggregator-backfill"
+            },
+            {
+              "type": "queues",
+              "name": "consumer:emdash-aggregator-records",
+              "resource": "emdash-aggregator-records"
+            },
+            {
+              "type": "queues",
+              "name": "consumer:emdash-aggregator-records-dlq",
+              "resource": "emdash-aggregator-records-dlq"
+            },
+            {
+              "type": "queues",
+              "name": "consumer:emdash-aggregator-backfill",
+              "resource": "emdash-aggregator-backfill"
+            },
+            {
+              "type": "queues",
+              "name": "consumer:emdash-aggregator-backfill-dlq",
+              "resource": "emdash-aggregator-backfill-dlq"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/labeler/wrangler.jsonc"
+      },
+      "title": "emdash-labeler: 16 bindings (incl. 2 queue consumers)",
+      "detail": "durable_objects: LABEL_SUBSCRIPTION_DO, LABELER_DISCOVERY_DO; r2_buckets: MEDIA_QUARANTINE, EVAL_DATASETS, EVAL_ARTIFACTS; d1_databases: DB; queues: DISCOVERY_QUEUE → emdash-labeler-discovery, emdash-labeler-discovery (consumer), emdash-labeler-discovery-dlq (consumer); workflows: ASSESSMENT_WORKFLOW, LIVE_EVALUATION_WORKFLOW; ai: AI; services: AGGREGATOR_RECONCILIATION, REGISTRY_BLOB_CACHE; images: IMAGES; assets: ASSETS",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/labeler/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-labeler",
+        "bindings": {
+          "durable_objects": [
+            {
+              "type": "durable_objects",
+              "name": "LABEL_SUBSCRIPTION_DO",
+              "resource": "LabelSubscriptionDO"
+            },
+            {
+              "type": "durable_objects",
+              "name": "LABELER_DISCOVERY_DO",
+              "resource": "LabelerDiscoveryDO"
+            }
+          ],
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "MEDIA_QUARANTINE",
+              "resource": "emdash-labeler-media-quarantine"
+            },
+            {
+              "type": "r2_buckets",
+              "name": "EVAL_DATASETS",
+              "resource": "emdash-labeler-eval-datasets"
+            },
+            {
+              "type": "r2_buckets",
+              "name": "EVAL_ARTIFACTS",
+              "resource": "emdash-labeler-eval-artifacts"
+            }
+          ],
+          "d1_databases": [
+            {
+              "type": "d1_databases",
+              "name": "DB",
+              "resource": "emdash-labeler"
+            }
+          ],
+          "queues": [
+            {
+              "type": "queues",
+              "name": "DISCOVERY_QUEUE",
+              "resource": "emdash-labeler-discovery"
+            },
+            {
+              "type": "queues",
+              "name": "consumer:emdash-labeler-discovery",
+              "resource": "emdash-labeler-discovery"
+            },
+            {
+              "type": "queues",
+              "name": "consumer:emdash-labeler-discovery-dlq",
+              "resource": "emdash-labeler-discovery-dlq"
+            }
+          ],
+          "workflows": [
+            {
+              "type": "workflows",
+              "name": "ASSESSMENT_WORKFLOW",
+              "resource": "AssessmentWorkflow"
+            },
+            {
+              "type": "workflows",
+              "name": "LIVE_EVALUATION_WORKFLOW",
+              "resource": "LiveEvaluationWorkflow"
+            }
+          ],
+          "ai": [
+            {
+              "type": "ai",
+              "name": "AI"
+            }
+          ],
+          "services": [
+            {
+              "type": "services",
+              "name": "AGGREGATOR_RECONCILIATION",
+              "resource": "emdash-aggregator"
+            },
+            {
+              "type": "services",
+              "name": "REGISTRY_BLOB_CACHE",
+              "resource": "blob-proxy"
+            }
+          ],
+          "images": [
+            {
+              "type": "images",
+              "name": "IMAGES"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "ASSETS"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/plugins-site/wrangler.jsonc"
+      },
+      "title": "emdash-plugins-site: 0 bindings",
+      "detail": "No bindings declared.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/plugins-site/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-plugins-site",
+        "bindings": {}
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/release-service/wrangler.jsonc"
+      },
+      "title": "emdash-release-service: 14 bindings",
+      "detail": "durable_objects: IDENTITY_DIRECTORY_DO, APPROVER_DO, OAUTH_STATE_DO, SERVICE_CONTROL_DO, PUBLISHER_DO; r2_buckets: PUBLICATION_STAGING, PROVENANCE_STORE, OPERATIONS_ARCHIVE; workflows: RELEASE_INTENT_WORKFLOW, PUBLISHER_ARCHIVE_WORKFLOW, ENCRYPTION_VERIFICATION_WORKFLOW; services: RELEASE_VERIFIER; assets: ASSETS; analytics_engine_datasets: OPERATIONS_METRICS",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/release-service/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-release-service",
+        "bindings": {
+          "durable_objects": [
+            {
+              "type": "durable_objects",
+              "name": "IDENTITY_DIRECTORY_DO",
+              "resource": "IdentityDirectoryDurableObject"
+            },
+            {
+              "type": "durable_objects",
+              "name": "APPROVER_DO",
+              "resource": "ApproverDurableObject"
+            },
+            {
+              "type": "durable_objects",
+              "name": "OAUTH_STATE_DO",
+              "resource": "OAuthStateDurableObject"
+            },
+            {
+              "type": "durable_objects",
+              "name": "SERVICE_CONTROL_DO",
+              "resource": "ServiceControlDurableObject"
+            },
+            {
+              "type": "durable_objects",
+              "name": "PUBLISHER_DO",
+              "resource": "PublisherDurableObject"
+            }
+          ],
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "PUBLICATION_STAGING",
+              "resource": "emdash-release-service-publication-staging"
+            },
+            {
+              "type": "r2_buckets",
+              "name": "PROVENANCE_STORE",
+              "resource": "emdash-release-service-provenance"
+            },
+            {
+              "type": "r2_buckets",
+              "name": "OPERATIONS_ARCHIVE",
+              "resource": "emdash-release-service-operations"
+            }
+          ],
+          "workflows": [
+            {
+              "type": "workflows",
+              "name": "RELEASE_INTENT_WORKFLOW",
+              "resource": "ReleaseIntentWorkflow"
+            },
+            {
+              "type": "workflows",
+              "name": "PUBLISHER_ARCHIVE_WORKFLOW",
+              "resource": "PublisherArchiveWorkflow"
+            },
+            {
+              "type": "workflows",
+              "name": "ENCRYPTION_VERIFICATION_WORKFLOW",
+              "resource": "EncryptionVerificationWorkflow"
+            }
+          ],
+          "services": [
+            {
+              "type": "services",
+              "name": "RELEASE_VERIFIER",
+              "resource": "emdash-release-verifier"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "ASSETS",
+              "resource": "./dist/client"
+            }
+          ],
+          "analytics_engine_datasets": [
+            {
+              "type": "analytics_engine_datasets",
+              "name": "OPERATIONS_METRICS",
+              "resource": "emdash_release_service_operations"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/release-verifier/wrangler.jsonc"
+      },
+      "title": "emdash-release-verifier: 0 bindings",
+      "detail": "No bindings declared.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/release-verifier/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-release-verifier",
+        "bindings": {}
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "demos/cloudflare/wrangler.jsonc"
+      },
+      "title": "emdash-demo: 3 bindings",
+      "detail": "r2_buckets: MEDIA; d1_databases: DB; worker_loaders: LOADER",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "demos/cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-demo",
+        "bindings": {
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "MEDIA",
+              "resource": "emdash-media"
+            }
+          ],
+          "d1_databases": [
+            {
+              "type": "d1_databases",
+              "name": "DB",
+              "resource": "emdash_db"
+            }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "demos/playground/wrangler.jsonc"
+      },
+      "title": "emdash-playground: 2 bindings",
+      "detail": "durable_objects: PLAYGROUND_DB; kv_namespaces: SESSION",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "demos/playground/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-playground",
+        "bindings": {
+          "durable_objects": [
+            {
+              "type": "durable_objects",
+              "name": "PLAYGROUND_DB",
+              "resource": "EmDashPreviewDB"
+            }
+          ],
+          "kv_namespaces": [
+            {
+              "type": "kv_namespaces",
+              "name": "SESSION",
+              "resource": "753be2785dfb4da886e837a90cd9a21a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "demos/preview/wrangler.jsonc"
+      },
+      "title": "emdash-preview: 1 binding",
+      "detail": "durable_objects: PREVIEW_DB",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "demos/preview/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-preview",
+        "bindings": {
+          "durable_objects": [
+            {
+              "type": "durable_objects",
+              "name": "PREVIEW_DB",
+              "resource": "EmDashPreviewDB"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "docs/wrangler.jsonc"
+      },
+      "title": "docs: 1 binding",
+      "detail": "assets: ASSETS",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "docs/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "docs",
+        "bindings": {
+          "assets": [
+            {
+              "type": "assets",
+              "name": "ASSETS",
+              "resource": "./dist"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "e2e/fixture-cloudflare/wrangler.jsonc"
+      },
+      "title": "emdash-e2e-fixture-cloudflare: 3 bindings",
+      "detail": "r2_buckets: MEDIA; d1_databases: DB; worker_loaders: LOADER",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "e2e/fixture-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-e2e-fixture-cloudflare",
+        "bindings": {
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "MEDIA",
+              "resource": "emdash-e2e-media"
+            }
+          ],
+          "d1_databases": [
+            {
+              "type": "d1_databases",
+              "name": "DB",
+              "resource": "emdash_e2e"
+            }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "fixtures/perf-site/wrangler.jsonc"
+      },
+      "title": "emdash-perf-fixture: 2 bindings",
+      "detail": "r2_buckets: MEDIA; d1_databases: DB",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "fixtures/perf-site/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-perf-fixture",
+        "bindings": {
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "MEDIA",
+              "resource": "emdash-perf-fixture-media"
+            }
+          ],
+          "d1_databases": [
+            {
+              "type": "d1_databases",
+              "name": "DB",
+              "resource": "emdash-perf-fixture"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "i18n/wrangler.jsonc"
+      },
+      "title": "emdash-i18n: 1 binding",
+      "detail": "assets: (assets)",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "i18n/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-i18n",
+        "bindings": {
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "./dist"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/blog-demo/wrangler.jsonc"
+      },
+      "title": "emdash-demo-blog: 4 bindings",
+      "detail": "kv_namespaces: SESSION; r2_buckets: MEDIA; d1_databases: DB; worker_loaders: LOADER",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/blog-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-demo-blog",
+        "bindings": {
+          "kv_namespaces": [
+            {
+              "type": "kv_namespaces",
+              "name": "SESSION",
+              "resource": "045dd0600977420992277da020ae2df3"
+            }
+          ],
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "MEDIA",
+              "resource": "emdash-demo-media"
+            }
+          ],
+          "d1_databases": [
+            {
+              "type": "d1_databases",
+              "name": "DB",
+              "resource": "emdash-demo-blog"
+            }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/cache-demo/wrangler.jsonc"
+      },
+      "title": "emdash-demo-cache: 4 bindings",
+      "detail": "kv_namespaces: SESSION; r2_buckets: MEDIA; d1_databases: DB; worker_loaders: LOADER",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/cache-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-demo-cache",
+        "bindings": {
+          "kv_namespaces": [
+            {
+              "type": "kv_namespaces",
+              "name": "SESSION",
+              "resource": "045dd0600977420992277da020ae2df3"
+            }
+          ],
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "MEDIA",
+              "resource": "emdash-demo-media"
+            }
+          ],
+          "d1_databases": [
+            {
+              "type": "d1_databases",
+              "name": "DB",
+              "resource": "emdash-demo-blog"
+            }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/discord-bot/wrangler.jsonc"
+      },
+      "title": "emdash-discord-bot: 2 bindings",
+      "detail": "durable_objects: CONTRIBUTOR_INVITATIONS; kv_namespaces: KV",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/discord-bot/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-discord-bot",
+        "bindings": {
+          "durable_objects": [
+            {
+              "type": "durable_objects",
+              "name": "CONTRIBUTOR_INVITATIONS",
+              "resource": "ContributorInvitation"
+            }
+          ],
+          "kv_namespaces": [
+            {
+              "type": "kv_namespaces",
+              "name": "KV",
+              "resource": "2a5c0ec09f364546a10f2fa49e1ebaf4"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/do-demo/wrangler.jsonc"
+      },
+      "title": "emdash-demo-do: 4 bindings",
+      "detail": "durable_objects: DB_DO; kv_namespaces: SESSION; r2_buckets: MEDIA; worker_loaders: LOADER",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/do-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-demo-do",
+        "bindings": {
+          "durable_objects": [
+            {
+              "type": "durable_objects",
+              "name": "DB_DO",
+              "resource": "EmDashDB"
+            }
+          ],
+          "kv_namespaces": [
+            {
+              "type": "kv_namespaces",
+              "name": "SESSION",
+              "resource": "c0e628ad55194fe4a7bc00059fcebdf5"
+            }
+          ],
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "MEDIA",
+              "resource": "emdash-demo-media"
+            }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/do-solo-demo/wrangler.jsonc"
+      },
+      "title": "emdash-demo-do-solo: 4 bindings",
+      "detail": "durable_objects: DB_DO; kv_namespaces: SESSION; r2_buckets: MEDIA; worker_loaders: LOADER",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/do-solo-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-demo-do-solo",
+        "bindings": {
+          "durable_objects": [
+            {
+              "type": "durable_objects",
+              "name": "DB_DO",
+              "resource": "EmDashDB"
+            }
+          ],
+          "kv_namespaces": [
+            {
+              "type": "kv_namespaces",
+              "name": "SESSION",
+              "resource": "7d54671b952a4df5987e475f9e6d3c6a"
+            }
+          ],
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "MEDIA",
+              "resource": "emdash-demo-media"
+            }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/emdash-bot/wrangler.jsonc"
+      },
+      "title": "emdash-bot: 8 bindings",
+      "detail": "durable_objects: Sandbox, DASHBOARD, GITHUB_RATE_LIMIT, Orchestrator; r2_buckets: BOT_WORKSPACE; ai: AI; containers: Sandbox; worker_loaders: LOADER",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/emdash-bot/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-bot",
+        "bindings": {
+          "durable_objects": [
+            {
+              "type": "durable_objects",
+              "name": "Sandbox",
+              "resource": "Sandbox"
+            },
+            {
+              "type": "durable_objects",
+              "name": "DASHBOARD",
+              "resource": "DashboardDO"
+            },
+            {
+              "type": "durable_objects",
+              "name": "GITHUB_RATE_LIMIT",
+              "resource": "GitHubRateLimitDO"
+            },
+            {
+              "type": "durable_objects",
+              "name": "Orchestrator",
+              "resource": "OrchestratorDO"
+            }
+          ],
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "BOT_WORKSPACE",
+              "resource": "emdash-bot-workspace"
+            }
+          ],
+          "ai": [
+            {
+              "type": "ai",
+              "name": "AI"
+            }
+          ],
+          "containers": [
+            {
+              "type": "containers",
+              "name": "Sandbox",
+              "resource": "./Dockerfile"
+            }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/flue-review/wrangler.jsonc"
+      },
+      "title": "emdash-flue-review: 5 bindings",
+      "detail": "durable_objects: GITHUB_RATE_LIMIT, REVIEW_WATCHDOG; r2_buckets: REVIEW_WORKSPACE; ai: AI; worker_loaders: LOADER",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/flue-review/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-flue-review",
+        "bindings": {
+          "durable_objects": [
+            {
+              "type": "durable_objects",
+              "name": "GITHUB_RATE_LIMIT",
+              "resource": "emdash-bot:GitHubRateLimitDO"
+            },
+            {
+              "type": "durable_objects",
+              "name": "REVIEW_WATCHDOG",
+              "resource": "ReviewWatchdog"
+            }
+          ],
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "REVIEW_WORKSPACE",
+              "resource": "emdash-flue-review-workspace"
+            }
+          ],
+          "ai": [
+            {
+              "type": "ai",
+              "name": "AI"
+            }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/perf-monitor/wrangler.jsonc"
+      },
+      "title": "emdash-perf-coordinator: 9 bindings (incl. 1 queue consumer)",
+      "detail": "d1_databases: DB; queues: emdash-perf-deploy-events (consumer); services: PROBE_USE, PROBE_EUW, PROBE_APE, PROBE_APS, PROBE_SAE, PROBE_OCE; assets: (assets)",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/perf-monitor/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-perf-coordinator",
+        "bindings": {
+          "d1_databases": [
+            {
+              "type": "d1_databases",
+              "name": "DB",
+              "resource": "emdash_perf"
+            }
+          ],
+          "queues": [
+            {
+              "type": "queues",
+              "name": "consumer:emdash-perf-deploy-events",
+              "resource": "emdash-perf-deploy-events"
+            }
+          ],
+          "services": [
+            {
+              "type": "services",
+              "name": "PROBE_USE",
+              "resource": "emdash-perf-probe-use"
+            },
+            {
+              "type": "services",
+              "name": "PROBE_EUW",
+              "resource": "emdash-perf-probe-euw"
+            },
+            {
+              "type": "services",
+              "name": "PROBE_APE",
+              "resource": "emdash-perf-probe-ape"
+            },
+            {
+              "type": "services",
+              "name": "PROBE_APS",
+              "resource": "emdash-perf-probe-aps"
+            },
+            {
+              "type": "services",
+              "name": "PROBE_SAE",
+              "resource": "emdash-perf-probe-sae"
+            },
+            {
+              "type": "services",
+              "name": "PROBE_OCE",
+              "resource": "emdash-perf-probe-oce"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "public"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "packages/blocks/playground/wrangler.jsonc"
+      },
+      "title": "emdash-blocks: 1 binding",
+      "detail": "assets: (assets)",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "packages/blocks/playground/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-blocks",
+        "bindings": {
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "./dist"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "packages/marketplace/wrangler.jsonc"
+      },
+      "title": "emdash-marketplace: 5 bindings",
+      "detail": "r2_buckets: R2; d1_databases: DB; workflows: AUDIT_WORKFLOW; ai: AI; images: IMAGES",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "packages/marketplace/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-marketplace",
+        "bindings": {
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "R2",
+              "resource": "plugin-bundles"
+            }
+          ],
+          "d1_databases": [
+            {
+              "type": "d1_databases",
+              "name": "DB",
+              "resource": "emdash-marketplace"
+            }
+          ],
+          "workflows": [
+            {
+              "type": "workflows",
+              "name": "AUDIT_WORKFLOW",
+              "resource": "AuditWorkflow"
+            }
+          ],
+          "ai": [
+            {
+              "type": "ai",
+              "name": "AI"
+            }
+          ],
+          "images": [
+            {
+              "type": "images",
+              "name": "IMAGES"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "packages/registry-verification/wrangler.jsonc"
+      },
+      "title": "emdash-registry-verification-test: 0 bindings",
+      "detail": "No bindings declared.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "packages/registry-verification/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "emdash-registry-verification-test",
+        "bindings": {}
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "templates/blog-cloudflare/wrangler.jsonc"
+      },
+      "title": "my-emdash-site: 2 bindings",
+      "detail": "r2_buckets: MEDIA; d1_databases: DB",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blog-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "my-emdash-site",
+        "bindings": {
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "MEDIA",
+              "resource": "my-emdash-media"
+            }
+          ],
+          "d1_databases": [
+            {
+              "type": "d1_databases",
+              "name": "DB",
+              "resource": "my-emdash-site"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "templates/marketing-cloudflare/wrangler.jsonc"
+      },
+      "title": "my-marketing-site: 2 bindings",
+      "detail": "r2_buckets: MEDIA; d1_databases: DB",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "templates/marketing-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "my-marketing-site",
+        "bindings": {
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "MEDIA",
+              "resource": "my-marketing-media"
+            }
+          ],
+          "d1_databases": [
+            {
+              "type": "d1_databases",
+              "name": "DB",
+              "resource": "my-marketing-site"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "templates/portfolio-cloudflare/wrangler.jsonc"
+      },
+      "title": "my-portfolio-site: 2 bindings",
+      "detail": "r2_buckets: MEDIA; d1_databases: DB",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "templates/portfolio-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "my-portfolio-site",
+        "bindings": {
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "MEDIA",
+              "resource": "my-portfolio-media"
+            }
+          ],
+          "d1_databases": [
+            {
+              "type": "d1_databases",
+              "name": "DB",
+              "resource": "my-portfolio-site"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "templates/starter-cloudflare/wrangler.jsonc"
+      },
+      "title": "my-emdash-site: 2 bindings",
+      "detail": "r2_buckets: MEDIA; d1_databases: DB",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "templates/starter-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "my-emdash-site",
+        "bindings": {
+          "r2_buckets": [
+            {
+              "type": "r2_buckets",
+              "name": "MEDIA",
+              "resource": "my-emdash-media"
+            }
+          ],
+          "d1_databases": [
+            {
+              "type": "d1_databases",
+              "name": "DB",
+              "resource": "my-emdash-site"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main"
+      },
+      "title": "Instruction stack: 14 layers, 11 rules",
+      "detail": "Extractor keyword-v1; 1 findings. Skipped 1 file(s) that repeat a layer: .claude/CLAUDE.md (symlink of AGENTS.md).",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "AGENTS.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "infra/blog-demo/AGENTS.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "infra/cache-demo/AGENTS.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "infra/do-demo/AGENTS.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "infra/do-solo-demo/AGENTS.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blank/AGENTS.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blog-cloudflare/AGENTS.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blog/AGENTS.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/marketing-cloudflare/AGENTS.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/marketing/AGENTS.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/portfolio-cloudflare/AGENTS.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/portfolio/AGENTS.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/starter-cloudflare/AGENTS.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/starter/AGENTS.md"
+        }
+      ],
+      "metrics": {
+        "extractor": "keyword-v1",
+        "layers": [
+          {
+            "name": "root",
+            "kind": "project",
+            "rank": 3,
+            "depth": 0,
+            "repo": "emdash-demo",
+            "path": "AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "infra/blog-demo",
+            "kind": "project",
+            "rank": 3,
+            "depth": 2,
+            "repo": "emdash-demo",
+            "path": "infra/blog-demo/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "infra/cache-demo",
+            "kind": "project",
+            "rank": 3,
+            "depth": 2,
+            "repo": "emdash-demo",
+            "path": "infra/cache-demo/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "infra/do-demo",
+            "kind": "project",
+            "rank": 3,
+            "depth": 2,
+            "repo": "emdash-demo",
+            "path": "infra/do-demo/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "infra/do-solo-demo",
+            "kind": "project",
+            "rank": 3,
+            "depth": 2,
+            "repo": "emdash-demo",
+            "path": "infra/do-solo-demo/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "templates/blank",
+            "kind": "project",
+            "rank": 3,
+            "depth": 2,
+            "repo": "emdash-demo",
+            "path": "templates/blank/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "templates/blog-cloudflare",
+            "kind": "project",
+            "rank": 3,
+            "depth": 2,
+            "repo": "emdash-demo",
+            "path": "templates/blog-cloudflare/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "templates/blog",
+            "kind": "project",
+            "rank": 3,
+            "depth": 2,
+            "repo": "emdash-demo",
+            "path": "templates/blog/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "templates/marketing-cloudflare",
+            "kind": "project",
+            "rank": 3,
+            "depth": 2,
+            "repo": "emdash-demo",
+            "path": "templates/marketing-cloudflare/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "templates/marketing",
+            "kind": "project",
+            "rank": 3,
+            "depth": 2,
+            "repo": "emdash-demo",
+            "path": "templates/marketing/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "templates/portfolio-cloudflare",
+            "kind": "project",
+            "rank": 3,
+            "depth": 2,
+            "repo": "emdash-demo",
+            "path": "templates/portfolio-cloudflare/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "templates/portfolio",
+            "kind": "project",
+            "rank": 3,
+            "depth": 2,
+            "repo": "emdash-demo",
+            "path": "templates/portfolio/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "templates/starter-cloudflare",
+            "kind": "project",
+            "rank": 3,
+            "depth": 2,
+            "repo": "emdash-demo",
+            "path": "templates/starter-cloudflare/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "templates/starter",
+            "kind": "project",
+            "rank": 3,
+            "depth": 2,
+            "repo": "emdash-demo",
+            "path": "templates/starter/AGENTS.md",
+            "origin": "project"
+          }
+        ],
+        "extraction": {
+          "emdash-demo:AGENTS.md": {
+            "source": "keyword"
+          },
+          "emdash-demo:infra/blog-demo/AGENTS.md": {
+            "source": "keyword"
+          },
+          "emdash-demo:infra/cache-demo/AGENTS.md": {
+            "source": "keyword"
+          },
+          "emdash-demo:infra/do-demo/AGENTS.md": {
+            "source": "keyword"
+          },
+          "emdash-demo:infra/do-solo-demo/AGENTS.md": {
+            "source": "keyword"
+          },
+          "emdash-demo:templates/blank/AGENTS.md": {
+            "source": "keyword"
+          },
+          "emdash-demo:templates/blog-cloudflare/AGENTS.md": {
+            "source": "keyword"
+          },
+          "emdash-demo:templates/blog/AGENTS.md": {
+            "source": "keyword"
+          },
+          "emdash-demo:templates/marketing-cloudflare/AGENTS.md": {
+            "source": "keyword"
+          },
+          "emdash-demo:templates/marketing/AGENTS.md": {
+            "source": "keyword"
+          },
+          "emdash-demo:templates/portfolio-cloudflare/AGENTS.md": {
+            "source": "keyword"
+          },
+          "emdash-demo:templates/portfolio/AGENTS.md": {
+            "source": "keyword"
+          },
+          "emdash-demo:templates/starter-cloudflare/AGENTS.md": {
+            "source": "keyword"
+          },
+          "emdash-demo:templates/starter/AGENTS.md": {
+            "source": "keyword"
+          }
+        },
+        "rulesPerLayer": {
+          "emdash-demo:AGENTS.md": 11
+        },
+        "rulesByTopic": {
+          "changesetPolicy": [
+            "required"
+          ],
+          "formatter": [
+            "oxfmt"
+          ],
+          "indentation": [
+            "tabs"
+          ]
+        },
+        "effective": {
+          ".": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 7
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ],
+          "infra/blog-demo": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 11
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ],
+          "infra/cache-demo": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 11
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ],
+          "infra/do-demo": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 11
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ],
+          "infra/do-solo-demo": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 11
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ],
+          "templates/blank": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 11
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ],
+          "templates/blog-cloudflare": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 11
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ],
+          "templates/blog": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 11
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ],
+          "templates/marketing-cloudflare": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 11
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ],
+          "templates/marketing": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 11
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ],
+          "templates/portfolio-cloudflare": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 11
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ],
+          "templates/portfolio": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 11
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ],
+          "templates/starter-cloudflare": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 11
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ],
+          "templates/starter": [
+            {
+              "topic": "changesetPolicy",
+              "value": "required",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 11
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            },
+            {
+              "topic": "indentation",
+              "value": "tabs",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 416
+            }
+          ]
+        },
+        "skippedLayers": [
+          {
+            "path": ".claude/CLAUDE.md",
+            "reason": "symlink",
+            "of": "AGENTS.md"
+          }
+        ],
+        "counts": {
+          "drift": 1,
+          "copyDrift": 3
+        }
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "warn",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "AGENTS.md"
+      },
+      "title": "drift: formatter",
+      "detail": "root [project] (AGENTS.md:416) says \"oxfmt\" but .prettierrc implies \"prettier\".",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "AGENTS.md",
+          "line": 416
+        },
+        {
+          "repo": "emdash-demo",
+          "path": ".prettierrc"
+        }
+      ],
+      "metrics": {
+        "kind": "drift",
+        "topic": "formatter",
+        "values": [
+          {
+            "value": "oxfmt",
+            "strength": "should",
+            "layer": "root",
+            "kind": "project",
+            "rank": 3,
+            "path": "AGENTS.md",
+            "line": 416,
+            "text": "**oxfmt** -- formatting (tabs, configured in `.prettierrc`)."
+          }
+        ],
+        "configValue": "prettier"
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "warn",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "skills/building-emdash-site/SKILL.md"
+      },
+      "title": "drift: copies of skills/building-emdash-site",
+      "detail": "skills/building-emdash-site changed but none of its 9 copies did: templates/blank/.agents/skills/building-emdash-site, templates/blog-cloudflare/.agents/skills/building-emdash-site, templates/blog/.agents/skills/building-emdash-site and 6 more. 5 files differ (SKILL.md, references/configuration.md, references/querying-and-rendering.md and 2 more). First difference: skills/building-emdash-site/SKILL.md:16 has \"…ings.** `entry.id` is the slug, prefixed with the locale (`en/my-post`) for locales whose URLs are prefixed (use in …\", which the stale copies lack; templates/blank/.agents/skills/building-emdash-site/SKILL.md:16 has \"…ings.** `entry.id` is the slug (use in URLs). `entry.data.id` is the database ULID (use for `getEntryTerms`, `Commen…\" instead. Re-sync the copies from skills/building-emdash-site.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "skills/building-emdash-site/SKILL.md",
+          "line": 16
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blank/.agents/skills/building-emdash-site/SKILL.md",
+          "line": 16
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blog-cloudflare/.agents/skills/building-emdash-site/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blog/.agents/skills/building-emdash-site/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/marketing-cloudflare/.agents/skills/building-emdash-site/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/marketing/.agents/skills/building-emdash-site/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/portfolio-cloudflare/.agents/skills/building-emdash-site/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/portfolio/.agents/skills/building-emdash-site/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/starter-cloudflare/.agents/skills/building-emdash-site/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/starter/.agents/skills/building-emdash-site/SKILL.md"
+        }
+      ],
+      "metrics": {
+        "kind": "drift",
+        "topic": "copies",
+        "unit": "skills/building-emdash-site",
+        "basis": "source",
+        "source": "skills/building-emdash-site",
+        "staleCopies": [
+          "templates/blank/.agents/skills/building-emdash-site",
+          "templates/blog-cloudflare/.agents/skills/building-emdash-site",
+          "templates/blog/.agents/skills/building-emdash-site",
+          "templates/marketing-cloudflare/.agents/skills/building-emdash-site",
+          "templates/marketing/.agents/skills/building-emdash-site",
+          "templates/portfolio-cloudflare/.agents/skills/building-emdash-site",
+          "templates/portfolio/.agents/skills/building-emdash-site",
+          "templates/starter-cloudflare/.agents/skills/building-emdash-site",
+          "templates/starter/.agents/skills/building-emdash-site"
+        ],
+        "files": [
+          {
+            "tail": "skills/building-emdash-site/SKILL.md",
+            "source": "skills/building-emdash-site/SKILL.md",
+            "basis": "source",
+            "stale": [
+              "templates/blank/.agents/skills/building-emdash-site/SKILL.md",
+              "templates/blog-cloudflare/.agents/skills/building-emdash-site/SKILL.md",
+              "templates/blog/.agents/skills/building-emdash-site/SKILL.md",
+              "templates/marketing-cloudflare/.agents/skills/building-emdash-site/SKILL.md",
+              "templates/marketing/.agents/skills/building-emdash-site/SKILL.md",
+              "templates/portfolio-cloudflare/.agents/skills/building-emdash-site/SKILL.md",
+              "templates/portfolio/.agents/skills/building-emdash-site/SKILL.md",
+              "templates/starter-cloudflare/.agents/skills/building-emdash-site/SKILL.md",
+              "templates/starter/.agents/skills/building-emdash-site/SKILL.md"
+            ],
+            "total": 10,
+            "onlyInSource": {
+              "line": 16,
+              "text": "2. **`entry.id` vs `entry.data.id` are different things.** `entry.id` is the slug, prefixed with the locale (`en/my-post`) for locales whose URLs are prefixed (use in URLs; `entry.data.slug` is the ba"
+            },
+            "onlyInCopy": {
+              "path": "templates/blank/.agents/skills/building-emdash-site/SKILL.md",
+              "line": 16,
+              "text": "2. **`entry.id` vs `entry.data.id` are different things.** `entry.id` is the slug (use in URLs). `entry.data.id` is the database ULID (use for `getEntryTerms`, `Comments`, and other API calls that nee"
+            }
+          },
+          {
+            "tail": "skills/building-emdash-site/references/configuration.md",
+            "source": "skills/building-emdash-site/references/configuration.md",
+            "basis": "source",
+            "stale": [
+              "templates/blank/.agents/skills/building-emdash-site/references/configuration.md",
+              "templates/blog-cloudflare/.agents/skills/building-emdash-site/references/configuration.md",
+              "templates/blog/.agents/skills/building-emdash-site/references/configuration.md",
+              "templates/marketing-cloudflare/.agents/skills/building-emdash-site/references/configuration.md",
+              "templates/marketing/.agents/skills/building-emdash-site/references/configuration.md",
+              "templates/portfolio-cloudflare/.agents/skills/building-emdash-site/references/configuration.md",
+              "templates/portfolio/.agents/skills/building-emdash-site/references/configuration.md",
+              "templates/starter-cloudflare/.agents/skills/building-emdash-site/references/configuration.md",
+              "templates/starter/.agents/skills/building-emdash-site/references/configuration.md"
+            ],
+            "total": 10,
+            "onlyInSource": {
+              "line": 163,
+              "text": "import type { BylineSummary, ContentBylineCredit, TaxonomyTerm, PortableTextBlock } from \"emdash\";"
+            },
+            "onlyInCopy": {
+              "path": "templates/blank/.agents/skills/building-emdash-site/references/configuration.md",
+              "line": 163,
+              "text": "import type { PortableTextBlock } from \"emdash\";"
+            }
+          },
+          {
+            "tail": "skills/building-emdash-site/references/querying-and-rendering.md",
+            "source": "skills/building-emdash-site/references/querying-and-rendering.md",
+            "basis": "source",
+            "stale": [
+              "templates/blank/.agents/skills/building-emdash-site/references/querying-and-rendering.md",
+              "templates/blog-cloudflare/.agents/skills/building-emdash-site/references/querying-and-rendering.md",
+              "templates/blog/.agents/skills/building-emdash-site/references/querying-and-rendering.md",
+              "templates/marketing-cloudflare/.agents/skills/building-emdash-site/references/querying-and-rendering.md",
+              "templates/marketing/.agents/skills/building-emdash-site/references/querying-and-rendering.md",
+              "templates/portfolio-cloudflare/.agents/skills/building-emdash-site/references/querying-and-rendering.md",
+              "templates/portfolio/.agents/skills/building-emdash-site/references/querying-and-rendering.md",
+              "templates/starter-cloudflare/.agents/skills/building-emdash-site/references/querying-and-rendering.md",
+              "templates/starter/.agents/skills/building-emdash-site/references/querying-and-rendering.md"
+            ],
+            "total": 10,
+            "onlyInSource": {
+              "line": 53,
+              "text": "id: string; // The slug (used in URLs); `locale/slug` for non-default locales"
+            },
+            "onlyInCopy": {
+              "path": "templates/blank/.agents/skills/building-emdash-site/references/querying-and-rendering.md",
+              "line": 53,
+              "text": "id: string; // The slug (used in URLs)"
+            }
+          },
+          {
+            "tail": "skills/building-emdash-site/references/schema-and-seed.md",
+            "source": "skills/building-emdash-site/references/schema-and-seed.md",
+            "basis": "source",
+            "stale": [
+              "templates/blank/.agents/skills/building-emdash-site/references/schema-and-seed.md",
+              "templates/blog-cloudflare/.agents/skills/building-emdash-site/references/schema-and-seed.md",
+              "templates/blog/.agents/skills/building-emdash-site/references/schema-and-seed.md",
+              "templates/marketing-cloudflare/.agents/skills/building-emdash-site/references/schema-and-seed.md",
+              "templates/marketing/.agents/skills/building-emdash-site/references/schema-and-seed.md",
+              "templates/portfolio-cloudflare/.agents/skills/building-emdash-site/references/schema-and-seed.md",
+              "templates/portfolio/.agents/skills/building-emdash-site/references/schema-and-seed.md",
+              "templates/starter-cloudflare/.agents/skills/building-emdash-site/references/schema-and-seed.md",
+              "templates/starter/.agents/skills/building-emdash-site/references/schema-and-seed.md"
+            ],
+            "total": 10,
+            "onlyInSource": {
+              "line": 3,
+              "text": "The seed file (`seed/seed.json`) defines the site's entire schema and optional demo content. It's inlined into the build; its schema is applied automatically and its demo content only on request (see "
+            },
+            "onlyInCopy": {
+              "path": "templates/blank/.agents/skills/building-emdash-site/references/schema-and-seed.md",
+              "line": 3,
+              "text": "The seed file (`seed/seed.json`) defines the site's entire schema and optional demo content. It's inlined into the build and applied automatically on the first request when the database is empty and t"
+            }
+          },
+          {
+            "tail": "skills/building-emdash-site/references/site-features.md",
+            "source": "skills/building-emdash-site/references/site-features.md",
+            "basis": "source",
+            "stale": [
+              "templates/blank/.agents/skills/building-emdash-site/references/site-features.md",
+              "templates/blog-cloudflare/.agents/skills/building-emdash-site/references/site-features.md",
+              "templates/blog/.agents/skills/building-emdash-site/references/site-features.md",
+              "templates/marketing-cloudflare/.agents/skills/building-emdash-site/references/site-features.md",
+              "templates/marketing/.agents/skills/building-emdash-site/references/site-features.md",
+              "templates/portfolio-cloudflare/.agents/skills/building-emdash-site/references/site-features.md",
+              "templates/portfolio/.agents/skills/building-emdash-site/references/site-features.md",
+              "templates/starter-cloudflare/.agents/skills/building-emdash-site/references/site-features.md",
+              "templates/starter/.agents/skills/building-emdash-site/references/site-features.md"
+            ],
+            "total": 10,
+            "onlyInSource": {
+              "line": 23,
+              "text": "Available keys: `title`, `tagline`, `logo`, `favicon`, `url`, `postsPerPage`, `dateFormat`, `timezone`, `social`, `seo`."
+            },
+            "onlyInCopy": {
+              "path": "templates/blank/.agents/skills/building-emdash-site/references/site-features.md",
+              "line": 23,
+              "text": "Available keys: `title`, `tagline`, `logo`, `favicon`, `social`, `timezone`, `dateFormat`."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "warn",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "skills/creating-plugins/SKILL.md"
+      },
+      "title": "drift: copies of skills/creating-plugins",
+      "detail": "skills/creating-plugins changed but none of its 9 copies did: templates/blank/.agents/skills/creating-plugins, templates/blog-cloudflare/.agents/skills/creating-plugins, templates/blog/.agents/skills/creating-plugins and 6 more. 5 files differ (SKILL.md, references/admin-ui.md, references/block-kit.md and 2 more). First difference: skills/creating-plugins/SKILL.md:63 has \"| `bylines:read` | Public byline profiles and single or batched entry credits |\", which the stale copies lack. Re-sync the copies from skills/creating-plugins.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "skills/creating-plugins/SKILL.md",
+          "line": 63
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blank/.agents/skills/creating-plugins/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blog-cloudflare/.agents/skills/creating-plugins/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blog/.agents/skills/creating-plugins/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/marketing-cloudflare/.agents/skills/creating-plugins/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/marketing/.agents/skills/creating-plugins/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/portfolio-cloudflare/.agents/skills/creating-plugins/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/portfolio/.agents/skills/creating-plugins/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/starter-cloudflare/.agents/skills/creating-plugins/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/starter/.agents/skills/creating-plugins/SKILL.md"
+        }
+      ],
+      "metrics": {
+        "kind": "drift",
+        "topic": "copies",
+        "unit": "skills/creating-plugins",
+        "basis": "source",
+        "source": "skills/creating-plugins",
+        "staleCopies": [
+          "templates/blank/.agents/skills/creating-plugins",
+          "templates/blog-cloudflare/.agents/skills/creating-plugins",
+          "templates/blog/.agents/skills/creating-plugins",
+          "templates/marketing-cloudflare/.agents/skills/creating-plugins",
+          "templates/marketing/.agents/skills/creating-plugins",
+          "templates/portfolio-cloudflare/.agents/skills/creating-plugins",
+          "templates/portfolio/.agents/skills/creating-plugins",
+          "templates/starter-cloudflare/.agents/skills/creating-plugins",
+          "templates/starter/.agents/skills/creating-plugins"
+        ],
+        "files": [
+          {
+            "tail": "skills/creating-plugins/SKILL.md",
+            "source": "skills/creating-plugins/SKILL.md",
+            "basis": "source",
+            "stale": [
+              "templates/blank/.agents/skills/creating-plugins/SKILL.md",
+              "templates/blog-cloudflare/.agents/skills/creating-plugins/SKILL.md",
+              "templates/blog/.agents/skills/creating-plugins/SKILL.md",
+              "templates/marketing-cloudflare/.agents/skills/creating-plugins/SKILL.md",
+              "templates/marketing/.agents/skills/creating-plugins/SKILL.md",
+              "templates/portfolio-cloudflare/.agents/skills/creating-plugins/SKILL.md",
+              "templates/portfolio/.agents/skills/creating-plugins/SKILL.md",
+              "templates/starter-cloudflare/.agents/skills/creating-plugins/SKILL.md",
+              "templates/starter/.agents/skills/creating-plugins/SKILL.md"
+            ],
+            "total": 10,
+            "onlyInSource": {
+              "line": 63,
+              "text": "| `bylines:read`                   | Public byline profiles and single or batched entry credits                 |"
+            }
+          },
+          {
+            "tail": "skills/creating-plugins/references/admin-ui.md",
+            "source": "skills/creating-plugins/references/admin-ui.md",
+            "basis": "source",
+            "stale": [
+              "templates/blank/.agents/skills/creating-plugins/references/admin-ui.md",
+              "templates/blog-cloudflare/.agents/skills/creating-plugins/references/admin-ui.md",
+              "templates/blog/.agents/skills/creating-plugins/references/admin-ui.md",
+              "templates/marketing-cloudflare/.agents/skills/creating-plugins/references/admin-ui.md",
+              "templates/marketing/.agents/skills/creating-plugins/references/admin-ui.md",
+              "templates/portfolio-cloudflare/.agents/skills/creating-plugins/references/admin-ui.md",
+              "templates/portfolio/.agents/skills/creating-plugins/references/admin-ui.md",
+              "templates/starter-cloudflare/.agents/skills/creating-plugins/references/admin-ui.md",
+              "templates/starter/.agents/skills/creating-plugins/references/admin-ui.md"
+            ],
+            "total": 10,
+            "onlyInSource": {
+              "line": 23,
+              "text": "Set `group` on a page to place it in a collapsible sidebar folder. A group matching the group of a collection shown in the sidebar puts the page in that folder next to the collections it manages; page"
+            },
+            "onlyInCopy": {
+              "path": "templates/blank/.agents/skills/creating-plugins/references/admin-ui.md",
+              "line": 206,
+              "text": "fieldWidgets: [{ name: \"picker\", label: \"Color picker\", fieldTypes: [\"string\"] }],"
+            }
+          },
+          {
+            "tail": "skills/creating-plugins/references/block-kit.md",
+            "source": "skills/creating-plugins/references/block-kit.md",
+            "basis": "source",
+            "stale": [
+              "templates/blank/.agents/skills/creating-plugins/references/block-kit.md",
+              "templates/blog-cloudflare/.agents/skills/creating-plugins/references/block-kit.md",
+              "templates/blog/.agents/skills/creating-plugins/references/block-kit.md",
+              "templates/marketing-cloudflare/.agents/skills/creating-plugins/references/block-kit.md",
+              "templates/marketing/.agents/skills/creating-plugins/references/block-kit.md",
+              "templates/portfolio-cloudflare/.agents/skills/creating-plugins/references/block-kit.md",
+              "templates/portfolio/.agents/skills/creating-plugins/references/block-kit.md",
+              "templates/starter-cloudflare/.agents/skills/creating-plugins/references/block-kit.md",
+              "templates/starter/.agents/skills/creating-plugins/references/block-kit.md"
+            ],
+            "total": 10,
+            "onlyInSource": {
+              "line": 83,
+              "text": "| Type           | Description                                                                              |"
+            },
+            "onlyInCopy": {
+              "path": "templates/blank/.agents/skills/creating-plugins/references/block-kit.md",
+              "line": 83,
+              "text": "| Type           | Description                                               |"
+            }
+          },
+          {
+            "tail": "skills/creating-plugins/references/content.md",
+            "source": "skills/creating-plugins/references/content.md",
+            "basis": "source",
+            "stale": [
+              "templates/blank/.agents/skills/creating-plugins/references/content.md",
+              "templates/blog-cloudflare/.agents/skills/creating-plugins/references/content.md",
+              "templates/blog/.agents/skills/creating-plugins/references/content.md",
+              "templates/marketing-cloudflare/.agents/skills/creating-plugins/references/content.md",
+              "templates/marketing/.agents/skills/creating-plugins/references/content.md",
+              "templates/portfolio-cloudflare/.agents/skills/creating-plugins/references/content.md",
+              "templates/portfolio/.agents/skills/creating-plugins/references/content.md",
+              "templates/starter-cloudflare/.agents/skills/creating-plugins/references/content.md",
+              "templates/starter/.agents/skills/creating-plugins/references/content.md"
+            ],
+            "total": 10,
+            "onlyInSource": {
+              "line": 13,
+              "text": "`bylines:read` exposes `ctx.bylines.get()`, `list()`, and `getEntriesBylines()`, and allows the `byline:afterSave` and `byline:afterDelete` hooks. Profiles omit the linked user account, guest flag, an"
+            }
+          },
+          {
+            "tail": "skills/creating-plugins/references/hooks.md",
+            "source": "skills/creating-plugins/references/hooks.md",
+            "basis": "source",
+            "stale": [
+              "templates/blank/.agents/skills/creating-plugins/references/hooks.md",
+              "templates/blog-cloudflare/.agents/skills/creating-plugins/references/hooks.md",
+              "templates/blog/.agents/skills/creating-plugins/references/hooks.md",
+              "templates/marketing-cloudflare/.agents/skills/creating-plugins/references/hooks.md",
+              "templates/marketing/.agents/skills/creating-plugins/references/hooks.md",
+              "templates/portfolio-cloudflare/.agents/skills/creating-plugins/references/hooks.md",
+              "templates/portfolio/.agents/skills/creating-plugins/references/hooks.md",
+              "templates/starter-cloudflare/.agents/skills/creating-plugins/references/hooks.md",
+              "templates/starter/.agents/skills/creating-plugins/references/hooks.md"
+            ],
+            "total": 10,
+            "onlyInSource": {
+              "line": 47,
+              "text": "- `byline:afterSave` and `byline:afterDelete`"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "warn",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "skills/emdash-cli/SKILL.md"
+      },
+      "title": "drift: copies of skills/emdash-cli",
+      "detail": "skills/emdash-cli changed but none of its 9 copies did: templates/blank/.agents/skills/emdash-cli, templates/blog-cloudflare/.agents/skills/emdash-cli, templates/blog/.agents/skills/emdash-cli and 6 more. 2 files differ (SKILL.md, EDITING-FLOW.md). First difference: skills/emdash-cli/SKILL.md:11 has \"…`search`, `taxonomy`, `menu`, and `site`.\", which the stale copies lack; templates/blank/.agents/skills/emdash-cli/SKILL.md:11 has \"…`search`, `taxonomy`, `menu`, `site`, and `plugin`.\" instead. Re-sync the copies from skills/emdash-cli.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "skills/emdash-cli/SKILL.md",
+          "line": 11
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blank/.agents/skills/emdash-cli/SKILL.md",
+          "line": 11
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blog-cloudflare/.agents/skills/emdash-cli/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blog/.agents/skills/emdash-cli/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/marketing-cloudflare/.agents/skills/emdash-cli/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/marketing/.agents/skills/emdash-cli/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/portfolio-cloudflare/.agents/skills/emdash-cli/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/portfolio/.agents/skills/emdash-cli/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/starter-cloudflare/.agents/skills/emdash-cli/SKILL.md"
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "templates/starter/.agents/skills/emdash-cli/SKILL.md"
+        }
+      ],
+      "metrics": {
+        "kind": "drift",
+        "topic": "copies",
+        "unit": "skills/emdash-cli",
+        "basis": "source",
+        "source": "skills/emdash-cli",
+        "staleCopies": [
+          "templates/blank/.agents/skills/emdash-cli",
+          "templates/blog-cloudflare/.agents/skills/emdash-cli",
+          "templates/blog/.agents/skills/emdash-cli",
+          "templates/marketing-cloudflare/.agents/skills/emdash-cli",
+          "templates/marketing/.agents/skills/emdash-cli",
+          "templates/portfolio-cloudflare/.agents/skills/emdash-cli",
+          "templates/portfolio/.agents/skills/emdash-cli",
+          "templates/starter-cloudflare/.agents/skills/emdash-cli",
+          "templates/starter/.agents/skills/emdash-cli"
+        ],
+        "files": [
+          {
+            "tail": "skills/emdash-cli/SKILL.md",
+            "source": "skills/emdash-cli/SKILL.md",
+            "basis": "source",
+            "stale": [
+              "templates/blank/.agents/skills/emdash-cli/SKILL.md",
+              "templates/blog-cloudflare/.agents/skills/emdash-cli/SKILL.md",
+              "templates/blog/.agents/skills/emdash-cli/SKILL.md",
+              "templates/marketing-cloudflare/.agents/skills/emdash-cli/SKILL.md",
+              "templates/marketing/.agents/skills/emdash-cli/SKILL.md",
+              "templates/portfolio-cloudflare/.agents/skills/emdash-cli/SKILL.md",
+              "templates/portfolio/.agents/skills/emdash-cli/SKILL.md",
+              "templates/starter-cloudflare/.agents/skills/emdash-cli/SKILL.md",
+              "templates/starter/.agents/skills/emdash-cli/SKILL.md"
+            ],
+            "total": 10,
+            "onlyInSource": {
+              "line": 11,
+              "text": "- **Remote commands** talk to a running EmDash instance: `types`, `login`, `logout`, `whoami`, `content`, `schema`, `media`, `search`, `taxonomy`, `menu`, and `site`."
+            },
+            "onlyInCopy": {
+              "path": "templates/blank/.agents/skills/emdash-cli/SKILL.md",
+              "line": 11,
+              "text": "- **Remote commands** talk to a running EmDash instance: `types`, `login`, `logout`, `whoami`, `content`, `schema`, `media`, `search`, `taxonomy`, `menu`, `site`, and `plugin`."
+            }
+          },
+          {
+            "tail": "skills/emdash-cli/EDITING-FLOW.md",
+            "source": "skills/emdash-cli/EDITING-FLOW.md",
+            "basis": "source",
+            "stale": [
+              "templates/blank/.agents/skills/emdash-cli/EDITING-FLOW.md",
+              "templates/blog-cloudflare/.agents/skills/emdash-cli/EDITING-FLOW.md",
+              "templates/blog/.agents/skills/emdash-cli/EDITING-FLOW.md",
+              "templates/marketing-cloudflare/.agents/skills/emdash-cli/EDITING-FLOW.md",
+              "templates/marketing/.agents/skills/emdash-cli/EDITING-FLOW.md",
+              "templates/portfolio-cloudflare/.agents/skills/emdash-cli/EDITING-FLOW.md",
+              "templates/portfolio/.agents/skills/emdash-cli/EDITING-FLOW.md",
+              "templates/starter-cloudflare/.agents/skills/emdash-cli/EDITING-FLOW.md",
+              "templates/starter/.agents/skills/emdash-cli/EDITING-FLOW.md"
+            ],
+            "total": 10,
+            "onlyInSource": {
+              "line": 142,
+              "text": "If someone else updated the item between your read and write, the CLI exits with code 1 and prints:"
+            },
+            "onlyInCopy": {
+              "path": "templates/blank/.agents/skills/emdash-cli/EDITING-FLOW.md",
+              "line": 142,
+              "text": "If someone else updated the item between your read and write:"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main"
+      },
+      "title": "No AI Gateway usage for this repo",
+      "detail": "Source fixture:ai-gateway-logs has no records tagged repo=emdash-demo.",
+      "evidence": []
+    },
+    {
+      "provider": "owners",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main"
+      },
+      "title": "No CODEOWNERS file",
+      "detail": "15 instruction files have no declared owner.",
+      "evidence": []
+    },
+    {
+      "provider": "catalog",
+      "severity": "info",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main"
+      },
+      "title": "Catalog 2026.10.5 (org baseline)",
+      "detail": "59 violation(s); scanned 2339 of 4069 code/config files (1730 test, fixture or generated files skipped).",
+      "evidence": [],
+      "metrics": {
+        "source": "org",
+        "version": "2026.10.5",
+        "repoVersion": null,
+        "baselineVersion": "2026.10.5",
+        "behind": false,
+        "scannedFiles": 2339,
+        "totalFiles": 4069,
+        "skippedTests": 1730,
+        "byKind": {
+          "gateway": 1,
+          "model": 11,
+          "binding": 47
+        }
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "packages/cloudflare/src/plugins/vectorize-search.ts"
+      },
+      "title": "Model call bypasses the org gateway",
+      "detail": "packages/cloudflare/src/plugins/vectorize-search.ts:187 calls env.AI.run without gateway \"git-next\". Approved: env.AI.run(model, input, { gateway: { id: \"git-next\", metadata: { developer, repo, fork, agent, task } } })",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "packages/cloudflare/src/plugins/vectorize-search.ts",
+          "line": 187
+        }
+      ],
+      "metrics": {
+        "kind": "gateway"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/labeler/wrangler.jsonc"
+      },
+      "title": "Unapproved model: @cf/cloudflare/clef",
+      "detail": "@cf/cloudflare/clef is not in catalog 2026.10.5. Approved: anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/labeler/wrangler.jsonc",
+          "line": 66
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "apps/labeler/wrangler.jsonc",
+          "line": 67
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "apps/labeler/evals/sweep-worker.ts",
+          "line": 160
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "apps/labeler/src/ai/clef.ts",
+          "line": 19
+        }
+      ],
+      "metrics": {
+        "kind": "model"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": ".github/bonk-models.json"
+      },
+      "title": "Unapproved model: anthropic/claude-opus-4-7",
+      "detail": "anthropic/claude-opus-4-7 is not in catalog 2026.10.5. Approved: anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": ".github/bonk-models.json",
+          "line": 6
+        },
+        {
+          "repo": "emdash-demo",
+          "path": ".github/bonk-models.json",
+          "line": 8
+        }
+      ],
+      "metrics": {
+        "kind": "model"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/labeler/src/ai/clef.ts"
+      },
+      "title": "Unapproved model: @cf/cloudflare/clef-flash",
+      "detail": "@cf/cloudflare/clef-flash is not in catalog 2026.10.5. Approved: anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/labeler/src/ai/clef.ts",
+          "line": 20
+        }
+      ],
+      "metrics": {
+        "kind": "model"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/labeler/src/ai/workers-ai.ts"
+      },
+      "title": "Unapproved model: @cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "detail": "@cf/meta/llama-3.3-70b-instruct-fp8-fast is not in catalog 2026.10.5. Approved: anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/labeler/src/ai/workers-ai.ts",
+          "line": 20
+        }
+      ],
+      "metrics": {
+        "kind": "model"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/emdash-bot/.flue/agents/classify-command.ts"
+      },
+      "title": "Unapproved model: @cf/qwen/qwen3-30b-a3b-fp8",
+      "detail": "@cf/qwen/qwen3-30b-a3b-fp8 is not in catalog 2026.10.5. Approved: anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/emdash-bot/.flue/agents/classify-command.ts",
+          "line": 45
+        },
+        {
+          "repo": "emdash-demo",
+          "path": "infra/emdash-bot/.flue/lib/classifier-client.ts",
+          "line": 9
+        }
+      ],
+      "metrics": {
+        "kind": "model"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "packages/blocks/playground/src/templates.ts"
+      },
+      "title": "Unapproved model: GPT-4o",
+      "detail": "GPT-4o is not in catalog 2026.10.5. Approved: anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "packages/blocks/playground/src/templates.ts",
+          "line": 111
+        }
+      ],
+      "metrics": {
+        "kind": "model"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "packages/blocks/playground/src/templates.ts"
+      },
+      "title": "Unapproved model: gpt-4o-mini",
+      "detail": "gpt-4o-mini is not in catalog 2026.10.5. Approved: anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "packages/blocks/playground/src/templates.ts",
+          "line": 111
+        }
+      ],
+      "metrics": {
+        "kind": "model"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "packages/blocks/playground/src/templates.ts"
+      },
+      "title": "Unapproved model: claude-haiku",
+      "detail": "claude-haiku is not in catalog 2026.10.5. Approved: anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "packages/blocks/playground/src/templates.ts",
+          "line": 112
+        }
+      ],
+      "metrics": {
+        "kind": "model"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "packages/marketplace/src/audit/image-workers-ai.ts"
+      },
+      "title": "Unapproved model: @cf/meta/llama-4-scout-17b-16e-instruct",
+      "detail": "@cf/meta/llama-4-scout-17b-16e-instruct is not in catalog 2026.10.5. Approved: anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "packages/marketplace/src/audit/image-workers-ai.ts",
+          "line": 68
+        }
+      ],
+      "metrics": {
+        "kind": "model"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "packages/marketplace/src/audit/workers-ai.ts"
+      },
+      "title": "Unapproved model: @cf/qwen/qwq-32b",
+      "detail": "@cf/qwen/qwq-32b is not in catalog 2026.10.5. Approved: anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "packages/marketplace/src/audit/workers-ai.ts",
+          "line": 107
+        }
+      ],
+      "metrics": {
+        "kind": "model"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "packages/plugins/ai-moderation/src/guard.ts"
+      },
+      "title": "Unapproved model: @cf/meta/llama-guard-3-8b",
+      "detail": "@cf/meta/llama-guard-3-8b is not in catalog 2026.10.5. Approved: anthropic/claude-opus-5.5 (planning/review/coding), anthropic/claude-sonnet-5.5 (coding/review), anthropic/claude-sonnet-5 (coding/review), anthropic/claude-haiku-4.5 (chat/classification), @cf/zai-org/glm-5.3-flash (summaries/extraction/chores), @cf/moonshotai/kimi-k2.7-code (coding/review), @cf/google/embeddinggemma-300m (embeddings).",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "packages/plugins/ai-moderation/src/guard.ts",
+          "line": 93
+        }
+      ],
+      "metrics": {
+        "kind": "model"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/aggregator/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: d1_databases DB → emdash-aggregator",
+      "detail": "emdash-aggregator (apps/aggregator/wrangler.jsonc): d1_databases resource \"emdash-aggregator\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/aggregator/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/aggregator/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: queues RECORDS_QUEUE → emdash-aggregator-records",
+      "detail": "emdash-aggregator (apps/aggregator/wrangler.jsonc): queues resource \"emdash-aggregator-records\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/aggregator/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/aggregator/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: queues BACKFILL_QUEUE → emdash-aggregator-backfill",
+      "detail": "emdash-aggregator (apps/aggregator/wrangler.jsonc): queues resource \"emdash-aggregator-backfill\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/aggregator/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/aggregator/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: queues consumer:emdash-aggregator-records-dlq → emdash-aggregator-records-dlq",
+      "detail": "emdash-aggregator (apps/aggregator/wrangler.jsonc): queues resource \"emdash-aggregator-records-dlq\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/aggregator/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/aggregator/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: queues consumer:emdash-aggregator-backfill-dlq → emdash-aggregator-backfill-dlq",
+      "detail": "emdash-aggregator (apps/aggregator/wrangler.jsonc): queues resource \"emdash-aggregator-backfill-dlq\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/aggregator/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/labeler/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets MEDIA_QUARANTINE → emdash-labeler-media-quarantine",
+      "detail": "emdash-labeler (apps/labeler/wrangler.jsonc): r2_buckets resource \"emdash-labeler-media-quarantine\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/labeler/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/labeler/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets EVAL_DATASETS → emdash-labeler-eval-datasets",
+      "detail": "emdash-labeler (apps/labeler/wrangler.jsonc): r2_buckets resource \"emdash-labeler-eval-datasets\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/labeler/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/labeler/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets EVAL_ARTIFACTS → emdash-labeler-eval-artifacts",
+      "detail": "emdash-labeler (apps/labeler/wrangler.jsonc): r2_buckets resource \"emdash-labeler-eval-artifacts\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/labeler/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/labeler/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: d1_databases DB → emdash-labeler",
+      "detail": "emdash-labeler (apps/labeler/wrangler.jsonc): d1_databases resource \"emdash-labeler\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/labeler/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/labeler/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: queues DISCOVERY_QUEUE → emdash-labeler-discovery",
+      "detail": "emdash-labeler (apps/labeler/wrangler.jsonc): queues resource \"emdash-labeler-discovery\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/labeler/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/labeler/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: queues consumer:emdash-labeler-discovery-dlq → emdash-labeler-discovery-dlq",
+      "detail": "emdash-labeler (apps/labeler/wrangler.jsonc): queues resource \"emdash-labeler-discovery-dlq\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/labeler/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/release-service/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets PUBLICATION_STAGING → emdash-release-service-publication-staging",
+      "detail": "emdash-release-service (apps/release-service/wrangler.jsonc): r2_buckets resource \"emdash-release-service-publication-staging\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/release-service/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/release-service/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets PROVENANCE_STORE → emdash-release-service-provenance",
+      "detail": "emdash-release-service (apps/release-service/wrangler.jsonc): r2_buckets resource \"emdash-release-service-provenance\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/release-service/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "apps/release-service/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets OPERATIONS_ARCHIVE → emdash-release-service-operations",
+      "detail": "emdash-release-service (apps/release-service/wrangler.jsonc): r2_buckets resource \"emdash-release-service-operations\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "apps/release-service/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "demos/cloudflare/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets MEDIA → emdash-media",
+      "detail": "emdash-demo (demos/cloudflare/wrangler.jsonc): r2_buckets resource \"emdash-media\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "demos/cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "demos/cloudflare/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: d1_databases DB → emdash_db",
+      "detail": "emdash-demo (demos/cloudflare/wrangler.jsonc): d1_databases resource \"emdash_db\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "demos/cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "demos/playground/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: kv_namespaces SESSION → 753be2785dfb4da886e837a90cd9a21a",
+      "detail": "emdash-playground (demos/playground/wrangler.jsonc): kv_namespaces resource \"753be2785dfb4da886e837a90cd9a21a\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "demos/playground/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "e2e/fixture-cloudflare/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets MEDIA → emdash-e2e-media",
+      "detail": "emdash-e2e-fixture-cloudflare (e2e/fixture-cloudflare/wrangler.jsonc): r2_buckets resource \"emdash-e2e-media\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "e2e/fixture-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "e2e/fixture-cloudflare/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: d1_databases DB → emdash_e2e",
+      "detail": "emdash-e2e-fixture-cloudflare (e2e/fixture-cloudflare/wrangler.jsonc): d1_databases resource \"emdash_e2e\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "e2e/fixture-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "fixtures/perf-site/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets MEDIA → emdash-perf-fixture-media",
+      "detail": "emdash-perf-fixture (fixtures/perf-site/wrangler.jsonc): r2_buckets resource \"emdash-perf-fixture-media\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "fixtures/perf-site/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "fixtures/perf-site/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: d1_databases DB → emdash-perf-fixture",
+      "detail": "emdash-perf-fixture (fixtures/perf-site/wrangler.jsonc): d1_databases resource \"emdash-perf-fixture\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "fixtures/perf-site/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/blog-demo/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: kv_namespaces SESSION → 045dd0600977420992277da020ae2df3",
+      "detail": "emdash-demo-blog (infra/blog-demo/wrangler.jsonc): kv_namespaces resource \"045dd0600977420992277da020ae2df3\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/blog-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/blog-demo/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets MEDIA → emdash-demo-media",
+      "detail": "emdash-demo-blog (infra/blog-demo/wrangler.jsonc): r2_buckets resource \"emdash-demo-media\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/blog-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/blog-demo/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: d1_databases DB → emdash-demo-blog",
+      "detail": "emdash-demo-blog (infra/blog-demo/wrangler.jsonc): d1_databases resource \"emdash-demo-blog\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/blog-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/cache-demo/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: kv_namespaces SESSION → 045dd0600977420992277da020ae2df3",
+      "detail": "emdash-demo-cache (infra/cache-demo/wrangler.jsonc): kv_namespaces resource \"045dd0600977420992277da020ae2df3\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/cache-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/cache-demo/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets MEDIA → emdash-demo-media",
+      "detail": "emdash-demo-cache (infra/cache-demo/wrangler.jsonc): r2_buckets resource \"emdash-demo-media\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/cache-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/cache-demo/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: d1_databases DB → emdash-demo-blog",
+      "detail": "emdash-demo-cache (infra/cache-demo/wrangler.jsonc): d1_databases resource \"emdash-demo-blog\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/cache-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/discord-bot/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: kv_namespaces KV → 2a5c0ec09f364546a10f2fa49e1ebaf4",
+      "detail": "emdash-discord-bot (infra/discord-bot/wrangler.jsonc): kv_namespaces resource \"2a5c0ec09f364546a10f2fa49e1ebaf4\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/discord-bot/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/do-demo/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: kv_namespaces SESSION → c0e628ad55194fe4a7bc00059fcebdf5",
+      "detail": "emdash-demo-do (infra/do-demo/wrangler.jsonc): kv_namespaces resource \"c0e628ad55194fe4a7bc00059fcebdf5\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/do-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/do-demo/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets MEDIA → emdash-demo-media",
+      "detail": "emdash-demo-do (infra/do-demo/wrangler.jsonc): r2_buckets resource \"emdash-demo-media\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/do-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/do-solo-demo/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: kv_namespaces SESSION → 7d54671b952a4df5987e475f9e6d3c6a",
+      "detail": "emdash-demo-do-solo (infra/do-solo-demo/wrangler.jsonc): kv_namespaces resource \"7d54671b952a4df5987e475f9e6d3c6a\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/do-solo-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/do-solo-demo/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets MEDIA → emdash-demo-media",
+      "detail": "emdash-demo-do-solo (infra/do-solo-demo/wrangler.jsonc): r2_buckets resource \"emdash-demo-media\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/do-solo-demo/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/emdash-bot/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets BOT_WORKSPACE → emdash-bot-workspace",
+      "detail": "emdash-bot (infra/emdash-bot/wrangler.jsonc): r2_buckets resource \"emdash-bot-workspace\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/emdash-bot/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/emdash-bot/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: containers Sandbox → ./Dockerfile",
+      "detail": "emdash-bot (infra/emdash-bot/wrangler.jsonc): binding type containers is not in the catalog. Approved types: r2_buckets, kv_namespaces, d1_databases, durable_objects, queues, workflows, ai, services, artifacts, worker_loaders, images, assets, analytics_engine_datasets.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/emdash-bot/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/flue-review/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets REVIEW_WORKSPACE → emdash-flue-review-workspace",
+      "detail": "emdash-flue-review (infra/flue-review/wrangler.jsonc): r2_buckets resource \"emdash-flue-review-workspace\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/flue-review/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/perf-monitor/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: d1_databases DB → emdash_perf",
+      "detail": "emdash-perf-coordinator (infra/perf-monitor/wrangler.jsonc): d1_databases resource \"emdash_perf\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/perf-monitor/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "infra/perf-monitor/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: queues consumer:emdash-perf-deploy-events → emdash-perf-deploy-events",
+      "detail": "emdash-perf-coordinator (infra/perf-monitor/wrangler.jsonc): queues resource \"emdash-perf-deploy-events\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "infra/perf-monitor/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "packages/marketplace/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets R2 → plugin-bundles",
+      "detail": "emdash-marketplace (packages/marketplace/wrangler.jsonc): r2_buckets resource \"plugin-bundles\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "packages/marketplace/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "packages/marketplace/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: d1_databases DB → emdash-marketplace",
+      "detail": "emdash-marketplace (packages/marketplace/wrangler.jsonc): d1_databases resource \"emdash-marketplace\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "packages/marketplace/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "templates/blog-cloudflare/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets MEDIA → my-emdash-media",
+      "detail": "my-emdash-site (templates/blog-cloudflare/wrangler.jsonc): r2_buckets resource \"my-emdash-media\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blog-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "templates/blog-cloudflare/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: d1_databases DB → my-emdash-site",
+      "detail": "my-emdash-site (templates/blog-cloudflare/wrangler.jsonc): d1_databases resource \"my-emdash-site\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "templates/blog-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "templates/marketing-cloudflare/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets MEDIA → my-marketing-media",
+      "detail": "my-marketing-site (templates/marketing-cloudflare/wrangler.jsonc): r2_buckets resource \"my-marketing-media\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "templates/marketing-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "templates/marketing-cloudflare/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: d1_databases DB → my-marketing-site",
+      "detail": "my-marketing-site (templates/marketing-cloudflare/wrangler.jsonc): d1_databases resource \"my-marketing-site\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "templates/marketing-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "templates/portfolio-cloudflare/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets MEDIA → my-portfolio-media",
+      "detail": "my-portfolio-site (templates/portfolio-cloudflare/wrangler.jsonc): r2_buckets resource \"my-portfolio-media\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "templates/portfolio-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "templates/portfolio-cloudflare/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: d1_databases DB → my-portfolio-site",
+      "detail": "my-portfolio-site (templates/portfolio-cloudflare/wrangler.jsonc): d1_databases resource \"my-portfolio-site\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "templates/portfolio-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "templates/starter-cloudflare/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: r2_buckets MEDIA → my-emdash-media",
+      "detail": "my-emdash-site (templates/starter-cloudflare/wrangler.jsonc): r2_buckets resource \"my-emdash-media\" is not listed in the catalog and does not match acme-*. Use the shared UPLOADS → acme-shared-uploads, or name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "templates/starter-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    },
+    {
+      "provider": "catalog",
+      "severity": "conflict",
+      "scope": {
+        "repo": "emdash-demo",
+        "ref": "main",
+        "path": "templates/starter-cloudflare/wrangler.jsonc"
+      },
+      "title": "Unapproved binding: d1_databases DB → my-emdash-site",
+      "detail": "my-emdash-site (templates/starter-cloudflare/wrangler.jsonc): d1_databases resource \"my-emdash-site\" is not listed in the catalog and does not match acme-*. Name it acme-*.",
+      "evidence": [
+        {
+          "repo": "emdash-demo",
+          "path": "templates/starter-cloudflare/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "kind": "binding"
+      }
+    }
+  ]
+}

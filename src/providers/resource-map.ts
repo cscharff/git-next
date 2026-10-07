@@ -17,6 +17,10 @@ export const BINDING_TYPES = [
 	"containers",
 	"browser",
 	"artifacts",
+	"worker_loaders",
+	"images",
+	"assets",
+	"analytics_engine_datasets",
 ] as const;
 export type BindingType = (typeof BINDING_TYPES)[number];
 
@@ -60,6 +64,12 @@ export function extractBindings(config: Obj): Binding[] {
 	for (const b of asArray(config.containers)) add("containers", b.class_name ?? b.name, b.image);
 	if (config.browser) add("browser", config.browser.binding);
 	for (const b of asArray(config.artifacts)) add("artifacts", b.binding, b.namespace);
+	// Dynamic Worker loaders: how a Worker runs untrusted code (e.g. plugins) in its own isolate.
+	for (const b of asArray(config.worker_loaders)) add("worker_loaders", b.binding);
+	if (config.images) add("images", config.images.binding);
+	// Static assets need no binding to be served; without one they are listed as "(assets)".
+	if (config.assets) add("assets", config.assets.binding ?? "(assets)", config.assets.directory);
+	for (const b of asArray(config.analytics_engine_datasets)) add("analytics_engine_datasets", b.binding, b.dataset);
 	return out;
 }
 
@@ -71,6 +81,10 @@ export function parseWranglerConfig(path: string, text: string): WorkerResources
 		return { path, worker: "(unparseable)", bindings: [], error: String(err) };
 	}
 }
+
+/** Queue consumers are listed as `consumer:<queue>` next to producers; they are not env bindings. */
+export const isQueueConsumer = (b: Binding) => b.type === "queues" && b.name.startsWith("consumer:");
+const label = (b: Binding) => (isQueueConsumer(b) ? `${b.resource} (consumer)` : b.type === "queues" && b.resource ? `${b.name} → ${b.resource}` : b.name);
 
 const key = (b: Binding) => `${b.type}:${b.name}:${b.resource ?? ""}`;
 
@@ -121,7 +135,9 @@ export const resourceMapProvider: InsightProvider = {
 
 		const insights: Insight[] = head.map((w) => {
 			const diff = baseByPath ? diffBindings(baseByPath.get(w.path)?.bindings ?? [], w.bindings) : undefined;
-			const summary = Object.entries(byType(w.bindings)).map(([t, bs]) => `${t}: ${bs!.map((b) => b.name).join(", ")}`);
+			const summary = Object.entries(byType(w.bindings)).map(([t, bs]) => `${t}: ${bs!.map(label).join(", ")}`);
+			// Consumers are counted with the bindings (they are resources the Worker is wired to) but called out.
+			const consumers = w.bindings.filter(isQueueConsumer).length;
 			return {
 				provider: "resource-map",
 				severity: w.error ? "warn" : diff && (diff.added.length || diff.removed.length) ? "warn" : "info",
@@ -130,7 +146,7 @@ export const resourceMapProvider: InsightProvider = {
 					? `Could not parse ${w.path}`
 					: diff
 						? `${w.worker}: +${diff.added.length} −${diff.removed.length} bindings vs ${base}`
-						: `${w.worker}: ${w.bindings.length} binding${w.bindings.length === 1 ? "" : "s"}`,
+						: `${w.worker}: ${w.bindings.length} binding${w.bindings.length === 1 ? "" : "s"}${consumers ? ` (incl. ${consumers} queue consumer${consumers === 1 ? "" : "s"})` : ""}`,
 				detail: w.error ?? (summary.join("; ") || "No bindings declared."),
 				evidence: [{ repo, path: w.path }],
 				metrics: { worker: w.worker, bindings: byType(w.bindings), ...(diff ? { diff, newConfig: !baseByPath!.has(w.path) } : {}), ...(catalog ? { catalogVersion: catalog.version, approval: approval(w.bindings) } : {}) },

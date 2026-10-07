@@ -1,0 +1,11 @@
+{
+	// The demo layers (fixtures/demo-layers) plus an on-prem platform layer scoped to the private cloud.
+	// "env" limits a layer to one cloud's environments: its rules only meet unscoped rules or rules for the same env.
+	"layers": [
+		{ "name": "acme-org", "kind": "org", "rank": 1, "repo": "git-next-demo-layers", "path": "org/AGENTS.md" },
+		{ "name": "onprem-platform", "kind": "org", "rank": 1, "repo": "git-next-demo-layers", "path": "private/AGENTS.md", "env": "private" },
+		{ "name": "sow-1234", "kind": "contract", "rank": 2, "repo": "git-next-demo-layers", "path": "contract/AGENTS.md" },
+		{ "name": "coding-agent", "kind": "tool", "rank": 4, "repo": "git-next-demo-layers", "path": "tool/AGENTS.md" },
+		{ "name": "chris", "kind": "personal", "rank": 5, "repo": "git-next-demo-layers", "path": "personal/AGENTS.md" }
+	]
+}

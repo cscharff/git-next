@@ -5,7 +5,8 @@ import { parseCatalog } from "../src/providers/catalog.ts";
 import { readFileSync } from "node:fs";
 import { gatewayLogsSource, parseGatewayLogs, staticCostSource, taskLabelOf, UNATTRIBUTED } from "../src/providers/cost/logs.ts";
 import { modelFit } from "../src/providers/cost/model-fit.ts";
-import { median, rollup, spendFlags } from "../src/providers/cost/rollup.ts";
+import { byCloud, median, rollup, spendFlags } from "../src/providers/cost/rollup.ts";
+import { withMockedClouds } from "../src/providers/cost/mocked.ts";
 
 const log = (over: Record<string, unknown>, meta: Record<string, unknown> | string = {}) => ({
 	id: "l",
@@ -145,5 +146,53 @@ describe("gatewayLogsSource", () => {
 		const err = await gatewayLogsSource({ accountId: "a", gatewayId: "g", token: "secret-value", fetcher }).records({}).catch((e) => e);
 		expect(String(err)).toContain("HTTP 403 Authentication error");
 		expect(String(err)).not.toContain("secret-value");
+	});
+});
+
+describe("cost by cloud (mocked clouds)", () => {
+	const catalog = parseCatalog(readFileSync(new URL("../fixtures/org-baseline/catalog.json", import.meta.url), "utf8"));
+
+	it("parses cloud tags, flags mocked records and rolls spend up by cloud", async () => {
+		const recs = parseGatewayLogs([log({ cost: 2 }, { cloud: "aws" }), log({ cost: 1, mocked: true }, { cloud: "gcp" }), log({ cost: 4 }, { cloud: "azure" })]);
+		expect(recs.map((r) => `${r.cloud}:${r.mocked}`)).toEqual(["aws:false", "gcp:true", "cloudflare:false"]);
+		expect(byCloud(recs).map((c) => [c.cloud, c.cost, c.requests, c.mocked])).toEqual([
+			["cloudflare", 4, 1, false],
+			["aws", 2, 1, false],
+			["gcp", 1, 1, true],
+		]);
+		const all = await withMockedClouds(staticCostSource("live", [])).records({ repo: "agents-demo-full" });
+		expect(new Set(all.map((r) => r.cloud))).toEqual(new Set(["aws", "gcp", "private"]));
+		expect(all.every((r) => r.mocked)).toBe(true);
+	});
+
+	it("suggests a cheaper equivalent on another cloud only where the catalog approves it", () => {
+		const recs = parseGatewayLogs([
+			log({ model: "bedrock/anthropic.claude-sonnet-5", cost: 4.5 }, { agent: "a", task: "review#1", cloud: "aws" }),
+			log({ model: "vllm/glm-5.3-flash", cost: 0.06 }, { agent: "b", task: "summarize#1", cloud: "private" }),
+			log({ model: "bedrock/anthropic.claude-sonnet-5", cost: 4.5 }, { agent: "c", task: "triage#1", cloud: "aws" }),
+		]);
+		const fits = modelFit(recs, catalog);
+		// 1M in × $2 + 0.1M out × $10 = $3 on Cloudflare vs $4.50 on Bedrock.
+		expect(fits).toEqual([expect.objectContaining({ agent: "a", cloud: "aws", suggest: "anthropic/claude-sonnet-5", suggestCloud: "cloudflare", estimatedCost: 3, estimatedSaving: 1.5 })]);
+		// Without the catalog entry for the cheaper cloud, nothing is suggested; private work is never moved.
+		const noCf = parseCatalog(JSON.stringify({ ...catalog, models: catalog.models.filter((m) => m.id !== "anthropic/claude-sonnet-5") }));
+		expect(modelFit(recs, noCf)).toEqual([]);
+		expect(modelFit(recs)).toEqual([]);
+	});
+
+	it("reports per-cloud spend and env-scoped insights, badged mocked", async () => {
+		const files = new RepoContext(async () => memorySource({}));
+		const out = await costProvider(withMockedClouds(fixtureCostSource()), { catalog }).analyze({ repo: "agents-demo-full", ref: "main", files });
+		const m = out[0].metrics as { byCloud: { cloud: string; mocked: boolean }[]; clouds: string[]; mockedRequests: number };
+		expect(m.clouds.sort()).toEqual(["aws", "cloudflare", "gcp", "private"]);
+		expect(m.byCloud.find((c) => c.cloud === "cloudflare")?.mocked).toBe(false);
+		expect(m.byCloud.filter((c) => c.mocked).map((c) => c.cloud).sort()).toEqual(["aws", "gcp", "private"]);
+		expect(m.mockedRequests).toBe(25);
+		expect(out[0].detail).toContain("MOCKED");
+		expect(out.filter((i) => i.scope.env && !i.scope.agent).map((i) => i.title.split(":")[0]).sort()).toEqual(["aws (mocked)", "cloudflare", "gcp (mocked)", "private (mocked)"]);
+		const cross = out.filter((i) => i.metrics?.suggestCloud);
+		expect(cross.map((i) => i.title)).toEqual(["Model fit: feature on vertex/anthropic.claude-opus-5.5 → anthropic/claude-opus-5.5 (cloudflare)", "Model fit: review on bedrock/anthropic.claude-sonnet-5 → anthropic/claude-sonnet-5 (cloudflare)"]);
+		expect(cross.every((i) => i.scope.env?.mocked)).toBe(true);
+		expect(out.some((i) => i.title === "Catalog: analytics-agent used vertex/gemini-3-flash" && i.scope.env?.cloud === "gcp")).toBe(true);
 	});
 });

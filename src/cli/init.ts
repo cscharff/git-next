@@ -200,7 +200,7 @@ export async function initCommand(args: ParsedArgs, io: CliIo, d: InitDeps): Pro
 				[
 					`Created ${name} in ${relative(io.cwd, target) || "."} from ${orgLabel} (template ${args.template})`,
 					`  layers   ${stack.layers.map((l) => `${l.kind}:${l.name}`).join(", ")} pinned at ${contentHash}${commit ? ` (baseline ${commit.slice(0, 12)})` : ""}`,
-					`  catalog  ${catalog.version}: ${catalog.models.length} models, ${catalog.bindings.length} binding types, gateway ${catalog.gateway?.id ?? "none"}`,
+					`  catalog  ${catalog.version}: ${catalog.models.filter((m) => !m.cloud || m.cloud === "cloudflare").length} models, ${catalog.bindings.filter((b) => !b.cloud || b.cloud === "cloudflare").length} binding types, gateway ${catalog.gateway?.id ?? "none"}`,
 					`  files    ${written.map((f) => relative(target, f)).sort().join(", ")}`,
 					"  hook     .git/hooks/pre-push (fail-closed; GIT_NEXT_ALLOW_ON_ERROR=1 to bypass on errors)",
 					"  rules    ✓ no conflicts or catalog violations",

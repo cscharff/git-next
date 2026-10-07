@@ -1,5 +1,6 @@
 import type { ConfigFact } from "./config-facts.ts";
-import { precedence, type Rule } from "./types.ts";
+import type { Cloud } from "../../core/types.ts";
+import { precedence, ruleEnv, type Rule } from "./types.ts";
 
 export type FindingKind = "overridden" | "conflict" | "drift";
 
@@ -11,6 +12,8 @@ export interface Finding {
 	fact?: ConfigFact;
 	/** Set when a rule breaks a policy (e.g. a model from a provider not on the approved list). */
 	policyViolation?: boolean;
+	/** Set when a rule involved is environment-scoped: the finding holds in that environment only. */
+	env?: Cloud;
 	explanation: string;
 }
 
@@ -19,7 +22,9 @@ const governs = (dir: string, other: string) => dir === "" || other === dir || o
 /** Whether a rule applies to a directory: inside its layer's scope and, if it names areas, inside one of them. */
 const appliesTo = (r: Rule, dir: string) => governs(r.layer.scopeDir, dir) && (!r.areas || dir === "" || r.areas.includes(dir.split("/")[0]));
 const disjointAreas = (a: Rule, b: Rule) => !!a.areas && !!b.areas && !a.areas.some((x) => b.areas!.includes(x));
-const overlaps = (a: Rule, b: Rule) => (appliesTo(a, b.layer.scopeDir) || appliesTo(b, a.layer.scopeDir)) && !disjointAreas(a, b);
+/** Unscoped rules apply in every environment; env-scoped rules only meet rules for the same env or unscoped ones. */
+const sameEnv = (a: Rule, b: Rule) => !ruleEnv(a) || !ruleEnv(b) || ruleEnv(a) === ruleEnv(b);
+const overlaps = (a: Rule, b: Rule) => (appliesTo(a, b.layer.scopeDir) || appliesTo(b, a.layer.scopeDir)) && !disjointAreas(a, b) && sameEnv(a, b);
 const sameLayer = (a: Rule, b: Rule) => a.layer.repo === b.layer.repo && a.layer.path === b.layer.path;
 const where = (r: Rule) => `${r.layer.name} [${r.layer.kind}] (${r.layer.path}:${r.line})`;
 
@@ -83,11 +88,12 @@ export function resolve(rules: Rule[], facts: ConfigFact[] = []): Finding[] {
 				const bothMust = a.strength === "must" && b.strength === "must";
 				const order = precedence(a.layer, b.layer);
 				const violation = compatible(a, b) === false;
-				const why = violation ? " (model's provider is not on the approved list)" : "";
-				const extra = violation ? { policyViolation: true } : {};
+				const env = ruleEnv(a) ?? ruleEnv(b);
+				const why = `${violation ? " (model's provider is not on the approved list)" : ""}${env ? ` in ${env} environments` : ""}`;
+				const extra = { ...(violation ? { policyViolation: true } : {}), ...(env ? { env } : {}) };
 
 				if (sameLayer(a, b)) {
-					if (bothMust) findings.push({ kind: "conflict", topic, rules: [a, b], explanation: `${a.layer.path} requires both "${a.value}" (line ${a.line}) and "${b.value}" (line ${b.line}).` });
+					if (bothMust) findings.push({ kind: "conflict", topic, rules: [a, b], ...extra, explanation: `${a.layer.path} requires both "${a.value}" (line ${a.line}) and "${b.value}" (line ${b.line}).` });
 				} else if (bothMust || order === 0) {
 					const [x, y] = order >= 0 ? [a, b] : [b, a];
 					findings.push({
@@ -108,7 +114,8 @@ export function resolve(rules: Rule[], facts: ConfigFact[] = []): Finding[] {
 	// Drift: for each fact, compare with the highest-precedence rules governing its directory.
 	const driftSeen = new Set<string>();
 	for (const fact of facts) {
-		const applicable = (byTopic.get(fact.topic) ?? []).filter((r) => appliesTo(r, fact.dir));
+		// Config files describe the repo itself, so only unscoped rules can drift from them.
+		const applicable = (byTopic.get(fact.topic) ?? []).filter((r) => appliesTo(r, fact.dir) && !ruleEnv(r));
 		if (!applicable.length) continue;
 		const top = applicable.reduce((best, r) => (precedence(r.layer, best.layer) > 0 ? r : best));
 		const effective = applicable.filter((r) => precedence(r.layer, top.layer) === 0);
@@ -122,10 +129,10 @@ export function resolve(rules: Rule[], facts: ConfigFact[] = []): Finding[] {
 	return findings;
 }
 
-/** The winning rule per topic for a directory (highest precedence; ties keep every peer value). */
-export function effectiveRules(rules: Rule[], dir: string): Rule[] {
+/** The winning rule per topic for a directory (highest precedence; ties keep every peer value), unscoped rules plus `env`'s. */
+export function effectiveRules(rules: Rule[], dir: string, env?: Cloud): Rule[] {
 	const out: Rule[] = [];
-	for (const [, list] of Map.groupBy(rules.filter((r) => appliesTo(r, dir)), (r) => r.topic)) {
+	for (const [, list] of Map.groupBy(rules.filter((r) => appliesTo(r, dir) && (!ruleEnv(r) || ruleEnv(r) === env)), (r) => r.topic)) {
 		const top = list.reduce((best, r) => (precedence(r.layer, best.layer) > 0 ? r : best));
 		const winners = list.filter((r) => precedence(r.layer, top.layer) === 0);
 		out.push(...winners.filter((r, i) => winners.findIndex((w) => w.value === r.value) === i));

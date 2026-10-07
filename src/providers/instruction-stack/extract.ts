@@ -3,6 +3,9 @@ import type { Layer, Rule, RuleExtractor, Strength, Topic } from "./types.ts";
 const MUST = /\b(must|always|never|required?|do not|don't|only|mandatory|shall|needs?)\b/i;
 const NEGATED = /\b(never|do not|don't|no need|not required|avoid|without|skip|omit)\b/i;
 
+/** A formatter named as a tool; `prettier-ignore`/`biome-ignore` style directives mention one without choosing it. */
+export const FORMATTER = /\b(prettier|oxfmt|biome|dprint)\b(?![-:](?:ignore|disable))/i;
+
 type Matcher = (line: string) => string | null;
 
 const firstOf = (re: RegExp, map: (m: RegExpMatchArray) => string = (m) => m[1].toLowerCase()): Matcher => (line) => {
@@ -19,7 +22,7 @@ const MATCHERS: Record<Topic, Matcher> = {
 			line.match(/\bpackage manager\b[^.]*?\b(npm|pnpm|yarn|bun)\b/i);
 		return m ? m[1].toLowerCase() : null;
 	},
-	formatter: firstOf(/\b(prettier|oxfmt|biome|dprint)\b/i),
+	formatter: firstOf(FORMATTER),
 	indentation: (line) => {
 		if (!/\b(indent|indentation|tabs?|spaces)\b/i.test(line)) return null;
 		const spaces = line.match(/\b(\d)[- ]?space/i);
@@ -58,6 +61,12 @@ const MATCHERS: Record<Topic, Matcher> = {
 		return [...new Set(models.map((m) => m.toLowerCase()))].sort().join(",");
 	},
 	securityScan: (line) => (/\bsecurity (scan|review|audit)\b/i.test(line) && /\b(before|prior to)\b[^.]*\b(pr|pull request|merge|push)/i.test(line) ? "before-pr" : null),
+	modelRouting: (line) => {
+		if (!/\b(models?|inference|llms?)\b/i.test(line)) return null;
+		if (/\bon-?prem(ises)?\b|\bself-hosted\b|\b(no|nothing|no data) (may |must |should )?leaves? the network\b|\bnever leaves? the network\b/i.test(line)) return "on-prem";
+		if (/\bai gateway\b/i.test(line) && /\b(call|calls|calling|route|routed|send)\b/i.test(line)) return "org-gateway";
+		return null;
+	},
 	secrets: (line) => {
 		if (!/\b(secrets?|api keys?|credentials?|tokens?|\.env|\.dev\.vars)\b/i.test(line)) return null;
 		if (/\b(never|do not|don't|must not)\b[^.]*\b(commit|check in|hard-?code|log|print|expose)/i.test(line)) return "never-in-source";

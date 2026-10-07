@@ -30,6 +30,20 @@ describe("parseWranglerConfig", () => {
 		});
 	});
 
+	it("extracts worker loaders, images, assets and analytics engine datasets", () => {
+		const w = parseWranglerConfig(
+			"wrangler.jsonc",
+			`{ "name": "cms", "worker_loaders": [{ "binding": "LOADER" }], "images": { "binding": "IMAGES" }, "assets": { "directory": "./dist" },
+			"analytics_engine_datasets": [{ "binding": "METRICS", "dataset": "ops" }] }`,
+		);
+		expect(w.bindings).toEqual([
+			{ type: "worker_loaders", name: "LOADER" },
+			{ type: "images", name: "IMAGES" },
+			{ type: "assets", name: "(assets)", resource: "./dist" },
+			{ type: "analytics_engine_datasets", name: "METRICS", resource: "ops" },
+		]);
+	});
+
 	it("reports parse errors instead of throwing", () => {
 		const w = parseWranglerConfig("wrangler.json", "{ nope");
 		expect(w.worker).toBe("(unparseable)");
@@ -63,6 +77,15 @@ describe("resourceMapProvider", () => {
 		const out = await resourceMapProvider.analyze({ repo, ref: "main", files });
 		expect(out.map((i) => i.title).sort()).toEqual(["jsonc-worker: 2 bindings", "old: 1 binding"]);
 		expect(out.every((i) => i.severity === "info")).toBe(true);
+	});
+
+	it("calls out queue consumers in the title and detail", async () => {
+		const q = new RepoContext(async () =>
+			memorySource({ main: { "wrangler.toml": 'name = "q"\n[[queues.producers]]\nbinding = "JOBS"\nqueue = "jobs"\n[[queues.consumers]]\nqueue = "jobs"\n' } }),
+		);
+		const [i] = await resourceMapProvider.analyze({ repo, ref: "main", files: q });
+		expect(i.title).toBe("q: 2 bindings (incl. 1 queue consumer)");
+		expect(i.detail).toBe("queues: JOBS → jobs, jobs (consumer)");
 	});
 
 	it("diffs a fork against its base", async () => {

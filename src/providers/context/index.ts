@@ -18,13 +18,30 @@ export interface ContextRequest {
 
 export type RetrieverFactory = (sections: Section[]) => Retriever | Promise<Retriever>;
 
-export const isMarkdown = (path: string) => /\.mdx?$/i.test(path) && !/(^|\/)CHANGELOG\.md$/i.test(path);
+export const isMarkdown = (path: string) => /\.mdx?$/i.test(path) && !/(^|\/)CHANGELOG\.md$|(^|\/)changelogs?\//i.test(path);
 const dirOf = (path: string) => (path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "");
 const governs = (dir: string, path: string) => dir === "" || path === dir || path.startsWith(`${dir}/`);
 const MANIFEST_LIMIT = 40;
 const GENERIC_PATH_WORDS = new Set(["src", "lib", "ts", "tsx", "js", "jsx", "mjs", "index", "packages", "examples", "apps", "test", "tests", "server", "client", "main"]);
 /** No single section may take more than this share of the budget; bigger ones are listed for on-demand fetch. */
 const MAX_SECTION_SHARE = 0.35;
+
+/** Keeps one section per distinct text (the shortest path, then the first); maps each kept id to its copies' paths. */
+export function dedupeSections(all: Section[]): { sections: Section[]; copies: Map<string, string[]> } {
+	const groups = new Map<string, Section[]>();
+	for (const s of all) {
+		const g = groups.get(s.text);
+		g ? g.push(s) : groups.set(s.text, [s]);
+	}
+	const copies = new Map<string, string[]>();
+	const keep = new Set<Section>();
+	for (const g of groups.values()) {
+		const first = g.reduce((a, b) => (b.path.length < a.path.length ? b : a));
+		keep.add(first);
+		if (g.length > 1) copies.set(first.id, g.filter((s) => s !== first).map((s) => s.path));
+	}
+	return { sections: all.filter((s) => keep.has(s)), copies };
+}
 
 /**
  * Builds a task-sized context: the resolved rules for the touched paths, then the best-matching markdown
@@ -78,8 +95,11 @@ export async function buildContext(files: RepoContext, req: ContextRequest, make
 	const rulesTokens = estimateTokens(JSON.stringify(rulesBlock)) + pinnedTokens;
 
 	// 2. Index every markdown file into heading sections.
-	const sections = await sectionsOf(files, repo, ref, mdFiles);
-	const tokensAllMarkdown = sections.reduce((n, s) => n + s.tokens, 0);
+	const allSections = await sectionsOf(files, repo, ref, mdFiles);
+	const tokensAllMarkdown = allSections.reduce((n, s) => n + s.tokens, 0);
+	// Copies of a section (a skill vendored into every template) are indexed once, under the shortest path.
+	const { sections, copies } = dedupeSections(allSections);
+	const duplicateTokens = allSections.length === sections.length ? 0 : tokensAllMarkdown - sections.reduce((n, s) => n + s.tokens, 0);
 	const instructionPaths = new Set(stack.layers.filter((l) => l.repo === repo).map((l) => l.path));
 	const onPath = stack.layers.filter((l) => l.repo === repo && (paths.length ? paths.some((p) => governs(l.scopeDir, p)) : l.scopeDir === ""));
 	const tokensInstructionFilesOnPath = onPath.reduce((n, l) => n + estimateTokens(stack.texts.get(l) ?? ""), 0);
@@ -116,6 +136,7 @@ export async function buildContext(files: RepoContext, req: ContextRequest, make
 	const sectionTokens = included.reduce((n, r) => n + r.section.tokens, 0);
 	const tokensServed = rulesTokens + sectionTokens;
 	const round = (n: number) => Math.round(n * 1000) / 1000;
+	const dup = (s: Section) => (copies.get(s.id)?.length ? { duplicates: copies.get(s.id)!.length, duplicatePaths: copies.get(s.id)!.slice(0, 10) } : {});
 
 	return {
 		repo,
@@ -126,11 +147,11 @@ export async function buildContext(files: RepoContext, req: ContextRequest, make
 		retriever: retriever.id,
 		pinned,
 		...rulesBlock,
-		sections: included.map(({ section: s, score }) => ({ id: s.id, path: s.path, headings: s.headings, startLine: s.startLine, tokens: s.tokens, score: round(score), text: s.text })),
+		sections: included.map(({ section: s, score }) => ({ id: s.id, path: s.path, headings: s.headings, startLine: s.startLine, tokens: s.tokens, score: round(score), text: s.text, ...dup(s) })),
 		manifest: [
 			...pinned.musts.map((m) => ({ id: `pinned:${m.topic}`, pinned: true, source: m.source })),
 			...(pinned.catalog ? [{ id: `pinned:catalog@${catalog!.version}`, pinned: true, source: CATALOG_FILE }] : []),
-			...included.map(({ section: s }) => ({ id: s.id, pinned: false, source: `${s.path}:${s.startLine}` })),
+			...included.map(({ section: s }) => ({ id: s.id, pinned: false, source: `${s.path}:${s.startLine}`, ...dup(s) })),
 		],
 		omitted: {
 			count: omitted.length,
@@ -142,6 +163,9 @@ export async function buildContext(files: RepoContext, req: ContextRequest, make
 		stats: {
 			markdownFiles: mdFiles.length,
 			sections: sections.length,
+			// Identical sections in other files (same text), indexed and served once.
+			duplicateSections: allSections.length - sections.length,
+			duplicateTokens,
 			rulesTokens,
 			pinnedTokens,
 			sectionTokens,

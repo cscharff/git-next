@@ -110,6 +110,18 @@
 	@keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 70%, transparent); } 100% { box-shadow: 0 0 0 12px transparent; } }
 	.live-dot.flash { animation: pulse 1s ease-out 3; }
 	.live-dot.on { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 30%, transparent); }
+	/* Environments (multi-cloud; everything but Cloudflare is mocked) */
+	header .envs { margin: 0; }
+	header .envs[hidden] { display: none; }
+	header .envs button { padding: 4px 10px; font-size: 13px; }
+	.mocked { display: inline-block; padding: 0 6px; border: 1px dashed var(--warn); border-radius: 999px; color: var(--warn); font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; vertical-align: middle; white-space: nowrap; }
+	.tabs button.on .mocked { color: #fff; border-color: #fff; }
+	.livechip { display: inline-block; padding: 0 6px; border-radius: 999px; background: var(--ok); color: #fff; font-size: 10px; font-weight: 600; text-transform: uppercase; vertical-align: middle; }
+	.matrix { overflow-x: auto; }
+	.matrix table { table-layout: auto; min-width: 520px; }
+	.matrix th .sub { margin: 0; font-weight: 400; }
+	.svc { display: inline-block; margin: 1px 2px 1px 0; padding: 1px 7px; border-radius: 6px; background: var(--chip); font-size: 12px; }
+	.svc.no { background: color-mix(in srgb, var(--conflict) 18%, var(--chip)); color: var(--conflict); }
 </style>
 </head>
 <body>
@@ -121,7 +133,9 @@
 		<a href="#cost">3 · Cost &amp; overspend</a>
 		<a href="#more">More</a>
 	</nav>
+	<div class="tabs envs" id="envs" role="group" aria-label="Environment" hidden></div>
 	<select id="fork" aria-label="Fork" hidden><option value="">agents-demo-full</option></select>
+	<select id="reposel" aria-label="Demo repository"><option value="agents-demo-full">cloudflare/agents</option><option value="emdash-demo">emdash-cms/emdash</option></select>
 	<div class="meta"><span class="live-dot" id="livedot"></span><span id="meta">Loading…</span></div>
 	<details class="data"><summary class="chip">Data source</summary>
 		<form id="live">
@@ -142,6 +156,7 @@
 	<section class="panel hero" id="cost"><h2><span class="step">3</span>Cost and overspend</h2><div class="sub">Every model call goes through the org AI Gateway, tagged with developer, repo, fork, agent and task. Spend rolls up from one call to the whole project.</div><div class="body"></div></section>
 	<div class="grid" id="more">
 		<section class="panel" id="resources"><h2>Resource map</h2><div class="sub">Workers and bindings per wrangler config, diffed against the base ref</div><div class="body"></div></section>
+		<section class="panel" id="environments" hidden><h2>Environments</h2><div class="sub">The same app across clouds, by resource kind. Cloudflare is read from wrangler config; the other clouds are declared in <code>.gitnext/environments.json</code> and <span class="mocked">mocked</span>.</div><div class="body"></div></section>
 		<section class="panel" id="context"><h2>Sliced context</h2><div class="sub">What an agent gets for a task: resolved rules and the best sections within a token budget</div><div class="body"></div></section>
 		<section class="panel" id="agents" hidden style="grid-column: 1 / -1"><h2>Demo agents</h2><div class="sub">Agents on forks: sliced context, a gateway-tagged model call, the pre-push check</div><div class="body"></div></section>
 	</div>
@@ -154,7 +169,14 @@ const num = (n) => Number(n).toLocaleString();
 const sev = (s) => `<span class="chip sev-${esc(s)}">${esc(s)}</span>`;
 const kind = (k) => `<span class="chip k-${esc(k)}">${esc(k)}</span>`;
 const short = (m) => String(m ?? "").replace(/^anthropic\//, "");
-const state = { repo: "agents-demo-full", insights: null, context: null, source: "", costView: "live", costLive: null, costTeam: null, newRepo: null, index: [], events: [], followLive: true, shownUpdatedAt: null };
+// Demo repos the picker switches between: their recorded samples and the live form's defaults.
+const REPOS = {
+	"agents-demo-full": { insights: "/samples/insights-demo.json", context: "/samples/context-agents-demo-full.json", base: "d1ce3cbd765cada8edfaedaf5ea1041095ece79c", layers: true, envs: "/samples/environments-demo.json" },
+	"emdash-demo": { insights: "/samples/insights-emdash-demo-main.json", context: "/samples/context-emdash-demo.json", base: "", layers: false },
+};
+const state = { sampleRepo: "agents-demo-full", repo: "agents-demo-full", insights: null, context: null, source: "", costView: "live", costLive: null, costTeam: null, newRepo: null, index: [], events: [], followLive: true, shownUpdatedAt: null, env: "all", envSample: null, costClouds: null };
+// ?envs=demo on the page adds the MOCKED multi-cloud environments to live runs (/insights?envs=demo).
+const ENVS_DEMO = new URLSearchParams(location.search).get("envs") === "demo";
 
 async function getJson(url, init) {
 	const res = await fetch(url, init);
@@ -165,7 +187,10 @@ async function getJson(url, init) {
 const tryJson = (url) => getJson(url).catch(() => null);
 
 async function loadSamples() {
-	const [insights, context, newRepo, costLive] = await Promise.all([getJson("/samples/insights-demo.json"), getJson("/samples/context-agents-demo-full.json"), tryJson("/samples/new-repo-demo/summary.json"), tryJson("/samples/cost-live.json")]);
+	const r = REPOS[state.sampleRepo];
+	const [insights, context, newRepo, costLive, envSample] = await Promise.all([getJson(r.insights), getJson(r.context), tryJson("/samples/new-repo-demo/summary.json"), tryJson("/samples/cost-live.json"), r.envs ? tryJson(r.envs) : null]);
+	state.envSample = envSample;
+	state.costClouds = envSample ? envSample.insights.filter((i) => i.provider === "cost") : null;
 	state.insights = insights;
 	state.context = context.results;
 	state.newRepo = newRepo;
@@ -180,10 +205,11 @@ async function loadLive(e) {
 	const repo = $("#repo").value.trim(), ref = $("#ref").value.trim() || "main", base = $("#base").value.trim();
 	showBanner(`Running providers on ${repo}@${ref}…`);
 	try {
-		const qs = new URLSearchParams({ repo, ref, ...(base ? { base } : {}), ...($("#demo").checked ? { layers: "demo" } : {}) });
+		const qs = new URLSearchParams({ repo, ref, ...(base ? { base } : {}), ...($("#demo").checked ? { layers: "demo" } : {}), ...(ENVS_DEMO ? { envs: "demo" } : {}) });
 		state.insights = await getJson(`/insights?${qs}`);
 		const cost = state.insights.insights.filter((i) => i.provider === "cost");
 		if (cost.some((i) => String(i.metrics?.source ?? "").startsWith("ai-gateway"))) state.costLive = cost;
+		if (cost.some((i) => i.metrics?.byCloud?.length > 1)) state.costClouds = cost;
 		state.repo = repo;
 		state.source = "live";
 		hideBanner();
@@ -247,12 +273,71 @@ function render() {
 	const d = state.insights;
 	state.repo = d.repo;
 	$("#meta").innerHTML = `${esc(d.repo)}@${esc(d.ref)}${d.base ? ` vs <code>${esc(String(d.base).slice(0, 10))}</code>` : ""} · ${esc(state.source)}${d.updatedAt ? ` · updated ${esc(new Date(d.updatedAt).toLocaleTimeString())}` : ""}`;
-	const by = (p) => d.insights.filter((i) => i.provider === p);
+	const all = withEnvSample(d);
+	const by = (p) => all.filter((i) => i.provider === p && inEnv(i));
+	renderEnvSwitch(all);
 	renderStack(by("instruction-stack"), by("catalog"));
 	renderNewRepo();
 	renderCost();
 	renderResources(by("resource-map"));
+	renderEnvironments(all.filter((i) => i.provider === "environments"));
 	renderContext();
+}
+
+// ── Environments: Cloudflare is live; GCP, AWS and private are declared (mocked) ──
+
+const CLOUD_LABEL = { cloudflare: "Cloudflare", gcp: "GCP", aws: "AWS", private: "Private" };
+const ALL_CLOUDS = Object.keys(CLOUD_LABEL);
+const mockedBadge = (on) => (on ? ` <span class="mocked" title="Declared, not read from the cloud: no account, credentials or API calls">mocked</span>` : "");
+/** Mirrors insightClouds() in src/core/types.ts: scope env, else metrics.clouds, else stack rules everywhere, else Cloudflare. */
+const cloudsOf = (i) => (i.scope?.env ? [i.scope.env.cloud] : Array.isArray(i.metrics?.clouds) ? i.metrics.clouds : i.provider === "instruction-stack" ? ALL_CLOUDS : ["cloudflare"]);
+const inEnv = (i) => state.env === "all" || cloudsOf(i).includes(state.env);
+const envBadge = (env) => (env ? ` <span class="chip">env ${esc(env.name || CLOUD_LABEL[env.cloud] || env.cloud)}</span>${mockedBadge(env.mocked)}` : "");
+
+/** Sample mode: the recorded agents-demo-full run plus the MOCKED environments sample (environments + env-scoped rules). */
+function withEnvSample(d) {
+	const s = state.envSample;
+	if (!s || state.source !== "recorded run" || d.repo !== s.repo || d.insights.some((i) => i.provider === "environments")) return d.insights;
+	return [...d.insights, ...s.insights.filter((i) => i.provider === "environments" || (i.provider === "instruction-stack" && i.scope.env))];
+}
+
+function renderEnvSwitch(all) {
+	const el = $("#envs");
+	const summary = all.find((i) => i.provider === "environments" && i.title.startsWith("Environments"));
+	el.hidden = !summary;
+	if (!summary) return (state.env = "all");
+	const envs = summary.metrics.environments || [];
+	const mockedCloud = (c) => envs.some((e) => e.cloud === c) && envs.filter((e) => e.cloud === c).every((e) => e.mocked);
+	el.innerHTML = [["all", "All"], ...ALL_CLOUDS.map((c) => [c, CLOUD_LABEL[c]])].map(([v, label]) => `<button type="button" data-env="${v}" class="${state.env === v ? "on" : ""}">${label}${v !== "all" ? mockedBadge(mockedCloud(v)) : ""}</button>`).join("");
+	el.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { state.env = b.dataset.env; render(); }));
+}
+
+function renderEnvironments(items) {
+	const panel = $("#environments");
+	const summary = items.find((i) => i.title.startsWith("Environments"));
+	panel.hidden = !summary;
+	if (!summary) return;
+	const m = summary.metrics;
+	const envs = (m.environments || []).filter((e) => state.env === "all" || e.cloud === state.env);
+	const cell = (c) => `<span class="svc${c.approved === false ? " no" : ""}" title="${esc(c.name)}${c.approved === false ? ` · ${esc(c.reason || "not in catalog")}` : c.approved ? " · approved by the catalog" : ""}">${esc(c.service)}${c.approved === false ? " ✗" : ""}</span>`;
+	const head = (e) => `<th><b>${esc(e.name)}</b>${e.mocked ? mockedBadge(true) : ` <span class="livechip">live</span>`}<div class="sub">${esc(CLOUD_LABEL[e.cloud])}${e.region ? ` · ${esc(e.region)}` : ""}${e.account ? ` · ${esc(e.account)}` : ""}</div></th>`;
+	const rows = (m.kinds || []).map((k) => `<tr><td><b>${esc(k)}</b></td>${envs.map((e) => { const cs = m.matrix[k]?.[e.name] || []; const svcs = [...new Map(cs.map((c) => [c.service + c.approved, c])).values()]; return `<td>${svcs.map(cell).join("") || `<span class="empty">—</span>`}${cs.length > svcs.length ? ` <span class="sub">×${cs.length}</span>` : ""}</td>`; }).join("")}</tr>`).join("");
+	const shown = items.filter(inEnv);
+	const drift = shown.filter((i) => i.title.startsWith("Environment drift"));
+	const edges = shown.filter((i) => i.title.startsWith("Cross-cloud edge"));
+	const unapproved = shown.filter((i) => i.title.startsWith("Not in catalog"));
+	const mockedEnvs = (m.environments || []).filter((e) => e.mocked).length;
+	$("#environments .body").innerHTML = `
+		<div class="stats">
+			<div class="stat"><b>${(m.environments || []).length}</b><span>environments (${mockedEnvs} mocked)</span></div>
+			<div class="stat ${drift.length ? "warnc" : ""}"><b>${drift.length}</b><span>kinds that drift</span></div>
+			<div class="stat ${edges.length ? "warnc" : ""}"><b>${edges.length}</b><span>cross-cloud edges</span></div>
+			<div class="stat ${unapproved.length ? "bad" : ""}"><b>${unapproved.length}</b><span>not in catalog</span></div>
+		</div>
+		${envs.length ? `<div class="matrix"><table><tr><th style="width:110px">Kind</th>${envs.map(head).join("")}</tr>${rows}</table></div>` : `<p class="empty">No environment on this cloud.</p>`}
+		<p class="why">✗ = not approved for that kind on that cloud by catalog ${esc(m.catalogVersion || "")}.${m.app ? ` App: <code>${esc(m.app)}</code>.` : ""}</p>
+		${unapproved.length || edges.length ? `<h3 class="sub" style="margin:14px 0 6px">Cross-cloud edges and catalog</h3><div class="cards">${[...edges, ...unapproved].map((i) => `<div class="card warnb"><h4>${esc(i.title)}${mockedBadge(i.metrics?.mocked)}</h4><div class="why">${esc(i.detail)}</div></div>`).join("")}</div>` : ""}
+		${drift.length ? `<h3 class="sub" style="margin:14px 0 6px">Drift: same kind, different service (informational)</h3><div class="cards">${drift.map((i) => `<div class="card warnb" style="border-left-color:var(--info)"><h4>${esc(i.metrics.kind)}${mockedBadge(i.metrics.mocked)}</h4><div class="row">${i.metrics.services.map((s) => `<span class="chip">${esc(s.env)}: ${esc(s.services.join(" + "))}</span>`).join(" ")}</div><div class="why">${esc(i.detail)}</div></div>`).join("")}</div>` : ""}`;
 }
 
 // ── 1. Rules in force ─────────────────────────────────────────────────────────
@@ -288,6 +373,7 @@ function renderStack(items, catalogItems = []) {
 			<div>
 				<h3 class="sub" style="margin:0 0 6px">The stack</h3>
 				<div class="legend">Lower rank wins: org 1 › contract 2 › project 3 (deeper folders win) › tool 4 › personal 5 › agent memory 6${m.precedence?.overridden ? ` · <b style="color:var(--warn)">precedence overridden by admin: ${esc(m.precedence.note)}</b>` : ""}</div>
+				${(m.skippedLayers || []).length ? `<div class="legend">Not counted: ${m.skippedLayers.map((x) => `<code>${esc(x.path)}</code> (${esc(x.reason)} of <code>${esc(x.of)}</code>)`).join(", ")}</div>` : ""}
 				<div id="prec"></div>
 				${layers.map((l) => `<div class="layer ${esc(l.kind)}"><div class="rank">${l.rank}${l.kind === "project" ? `.${l.depth}` : ""}</div><div class="who">${kind(l.kind)} <b style="display:inline">${esc(l.name)}</b><code style="display:block">${esc(l.repo && l.repo !== state.repo ? l.repo + ":" : "")}${esc(l.path)}</code></div><div class="counts">${ruleCount(l)} rule${ruleCount(l) === 1 ? "" : "s"}${rootWins(l) ? `<br><b style="color:var(--text)">wins ${rootWins(l)}</b> at root` : ""}</div></div>`).join("")}
 			</div>
@@ -297,7 +383,7 @@ function renderStack(items, catalogItems = []) {
 			</div>
 		</div>
 		${conflicts.length ? `<h3 style="margin:18px 0 8px;font-size:15px">Conflicts: two hard rules disagree, so a person has to decide</h3>
-		<div class="cards">${conflicts.map((c) => { const [a, b] = c.metrics.values; return `<div class="card"><h4>${esc(c.metrics.topic)}</h4><div class="vs">${sideHtml(a)}<div class="x">✗</div>${sideHtml(b)}</div></div>`; }).join("")}</div>` : `<p class="sub" style="margin-top:14px">✓ No conflicts: every disagreement is settled by rank.</p>`}
+		<div class="cards">${conflicts.map((c) => { const [a, b] = c.metrics.values; return `<div class="card"><h4>${esc(c.metrics.topic)}${envBadge(c.scope.env)}</h4><div class="vs">${sideHtml(a)}<div class="x">✗</div>${sideHtml(b)}</div></div>`; }).join("")}</div>` : `<p class="sub" style="margin-top:14px">✓ No conflicts: every disagreement is settled by rank.</p>`}
 		${warnings.length || catViolations.length ? `<h3 style="margin:18px 0 8px;font-size:15px">Policy and drift</h3><div class="cards">${[...warnings, ...catViolations].map((w) => `<div class="card warnb"><h4>${esc(w.title)}</h4><div class="why">${esc(w.detail)}</div></div>`).join("")}</div>` : ""}`;
 
 	const showWinners = () => {
@@ -385,11 +471,13 @@ function renderNewRepo() {
 
 function renderCost() {
 	const body = $("#cost .body");
-	const views = { live: state.costLive, team: state.costTeam };
+	const views = { live: state.costLive, team: state.costTeam, clouds: state.costClouds };
+	// A non-Cloudflare environment only has cost data in the multi-cloud (mocked) view.
+	if (state.env !== "all" && state.env !== "cloudflare" && views.clouds) state.costView = "clouds";
 	if (!views[state.costView]) state.costView = views.live ? "live" : "team";
-	const items = views[state.costView] || [];
+	const items = (views[state.costView] || []).filter(inEnv);
 	const summary = items.find((i) => i.title.startsWith("AI spend"));
-	const tabs = `<div class="tabs"><button class="${state.costView === "live" ? "on" : ""}" data-v="live" ${views.live ? "" : "disabled"}>This demo · live gateway logs</button><button class="${state.costView === "team" ? "on" : ""}" data-v="team">Team view · sample data</button></div>`;
+	const tabs = `<div class="tabs"><button class="${state.costView === "live" ? "on" : ""}" data-v="live" ${views.live ? "" : "disabled"}>This demo · live gateway logs</button><button class="${state.costView === "team" ? "on" : ""}" data-v="team">Team view · sample data</button>${views.clouds ? `<button class="${state.costView === "clouds" ? "on" : ""}" data-v="clouds">All clouds${mockedBadge(true)}</button>` : ""}</div>`;
 	if (!summary) {
 		body.innerHTML = `${tabs}<p class="empty">${esc(items[0]?.title || "No cost data.")}</p>`;
 	} else {
@@ -406,10 +494,13 @@ function renderCost() {
 		const agents = m.agents;
 		const planner = agents.find((a) => a.agent === "planner");
 		const workers = agents.filter((a) => a.agent !== "planner" && a.agent !== "smoke-test");
+		const clouds = m.byCloud?.length > 1 ? m.byCloud : null;
+		const slice = clouds && state.env !== "all" ? clouds.find((c) => c.cloud === state.env) : null;
+		const cloudMax = Math.max(...(clouds || []).map((c) => c.cost), 0.0001);
 		body.innerHTML = `${tabs}
 			<div class="big">
-				<div class="stat"><b>${usd(m.total)}</b><span>total spend</span></div>
-				<div class="stat"><b>${num(m.requests)}</b><span>model calls</span></div>
+				<div class="stat"><b>${usd(slice ? slice.cost : m.total)}</b><span>${slice ? `spend on ${esc(CLOUD_LABEL[slice.cloud])}${mockedBadge(slice.mocked)}` : "total spend"}</span></div>
+				<div class="stat"><b>${num(slice ? slice.requests : m.requests)}</b><span>model calls</span></div>
 				<div class="stat ${flags.length ? "warnc" : ""}"><b>${flags.length}</b><span>overspend flags (&gt; 2× median)</span></div>
 				<div class="stat ${saving ? "good" : ""}"><b>${usd(saving)}</b><span>est. saving from right-sizing models</span></div>
 			</div>
@@ -419,6 +510,7 @@ function renderCost() {
 					${devs.map((d) => { const f = flagFor("developer", d.key); return `<div class="barrow"><b>${esc(d.key)}</b><div class="bar"><div style="width:${(d.cost / devMax) * 100}%;${f ? "background:var(--conflict)" : ""}"></div></div><span>${usd(d.cost)}</span><span class="sub">${d.requests} calls</span><span>${f ? `<span class="chip sev-warn">${f.metrics.multiple}× median</span>` : ""}</span></div>`; }).join("")}
 					<h3 class="sub" style="margin:14px 0 6px">By fork</h3>
 					<div class="row">${Object.entries(forks).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<span class="chip">${esc(k)} ${usd(v)}</span>`).join(" ")}</div>
+					${clouds ? `<h3 class="sub" style="margin:14px 0 6px">By cloud</h3>${clouds.map((c) => `<div class="barrow" style="${slice && slice !== c ? "opacity:.45" : ""}"><b>${esc(CLOUD_LABEL[c.cloud] || c.cloud)}</b><div class="bar"><div style="width:${(c.cost / cloudMax) * 100}%"></div></div><span>${usd(c.cost)}</span><span class="sub">${c.requests} calls</span><span>${c.mocked ? mockedBadge(true) : ` <span class="chip">AI Gateway</span>`}</span></div>`).join("")}` : ""}
 					${planner ? `<h3 class="sub" style="margin:14px 0 6px">Planner vs workers</h3><div class="stats"><div class="stat"><b>${usd(planner.cost)}</b><span>planner · ${esc(planner.models.map(short).join(", "))}</span></div><div class="stat"><b>${usd(workers.reduce((n, a) => n + a.cost, 0))}</b><span>${workers.length} worker agents</span></div></div>` : ""}
 				</div>
 				<div>
@@ -426,16 +518,16 @@ function renderCost() {
 					<table><tr><th style="width:34%">Agent</th><th style="width:20%">Spend</th><th>Models</th></tr>${agents.map((a) => { const f = flagFor("agent", a.agent); return `<tr><td><b>${esc(a.agent)}</b>${f ? ` <span class="chip sev-warn">${f.metrics.multiple}×</span>` : ""}</td><td>${usd(a.cost)}<br><span class="sub">${a.requests} calls</span></td><td class="why">${esc(a.models.map(short).join(", "))}</td></tr>`; }).join("")}</table>
 				</div>
 			</div>
-			${fits.length ? `<h3 style="margin:16px 0 8px;font-size:15px">Right-size the model</h3><div class="cards">${fits.map((f) => `<div class="card warnb" style="border-left-color:var(--ok)"><h4>${esc(f.metrics.agent)} · ${esc(f.metrics.taskLabel)}</h4><code>${esc(short(f.metrics.model))}</code> → <code>${esc(short(f.metrics.suggest))}</code> <b style="color:var(--ok)">save ${usd(f.metrics.estimatedSaving)}</b><div class="why">${esc(f.metrics.why)} · ${f.metrics.requests} calls, ${usd(f.metrics.actualCost)} now vs ${usd(f.metrics.estimatedCost)}</div></div>`).join("")}</div>` : ""}
-			${flags.length || policy.length ? `<h3 style="margin:16px 0 8px;font-size:15px">Flags</h3><div class="cards">${[...flags, ...policy].map((f) => `<div class="card warnb"><h4>${esc(f.title)}</h4><div class="why">${esc(f.detail)}</div></div>`).join("")}</div>` : ""}
-			<p class="sub" style="margin-top:10px">Source: ${esc(m.source)}${state.costView === "team" ? " · illustrative team of four developers" : ""}</p>`;
+			${fits.length ? `<h3 style="margin:16px 0 8px;font-size:15px">Right-size the model</h3><div class="cards">${fits.map((f) => `<div class="card warnb" style="border-left-color:var(--ok)"><h4>${esc(f.metrics.agent)} · ${esc(f.metrics.taskLabel)}${f.metrics.suggestCloud ? ` <span class="chip">${esc(CLOUD_LABEL[f.metrics.cloud])} → ${esc(CLOUD_LABEL[f.metrics.suggestCloud])}</span>` : ""}${mockedBadge(f.metrics.mocked)}</h4><code>${esc(short(f.metrics.model))}</code> → <code>${esc(short(f.metrics.suggest))}</code> <b style="color:var(--ok)">save ${usd(f.metrics.estimatedSaving)}</b><div class="why">${esc(f.metrics.why)} · ${f.metrics.requests} calls, ${usd(f.metrics.actualCost)} now vs ${usd(f.metrics.estimatedCost)}</div></div>`).join("")}</div>` : ""}
+			${flags.length || policy.length ? `<h3 style="margin:16px 0 8px;font-size:15px">Flags</h3><div class="cards">${[...flags, ...policy].map((f) => `<div class="card warnb"><h4>${esc(f.title)}${mockedBadge(f.scope.env?.mocked || f.metrics?.mocked)}</h4><div class="why">${esc(f.detail)}</div></div>`).join("")}</div>` : ""}
+			<p class="sub" style="margin-top:10px">Source: ${esc(m.source)}${state.costView === "team" ? " · illustrative team of four developers" : ""}${m.mockedRequests ? ` · ${m.mockedRequests} mocked requests (Bedrock, Vertex AI, vLLM fixtures), not real spend` : ""}${slice ? " · developer, fork and agent breakdowns cover all clouds" : ""}</p>`;
 	}
 	body.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => { state.costView = b.dataset.v; renderCost(); }));
 }
 
 function renderResources(items) {
 	const body = $("#resources .body");
-	if (!items.length) return (body.innerHTML = `<p class="empty">No wrangler configs found.</p>`);
+	if (!items.length) return (body.innerHTML = `<p class="empty">${state.env !== "all" && state.env !== "cloudflare" ? "The resource map reads Cloudflare wrangler configs; see Environments for this cloud." : "No wrangler configs found."}</p>`);
 	const counts = {};
 	for (const i of items) for (const [t, bs] of Object.entries(i.metrics?.bindings || {})) counts[t] = (counts[t] || 0) + bs.length;
 	const changed = items.filter((i) => i.metrics?.diff && (i.metrics.diff.added.length || i.metrics.diff.removed.length));
@@ -454,7 +546,8 @@ function renderResources(items) {
 		$("#rtable").innerHTML = `<tr><th style="width:42%">Worker</th><th>Bindings</th><th style="width:64px">Δ base</th></tr>` + rows.map((i) => {
 			const m = i.metrics || {};
 			const diff = m.diff ? (i.title.includes("config removed") ? `<span class="chip sev-warn">removed</span>` : m.newConfig ? `<span class="chip sev-info">new</span>` : m.diff.added.length || m.diff.removed.length ? `<span class="plus">+${m.diff.added.length}</span> <span class="minus">−${m.diff.removed.length}</span>` : `<span class="chip">same</span>`) : "";
-			const bindings = Object.entries(m.bindings || {}).map(([t, bs]) => `<span class="chip" title="${esc(bs.map((b) => b.name + (b.resource ? " → " + b.resource : "")).join("\n"))}">${esc(t)}: ${bs.length}</span>`).join(" ");
+			const consumers = (bs) => bs.filter((b) => b.name.startsWith("consumer:")).length;
+			const bindings = Object.entries(m.bindings || {}).map(([t, bs]) => `<span class="chip" title="${esc(bs.map((b) => b.name + (b.resource ? " → " + b.resource : "")).join("\n"))}">${esc(t)}: ${t === "queues" && consumers(bs) ? `${bs.length - consumers(bs)} producer, ${consumers(bs)} consumer` : bs.length}</span>`).join(" ");
 			return `<tr><td><b>${esc(m.worker || i.title)}</b><br><code>${esc(i.scope.path)}</code></td><td>${bindings || `<span class="empty">none</span>`}</td><td>${diff}</td></tr>`;
 		}).join("");
 	};
@@ -527,6 +620,7 @@ async function loadDemoRun() {
 
 async function selectFork(fork) {
 	$("#fork").value = fork;
+	state.sampleRepo = $("#reposel").value = "agents-demo-full"; // forks are of agents-demo-full
 	state.repo = fork || "agents-demo-full";
 	const live = state.index.find((e) => e.repo === state.repo && e.ref === "main");
 	if (live) return loadStored(live.repo, live.ref, false);
@@ -562,7 +656,7 @@ function renderContext() {
 			<table><tr><th style="width:28%">Rule</th><th style="width:34%">Value</th><th>From</th></tr>${r.rules.map((x) => `<tr><td>${esc(x.topic)}</td><td><code>${esc(x.value)}</code></td><td>${kind(x.kind)} <code>${esc(x.source.replace(state.repo + "/", ""))}</code></td></tr>`).join("")}</table>
 			${r.conflicts.length ? r.conflicts.map((c) => `<div class="finding">${sev("conflict")} ${esc(c.explanation)}</div>`).join("") : ""}
 			<h3 class="sub" style="margin-top:14px">Sections served (${r.sections.length})</h3>
-			<div class="scroll">${r.sections.map((x) => `<div class="finding"><code>${esc(x.path)}:${x.startLine}</code> <b>${esc(x.headings.slice(-1)[0] || x.path)}</b> <span class="chip">${x.tokens} tok</span> <span class="chip">score ${x.score}</span></div>`).join("")}</div>
+			<div class="scroll">${r.sections.map((x) => `<div class="finding"><code>${esc(x.path)}:${x.startLine}</code> <b>${esc(x.headings.slice(-1)[0] || x.path)}</b> <span class="chip">${x.tokens} tok</span> <span class="chip">score ${x.score}</span>${x.duplicates ? ` <span class="chip" title="${esc((x.duplicatePaths || []).join("\n"))}">+${x.duplicates} identical copies, served once</span>` : ""}</div>`).join("")}</div>
 			<p class="sub">Omitted: ${num(r.omitted.count)} matching sections (${num(r.omitted.tokens)} tokens, ${r.omitted.oversized ?? 0} oversized) + ${num(r.omitted.unmatchedSections)} unmatched.</p>`;
 	};
 	$("#ctask").addEventListener("change", (e) => show(results[e.target.value]));
@@ -579,6 +673,19 @@ function renderContext() {
 }
 
 $("#live").addEventListener("submit", loadLive);
+// Repo picker: recorded samples for that repo in sample mode; in live mode, point the live form at it and run.
+$("#reposel").addEventListener("change", () => {
+	const repo = $("#reposel").value, r = REPOS[repo];
+	state.sampleRepo = repo;
+	$("#repo").value = repo;
+	$("#base").value = r.base;
+	$("#demo").checked = r.layers;
+	if (repo !== "agents-demo-full") $("#fork").value = "";
+	$("#fork").style.display = repo === "agents-demo-full" ? "" : "none"; // its forks are of agents-demo-full
+	if (state.source.startsWith("live")) return loadLive();
+	hideBanner();
+	loadSamples().catch((err) => showBanner(`Could not load samples: ${err.message}`));
+});
 $("#sample").addEventListener("click", () => { hideBanner(); state.followLive = false; $("#livedot").classList.remove("on"); loadSamples(); });
 loadSamples()
 	.then(loadDemoRun)

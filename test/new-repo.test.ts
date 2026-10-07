@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { RepoContext, memorySource } from "../src/core/repo-context.ts";
 import { EXIT, runCli } from "../src/cli/main.ts";
-import { bindingApproval, catalogProvider, compareVersions, modelApproved, parseCatalog, relevantCatalogEntries, scanModels, scanSecrets } from "../src/providers/catalog.ts";
+import { bindingApproval, catalogProvider, compareVersions, isTestOrGenerated, modelApproved, parseCatalog, plausibleSecret, relevantCatalogEntries, scanModels, scanSecrets } from "../src/providers/catalog.ts";
 import { buildContext } from "../src/providers/context/index.ts";
 
 const ROOT = resolve(import.meta.dirname, "..");
@@ -50,6 +50,42 @@ describe("catalog", () => {
 		expect(JSON.stringify(hits)).not.toContain("abcdefghijklmnop");
 	});
 
+	it("does not mistake credential names, URLs, constants or masks for secrets", () => {
+		const text = [
+			'INVALID_TOKEN: "INVALID_TOKEN",',
+			'const TOKEN_KEY = "installation-token";',
+			'tokenUrl: "https://oauth2.googleapis.com/token",',
+			'token_endpoint: "/_emdash/api/oauth/token",',
+			'token_endpoint_auth_method: "private_key_jwt",',
+			'apiTokenEnvVar: "CF_MEDIA_API_TOKEN",',
+			'export const PREVIEW_SECRET_OPTION_KEY = "emdash:preview_secret";',
+			'{tokenVisible ? newToken.token : "••••••••••••••••••••"}',
+			'const secret = "q8Zr2vLx0pTn4WbK";',
+		].join("\n");
+		expect(scanSecrets("src/errors.ts", text).map((h) => h.line)).toEqual([9]);
+		expect(plausibleSecret("correct-horse-battery")).toBe(true);
+		expect(plausibleSecret("TOKEN_EXPIRED")).toBe(false);
+	});
+
+	it("skips tests, fixtures and generated declarations in model and secret scans, but reads model registries", async () => {
+		for (const p of ["src/a.test.ts", "test/x.ts", "pkg/tests/y.ts", "src/__tests__/z.ts", "fixtures/k.json", "apps/x/worker-configuration.d.ts", "a.spec.tsx"]) expect(isTestOrGenerated(p)).toBe(true);
+		expect(isTestOrGenerated("src/latest.ts")).toBe(false);
+		const files = new RepoContext(async () =>
+			memorySource({
+				main: {
+					"src/a.test.ts": 'const API_KEY = "sk-ant-api03-abcdefghijklmnopqrstuvwxyz0123"; env.AI.run("@cf/meta/llama-3.1-8b-instruct", {});',
+					"worker-configuration.d.ts": 'type Models = "@cf/meta/llama-2-7b-chat-int8" | "openai/gpt-oss";\n// https://github.com/openai/openai-node',
+					"src/ai.ts": '// Pi calls env.AI.run() under the hood.\nconst docs = "https://github.com/openai/openai-node";\nimport { GoogleGenAI } from "@google/genai";',
+					".github/bonk-models.json": '{ "models": { "opus": { "id": "anthropic/claude-opus-4-7" } } }',
+				},
+			}),
+		);
+		// A cap of one file still reaches the model registry.
+		const out = await catalogProvider({ baseline: catalog, enforceBaseline: true, maxFiles: 1 }).analyze({ repo: "r", ref: "main", files });
+		expect(out.slice(1).map((i) => i.title)).toEqual(["Unapproved model: anthropic/claude-opus-4-7"]);
+		expect((out[0].metrics as any).skippedTests).toBe(2);
+	});
+
 	it("treats planning-only models as unapproved in application code", async () => {
 		expect(modelApproved(catalog, "anthropic/claude-fable-5.1")).toBe(false);
 		expect(modelApproved(catalog, "anthropic/claude-sonnet-5.5")).toBe(true);
@@ -76,6 +112,14 @@ describe("catalog", () => {
 		const out = await catalogProvider({ baseline: catalog }).analyze({ repo: "r", ref: "main", files });
 		expect(out[0].title).toBe(`Catalog 2026.10.1 (repo): behind ${catalog.version}`);
 		expect(out.slice(1).map((i) => `${i.severity}:${(i.metrics as any).kind}`).sort()).toEqual(["conflict:binding", "conflict:gateway", "conflict:model", "conflict:secret"]);
+	});
+
+	it("reports a queue once when a Worker both produces and consumes it", async () => {
+		const files = new RepoContext(async () =>
+			memorySource({ main: { "wrangler.jsonc": '{ "name": "q", "queues": { "producers": [{ "binding": "JOBS", "queue": "jobs" }], "consumers": [{ "queue": "jobs" }, { "queue": "jobs-dlq" }] } }' } }),
+		);
+		const out = await catalogProvider({ baseline: catalog, enforceBaseline: true }).analyze({ repo: "r", ref: "main", files });
+		expect(out.slice(1).map((i) => i.title)).toEqual(["Unapproved binding: queues JOBS → jobs", "Unapproved binding: queues consumer:jobs-dlq → jobs-dlq"]);
 	});
 
 	it("enforces the org baseline on repos without a catalog only when asked", async () => {

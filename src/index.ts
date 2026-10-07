@@ -3,12 +3,13 @@ import { artifactsSource } from "./core/artifacts-source.ts";
 import { RepoContext } from "./core/repo-context.ts";
 import { withDemoLayers } from "./demo-layers.ts";
 import { handleDevRoute } from "./dev-routes.ts";
-import { buildContext, sectionsOf } from "./providers/context/index.ts";
+import { buildContext, dedupeSections, sectionsOf } from "./providers/context/index.ts";
 import { Bm25Retriever } from "./providers/context/retrieve.ts";
 import type { Section } from "./providers/context/sections.ts";
 import { EMBED_MODEL, HybridRetriever, VectorizeRetriever, coverage, indexSections, type Manifest } from "./providers/context/vectorize.ts";
 import { gatewayLogsSource, type CostSource } from "./providers/cost/logs.ts";
 import { fixtureCostSource } from "./providers/cost/index.ts";
+import { withMockedClouds } from "./providers/cost/mocked.ts";
 import { accessToken, verifyAccess } from "./access.ts";
 import { createRegistry } from "./registry.ts";
 import { getIndex, getResult, kvExtractCache, parsePushEvent, putResult } from "./results.ts";
@@ -86,10 +87,10 @@ const isLocal = (url: URL) => ["localhost", "127.0.0.1", "[::1]"].includes(url.h
 /** Demo layers are allowed locally, and when deployed with DEMO_LAYERS=on (for agents-demo-* repos only). */
 const demoLayersFor = (url: URL | null, repo: string) => (url ? isLocal(url) : false) || (env.DEMO_LAYERS === "on" && repo.startsWith("agents-demo"));
 
-/** Repo reader for a request; `demo` overlays fixtures/demo-layers without touching the repo. */
-function contextFor(url: URL | null, repo: string, demo: boolean): RepoContext {
+/** Repo reader for a request; `demo` overlays fixtures/demo-layers (and `envs` the mocked environments) without touching the repo. */
+function contextFor(url: URL | null, repo: string, demo: boolean, envs = false): RepoContext {
 	const factory = (name: string) => artifactsSource(env.ARTIFACTS, name);
-	return new RepoContext(demo && demoLayersFor(url, repo) ? withDemoLayers(factory, repo) : factory);
+	return new RepoContext((demo || envs) && demoLayersFor(url, repo) ? withDemoLayers(factory, repo, { envs }) : factory);
 }
 
 export default {
@@ -114,7 +115,9 @@ export default {
 			const ref = url.searchParams.get("ref") || "HEAD";
 			const base = url.searchParams.get("base") || undefined;
 			const only = url.searchParams.get("providers")?.split(",").filter(Boolean);
-			const files = contextFor(url, repo, url.searchParams.get("layers") === "demo");
+			// ?envs=demo adds the MOCKED multi-cloud environments and the Bedrock/Vertex/vLLM cost fixtures (demo layers only).
+			const envs = url.searchParams.get("envs") === "demo" && demoLayersFor(url, repo);
+			const files = contextFor(url, repo, url.searchParams.get("layers") === "demo", envs);
 			const started = Date.now();
 			try {
 				// ?cost=fixture uses the bundled team sample instead of live gateway logs (for the team-overspend view).
@@ -122,7 +125,8 @@ export default {
 				const fixture = url.searchParams.get("cost") === "fixture";
 				// ?extractor=keyword skips the model and uses the deterministic extractor.
 				const keyword = url.searchParams.get("extractor") === "keyword";
-				const reg = enforce || fixture || keyword ? registryFor(enforce, fixture ? fixtureCostSource() : costSource, keyword ? null : (modelExtractor ?? null)) : registry;
+				const cost = fixture ? fixtureCostSource() : costSource;
+				const reg = enforce || fixture || keyword || envs ? registryFor(enforce, envs ? withMockedClouds(cost ?? fixtureCostSource()) : cost, keyword ? null : (modelExtractor ?? null)) : registry;
 				const result = await reg.run({ repo, ref, base, files }, only);
 				return Response.json({ repo, ref, base: base ?? null, ms: Date.now() - started, ...result });
 			} catch (err) {
@@ -243,7 +247,7 @@ export default {
 			if (!REPO_NAME.test(body.repo ?? "")) return Response.json({ error: "repo is required" }, { status: 400 });
 			const started = Date.now();
 			const files = contextFor(url, body.repo!, false);
-			const result = await indexSections({ embed, index: env.SECTIONS, manifest }, body.repo!, await sectionsOf(files, body.repo!, body.ref || "main"));
+			const result = await indexSections({ embed, index: env.SECTIONS, manifest }, body.repo!, dedupeSections(await sectionsOf(files, body.repo!, body.ref || "main")).sections);
 			return Response.json({ repo: body.repo, ...result, ms: Date.now() - started });
 		}
 
@@ -287,7 +291,7 @@ export default {
 				console.log(JSON.stringify({ event: "analysed", repo: push.repo, ref: push.ref, after: push.trigger.after.slice(0, 10), ms: entry.ms, conflicts: entry.conflicts, catalogViolations: entry.catalogViolations }));
 				// Keep embeddings current for sliced context; a failure here doesn't fail the analysis.
 				try {
-					const indexed = await indexSections({ embed, index: env.SECTIONS, manifest }, push.repo, await sectionsOf(files, push.repo, push.trigger.after));
+					const indexed = await indexSections({ embed, index: env.SECTIONS, manifest }, push.repo, dedupeSections(await sectionsOf(files, push.repo, push.trigger.after)).sections);
 					console.log(JSON.stringify({ event: "indexed", repo: push.repo, ...indexed }));
 				} catch (err) {
 					console.error(JSON.stringify({ event: "index-failed", repo: push.repo, error: String(err).slice(0, 300) }));

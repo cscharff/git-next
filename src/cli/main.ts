@@ -7,6 +7,7 @@ import { buildContext } from "../providers/context/index.ts";
 import { costProvider, fixtureCostSource, usd } from "../providers/cost/index.ts";
 import { gatewayLogsSource, type CostSource } from "../providers/cost/logs.ts";
 import type { RollupNode } from "../providers/cost/rollup.ts";
+import { describeDrift, findCopyDrift, groupDrift } from "../providers/instruction-stack/copy-drift.ts";
 import { STACK_FILE, loadStack } from "../providers/instruction-stack/index.ts";
 import { effectiveRules, resolve, type Finding } from "../providers/instruction-stack/resolve.ts";
 import type { Rule } from "../providers/instruction-stack/types.ts";
@@ -173,6 +174,8 @@ interface RulesReport {
 	repo: string;
 	ref: string;
 	layers: { rank: number; depth: number; kind: string; name: string; source: string }[];
+	/** Instruction files not counted as layers (symlinks and copies of a covering layer). */
+	skipped?: { path: string; reason: string; of: string }[];
 	winners: { path: string; rules: RuleRow[] }[];
 	conflicts: { topic: string; explanation: string; evidence: string[] }[];
 	warnings: { topic: string; kind: string; explanation: string; evidence: string[] }[];
@@ -190,7 +193,7 @@ async function rulesReport(args: ParsedArgs, io: CliIo): Promise<RulesReport> {
 	if (args.remote) return remoteRulesReport(args, io);
 	const { files, repo, ref, layersDir } = localContext(args, io);
 	const baseline = fallbackCatalog(args, io, layersDir);
-	const [stack, cat] = await Promise.all([loadStack(files, repo, ref), checkCatalog(files, repo, ref, { baseline, enforceBaseline: !!baseline })]);
+	const [stack, cat, drift] = await Promise.all([loadStack(files, repo, ref), checkCatalog(files, repo, ref, { baseline, enforceBaseline: !!baseline }), findCopyDrift(files, repo, ref)]);
 	const findings = resolve(stack.rules, stack.facts);
 	const where = loc(repo);
 	const root = gitTopLevel(io.cwd);
@@ -206,11 +209,15 @@ async function rulesReport(args: ParsedArgs, io: CliIo): Promise<RulesReport> {
 		repo,
 		ref,
 		layers: [...stack.layers].sort((a, b) => a.rank - b.rank || a.depth - b.depth).map((l) => ({ rank: l.rank, depth: l.depth, kind: l.kind, name: l.name, source: `${l.repo === repo ? "" : `${l.repo}:`}${l.path}` })),
+		skipped: stack.skipped,
 		winners: winnerPaths.map((p) => ({ path: p || ".", rules: effectiveRules(stack.rules, isDirLike(root, p) ? p : dirOf(p)).map(row) })),
 		conflicts: findings.filter((f) => f.kind === "conflict" && inScope(f)).map((f) => ({ topic: f.topic, explanation: f.explanation, evidence: ev(f) })),
 		warnings: findings
 			.filter((f) => (f.kind === "drift" || (f.policyViolation && f.kind === "overridden")) && inScope(f))
-			.map((f) => ({ topic: f.topic, kind: f.kind === "drift" ? "drift" : "policy", explanation: f.explanation, evidence: ev(f) })),
+			.map((f): RulesReport["warnings"][number] => ({ topic: f.topic, kind: f.kind === "drift" ? "drift" : "policy", explanation: f.explanation, evidence: ev(f) }))
+			.concat(
+				groupDrift(drift.filter((d) => [d.source, ...d.stale].some(touched))).map((g) => ({ topic: "copies", kind: "drift", explanation: describeDrift(g), evidence: [g.source, ...g.staleCopies] })),
+			),
 		overrides: findings.filter((f) => f.kind === "overridden" && !f.policyViolation && inScope(f)).map((f) => ({ topic: f.topic, explanation: f.explanation, evidence: ev(f) })),
 		catalog: {
 			source: cat.source,
@@ -267,6 +274,7 @@ async function rulesCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 		lines.push(`Instruction stack for ${report.repo}${report.ref === WORKTREE ? " (working tree)" : `@${report.ref}`}: ${report.layers.length} layers`);
 		lines.push("  rank  layer                                   file");
 		for (const l of report.layers) lines.push(`  ${`${l.rank}${l.kind === "project" ? `.${l.depth}` : ""}`.padEnd(5)} ${`${l.kind} ${l.name}`.padEnd(39)} ${l.source}`);
+		for (const s of report.skipped ?? []) lines.push(`  skip  ${`${s.reason} of ${s.of}`.padEnd(39)} ${s.path}`);
 		for (const w of report.winners) {
 			lines.push("", `Winning rules for ${w.path}`);
 			if (!w.rules.length) lines.push("  (none)");
@@ -278,7 +286,7 @@ async function rulesCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 		for (const c of report.conflicts) lines.push(`  ✗ ${c.topic}: ${c.explanation}`);
 	}
 	if (report.catalog.violations.length) {
-		lines.push("", `Catalog violations (${report.catalog.violations.length}) — catalog ${report.catalog.version} (${report.catalog.source === "repo" ? "repo" : "org baseline"})`);
+		lines.push("", `Catalog violations (${report.catalog.violations.length}) — ${report.catalog.source === "none" ? "no catalog, secrets scan only" : `catalog ${report.catalog.version} (${report.catalog.source === "repo" ? "repo" : "org baseline"})`}`);
 		for (const v of report.catalog.violations) lines.push(`  ✗ ${v.title}: ${v.detail}`);
 	} else if (!args.quiet && report.catalog.source !== "none") {
 		lines.push("", `Catalog ${report.catalog.version} (${report.catalog.source === "repo" ? "repo" : "org baseline"}): no violations${report.catalog.behind ? " — repo catalog is behind the org's" : ""}`);
@@ -433,8 +441,8 @@ async function contextCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 	for (const r of ctx.rules) lines.push(`  ${r.topic.padEnd(16)} ${`${r.value}${r.strength === "must" ? " (must)" : ""}`.padEnd(38)} ${r.kind.padEnd(8)} ${r.source.replace(`${ctx.repo}/`, "")}`);
 	for (const c of ctx.conflicts) lines.push(`  ✗ ${c.topic}: ${c.explanation}`);
 	lines.push("", `Sections (${ctx.sections.length})`);
-	for (const x of ctx.sections) lines.push(`  ${`${x.path}:${x.startLine}`.padEnd(52)} ${(x.headings.at(-1) ?? "").slice(0, 48).padEnd(48)} ${String(x.tokens).padStart(5)} tok`);
-	lines.push("", `Omitted ${ctx.omitted.count} matching sections (${ctx.omitted.tokens} tokens, ${ctx.omitted.oversized} oversized). All markdown: ${s.tokensAllMarkdown} tokens in ${s.markdownFiles} files; instruction files on these paths: ${s.tokensInstructionFilesOnPath}.`);
+	for (const x of ctx.sections) lines.push(`  ${`${x.path}:${x.startLine}`.padEnd(52)} ${(x.headings.at(-1) ?? "").slice(0, 48).padEnd(48)} ${String(x.tokens).padStart(5)} tok${x.duplicates ? ` (+${x.duplicates} identical cop${x.duplicates === 1 ? "y" : "ies"})` : ""}`);
+	lines.push("", `Omitted ${ctx.omitted.count} matching sections (${ctx.omitted.tokens} tokens, ${ctx.omitted.oversized} oversized). All markdown: ${s.tokensAllMarkdown} tokens in ${s.markdownFiles} files${s.duplicateSections ? ` (${s.duplicateSections} duplicate sections indexed once)` : ""}; instruction files on these paths: ${s.tokensInstructionFilesOnPath}.`);
 	if (args.print) {
 		if (pinned?.catalog) lines.push("", "--- pinned: org catalog ---", pinned.catalog, ...pinned.relevant);
 		for (const x of ctx.sections) lines.push("", `--- ${x.path}:${x.startLine} ---`, x.text);
