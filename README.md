@@ -95,8 +95,12 @@ The demo uses [cloudflare/agents](https://github.com/cloudflare/agents) (MIT, 1,
      GCP, AWS or a private cloud (declared and **mocked**). See
      [Multi-cloud environments (mocked)](#multi-cloud-environments-mocked).
   - **Sliced context** (`src/providers/context`) is the resolved rules for the touched paths, plus the
-    best-matching markdown sections within a token budget, plus a manifest of what was left out. It uses BM25 behind
-    `Retriever`/`Embedder` interfaces, ready for Workers AI EmbeddingGemma + Vectorize. On cloudflare/agents it
+    best-matching markdown sections within a token budget, plus a manifest of what was left out. In the Worker it uses
+    **hybrid retrieval**: BM25 fused with **EmbeddingGemma-300m vectors in Vectorize** (`git-next-sections`,
+    768-dim, filtered by repo), with vectors at half weight. On cloudflare/agents that adds the right docs for
+    natural-language tasks without losing exact matches. Sections are embedded at push time by the queue consumer;
+    only changed sections are re-embedded, and a KV manifest tracks coverage. Until a repo is at least 90% indexed,
+    or with `"retriever": "bm25"`, it uses BM25 alone. On cloudflare/agents it
     serves about 3,000–4,000 tokens out of 889,608 tokens of markdown.
 - **Dashboard** has panels for the instruction stack, resource map with diff badges, cost per agent, sliced context
   and the demo agents. A fork selector switches between agents-demo-full and the forks, and a repo picker switches
@@ -116,7 +120,7 @@ git clone <this repo> git-next && cd git-next
 npm install
 npx cf auth login            # browser sign-in
 npx cf auth whoami           # check the account before creating anything
-npm test                     # 122 unit tests; no network
+npm test                     # 132 unit tests; no network
 ```
 
 ### 1. Artifacts namespace and the demo repo
@@ -342,6 +346,25 @@ them, and every insight, record and dashboard element about them says `mocked`.
   The dashboard's sample mode overlays it: an environment switcher appears in the header, the Environments panel
   sits after the resource map, and the cost panel gains an "All clouds" view. Open the page with `?envs=demo` to
   add the mocked environments to live runs.
+
+## Precedence: org first, overridable only by admins
+
+The default order is org › contract › project › tool › personal, so a client contract never silently outranks the org.
+Some engagements need it the other way. The org baseline's catalog sets the policy (`policy.precedenceOverride`:
+`"admins"` or `"never"`). When it allows overrides, an admin can change the order for one repo from the Rules panel,
+by ticking "Let contract outrank org" and giving a reason.
+
+- **Who counts as an admin:** deployed, a Cloudflare Access identity listed in the `ADMIN_EMAILS` secret; nobody if
+  it's unset, so it fails closed. In local dev, localhost is admin.
+- **How it's stored:** `POST /precedence` validates the order, requires a reason of at least 10 characters, writes
+  the override to KV, appends an entry to an append-only audit trail (who, when, the order, why), and re-runs the
+  analysis straight away.
+- **Always visible:** every view shows an active override: the Precedence card ("overridden by admin", set by, when,
+  why), the layer ranks, and the legend, with the audit trail one click away. A reset is audited too.
+- **Two hard rules still conflict:** an override changes who wins on rank, but disagreeing "musts" remain conflicts
+  for a person to settle.
+- **Can't be bypassed from the repo:** while an override is active, ranks come only from its order, and explicit
+  ranks in a repo's `stack.json` are ignored.
 
 ## Writing a provider
 

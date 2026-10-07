@@ -280,3 +280,43 @@ describe("copy drift", () => {
 		expect(drift(out)).toEqual([]);
 	});
 });
+
+describe("precedence override", () => {
+	const sources = {
+		main: {
+			"AGENTS.md": "- You must use pnpm.\n- Format with oxfmt.",
+			".gitnext/stack.json": JSON.stringify({
+				layers: [
+					{ name: "acme", kind: "org", rank: 1, path: ".gitnext/org.md" },
+					{ name: "sow", kind: "contract", rank: 2, path: ".gitnext/contract.md" },
+				],
+			}),
+			".gitnext/org.md": "- Format with prettier.",
+			".gitnext/contract.md": "- Format with biome.",
+		},
+	};
+	const files = () => new RepoContext(async () => memorySource(sources));
+	const override = { order: ["contract", "org", "project", "tool", "personal"] as const, by: "admin@example.com", at: "2026-10-07T00:00:00Z", reason: "SOW-1234 takes precedence for this engagement" };
+
+	it("keeps org above contract by default", async () => {
+		const out = await instructionStackProvider().analyze({ repo: "r", ref: "main", files: files() });
+		const winner = (out[0].metrics as any).effective["."].find((r: any) => r.topic === "formatter");
+		expect(winner).toMatchObject({ value: "prettier", kind: "org" });
+		expect((out[0].metrics as any).precedence).toMatchObject({ overridden: false, order: ["org", "contract", "project", "tool", "personal"] });
+	});
+
+	it("lets an admin override put contract first, and shows who, why and the audit trail", async () => {
+		const audit = [{ ...override, action: "set" }];
+		const out = await instructionStackProvider(undefined, { precedence: async () => ({ override: { ...override, order: [...override.order] }, audit }) }).analyze({ repo: "r", ref: "main", files: files() });
+		const m = out[0].metrics as any;
+		expect(m.effective["."].find((r: any) => r.topic === "formatter")).toMatchObject({ value: "biome", kind: "contract" });
+		expect(m.precedence).toMatchObject({ overridden: true, by: "admin@example.com", reason: override.reason, audit });
+		expect(out[0].title).toContain("precedence overridden");
+		expect(m.layers.find((l: any) => l.kind === "contract").rank).toBe(1);
+	});
+
+	it("ignores an invalid order", async () => {
+		const out = await instructionStackProvider(undefined, { precedence: async () => ({ override: { ...override, order: ["contract", "org"] as any }, audit: [] }) }).analyze({ repo: "r", ref: "main", files: files() });
+		expect((out[0].metrics as any).precedence.overridden).toBe(false);
+	});
+});
