@@ -1,12 +1,11 @@
 import { env } from "cloudflare:workers";
-import sampleContext from "../samples/context-agents-demo-full.json" with { type: "json" };
-import sampleInsights from "../samples/insights-demo.json" with { type: "json" };
 import { artifactsSource } from "./core/artifacts-source.ts";
 import { RepoContext } from "./core/repo-context.ts";
 import { withDemoLayers } from "./demo-layers.ts";
 import { handleDevRoute } from "./dev-routes.ts";
 import { buildContext } from "./providers/context/index.ts";
-import { gatewayLogsSource } from "./providers/cost/logs.ts";
+import { gatewayLogsSource, type CostSource } from "./providers/cost/logs.ts";
+import { fixtureCostSource } from "./providers/cost/index.ts";
 import { createRegistry } from "./registry.ts";
 import baselineCatalogJson from "../fixtures/org-baseline/catalog.json" with { type: "json" };
 import { parseCatalog } from "./providers/catalog.ts";
@@ -16,11 +15,11 @@ import { parseCatalog } from "./providers/catalog.ts";
 /** The AI Gateway git.next routes model calls through and reads cost logs from. */
 const GATEWAY_ID = "git-next";
 
-// Samples the dashboard falls back to when there is no live run, plus the last demo-agents run (one file per fork).
-const DEMO_RUN = Object.fromEntries(
-	Object.entries(import.meta.glob<unknown>("../samples/demo-run*/*.json", { eager: true, import: "default" })).map(([path, json]) => [path.split("/").slice(-2).join("/"), json]),
+// Samples the dashboard falls back to when there is no live run (every samples/**/*.json, keyed by relative path).
+const ALL_SAMPLES = Object.fromEntries(
+	Object.entries(import.meta.glob<unknown>("../samples/**/*.json", { eager: true, import: "default" })).map(([path, json]) => [path.replace(/^\.\.\/samples\//, ""), json]),
 );
-const SAMPLES: Record<string, unknown> = { "insights-demo.json": sampleInsights, "context-agents-demo-full.json": sampleContext, ...DEMO_RUN };
+const SAMPLES: Record<string, unknown> = ALL_SAMPLES;
 
 /** The org's current catalog (org-baseline). Validated at startup so a bad catalog fails loudly. */
 const BASELINE_CATALOG = parseCatalog(JSON.stringify(baselineCatalogJson));
@@ -29,7 +28,7 @@ const BASELINE_CATALOG = parseCatalog(JSON.stringify(baselineCatalogJson));
 // otherwise the cost provider uses the bundled fixture.
 const costSource = env.CF_ACCOUNT_ID && env.AIG_LOGS_TOKEN ? gatewayLogsSource({ accountId: env.CF_ACCOUNT_ID, gatewayId: GATEWAY_ID, token: env.AIG_LOGS_TOKEN }) : undefined;
 /** `enforce` checks repos without their own catalog against the org baseline (?catalog=org). */
-const registryFor = (enforce: boolean) => createRegistry(costSource, { baseline: BASELINE_CATALOG, enforceBaseline: enforce, maxFiles: 300, configOnlyWithoutCatalog: true });
+const registryFor = (enforce: boolean, cost: CostSource | undefined = costSource) => createRegistry(cost, { baseline: BASELINE_CATALOG, enforceBaseline: enforce, maxFiles: 300, configOnlyWithoutCatalog: true });
 const registry = registryFor(false);
 
 /** The only models the smoke route may call: small and cheap, capped at 50 output tokens. */
@@ -57,7 +56,10 @@ export default {
 			const files = contextFor(url, repo, url.searchParams.get("layers") === "demo");
 			const started = Date.now();
 			try {
-				const result = await (url.searchParams.get("catalog") === "org" ? registryFor(true) : registry).run({ repo, ref, base, files }, only);
+				// ?cost=fixture uses the bundled team sample instead of live gateway logs (for the team-overspend view).
+				const enforce = url.searchParams.get("catalog") === "org";
+				const fixture = url.searchParams.get("cost") === "fixture";
+				const result = await (enforce || fixture ? registryFor(enforce, fixture ? fixtureCostSource() : costSource) : registry).run({ repo, ref, base, files }, only);
 				return Response.json({ repo, ref, base: base ?? null, ms: Date.now() - started, ...result });
 			} catch (err) {
 				return Response.json({ error: String(err) }, { status: 500 });
@@ -85,7 +87,7 @@ export default {
 			}
 		}
 
-		const sample = url.pathname.match(/^\/samples\/((?:demo-run(?:-planner)?\/)?[a-z0-9.-]+\.json)$/);
+		const sample = url.pathname.match(/^\/samples\/((?:[a-z0-9-]+\/)?[a-z0-9.-]+\.json)$/);
 		if (request.method === "GET" && sample && SAMPLES[sample[1]]) return Response.json(SAMPLES[sample[1]]);
 
 		if (url.pathname.startsWith("/dev/") && url.pathname !== "/dev/gateway-smoke") {

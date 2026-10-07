@@ -1,0 +1,465 @@
+{
+  "live": true,
+  "note": "Live cost insights from the git-next AI Gateway logs (repo=agents-demo-full), checked against the org baseline catalog.",
+  "repo": "agents-demo-full",
+  "ref": "main",
+  "base": null,
+  "ms": 847,
+  "providers": [
+    {
+      "id": "cost",
+      "ok": true,
+      "ms": 847,
+      "count": 8
+    }
+  ],
+  "insights": [
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main"
+      },
+      "title": "AI spend $0.45 across 16 requests",
+      "detail": "5 agents; 0 requests have no developer metadata (identity coverage 100%). Source: ai-gateway:git-next.",
+      "evidence": [],
+      "metrics": {
+        "source": "ai-gateway:git-next",
+        "total": 0.447369,
+        "requests": 16,
+        "rollup": [
+          {
+            "level": "project",
+            "key": "agents-demo-full",
+            "cost": 0.447369,
+            "requests": 16,
+            "tokensIn": 68946,
+            "tokensOut": 16609,
+            "cachedRequests": 0,
+            "failedRequests": 3,
+            "children": [
+              {
+                "level": "developer",
+                "key": "chris",
+                "cost": 0.447369,
+                "requests": 16,
+                "tokensIn": 68946,
+                "tokensOut": 16609,
+                "cachedRequests": 0,
+                "failedRequests": 3,
+                "children": [
+                  {
+                    "level": "fork",
+                    "key": "agents-demo-full",
+                    "cost": 0.1434,
+                    "requests": 1,
+                    "tokensIn": 1910,
+                    "tokensOut": 2486,
+                    "cachedRequests": 0,
+                    "failedRequests": 0,
+                    "children": [
+                      {
+                        "level": "agent",
+                        "key": "planner",
+                        "cost": 0.1434,
+                        "requests": 1,
+                        "tokensIn": 1910,
+                        "tokensOut": 2486,
+                        "cachedRequests": 0,
+                        "failedRequests": 0,
+                        "children": [
+                          {
+                            "level": "task",
+                            "key": "plan#planner-demo",
+                            "cost": 0.1434,
+                            "requests": 1,
+                            "tokensIn": 1910,
+                            "tokensOut": 2486,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "level": "fork",
+                    "key": "agents-demo-r2",
+                    "cost": 0.135576,
+                    "requests": 5,
+                    "tokensIn": 24918,
+                    "tokensOut": 8574,
+                    "cachedRequests": 0,
+                    "failedRequests": 1,
+                    "children": [
+                      {
+                        "level": "agent",
+                        "key": "r2-agent",
+                        "cost": 0.135576,
+                        "requests": 5,
+                        "tokensIn": 24918,
+                        "tokensOut": 8574,
+                        "cachedRequests": 0,
+                        "failedRequests": 1,
+                        "children": [
+                          {
+                            "level": "task",
+                            "key": "feature#planner-r2",
+                            "cost": 0.084078,
+                            "requests": 2,
+                            "tokensIn": 14094,
+                            "tokensOut": 5589,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#r2-uploads-example",
+                            "cost": 0.051498,
+                            "requests": 3,
+                            "tokensIn": 10824,
+                            "tokensOut": 2985,
+                            "cachedRequests": 0,
+                            "failedRequests": 1,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "level": "fork",
+                    "key": "agents-demo-docs",
+                    "cost": 0.110428,
+                    "requests": 4,
+                    "tokensIn": 27044,
+                    "tokensOut": 2703,
+                    "cachedRequests": 0,
+                    "failedRequests": 1,
+                    "children": [
+                      {
+                        "level": "agent",
+                        "key": "docs-agent",
+                        "cost": 0.110428,
+                        "requests": 4,
+                        "tokensIn": 27044,
+                        "tokensOut": 2703,
+                        "cachedRequests": 0,
+                        "failedRequests": 1,
+                        "children": [
+                          {
+                            "level": "task",
+                            "key": "docs#planner-docs",
+                            "cost": 0.061578,
+                            "requests": 2,
+                            "tokensIn": 18054,
+                            "tokensOut": 2547,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "docs#mcp-transports-clarity",
+                            "cost": 0.04885,
+                            "requests": 2,
+                            "tokensIn": 8990,
+                            "tokensOut": 156,
+                            "cachedRequests": 0,
+                            "failedRequests": 1,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "level": "fork",
+                    "key": "agents-demo-mcp",
+                    "cost": 0.057812,
+                    "requests": 3,
+                    "tokensIn": 15031,
+                    "tokensOut": 2775,
+                    "cachedRequests": 0,
+                    "failedRequests": 0,
+                    "children": [
+                      {
+                        "level": "agent",
+                        "key": "mcp-agent",
+                        "cost": 0.057812,
+                        "requests": 3,
+                        "tokensIn": 15031,
+                        "tokensOut": 2775,
+                        "cachedRequests": 0,
+                        "failedRequests": 0,
+                        "children": [
+                          {
+                            "level": "task",
+                            "key": "refactor#planner-mcp",
+                            "cost": 0.04445,
+                            "requests": 2,
+                            "tokensIn": 10570,
+                            "tokensOut": 2331,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "refactor#mcp-abort-comments",
+                            "cost": 0.013362,
+                            "requests": 1,
+                            "tokensIn": 4461,
+                            "tokensOut": 444,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "level": "fork",
+                    "key": "main",
+                    "cost": 0.000153,
+                    "requests": 3,
+                    "tokensIn": 43,
+                    "tokensOut": 71,
+                    "cachedRequests": 0,
+                    "failedRequests": 1,
+                    "children": [
+                      {
+                        "level": "agent",
+                        "key": "smoke-test",
+                        "cost": 0.000153,
+                        "requests": 3,
+                        "tokensIn": 43,
+                        "tokensOut": 71,
+                        "cachedRequests": 0,
+                        "failedRequests": 1,
+                        "children": [
+                          {
+                            "level": "task",
+                            "key": "gateway-check",
+                            "cost": 0.000153,
+                            "requests": 3,
+                            "tokensIn": 43,
+                            "tokensOut": 71,
+                            "cachedRequests": 0,
+                            "failedRequests": 1,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "agents": [
+          {
+            "agent": "planner",
+            "cost": 0.1434,
+            "requests": 1,
+            "models": [
+              "anthropic/claude-fable-5.1"
+            ]
+          },
+          {
+            "agent": "r2-agent",
+            "cost": 0.135576,
+            "requests": 5,
+            "models": [
+              "anthropic/claude-sonnet-5.5",
+              "anthropic/claude-sonnet-5"
+            ]
+          },
+          {
+            "agent": "docs-agent",
+            "cost": 0.110428,
+            "requests": 4,
+            "models": [
+              "anthropic/claude-sonnet-5.5",
+              "anthropic/claude-opus-4.8"
+            ]
+          },
+          {
+            "agent": "mcp-agent",
+            "cost": 0.057812,
+            "requests": 3,
+            "models": [
+              "anthropic/claude-sonnet-5.5",
+              "anthropic/claude-sonnet-5"
+            ]
+          },
+          {
+            "agent": "smoke-test",
+            "cost": 0.00015260000157356262,
+            "requests": 3,
+            "models": [
+              "anthropic/claude-haiku-4.5",
+              "@cf/zai-org/glm-5.3-flash",
+              "anthropic/claude-haiku-4-5"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "planner"
+      },
+      "title": "planner: $0.14 over 1 requests",
+      "detail": "Models: anthropic/claude-fable-5.1.",
+      "evidence": [],
+      "metrics": {
+        "agent": "planner",
+        "cost": 0.1434,
+        "requests": 1,
+        "models": [
+          "anthropic/claude-fable-5.1"
+        ]
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "r2-agent"
+      },
+      "title": "r2-agent: $0.14 over 5 requests",
+      "detail": "Models: anthropic/claude-sonnet-5.5, anthropic/claude-sonnet-5.",
+      "evidence": [],
+      "metrics": {
+        "agent": "r2-agent",
+        "cost": 0.135576,
+        "requests": 5,
+        "models": [
+          "anthropic/claude-sonnet-5.5",
+          "anthropic/claude-sonnet-5"
+        ]
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "docs-agent"
+      },
+      "title": "docs-agent: $0.11 over 4 requests",
+      "detail": "Models: anthropic/claude-sonnet-5.5, anthropic/claude-opus-4.8.",
+      "evidence": [],
+      "metrics": {
+        "agent": "docs-agent",
+        "cost": 0.110428,
+        "requests": 4,
+        "models": [
+          "anthropic/claude-sonnet-5.5",
+          "anthropic/claude-opus-4.8"
+        ]
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "mcp-agent"
+      },
+      "title": "mcp-agent: $0.06 over 3 requests",
+      "detail": "Models: anthropic/claude-sonnet-5.5, anthropic/claude-sonnet-5.",
+      "evidence": [],
+      "metrics": {
+        "agent": "mcp-agent",
+        "cost": 0.057812,
+        "requests": 3,
+        "models": [
+          "anthropic/claude-sonnet-5.5",
+          "anthropic/claude-sonnet-5"
+        ]
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "smoke-test"
+      },
+      "title": "smoke-test: $0.000153 over 3 requests",
+      "detail": "Models: anthropic/claude-haiku-4.5, @cf/zai-org/glm-5.3-flash, anthropic/claude-haiku-4-5.",
+      "evidence": [],
+      "metrics": {
+        "agent": "smoke-test",
+        "cost": 0.00015260000157356262,
+        "requests": 3,
+        "models": [
+          "anthropic/claude-haiku-4.5",
+          "@cf/zai-org/glm-5.3-flash",
+          "anthropic/claude-haiku-4-5"
+        ]
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "docs-agent"
+      },
+      "title": "Catalog: docs-agent used anthropic/claude-opus-4.8",
+      "detail": "anthropic/claude-opus-4.8 is not in catalog 2026.10.3 (2 requests).",
+      "evidence": [],
+      "metrics": {
+        "agent": "docs-agent",
+        "model": "anthropic/claude-opus-4.8",
+        "taskLabel": "docs",
+        "requests": 2,
+        "reason": "not-in-catalog",
+        "detail": "anthropic/claude-opus-4.8 is not in catalog 2026.10.3",
+        "catalogVersion": "2026.10.3"
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "docs-agent"
+      },
+      "title": "Model fit: docs on anthropic/claude-opus-4.8 \u2192 @cf/moonshotai/kimi-k2.7-code",
+      "detail": "docs-agent ran 2 \"docs\" requests on a frontier model ($0.05); well-scoped task; a mid-tier coding model is usually enough. Estimated $0.00920, saving $0.04.",
+      "evidence": [],
+      "metrics": {
+        "agent": "docs-agent",
+        "taskLabel": "docs",
+        "model": "anthropic/claude-opus-4.8",
+        "tier": "frontier",
+        "suggest": "@cf/moonshotai/kimi-k2.7-code",
+        "why": "well-scoped task; a mid-tier coding model is usually enough",
+        "requests": 2,
+        "actualCost": 0.0489,
+        "estimatedCost": 0.0092,
+        "estimatedSaving": 0.0397
+      }
+    }
+  ]
+}

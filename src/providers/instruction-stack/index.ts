@@ -96,6 +96,8 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 				metrics: {
 					extractor: extractor.id,
 					layers: layers.map((l) => ({ name: l.name, kind: l.kind, rank: l.rank, depth: l.depth, repo: l.repo, path: l.path, origin: l.origin })),
+					// Rules each layer contributes, so the dashboard can show how much of the stack comes from where.
+					rulesPerLayer: Object.fromEntries([...Map.groupBy(rules, (r) => `${r.layer.repo}:${r.layer.path}`)].map(([k, rs]) => [k, rs.length])),
 					rulesByTopic: Object.fromEntries([...Map.groupBy(rules, (r) => r.topic)].map(([t, rs]) => [t, [...new Set(rs.map((r) => r.value))]])),
 					// Winning rule per topic at the repo root and in each directory with its own instruction file.
 					effective: Object.fromEntries(

@@ -18,9 +18,9 @@ const JOB_FOR_LABEL: Record<string, string> = {
 	review: "review",
 	summarize: "summaries",
 	describe: "summaries",
-	format: "coding",
-	changelog: "coding",
-	triage: "coding",
+	format: "chores",
+	changelog: "chores",
+	triage: "chores",
 };
 
 export interface ModelPolicyFinding {
@@ -59,7 +59,9 @@ export function costProvider(source: CostSource = fixtureCostSource(), opts: { c
 		async analyze({ repo, ref }) {
 			// For a fork, show only that fork's requests (the source also returns them for the parent repo name).
 			const all = await source.records({ repo });
-			const records = all.some((r) => r.fork === repo) ? all.filter((r) => r.fork === repo) : all;
+			// (A repo that has records of its own is the parent view, even if some calls were tagged fork=<repo>.)
+			const forkView = !all.some((r) => r.repo === repo) && all.some((r) => r.fork === repo);
+			const records = forkView ? all.filter((r) => r.fork === repo) : all;
 			if (!records.length) return [{ provider: "cost", severity: "info", scope: { repo, ref }, title: "No AI Gateway usage for this repo", detail: `Source ${source.id} has no records tagged repo=${repo}.`, evidence: [] }];
 			const tree = rollup(records);
 			const total = tree.reduce((n, p) => n + p.cost, 0);

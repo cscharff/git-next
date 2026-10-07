@@ -1,5 +1,5 @@
 {
-	"version": "2026.10.3",
+	"version": "2026.10.4",
 	"owner": "@acme/platform",
 	"gateway": {
 		"id": "git-next",
@@ -9,11 +9,12 @@
 	},
 	"models": [
 		{ "id": "anthropic/claude-fable-5.1", "jobs": ["planning"], "owner": "@acme/ai-platform", "rule": "approved for planning and orchestration only: never for code edits or app code" },
-		{ "id": "anthropic/claude-opus-5.5", "jobs": ["planning", "review"], "owner": "@acme/ai-platform", "rule": "approved model providers; fallback planner" },
+		{ "id": "anthropic/claude-opus-5.5", "jobs": ["planning", "review", "coding"], "owner": "@acme/ai-platform", "rule": "approved model providers; fallback planner" },
 		{ "id": "anthropic/claude-sonnet-5.5", "jobs": ["coding", "review"], "owner": "@acme/ai-platform", "rule": "approved model providers" },
 		{ "id": "anthropic/claude-sonnet-5", "jobs": ["coding", "review"], "owner": "@acme/ai-platform", "rule": "approved model providers" },
 		{ "id": "anthropic/claude-haiku-4.5", "jobs": ["chat", "classification"], "owner": "@acme/ai-platform", "rule": "approved model providers" },
-		{ "id": "@cf/zai-org/glm-5.3-flash", "jobs": ["summaries", "extraction"], "owner": "@acme/ai-platform", "rule": "approved model providers", "keywords": ["summary", "summarize", "extract", "describe"] },
+		{ "id": "@cf/zai-org/glm-5.3-flash", "jobs": ["summaries", "extraction", "chores"], "owner": "@acme/ai-platform", "rule": "approved model providers", "keywords": ["summary", "summarize", "extract", "describe"] },
+		{ "id": "@cf/moonshotai/kimi-k2.7-code", "jobs": ["coding", "review"], "owner": "@acme/ai-platform", "rule": "approved model providers" },
 		{ "id": "@cf/google/embeddinggemma-300m", "jobs": ["embeddings"], "owner": "@acme/ai-platform", "rule": "approved model providers", "keywords": ["embedding", "search", "similar"] }
 	],
 	"bindings": [

@@ -86,7 +86,7 @@ describe("costProvider", () => {
 		const out = await costProvider(fixtureCostSource()).analyze({ repo: "agents-demo-full", ref: "main", files });
 		expect(out[0].title).toMatch(/^AI spend \$\d+\.\d\d across 62 requests$/);
 		expect(out.some((i) => i.severity === "warn" && i.title.startsWith("developer devon"))).toBe(true);
-		expect(out.some((i) => i.title.startsWith("Model fit: changelog on claude-opus-5-5"))).toBe(true);
+		expect(out.some((i) => i.title.startsWith("Model fit: changelog on anthropic/claude-opus-5.5"))).toBe(true);
 	});
 
 	it("formats sub-cent spend with precision", () => {

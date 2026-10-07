@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>git.next insights</title>
+<title>git.next</title>
 <style>
 	:root {
 		--bg: #f7f7f5; --panel: #fff; --text: #1d1d1f; --muted: #6b6b70; --line: #e4e4e0;
@@ -23,7 +23,7 @@
 	input, select, button, textarea { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
 	button { cursor: pointer; background: var(--accent); color: #fff; border-color: transparent; }
 	button.secondary { background: var(--chip); color: var(--text); }
-	main { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 16px; padding: 16px 24px 32px; }
+	
 	section.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
 	section.panel h2 { margin: 0 0 4px; font-size: 15px; }
 	.sub { color: var(--muted); font-size: 12px; margin-bottom: 12px; }
@@ -56,29 +56,89 @@
 	#agents { grid-column: 1 / -1; }
 	a { color: var(--info); }
 	.banner { margin: 12px 24px 0; padding: 8px 12px; border-radius: 8px; background: var(--chip); color: var(--muted); font-size: 12px; }
+
+	header nav { display: flex; gap: 6px; flex-wrap: wrap; }
+	header nav a { text-decoration: none; color: var(--muted); font-size: 13px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); }
+	header nav a:hover { color: var(--text); border-color: var(--muted); }
+	header details.data { margin-left: auto; }
+	header details.data summary { list-style: none; }
+	header details.data[open] form { display: flex; }
+	header form { display: none; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+	main { display: flex; flex-direction: column; gap: 16px; padding: 16px 24px 32px; }
+	.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 16px; }
+	section.hero { padding: 20px 22px; }
+	section.hero > h2 { font-size: 19px; letter-spacing: -0.01em; }
+	section.hero > h2 .step { display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 50%; background: var(--accent); color: #fff; font-size: 14px; margin-right: 8px; }
+	.big { display: flex; gap: 12px; flex-wrap: wrap; margin: 6px 0 16px; }
+	.big .stat { min-width: 120px; }
+	.big .stat b { font-size: 26px; }
+	.stat.bad b { color: var(--conflict); } .stat.good b { color: var(--ok); } .stat.warnc b { color: var(--warn); }
+	.two { display: grid; grid-template-columns: minmax(300px, 0.9fr) minmax(360px, 1.1fr); gap: 20px; }
+	@media (max-width: 980px) { .two { grid-template-columns: 1fr; } }
+	.layer { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 8px; background: var(--chip); margin-bottom: 6px; border-left: 4px solid var(--line); }
+	.layer.org { border-left-color: #6b46c1; } .layer.contract { border-left-color: #2b6cb0; } .layer.project { border-left-color: #2f855a; } .layer.tool { border-left-color: #975a16; } .layer.personal { border-left-color: #718096; }
+	.layer .rank { font: 600 15px ui-monospace, monospace; color: var(--muted); text-align: center; }
+	.layer .who { min-width: 0; } .layer .who b { display: block; } .layer .who code { color: var(--muted); overflow-wrap: anywhere; }
+	.layer .counts { text-align: right; font-size: 12px; color: var(--muted); white-space: nowrap; }
+	.legend { font-size: 12px; color: var(--muted); margin: 4px 0 10px; }
+	.why { font-size: 12px; color: var(--muted); }
+	.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 12px; }
+	.card { border: 1px solid var(--line); border-left: 4px solid var(--conflict); border-radius: 8px; padding: 12px 14px; background: var(--panel); }
+	.card.warnb { border-left-color: var(--warn); }
+	.card h4 { margin: 0 0 8px; font-size: 14px; }
+	.vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: start; }
+	.vs .side { background: var(--chip); border-radius: 6px; padding: 8px; font-size: 12px; }
+	.vs .side b { display: block; font-size: 13px; margin: 4px 0; }
+	.vs .x { align-self: center; color: var(--conflict); font-weight: 700; }
+	.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+	@media (max-width: 900px) { .compare { grid-template-columns: 1fr; } }
+	.col { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+	.col.bad { border-top: 4px solid var(--conflict); } .col.good { border-top: 4px solid var(--ok); }
+	.col h3 { margin: 0 0 4px; font-size: 15px; }
+	.col .n { font-size: 44px; font-weight: 700; line-height: 1.1; }
+	.col.bad .n { color: var(--conflict); } .col.good .n { color: var(--ok); }
+	.col li { margin: 6px 0; font-size: 13px; }
+	.fix { color: var(--ok); font-size: 12px; display: block; }
+	.tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
+	.tabs button { background: transparent; color: var(--muted); border: 0; border-radius: 0; padding: 6px 12px; }
+	.tabs button.on { background: var(--accent); color: #fff; }
+	.barrow { display: grid; grid-template-columns: 160px 1fr 80px 60px auto; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+	.live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); margin-right: 6px; vertical-align: middle; }
+	.live-dot.on { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 30%, transparent); }
 </style>
 </head>
 <body>
 <header>
-	<h1>git<span>.next</span> insights</h1>
-	<select id="fork" aria-label="Fork" hidden><option value="">agents-demo-full (sample)</option></select>
-	<div class="meta" id="meta">Loading…</div>
-	<form id="live">
-		<input id="repo" value="agents-demo-full" size="16" aria-label="Repository">
-		<input id="ref" value="main" size="8" aria-label="Ref">
-		<input id="base" placeholder="base ref (optional)" value="d1ce3cbd765cada8edfaedaf5ea1041095ece79c" size="14" aria-label="Base ref">
-		<label class="meta"><input type="checkbox" id="demo" checked> demo layers</label>
-		<button type="submit">Run live</button>
-		<button type="button" class="secondary" id="sample">Use sample</button>
-	</form>
+	<h1>git<span>.next</span></h1>
+	<nav>
+		<a href="#stack">1 · Rules in force</a>
+		<a href="#newrepo">2 · New repos</a>
+		<a href="#cost">3 · Cost &amp; overspend</a>
+		<a href="#more">More</a>
+	</nav>
+	<select id="fork" aria-label="Fork" hidden><option value="">agents-demo-full</option></select>
+	<div class="meta"><span class="live-dot" id="livedot"></span><span id="meta">Loading…</span></div>
+	<details class="data"><summary class="chip">Data source</summary>
+		<form id="live">
+			<input id="repo" value="agents-demo-full" size="16" aria-label="Repository">
+			<input id="ref" value="main" size="8" aria-label="Ref">
+			<input id="base" placeholder="base ref (optional)" value="d1ce3cbd765cada8edfaedaf5ea1041095ece79c" size="14" aria-label="Base ref">
+			<label class="meta"><input type="checkbox" id="demo" checked> demo layers</label>
+			<button type="submit">Run live</button>
+			<button type="button" class="secondary" id="sample">Use sample</button>
+		</form>
+	</details>
 </header>
 <div class="banner" id="banner" hidden></div>
 <main>
-	<section class="panel" id="stack"><h2>Instruction stack</h2><div class="sub">Layers, winning rules and conflicts with file:line</div><div class="body"></div></section>
-	<section class="panel" id="resources"><h2>Resource map</h2><div class="sub">Workers and bindings per wrangler config, diffed against the base ref</div><div class="body"></div></section>
-	<section class="panel" id="cost"><h2>Cost per agent</h2><div class="sub">AI Gateway spend rolled up by agent, with spend flags and model-fit suggestions</div><div class="body"></div></section>
-	<section class="panel" id="agents" hidden><h2>Demo agents</h2><div class="sub">Last run of scripts/demo-agents.ts: one agent per fork, each with sliced context, a gateway-tagged model call and the pre-push check</div><div class="body"></div></section>
-	<section class="panel" id="context"><h2>Sliced context</h2><div class="sub">What an agent gets for a task: resolved rules and the best sections within a token budget</div><div class="body"></div></section>
+	<section class="panel hero" id="stack"><h2><span class="step">1</span>Rules in force</h2><div class="sub">Every instruction an agent working in this repo is steered by: which layer it comes from, what wins in each directory and why, and the conflicts a person has to settle.</div><div class="body"></div></section>
+	<section class="panel hero" id="newrepo" hidden><h2><span class="step">2</span>New repositories, smart by default</h2><div class="sub">Same agent, same model, same prompt: a plain repo versus one created with <code>git next new</code>, which inherits the org's layers and catalog. Findings at the first push.</div><div class="body"></div></section>
+	<section class="panel hero" id="cost"><h2><span class="step">3</span>Cost and overspend</h2><div class="sub">Every model call goes through the org AI Gateway, tagged with developer, repo, fork, agent and task. Spend rolls up from one call to the whole project.</div><div class="body"></div></section>
+	<div class="grid" id="more">
+		<section class="panel" id="resources"><h2>Resource map</h2><div class="sub">Workers and bindings per wrangler config, diffed against the base ref</div><div class="body"></div></section>
+		<section class="panel" id="context"><h2>Sliced context</h2><div class="sub">What an agent gets for a task: resolved rules and the best sections within a token budget</div><div class="body"></div></section>
+		<section class="panel" id="agents" hidden style="grid-column: 1 / -1"><h2>Demo agents</h2><div class="sub">Agents on forks: sliced context, a gateway-tagged model call, the pre-push check</div><div class="body"></div></section>
+	</div>
 </main>
 <script>
 const $ = (sel, el = document) => el.querySelector(sel);
@@ -87,8 +147,8 @@ const usd = (n) => (n > 0 && n < 0.01 ? `$${Number(n).toPrecision(3)}` : `$${Num
 const num = (n) => Number(n).toLocaleString();
 const sev = (s) => `<span class="chip sev-${esc(s)}">${esc(s)}</span>`;
 const kind = (k) => `<span class="chip k-${esc(k)}">${esc(k)}</span>`;
-const ev = (e) => `<code>${esc(e.repo === state.repo ? "" : e.repo + ":")}${esc(e.path)}${e.line ? ":" + e.line : ""}</code>`;
-const state = { repo: "agents-demo-full", insights: null, context: null, source: "" };
+const short = (m) => String(m ?? "").replace(/^anthropic\//, "");
+const state = { repo: "agents-demo-full", insights: null, context: null, source: "", costView: "live", costLive: null, costTeam: null, newRepo: null };
 
 async function getJson(url, init) {
 	const res = await fetch(url, init);
@@ -96,12 +156,16 @@ async function getJson(url, init) {
 	if (!res.ok || body.error) throw new Error(body.error || res.statusText);
 	return body;
 }
+const tryJson = (url) => getJson(url).catch(() => null);
 
 async function loadSamples() {
-	const [insights, context] = await Promise.all([getJson("/samples/insights-demo.json"), getJson("/samples/context-agents-demo-full.json")]);
+	const [insights, context, newRepo, costLive] = await Promise.all([getJson("/samples/insights-demo.json"), getJson("/samples/context-agents-demo-full.json"), tryJson("/samples/new-repo-demo/summary.json"), tryJson("/samples/cost-live.json")]);
 	state.insights = insights;
 	state.context = context.results;
-	state.source = "sample (offline run)";
+	state.newRepo = newRepo;
+	state.costTeam = insights.insights.filter((i) => i.provider === "cost");
+	state.costLive = costLive ? costLive.insights.filter((i) => i.provider === "cost") : null;
+	state.source = "recorded run";
 	render();
 }
 
@@ -112,12 +176,14 @@ async function loadLive(e) {
 	try {
 		const qs = new URLSearchParams({ repo, ref, ...(base ? { base } : {}), ...($("#demo").checked ? { layers: "demo" } : {}) });
 		state.insights = await getJson(`/insights?${qs}`);
+		const cost = state.insights.insights.filter((i) => i.provider === "cost");
+		if (cost.some((i) => String(i.metrics?.source ?? "").startsWith("ai-gateway"))) state.costLive = cost;
 		state.repo = repo;
 		state.source = "live";
 		hideBanner();
 		render();
 	} catch (err) {
-		showBanner(`Live run failed (${err.message}); showing the sample instead.`);
+		showBanner(`Live run failed (${err.message}); showing the recorded run instead.`);
 		if (!state.insights) await loadSamples();
 	}
 }
@@ -128,49 +194,154 @@ function hideBanner() { $("#banner").hidden = true; }
 function render() {
 	const d = state.insights;
 	state.repo = d.repo;
-	$("#meta").innerHTML = `${esc(d.repo)}@${esc(d.ref)}${d.base ? ` vs <code>${esc(String(d.base).slice(0, 10))}</code>` : ""} · ${d.insights.length} insights · ${esc(state.source)}`;
+	$("#meta").innerHTML = `${esc(d.repo)}@${esc(d.ref)}${d.base ? ` vs <code>${esc(String(d.base).slice(0, 10))}</code>` : ""} · ${esc(state.source)}${d.updatedAt ? ` · updated ${esc(new Date(d.updatedAt).toLocaleTimeString())}` : ""}`;
 	const by = (p) => d.insights.filter((i) => i.provider === p);
 	renderStack(by("instruction-stack"), by("catalog"));
+	renderNewRepo();
+	renderCost();
 	renderResources(by("resource-map"));
-	renderCost(by("cost"));
 	renderContext();
 }
 
+// ── 1. Rules in force ─────────────────────────────────────────────────────────
+
 function renderStack(items, catalogItems = []) {
 	const body = $("#stack .body");
-	const catSummary = catalogItems.find((i) => i.severity !== "conflict");
-	const catViolations = catalogItems.filter((i) => i.severity === "conflict");
 	const summary = items.find((i) => i.title.startsWith("Instruction stack"));
 	if (!summary) return (body.innerHTML = `<p class="empty">No instruction-stack data.</p>`);
 	const m = summary.metrics;
 	const layers = [...m.layers].sort((a, b) => a.rank - b.rank || a.depth - b.depth);
+	const perLayer = m.rulesPerLayer || {};
+	const ruleCount = (l) => perLayer[`${l.repo}:${l.path}`] ?? 0;
+	const conflicts = items.filter((i) => i.metrics?.kind === "conflict");
+	const warnings = items.filter((i) => i !== summary && i.severity === "warn");
+	const overrides = items.filter((i) => i.metrics?.kind === "overridden" && i.severity === "info");
+	const catSummary = catalogItems.find((i) => i.severity !== "conflict");
+	const catViolations = catalogItems.filter((i) => i.severity === "conflict");
 	const dirs = Object.keys(m.effective || {});
-	const findings = [...items.filter((i) => i !== summary), ...catViolations].sort((a, b) => ({ conflict: 0, warn: 1, info: 2 })[a.severity] - ({ conflict: 0, warn: 1, info: 2 })[b.severity]);
+	const rootWins = (l) => (m.effective?.["."] || []).filter((r) => r.path === l.path).length;
+	const totalRules = Object.values(perLayer).reduce((a, b) => a + b, 0);
+	const sideHtml = (v) => `<div class="side">${kind(v.kind)} ${esc(v.layer)}<b>${esc(v.value)}${v.strength === "must" ? " · must" : ""}</b><code>${esc(v.path)}:${v.line}</code><div class="why">${esc(String(v.text ?? "").slice(0, 120))}</div></div>`;
+
 	body.innerHTML = `
-		<div class="stats">
-			<div class="stat"><b>${layers.length}</b><span>layers</span></div>
-			<div class="stat"><b>${findings.filter((f) => f.severity === "conflict").length}</b><span>conflicts</span></div>
-			<div class="stat"><b>${findings.filter((f) => f.severity === "warn").length}</b><span>warnings</span></div>
-			<div class="stat"><b>${findings.filter((f) => f.severity === "info").length}</b><span>overrides</span></div>
+		<div class="big">
+			<div class="stat"><b>${layers.length}</b><span>instruction layers</span></div>
+			<div class="stat"><b>${totalRules}</b><span>rules extracted</span></div>
+			<div class="stat ${conflicts.length ? "bad" : "good"}"><b>${conflicts.length}</b><span>conflicts to settle</span></div>
+			<div class="stat ${warnings.length ? "warnc" : ""}"><b>${warnings.length}</b><span>policy / drift warnings</span></div>
+			<div class="stat"><b>${overrides.length}</b><span>overridden (resolved by rank)</span></div>
+			${catSummary ? `<div class="stat ${catViolations.length ? "bad" : ""}"><b>${catViolations.length}</b><span>${esc(catSummary.title)}</span></div>` : ""}
 		</div>
-		${catSummary ? `<div class="row"><span class="chip ${catSummary.metrics?.behind ? "sev-warn" : catSummary.metrics?.source === "none" ? "" : "sev-info"}">${esc(catSummary.title)}</span><span class="sub" style="margin:0">${catViolations.length} catalog violation(s)${catSummary.metrics?.baselineVersion ? ` · org catalog ${esc(catSummary.metrics.baselineVersion)}` : ""}</span></div>` : ""}
-		<details><summary>Layers (lower rank wins; depth orders project files)</summary>
-			<table><tr><th style="width:48px">Rank</th><th style="width:40%">Layer</th><th>File</th></tr>
-			${layers.map((l) => `<tr><td>${l.rank}${l.kind === "project" ? `.${l.depth}` : ""}</td><td>${kind(l.kind)} ${esc(l.name)}</td><td><code>${esc(l.repo && l.repo !== state.repo ? l.repo + ":" : "")}${esc(l.path)}</code></td></tr>`).join("")}
-			</table></details>
-		<div class="row"><span class="sub" style="margin:0">Winning rules for</span>
-			<select id="dir">${dirs.map((x) => `<option>${esc(x)}</option>`).join("")}</select></div>
-		<div id="winners"></div>
-		<h3 class="sub" style="margin-top:14px">Findings</h3>
-		<div class="scroll">${findings.map((f) => `<div class="finding">${sev(f.severity)} <b>${esc(f.title)}</b><div>${esc(f.detail)}</div><div class="ev">${f.evidence.map(ev).join(" · ")}</div></div>`).join("") || `<p class="empty">No overrides, conflicts or drift.</p>`}</div>`;
+		<div class="two">
+			<div>
+				<h3 class="sub" style="margin:0 0 6px">The stack</h3>
+				<div class="legend">Lower rank wins: org 1 › contract 2 › project 3 (deeper folders win) › tool 4 › personal 5${m.precedence?.overridden ? ` · <b style="color:var(--warn)">precedence overridden by admin: ${esc(m.precedence.note)}</b>` : ""}</div>
+				${layers.map((l) => `<div class="layer ${esc(l.kind)}"><div class="rank">${l.rank}${l.kind === "project" ? `.${l.depth}` : ""}</div><div class="who">${kind(l.kind)} <b style="display:inline">${esc(l.name)}</b><code style="display:block">${esc(l.repo && l.repo !== state.repo ? l.repo + ":" : "")}${esc(l.path)}</code></div><div class="counts">${ruleCount(l)} rule${ruleCount(l) === 1 ? "" : "s"}${rootWins(l) ? `<br><b style="color:var(--text)">wins ${rootWins(l)}</b> at root` : ""}</div></div>`).join("")}
+			</div>
+			<div>
+				<div class="row"><h3 class="sub" style="margin:0">What wins in</h3><select id="dir">${dirs.map((x) => `<option>${esc(x)}</option>`).join("")}</select></div>
+				<div id="winners"></div>
+			</div>
+		</div>
+		${conflicts.length ? `<h3 style="margin:18px 0 8px;font-size:15px">Conflicts: two hard rules disagree, so a person has to decide</h3>
+		<div class="cards">${conflicts.map((c) => { const [a, b] = c.metrics.values; return `<div class="card"><h4>${esc(c.metrics.topic)}</h4><div class="vs">${sideHtml(a)}<div class="x">✗</div>${sideHtml(b)}</div></div>`; }).join("")}</div>` : `<p class="sub" style="margin-top:14px">✓ No conflicts: every disagreement is settled by rank.</p>`}
+		${warnings.length || catViolations.length ? `<h3 style="margin:18px 0 8px;font-size:15px">Policy and drift</h3><div class="cards">${[...warnings, ...catViolations].map((w) => `<div class="card warnb"><h4>${esc(w.title)}</h4><div class="why">${esc(w.detail)}</div></div>`).join("")}</div>` : ""}`;
+
 	const showWinners = () => {
 		const rows = (m.effective || {})[$("#dir").value] || [];
+		const losers = (r) => overrides.filter((o) => o.metrics.topic === r.topic && o.metrics.values[0].path === r.path && o.metrics.values[0].value === r.value).map((o) => o.metrics.values[1]);
 		$("#winners").innerHTML = rows.length
-			? `<table><tr><th style="width:28%">Topic</th><th style="width:34%">Value</th><th>From</th></tr>${rows.map((r) => `<tr><td>${esc(r.topic)}</td><td><code>${esc(r.value)}</code> ${r.strength === "must" ? `<span class="chip">must</span>` : ""}</td><td>${kind(r.kind)} <code>${esc(r.path)}:${r.line}</code></td></tr>`).join("")}</table>`
+			? `<table><tr><th style="width:24%">Topic</th><th style="width:30%">Wins</th><th>From · why</th></tr>${rows.map((r) => { const l = losers(r); return `<tr><td>${esc(r.topic)}</td><td><code>${esc(r.value)}</code>${r.strength === "must" ? ` <span class="chip">must</span>` : ""}</td><td>${kind(r.kind)} <code>${esc(r.path)}:${r.line}</code>${l.length ? `<div class="why">beats ${l.map((x) => `${esc(x.kind)} “${esc(x.value)}”`).join(", ")} (lower rank)</div>` : ""}</td></tr>`; }).join("")}</table>`
 			: `<p class="empty">No rules apply here.</p>`;
 	};
 	$("#dir").addEventListener("change", showWinners);
 	showWinners();
+}
+
+// ── 2. New repositories ───────────────────────────────────────────────────────
+
+function renderNewRepo() {
+	const panel = $("#newrepo");
+	const s = state.newRepo;
+	if (!s) return (panel.hidden = true);
+	panel.hidden = false;
+	const [plain, smart] = s.agents;
+	// One short, actionable fix per violation kind (the full detail stays in the CLI and API output).
+	const fixOf = (v) => {
+		if (/bypasses the org gateway/.test(v.title)) return 'Fix: pass { gateway: { id: "git-next" } } on env.AI.run';
+		if (/^Unapproved model/.test(v.title)) return `Approved: ${(v.detail.split("Approved: ")[1] ?? "").split(", ").slice(0, 2).join(", ")}…`;
+		return v.detail.match(/(Use the shared [^.]+)/)?.[1] ?? "";
+	};
+	const col = (a, cls, title, sub) => `
+		<div class="col ${cls}">
+			<h3>${title}</h3><div class="sub">${sub}</div>
+			<div class="n">${a.findings}</div><div class="sub">finding${a.findings === 1 ? "" : "s"} at first push · ${a.firstPush.pushed ? `<span class="chip sev-info">push went through</span>` : `<span class="chip sev-conflict">push blocked by the hook</span>`}</div>
+			<ul>${[...a.conflicts.map((c) => `<li>✗ ${esc(c.topic)}: ${esc(c.explanation)}</li>`), ...a.catalogViolations.map((v) => `<li>✗ <b>${esc(v.title)}</b><span class="fix">${esc(fixOf(v))}</span></li>`)].join("") || "<li>✓ Follows org practice from the first commit</li>"}</ul>
+			<div class="stats" style="margin-top:10px">
+				<div class="stat"><b>${a.contextFromGitNext ? num(a.contextFromGitNext.tokensServed) : 0}</b><span>context tokens from git.next${a.contextFromGitNext ? ` (${num(a.contextFromGitNext.pinnedTokens)} pinned)` : ""}</span></div>
+				<div class="stat"><b>${usd(a.cost)}</b><span>${esc(short(s.model))} call</span></div>
+			</div>
+			${a.contextFromGitNext?.pinned?.relevant?.length ? `<div class="why">Pinned for this task: ${a.contextFromGitNext.pinned.relevant.filter((r) => /^\s*shared|^model|^ai:/.test(r)).map((r) => esc(r.trim().split(";")[0])).join(" · ")}</div>` : ""}
+			<div class="why" style="margin-top:6px">Commit: ${esc(a.commit)}</div>
+		</div>`;
+	$("#newrepo .body").innerHTML = `
+		<div class="sub" style="margin-bottom:10px">Task: “${esc(s.task)}”</div>
+		<div class="compare">
+			${col(plain, plain.findings ? "bad" : "good", "Plain repo", "Started empty; checked against the org baseline at push")}
+			${col(smart, smart.findings ? "bad" : "good", "<code>git next new --template worker-api</code>", "Inherits org, contract and tool layers (pinned), the catalog and the hook")}
+		</div>`;
+}
+
+// ── 3. Cost and overspend ─────────────────────────────────────────────────────
+
+function renderCost() {
+	const body = $("#cost .body");
+	const views = { live: state.costLive, team: state.costTeam };
+	if (!views[state.costView]) state.costView = views.live ? "live" : "team";
+	const items = views[state.costView] || [];
+	const summary = items.find((i) => i.title.startsWith("AI spend"));
+	const tabs = `<div class="tabs"><button class="${state.costView === "live" ? "on" : ""}" data-v="live" ${views.live ? "" : "disabled"}>This demo · live gateway logs</button><button class="${state.costView === "team" ? "on" : ""}" data-v="team">Team view · sample data</button></div>`;
+	if (!summary) {
+		body.innerHTML = `${tabs}<p class="empty">${esc(items[0]?.title || "No cost data.")}</p>`;
+	} else {
+		const m = summary.metrics;
+		const flags = items.filter((i) => i.severity === "warn" && !i.title.startsWith("Catalog:"));
+		const policy = items.filter((i) => i.title.startsWith("Catalog:"));
+		const fits = items.filter((i) => i.title.startsWith("Model fit"));
+		const saving = fits.reduce((n, f) => n + f.metrics.estimatedSaving, 0);
+		const devs = (m.rollup || []).flatMap((p) => p.children);
+		const devMax = Math.max(...devs.map((d) => d.cost), 0.0001);
+		const flagFor = (lvl, key) => flags.find((f) => f.metrics?.level === lvl && f.metrics?.key === key);
+		const forks = {};
+		for (const d of devs) for (const f of d.children) forks[f.key] = (forks[f.key] || 0) + f.cost;
+		const agents = m.agents;
+		const planner = agents.find((a) => a.agent === "planner");
+		const workers = agents.filter((a) => a.agent !== "planner" && a.agent !== "smoke-test");
+		body.innerHTML = `${tabs}
+			<div class="big">
+				<div class="stat"><b>${usd(m.total)}</b><span>total spend</span></div>
+				<div class="stat"><b>${num(m.requests)}</b><span>model calls</span></div>
+				<div class="stat ${flags.length ? "warnc" : ""}"><b>${flags.length}</b><span>overspend flags (&gt; 2× median)</span></div>
+				<div class="stat ${saving ? "good" : ""}"><b>${usd(saving)}</b><span>est. saving from right-sizing models</span></div>
+			</div>
+			<div class="two">
+				<div>
+					<h3 class="sub" style="margin:0 0 6px">By developer</h3>
+					${devs.map((d) => { const f = flagFor("developer", d.key); return `<div class="barrow"><b>${esc(d.key)}</b><div class="bar"><div style="width:${(d.cost / devMax) * 100}%;${f ? "background:var(--conflict)" : ""}"></div></div><span>${usd(d.cost)}</span><span class="sub">${d.requests} calls</span><span>${f ? `<span class="chip sev-warn">${f.metrics.multiple}× median</span>` : ""}</span></div>`; }).join("")}
+					<h3 class="sub" style="margin:14px 0 6px">By fork</h3>
+					<div class="row">${Object.entries(forks).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<span class="chip">${esc(k)} ${usd(v)}</span>`).join(" ")}</div>
+					${planner ? `<h3 class="sub" style="margin:14px 0 6px">Planner vs workers</h3><div class="stats"><div class="stat"><b>${usd(planner.cost)}</b><span>planner · ${esc(planner.models.map(short).join(", "))}</span></div><div class="stat"><b>${usd(workers.reduce((n, a) => n + a.cost, 0))}</b><span>${workers.length} worker agents</span></div></div>` : ""}
+				</div>
+				<div>
+					<h3 class="sub" style="margin:0 0 6px">By agent</h3>
+					<table><tr><th style="width:34%">Agent</th><th style="width:20%">Spend</th><th>Models</th></tr>${agents.map((a) => { const f = flagFor("agent", a.agent); return `<tr><td><b>${esc(a.agent)}</b>${f ? ` <span class="chip sev-warn">${f.metrics.multiple}×</span>` : ""}</td><td>${usd(a.cost)}<br><span class="sub">${a.requests} calls</span></td><td class="why">${esc(a.models.map(short).join(", "))}</td></tr>`; }).join("")}</table>
+				</div>
+			</div>
+			${fits.length ? `<h3 style="margin:16px 0 8px;font-size:15px">Right-size the model</h3><div class="cards">${fits.map((f) => `<div class="card warnb" style="border-left-color:var(--ok)"><h4>${esc(f.metrics.agent)} · ${esc(f.metrics.taskLabel)}</h4><code>${esc(short(f.metrics.model))}</code> → <code>${esc(short(f.metrics.suggest))}</code> <b style="color:var(--ok)">save ${usd(f.metrics.estimatedSaving)}</b><div class="why">${esc(f.metrics.why)} · ${f.metrics.requests} calls, ${usd(f.metrics.actualCost)} now vs ${usd(f.metrics.estimatedCost)}</div></div>`).join("")}</div>` : ""}
+			${flags.length || policy.length ? `<h3 style="margin:16px 0 8px;font-size:15px">Flags</h3><div class="cards">${[...flags, ...policy].map((f) => `<div class="card warnb"><h4>${esc(f.title)}</h4><div class="why">${esc(f.detail)}</div></div>`).join("")}</div>` : ""}
+			<p class="sub" style="margin-top:10px">Source: ${esc(m.source)}${state.costView === "team" ? " · illustrative team of four developers" : ""}</p>`;
+	}
+	body.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => { state.costView = b.dataset.v; renderCost(); }));
 }
 
 function renderResources(items) {
@@ -201,38 +372,6 @@ function renderResources(items) {
 	$("#rsearch").addEventListener("input", draw);
 	$("#ronly").addEventListener("change", draw);
 	draw();
-}
-
-function renderCost(items) {
-	const body = $("#cost .body");
-	const summary = items.find((i) => i.title.startsWith("AI spend"));
-	if (!summary) return (body.innerHTML = `<p class="empty">${esc(items[0]?.title || "No cost data.")}</p>`);
-	const agents = summary.metrics.agents;
-	const max = Math.max(...agents.map((a) => a.cost), 0.01);
-	const flags = items.filter((i) => i.severity === "warn");
-	const fits = items.filter((i) => i.title.startsWith("Model fit"));
-	const saving = fits.reduce((n, f) => n + f.metrics.estimatedSaving, 0);
-	body.innerHTML = `
-		<div class="stats">
-			<div class="stat"><b>${usd(summary.metrics.total)}</b><span>total spend</span></div>
-			<div class="stat"><b>${num(summary.metrics.requests)}</b><span>requests</span></div>
-			<div class="stat"><b>${usd(saving)}</b><span>est. saving from model fit</span></div>
-		</div>
-		<table><tr><th style="width:38%">Agent</th><th></th><th style="width:64px">Spend</th><th style="width:40px">Req</th></tr>
-		${agents.map((a) => `<tr><td><b>${esc(a.agent)}</b><br><span class="sub">${esc(a.models.join(", "))}</span></td><td><div class="bar"><div style="width:${(a.cost / max) * 100}%"></div></div></td><td>${usd(a.cost)}</td><td>${a.requests}</td></tr>`).join("")}
-		</table>
-		${byFork(summary.metrics.rollup)}
-		${flags.length ? `<h3 class="sub" style="margin-top:14px">Spend flags</h3>${flags.map((f) => `<div class="finding">${sev("warn")} <b>${esc(f.title)}</b><div>${esc(f.detail)}</div></div>`).join("")}` : ""}
-		${fits.length ? `<h3 class="sub" style="margin-top:14px">Model fit</h3>${fits.map((f) => `<div class="finding"><b>${esc(f.metrics.agent)}</b> · ${esc(f.metrics.taskLabel)}: <code>${esc(f.metrics.model)}</code> → <code>${esc(f.metrics.suggest)}</code> <span class="plus">save ${usd(f.metrics.estimatedSaving)}</span><div class="ev">${esc(f.metrics.why)}; ${f.metrics.requests} requests, ${usd(f.metrics.actualCost)} now vs ${usd(f.metrics.estimatedCost)}</div></div>`).join("")}` : ""}
-		<p class="sub" style="margin-top:10px">Source: ${esc(summary.metrics.source)}</p>`;
-}
-
-/** Spend per fork from the project → developer → fork rollup. */
-function byFork(rollup) {
-	const forks = {};
-	for (const project of rollup || []) for (const dev of project.children) for (const fork of dev.children) forks[fork.key] = (forks[fork.key] || 0) + fork.cost;
-	const rows = Object.entries(forks).sort((a, b) => b[1] - a[1]);
-	return rows.length > 1 ? `<h3 class="sub" style="margin-top:14px">By fork</h3><div class="row">${rows.map(([k, v]) => `<span class="chip">${esc(k)} ${usd(v)}</span>`).join(" ")}</div>` : "";
 }
 
 function renderAgents() {
