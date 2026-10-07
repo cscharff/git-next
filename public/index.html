@@ -79,7 +79,7 @@
 <script>
 const $ = (sel, el = document) => el.querySelector(sel);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-const usd = (n) => `$${Number(n).toFixed(2)}`;
+const usd = (n) => (n > 0 && n < 0.01 ? `$${Number(n).toPrecision(3)}` : `$${Number(n).toFixed(2)}`);
 const num = (n) => Number(n).toLocaleString();
 const sev = (s) => `<span class="chip sev-${esc(s)}">${esc(s)}</span>`;
 const kind = (k) => `<span class="chip k-${esc(k)}">${esc(k)}</span>`;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RepoContext, memorySource } from "../src/core/repo-context.ts";
-import { costProvider, fixtureCostSource } from "../src/providers/cost/index.ts";
+import { costProvider, fixtureCostSource, usd } from "../src/providers/cost/index.ts";
 import { gatewayLogsSource, parseGatewayLogs, staticCostSource, taskLabelOf, UNATTRIBUTED } from "../src/providers/cost/logs.ts";
 import { modelFit } from "../src/providers/cost/model-fit.ts";
 import { median, rollup, spendFlags } from "../src/providers/cost/rollup.ts";
@@ -85,6 +85,10 @@ describe("costProvider", () => {
 		expect(out[0].title).toMatch(/^AI spend \$\d+\.\d\d across 62 requests$/);
 		expect(out.some((i) => i.severity === "warn" && i.title.startsWith("developer devon"))).toBe(true);
 		expect(out.some((i) => i.title.startsWith("Model fit: changelog on claude-opus-5-5"))).toBe(true);
+	});
+
+	it("formats sub-cent spend with precision", () => {
+		expect([usd(0.000153), usd(0), usd(12.104)]).toEqual(["$0.000153", "$0.00", "$12.10"]);
 	});
 
 	it("says so when a repo has no usage", async () => {

@@ -6,7 +6,8 @@ import { rollup, spendFlags } from "./rollup.ts";
 
 export const fixtureCostSource = (): CostSource => staticCostSource("fixture:ai-gateway-logs", parseGatewayLogs(fixture));
 
-const usd = (n: number) => `$${n.toFixed(2)}`;
+/** Dollars with cents, or more precision for sub-cent amounts so tiny spend doesn't read as $0.00. */
+export const usd = (n: number) => (n > 0 && n < 0.01 ? `$${n.toPrecision(3)}` : `$${n.toFixed(2)}`);
 
 export function costProvider(source: CostSource = fixtureCostSource()): InsightProvider {
 	return {
