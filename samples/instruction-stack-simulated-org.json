@@ -1,0 +1,321 @@
+{
+  "simulated": true,
+  "note": "Real agents-demo-full instruction/config files plus a hypothetical org layer at equal rank to the root AGENTS.md.",
+  "insights": [
+    {
+      "provider": "instruction-stack",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main"
+      },
+      "title": "Instruction stack: 10 layers, 25 rules",
+      "detail": "Extractor keyword-v1; 4 findings.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "AGENTS.md"
+        },
+        {
+          "repo": "agents-demo-full",
+          "path": "agent-think/AGENTS.md"
+        },
+        {
+          "repo": "agents-demo-full",
+          "path": "design/AGENTS.md"
+        },
+        {
+          "repo": "agents-demo-full",
+          "path": "docs/AGENTS.md"
+        },
+        {
+          "repo": "agents-demo-full",
+          "path": "examples/AGENTS.md"
+        },
+        {
+          "repo": "agents-demo-full",
+          "path": "examples/webmcp-react/AGENTS.md"
+        },
+        {
+          "repo": "agents-demo-full",
+          "path": "guides/AGENTS.md"
+        },
+        {
+          "repo": "agents-demo-full",
+          "path": "packages/agents/AGENTS.md"
+        },
+        {
+          "repo": "agents-demo-full",
+          "path": "packages/agents/src/tests/capabilities/AGENTS.md"
+        },
+        {
+          "repo": "org-standards",
+          "path": "AGENTS.md"
+        }
+      ],
+      "metrics": {
+        "extractor": "keyword-v1",
+        "layers": [
+          {
+            "name": "root",
+            "rank": 100,
+            "path": "AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "agent-think",
+            "rank": 101,
+            "path": "agent-think/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "design",
+            "rank": 101,
+            "path": "design/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "docs",
+            "rank": 101,
+            "path": "docs/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "examples",
+            "rank": 101,
+            "path": "examples/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "examples/webmcp-react",
+            "rank": 102,
+            "path": "examples/webmcp-react/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "guides",
+            "rank": 101,
+            "path": "guides/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "packages/agents",
+            "rank": 102,
+            "path": "packages/agents/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "packages/agents/src/tests/capabilities",
+            "rank": 105,
+            "path": "packages/agents/src/tests/capabilities/AGENTS.md",
+            "origin": "project"
+          },
+          {
+            "name": "org-standards (simulated)",
+            "rank": 100,
+            "path": "AGENTS.md",
+            "origin": "stack"
+          }
+        ],
+        "rulesByTopic": {
+          "packageManager": [
+            "pnpm",
+            "npm"
+          ],
+          "formatter": [
+            "oxfmt",
+            "prettier"
+          ],
+          "testCommand": [
+            "pnpm run test",
+            "pnpm run test:react"
+          ],
+          "secrets": [
+            "never-in-source"
+          ],
+          "changesetPolicy": [
+            "required",
+            "not-required"
+          ],
+          "allowedModels": [
+            "gpt-5.6-sol"
+          ],
+          "indentation": [
+            "2 spaces"
+          ],
+          "commitFormat": [
+            "conventional"
+          ]
+        },
+        "counts": {
+          "conflict": 3,
+          "overridden": 1
+        }
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "conflict",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "AGENTS.md"
+      },
+      "title": "conflict: packageManager",
+      "detail": "root (AGENTS.md:58) says \"pnpm\" but org-standards (simulated) (AGENTS.md:1) says \"npm\" at equal rank.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "AGENTS.md",
+          "line": 58
+        },
+        {
+          "repo": "org-standards",
+          "path": "AGENTS.md",
+          "line": 1
+        }
+      ],
+      "metrics": {
+        "kind": "conflict",
+        "topic": "packageManager",
+        "values": [
+          {
+            "value": "pnpm",
+            "strength": "should",
+            "rank": 100,
+            "text": "Uses pnpm workspaces with [Nx](https://nx.dev) for task orchestration, caching, and affected detection."
+          },
+          {
+            "value": "npm",
+            "strength": "must",
+            "rank": 100,
+            "text": "All repos must use npm workspaces."
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "conflict",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "examples/AGENTS.md"
+      },
+      "title": "conflict: packageManager",
+      "detail": "examples (examples/AGENTS.md:297) says \"pnpm\" but org-standards (simulated) (AGENTS.md:1) says \"npm\"; both are hard requirements.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "examples/AGENTS.md",
+          "line": 297
+        },
+        {
+          "repo": "org-standards",
+          "path": "AGENTS.md",
+          "line": 1
+        }
+      ],
+      "metrics": {
+        "kind": "conflict",
+        "topic": "packageManager",
+        "values": [
+          {
+            "value": "pnpm",
+            "strength": "must",
+            "rank": 101,
+            "text": "How to run it (`pnpm install && pnpm run start` for full-stack examples, `pnpm install && pnpm run dev` for server-only examples)"
+          },
+          {
+            "value": "npm",
+            "strength": "must",
+            "rank": 100,
+            "text": "All repos must use npm workspaces."
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "conflict",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "AGENTS.md"
+      },
+      "title": "conflict: formatter",
+      "detail": "root (AGENTS.md:67) says \"oxfmt\" but org-standards (simulated) (AGENTS.md:2) says \"prettier\" at equal rank.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "AGENTS.md",
+          "line": 67
+        },
+        {
+          "repo": "org-standards",
+          "path": "AGENTS.md",
+          "line": 2
+        }
+      ],
+      "metrics": {
+        "kind": "conflict",
+        "topic": "formatter",
+        "values": [
+          {
+            "value": "oxfmt",
+            "strength": "should",
+            "rank": 100,
+            "text": "| `pnpm run check`                   | Full CI check: sherif + export checks + oxfmt + oxlint + typecheck |"
+          },
+          {
+            "value": "prettier",
+            "strength": "should",
+            "rank": 100,
+            "text": "Format with prettier."
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "packages/agents/AGENTS.md"
+      },
+      "title": "overridden: formatter",
+      "detail": "packages/agents (packages/agents/AGENTS.md:216) (\"oxfmt\") overrides org-standards (simulated) (AGENTS.md:2) (\"prettier\").",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "packages/agents/AGENTS.md",
+          "line": 216
+        },
+        {
+          "repo": "org-standards",
+          "path": "AGENTS.md",
+          "line": 2
+        }
+      ],
+      "metrics": {
+        "kind": "overridden",
+        "topic": "formatter",
+        "values": [
+          {
+            "value": "oxfmt",
+            "strength": "should",
+            "rank": 102,
+            "text": "After build, `oxfmt --write` formats the generated `.d.ts` files."
+          },
+          {
+            "value": "prettier",
+            "strength": "should",
+            "rank": 100,
+            "text": "Format with prettier."
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+# A wrangler.toml exercising the binding types the resource map understands.
+name = "toml-worker"
+main = "src/index.ts"
+compatibility_date = "2026-06-11"
+compatibility_flags = ["nodejs_compat"]
+
+[ai]
+binding = "AI"
+
+[browser]
+binding = "BROWSER"
+
+[durable_objects]
+bindings = [
+  { name = "ROOMS", class_name = "Room" },
+  { name = "REMOTE", class_name = "Counter", script_name = "other-worker" }, # trailing comment
+]
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "kv-123"
+
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "assets-bucket"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "main-db"
+database_id = "d1-abc"
+
+[[queues.producers]]
+binding = "JOBS"
+queue = "jobs"
+
+[[queues.consumers]]
+queue = "jobs"
+max_batch_size = 10
+
+[[workflows]]
+name = "onboarding"
+binding = "ONBOARD"
+class_name = "Onboarding"
+
+[[vectorize]]
+binding = "VEC"
+index_name = "docs-index"
+
+[[hyperdrive]]
+binding = "PG"
+id = "hd-1"
+
+[[services]]
+binding = "AUTH"
+service = "auth-worker"
+entrypoint = "AuthRPC"
+
+[[containers]]
+class_name = "Sandbox"
+image = "./Dockerfile"
+
+[[artifacts]]
+binding = "ARTIFACTS"
+namespace = "default"
+
+[vars]
+GREETING = "hello # not a comment"

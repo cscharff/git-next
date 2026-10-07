@@ -1,0 +1,19 @@
+{
+	"name": "git-next",
+	"private": true,
+	"type": "module",
+	"license": "MIT",
+	"scripts": {
+		"dev": "cf dev",
+		"build": "cf build",
+		"test": "vitest run",
+		"typecheck": "cf workers types && tsc"
+	},
+	"devDependencies": {
+		"@cloudflare/vite-plugin": "beta",
+		"cf": "^1.0.0-beta.13",
+		"typescript": "^7.0.2",
+		"vite": "^8.3.0",
+		"vitest": "^5.0.3"
+	}
+}

@@ -1,0 +1,12 @@
+// A wrangler.jsonc with comments and trailing commas.
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "jsonc-worker",
+	"main": "src/server.ts", // entry
+	/* bindings below */
+	"durable_objects": {
+		"bindings": [{ "name": "Chat", "class_name": "Chat" }],
+	},
+	"ai": { "binding": "AI" },
+	"vars": { "URL": "https://example.com/a//b" },
+}
