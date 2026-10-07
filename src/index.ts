@@ -7,6 +7,7 @@ import { buildContext } from "./providers/context/index.ts";
 import { gatewayLogsSource, type CostSource } from "./providers/cost/logs.ts";
 import { fixtureCostSource } from "./providers/cost/index.ts";
 import { createRegistry } from "./registry.ts";
+import { getIndex, getResult, kvExtractCache, parsePushEvent, putResult } from "./results.ts";
 import baselineCatalogJson from "../fixtures/org-baseline/catalog.json" with { type: "json" };
 import { parseCatalog } from "./providers/catalog.ts";
 import { llmExtractor, memoryCache, type ExtractCache } from "./providers/instruction-stack/llm-extract.ts";
@@ -32,7 +33,7 @@ const BASELINE_CATALOG = parseCatalog(JSON.stringify(baselineCatalogJson));
 const costSource = env.CF_ACCOUNT_ID && env.AIG_LOGS_TOKEN ? gatewayLogsSource({ accountId: env.CF_ACCOUNT_ID, gatewayId: GATEWAY_ID, token: env.AIG_LOGS_TOKEN }) : undefined;
 /** Rule extraction runs on Workers AI through the org gateway, cached by content hash (in-memory per isolate). */
 const EXTRACT_MODEL = "@cf/zai-org/glm-5.3-flash";
-const extractCache: ExtractCache = memoryCache();
+const extractCache: ExtractCache = env.RESULTS ? kvExtractCache(env.RESULTS, memoryCache()) : memoryCache();
 const modelExtractor: RuleExtractor | undefined = env.AI
 	? llmExtractor({
 			model: EXTRACT_MODEL,
@@ -54,11 +55,13 @@ const registry = registryFor(false);
 const SMOKE_MODELS = ["anthropic/claude-haiku-4.5", "@cf/zai-org/glm-5.3-flash"];
 const REPO_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const isLocal = (url: URL) => ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+/** Demo layers are allowed locally, and when deployed with DEMO_LAYERS=on (for agents-demo-* repos only). */
+const demoLayersFor = (url: URL | null, repo: string) => (url ? isLocal(url) : false) || (env.DEMO_LAYERS === "on" && repo.startsWith("agents-demo"));
 
-/** Repo reader for a request; `demo` (local dev only) overlays fixtures/demo-layers without touching the repo. */
-function contextFor(url: URL, repo: string, demo: boolean): RepoContext {
+/** Repo reader for a request; `demo` overlays fixtures/demo-layers without touching the repo. */
+function contextFor(url: URL | null, repo: string, demo: boolean): RepoContext {
 	const factory = (name: string) => artifactsSource(env.ARTIFACTS, name);
-	return new RepoContext(demo && isLocal(url) ? withDemoLayers(factory, repo) : factory);
+	return new RepoContext(demo && demoLayersFor(url, repo) ? withDemoLayers(factory, repo) : factory);
 }
 
 export default {
@@ -117,7 +120,7 @@ export default {
 		const sample = url.pathname.match(/^\/samples\/((?:[a-z0-9-]+\/)?[a-z0-9.-]+\.json)$/);
 		if (request.method === "GET" && sample && SAMPLES[sample[1]]) return Response.json(SAMPLES[sample[1]]);
 
-		if (url.pathname.startsWith("/dev/") && url.pathname !== "/dev/gateway-smoke") {
+		if (url.pathname.startsWith("/dev/") && url.pathname !== "/dev/gateway-smoke" && url.pathname !== "/dev/enqueue") {
 			if (!isLocal(url)) return Response.json({ error: "not found" }, { status: 404 });
 			try {
 				const res = await handleDevRoute(request, url, env, GATEWAY_ID);
@@ -150,10 +153,58 @@ export default {
 
 		if (request.method === "GET" && url.pathname === "/catalog") return Response.json(BASELINE_CATALOG);
 
+		// Stored results written by the queue consumer on every push; the dashboard polls /results/index.
+		if (request.method === "GET" && url.pathname === "/results/index") return Response.json(await getIndex(env.RESULTS));
+		if (request.method === "GET" && url.pathname === "/results") {
+			const repo = url.searchParams.get("repo") ?? "";
+			const ref = url.searchParams.get("ref") || "main";
+			if (!REPO_NAME.test(repo) || !/^[\w./-]{1,100}$/.test(ref)) return Response.json({ error: "repo and ref are required" }, { status: 400 });
+			const stored = await getResult(env.RESULTS, repo, ref);
+			return stored ? Response.json(stored) : Response.json({ error: "no stored result yet" }, { status: 404 });
+		}
+
+		// POST /dev/enqueue {"repo","ref"} (localhost only): simulate an Artifacts push event for local testing.
+		if (request.method === "POST" && url.pathname === "/dev/enqueue" && isLocal(url)) {
+			const body = (await request.json().catch(() => ({}))) as { repo?: string; ref?: string };
+			if (!REPO_NAME.test(body.repo ?? "")) return Response.json({ error: "repo is required" }, { status: 400 });
+			using handle = await env.ARTIFACTS.get(body.repo!);
+			const [head, prev] = await handle.log({ ref: body.ref || "main", limit: 2 });
+			const event = {
+				type: "cf.artifacts.repo.pushed",
+				source: { type: "artifacts.repo", namespace: "default", repoName: body.repo },
+				payload: { ref: `refs/heads/${body.ref || "main"}`, before: prev?.hash ?? "0".repeat(40), after: head.hash, commits: [{ id: head.hash, message: head.message, author: { name: head.author.name } }], totalCommitsCount: 1 },
+				metadata: { simulated: true, eventTimestamp: new Date().toISOString() },
+			};
+			await env.PUSHES.send(event);
+			return Response.json({ enqueued: true, repo: body.repo, after: head.hash });
+		}
+
 		if (request.method === "GET" && url.pathname === "/providers") {
 			return Response.json(registry.list().map(({ id, title, needs }) => ({ id, title, needs })));
 		}
 
 		return Response.json({ message: "Use GET /insights?repo=&ref=&base=, POST /context or GET /providers." }, { status: 404 });
 	},
-} satisfies ExportedHandler;
+
+	/** Artifacts push events (via event subscriptions): analyse the pushed commit and store the results. */
+	async queue(batch) {
+		for (const message of batch.messages) {
+			const push = parsePushEvent(message.body, "default");
+			if (!push) {
+				message.ack();
+				continue;
+			}
+			const started = Date.now();
+			try {
+				const files = contextFor(null, push.repo, true);
+				const result = await registry.run({ repo: push.repo, ref: push.trigger.after, base: push.trigger.before ?? undefined, files });
+				const entry = await putResult(env.RESULTS, push.repo, push.ref, { repo: push.repo, ref: push.ref, commit: push.trigger.after, base: push.trigger.before, ms: Date.now() - started, ...result }, push.trigger);
+				console.log(JSON.stringify({ event: "analysed", repo: push.repo, ref: push.ref, after: push.trigger.after.slice(0, 10), ms: entry.ms, conflicts: entry.conflicts, catalogViolations: entry.catalogViolations }));
+				message.ack();
+			} catch (err) {
+				console.error(JSON.stringify({ event: "analysis-failed", repo: push.repo, ref: push.ref, error: String(err).slice(0, 300) }));
+				message.retry({ delaySeconds: 30 });
+			}
+		}
+	},
+} satisfies ExportedHandler<Env>;

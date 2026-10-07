@@ -104,6 +104,11 @@
 	.tabs button.on { background: var(--accent); color: #fff; }
 	.barrow { display: grid; grid-template-columns: 160px 1fr 80px 60px auto; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
 	.live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); margin-right: 6px; vertical-align: middle; }
+	.pushes { margin: 10px 24px 0; display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; color: var(--muted); align-items: center; }
+	.pushes .push { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+	.pushes .push:hover { border-color: var(--muted); }
+	@keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 70%, transparent); } 100% { box-shadow: 0 0 0 12px transparent; } }
+	.live-dot.flash { animation: pulse 1s ease-out 3; }
 	.live-dot.on { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 30%, transparent); }
 </style>
 </head>
@@ -130,6 +135,7 @@
 	</details>
 </header>
 <div class="banner" id="banner" hidden></div>
+<div class="pushes" id="pushes" hidden></div>
 <main>
 	<section class="panel hero" id="stack"><h2><span class="step">1</span>Rules in force</h2><div class="sub">Every instruction an agent working in this repo is steered by: which layer it comes from, what wins in each directory and why, and the conflicts a person has to settle.</div><div class="body"></div></section>
 	<section class="panel hero" id="newrepo" hidden><h2><span class="step">2</span>New repositories, smart by default</h2><div class="sub">Same agent, same model, same prompt: a plain repo versus one created with <code>git next new</code>, which inherits the org's layers and catalog. Findings at the first push.</div><div class="body"></div></section>
@@ -148,7 +154,7 @@ const num = (n) => Number(n).toLocaleString();
 const sev = (s) => `<span class="chip sev-${esc(s)}">${esc(s)}</span>`;
 const kind = (k) => `<span class="chip k-${esc(k)}">${esc(k)}</span>`;
 const short = (m) => String(m ?? "").replace(/^anthropic\//, "");
-const state = { repo: "agents-demo-full", insights: null, context: null, source: "", costView: "live", costLive: null, costTeam: null, newRepo: null };
+const state = { repo: "agents-demo-full", insights: null, context: null, source: "", costView: "live", costLive: null, costTeam: null, newRepo: null, index: [], events: [], followLive: true, shownUpdatedAt: null };
 
 async function getJson(url, init) {
 	const res = await fetch(url, init);
@@ -186,6 +192,52 @@ async function loadLive(e) {
 		showBanner(`Live run failed (${err.message}); showing the recorded run instead.`);
 		if (!state.insights) await loadSamples();
 	}
+}
+
+// ── Live results: written by the resolver on every push (Artifacts → Queue → Worker → KV) ──
+
+async function loadStored(repo, ref, pulse) {
+	const r = await getJson(`/results?repo=${encodeURIComponent(repo)}&ref=${encodeURIComponent(ref)}`);
+	state.insights = r;
+	state.shownUpdatedAt = r.updatedAt;
+	const cost = r.insights.filter((i) => i.provider === "cost");
+	if (cost.some((i) => String(i.metrics?.source ?? "").startsWith("ai-gateway"))) state.costLive = cost;
+	state.source = `live · push ${String(r.commit ?? "").slice(0, 7)}`;
+	$("#livedot").classList.add("on");
+	render();
+	if (pulse) {
+		const dot = $("#livedot");
+		dot.classList.remove("flash");
+		void dot.offsetWidth;
+		dot.classList.add("flash");
+	}
+}
+
+async function pollIndex(first = false) {
+	let data;
+	try {
+		data = await getJson("/results/index");
+	} catch {
+		return;
+	}
+	state.index = data.index;
+	state.events = data.events;
+	renderPushes();
+	const sel = $("#fork");
+	for (const e of state.index) if (![...sel.options].some((o) => o.value === e.repo)) sel.insertAdjacentHTML("beforeend", `<option value="${esc(e.repo)}">${esc(e.repo)} (live)</option>`);
+	sel.hidden = sel.options.length < 2;
+	if (!state.followLive) return;
+	const cur = state.index.find((e) => e.repo === state.repo && e.ref === (state.insights?.ref === "HEAD" ? "main" : state.insights?.ref || "main"));
+	if (cur && cur.updatedAt !== state.shownUpdatedAt) await loadStored(cur.repo, cur.ref, !first).catch(() => {});
+}
+
+function renderPushes() {
+	const el = $("#pushes");
+	const ev = (state.events || []).slice(0, 4);
+	el.hidden = !ev.length;
+	const ago = (t) => { const s = Math.round((Date.now() - new Date(t).getTime()) / 1000); return s < 90 ? `${s}s ago` : s < 5400 ? `${Math.round(s / 60)} min ago` : `${Math.round(s / 3600)} h ago`; };
+	el.innerHTML = `<span>Recent pushes</span>${ev.map((e) => `<span class="push" data-repo="${esc(e.repo)}" data-ref="${esc(e.ref)}"><code>${esc(String(e.after).slice(0, 7))}</code> ${esc(e.repo)} · ${esc((e.commits?.[0]?.message ?? "").slice(0, 48))} · ${e.conflicts} conflict${e.conflicts === 1 ? "" : "s"}, ${e.catalogViolations} catalog · ${ago(e.receivedAt)}</span>`).join("")}`;
+	el.querySelectorAll(".push").forEach((p) => p.addEventListener("click", () => { state.followLive = true; state.repo = p.dataset.repo; loadStored(p.dataset.repo, p.dataset.ref, false).catch((err) => showBanner(err.message)); }));
 }
 
 function showBanner(text) { const b = $("#banner"); b.textContent = text; b.hidden = false; }
@@ -438,6 +490,9 @@ async function loadDemoRun() {
 
 async function selectFork(fork) {
 	$("#fork").value = fork;
+	state.repo = fork || "agents-demo-full";
+	const live = state.index.find((e) => e.repo === state.repo && e.ref === "main");
+	if (live) return loadStored(live.repo, live.ref, false);
 	if (!fork) return loadSamples();
 	const agent = state.demoRun.agents.find((a) => a.fork === fork);
 	state.insights = await getJson(`/samples/demo-run/${encodeURIComponent(fork)}.json`);
@@ -487,8 +542,12 @@ function renderContext() {
 }
 
 $("#live").addEventListener("submit", loadLive);
-$("#sample").addEventListener("click", () => { hideBanner(); loadSamples(); });
-loadSamples().then(loadDemoRun).catch((err) => showBanner(`Could not load samples: ${err.message}`));
+$("#sample").addEventListener("click", () => { hideBanner(); state.followLive = false; $("#livedot").classList.remove("on"); loadSamples(); });
+loadSamples()
+	.then(loadDemoRun)
+	.then(() => pollIndex(true))
+	.then(() => setInterval(() => pollIndex(false), 5000))
+	.catch((err) => showBanner(`Could not load samples: ${err.message}`));
 </script>
 </body>
 </html>
