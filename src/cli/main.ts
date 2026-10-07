@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join, resolve as resolvePath } from "node:path";
 import { RepoContext, overlayFiles, type RepoSource } from "../core/repo-context.ts";
@@ -9,6 +10,9 @@ import type { RollupNode } from "../providers/cost/rollup.ts";
 import { STACK_FILE, loadStack } from "../providers/instruction-stack/index.ts";
 import { effectiveRules, resolve, type Finding } from "../providers/instruction-stack/resolve.ts";
 import type { Rule } from "../providers/instruction-stack/types.ts";
+import { checkCatalog, parseCatalog, type Catalog } from "../providers/catalog.ts";
+import { parseJsonc } from "../parse/jsonc.ts";
+import { initCommand, type InitDeps } from "./init.ts";
 import { resourceMapProvider } from "../providers/resource-map.ts";
 import { USAGE, UsageError, parseArgs, type ParsedArgs } from "./args.ts";
 import { WORKTREE, localSource } from "./git-source.ts";
@@ -21,13 +25,17 @@ export interface CliIo {
 	fetcher?: typeof fetch;
 	/** .dev.vars files to read for the gateway token (default: git-next's own, then the cwd's). */
 	devVarsFiles?: string[];
+	/** Reads all of stdin (for --paths-from-stdin). */
+	stdin?: () => Promise<string>;
 }
 
 /** Exit codes: 0 clean, 1 findings that should block (conflicts, --strict additions), 2 usage or runtime error. */
 export const EXIT = { ok: 0, findings: 1, error: 2 } as const;
 
 const GATEWAY_ID = "git-next";
-const PACKAGE_ROOT = resolvePath(dirname(new URL(import.meta.url).pathname), "../..");
+/** Repo name for layers that come from an external --layers stack file. */
+const EXTERNAL_LAYERS = "external-layers";
+export const PACKAGE_ROOT = resolvePath(dirname(new URL(import.meta.url).pathname), "../..");
 
 export async function runCli(argv: string[], io: CliIo): Promise<number> {
 	let args: ParsedArgs;
@@ -47,6 +55,11 @@ export async function runCli(argv: string[], io: CliIo): Promise<number> {
 				return EXIT.ok;
 			case "rules":
 				return await rulesCommand(args, io);
+			case "check":
+				return await checkCommand(args, io);
+			case "init":
+			case "new":
+				return await initCommand(args, io, initDeps(io));
 			case "resources":
 				return await resourcesCommand(args, io);
 			case "context":
@@ -58,6 +71,7 @@ export async function runCli(argv: string[], io: CliIo): Promise<number> {
 		io.err(`git next ${args.command}: ${err instanceof Error ? err.message : String(err)}\n`);
 		return EXIT.error;
 	}
+	return EXIT.error;
 }
 
 // ── Local repo access ─────────────────────────────────────────────────────────
@@ -80,7 +94,7 @@ const worktreeAtHead = (source: RepoSource): RepoSource => ({ ...source, listFil
  * RepoContext over the working tree. `--layers <stack.json>` overlays that stack file and serves the layer
  * files it names from the stack's project directory (the folder holding `.gitnext/`, else the file's folder).
  */
-function localContext(args: ParsedArgs, io: CliIo): { files: RepoContext; repo: string; ref: string } {
+export function localContext(args: ParsedArgs, io: CliIo): { files: RepoContext; repo: string; ref: string; layersDir?: string } {
 	const root = gitTopLevel(io.cwd);
 	const repo = localRepoName(io.cwd);
 	let target = localSource(root);
@@ -88,9 +102,18 @@ function localContext(args: ParsedArgs, io: CliIo): { files: RepoContext; repo: 
 	if (args.layers) {
 		const stackPath = resolvePath(io.cwd, args.layers);
 		if (!existsSync(stackPath)) throw new Error(`--layers: ${args.layers} not found`);
-		target = overlayFiles(target, { [STACK_FILE]: readFileSync(stackPath, "utf8") });
 		const folder = dirname(stackPath);
 		layersDir = basename(folder) === ".gitnext" ? dirname(folder) : folder;
+		// Layers in an external stack file live in that stack's project, not in this repo: give entries without a
+		// repo the external layers' name (a structural edit of parsed data; no layer text is interpolated).
+		let stackText = readFileSync(stackPath, "utf8");
+		try {
+			const parsed = parseJsonc(stackText) as { layers?: Record<string, unknown>[] };
+			if (Array.isArray(parsed.layers)) stackText = JSON.stringify({ ...parsed, layers: parsed.layers.map((l) => (l && typeof l === "object" && !l.repo ? { ...l, repo: EXTERNAL_LAYERS } : l)) });
+		} catch {
+			// leave the text as is; the instruction-stack loader reports the parse error (fail closed)
+		}
+		target = overlayFiles(target, { [STACK_FILE]: stackText });
 	}
 	const layerSource = layersDir ? worktreeAtHead(localSource(layersDir)) : undefined;
 	const files = new RepoContext(async (name) => {
@@ -98,7 +121,29 @@ function localContext(args: ParsedArgs, io: CliIo): { files: RepoContext; repo: 
 		if (layerSource) return layerSource;
 		throw new Error(`layer repo "${name}" is not available locally (pass --layers <stack.json>)`);
 	});
-	return { files, repo, ref: args.ref ?? WORKTREE };
+	return { files, repo, ref: args.ref ?? WORKTREE, layersDir };
+}
+
+/**
+ * The catalog to enforce when the repo has none: --catalog <file>, else the --layers project's catalog.json.
+ * A catalog that exists but can't be parsed is an error (fail closed), never silently skipped.
+ */
+export function fallbackCatalog(args: ParsedArgs, io: CliIo, layersDir?: string): Catalog | undefined {
+	const path = args.catalog ? resolvePath(io.cwd, args.catalog) : layersDir && existsSync(join(layersDir, "catalog.json")) ? join(layersDir, "catalog.json") : undefined;
+	if (!path) return undefined;
+	if (!existsSync(path)) throw new Error(`--catalog: ${args.catalog} not found`);
+	try {
+		return parseCatalog(readFileSync(path, "utf8"));
+	} catch (err) {
+		throw new Error(`catalog ${path}: ${err instanceof Error ? err.message : String(err)}`);
+	}
+}
+
+/** Positionals plus, with --paths-from-stdin, NUL/newline-separated paths from stdin (never shell-expanded). */
+async function inputPaths(args: ParsedArgs, io: CliIo): Promise<string[]> {
+	if (!args.pathsFromStdin) return args.positionals;
+	const text = io.stdin ? await io.stdin() : "";
+	return [...args.positionals, ...text.split(/[\0\n]/).map((p) => p.trim()).filter(Boolean)];
 }
 
 async function remoteInsights(args: ParsedArgs, io: CliIo, providers: string, extra: Record<string, string> = {}): Promise<Insight[]> {
@@ -129,6 +174,7 @@ interface RulesReport {
 	conflicts: { topic: string; explanation: string; evidence: string[] }[];
 	warnings: { topic: string; kind: string; explanation: string; evidence: string[] }[];
 	overrides: { topic: string; explanation: string; evidence: string[] }[];
+	catalog: { source: string; version: string | null; behind: boolean; violations: { kind: string; title: string; detail: string; evidence: string[] }[] };
 	errors: string[];
 }
 
@@ -139,13 +185,16 @@ const loc = (repo: string) => (r: Rule) => `${r.layer.repo === repo ? "" : `${r.
 
 async function rulesReport(args: ParsedArgs, io: CliIo): Promise<RulesReport> {
 	if (args.remote) return remoteRulesReport(args, io);
-	const { files, repo, ref } = localContext(args, io);
-	const stack = await loadStack(files, repo, ref);
+	const { files, repo, ref, layersDir } = localContext(args, io);
+	const baseline = fallbackCatalog(args, io, layersDir);
+	const [stack, cat] = await Promise.all([loadStack(files, repo, ref), checkCatalog(files, repo, ref, { baseline, enforceBaseline: !!baseline })]);
 	const findings = resolve(stack.rules, stack.facts);
 	const where = loc(repo);
 	const root = gitTopLevel(io.cwd);
 	// Paths are taken relative to the repo root; a directory argument means "files in that directory".
-	const paths = args.positionals.map((p) => resolvePath(io.cwd, p).slice(root.length + 1));
+	const paths = (await inputPaths(args, io)).map((p) => resolvePath(io.cwd, p).slice(root.length + 1));
+	// Catalog violations are about files: with paths, keep the ones in (or under) those paths.
+	const touched = (path: string) => !paths.length || paths.some((p) => path === p || governs(p, path));
 	const inScope = (f: Finding) => !paths.length || paths.some((p) => f.rules.every((r) => reaches(r, p)) && (!f.fact || governs(f.fact.dir, p) || governs(dirOf(p), f.fact.dir)));
 	const ev = (f: Finding) => [...f.rules.map(where), ...(f.fact ? [f.fact.path] : [])];
 	const row = (r: Rule): RuleRow => ({ topic: r.topic, value: r.value, strength: r.strength, kind: r.layer.kind, layer: r.layer.name, source: where(r) });
@@ -160,7 +209,13 @@ async function rulesReport(args: ParsedArgs, io: CliIo): Promise<RulesReport> {
 			.filter((f) => (f.kind === "drift" || (f.policyViolation && f.kind === "overridden")) && inScope(f))
 			.map((f) => ({ topic: f.topic, kind: f.kind === "drift" ? "drift" : "policy", explanation: f.explanation, evidence: ev(f) })),
 		overrides: findings.filter((f) => f.kind === "overridden" && !f.policyViolation && inScope(f)).map((f) => ({ topic: f.topic, explanation: f.explanation, evidence: ev(f) })),
-		errors: stack.errors,
+		catalog: {
+			source: cat.source,
+			version: cat.catalog?.version ?? null,
+			behind: cat.behind,
+			violations: cat.findings.filter((f) => f.evidence.some((e) => touched(e.path))).map((f) => ({ kind: f.kind, title: f.title, detail: f.detail, evidence: f.evidence.map((e) => `${e.path}${e.line ? `:${e.line}` : ""}`) })),
+		},
+		errors: [...stack.errors, ...cat.errors],
 	};
 }
 
@@ -168,7 +223,9 @@ async function rulesReport(args: ParsedArgs, io: CliIo): Promise<RulesReport> {
 const isDirLike = (root: string, p: string) => p === "" || (existsSync(join(root, p)) && statSync(join(root, p)).isDirectory());
 
 async function remoteRulesReport(args: ParsedArgs, io: CliIo): Promise<RulesReport> {
-	const insights = await remoteInsights(args, io, "instruction-stack");
+	const insights = await remoteInsights(args, io, "instruction-stack,catalog", args.catalog === "org" ? { catalog: "org" } : {});
+	const catalogInsights = insights.filter((i) => i.provider === "catalog");
+	const catalogSummary = catalogInsights.find((i) => i.severity !== "conflict");
 	const summary = insights.find((i) => i.title.startsWith("Instruction stack"));
 	const m = (summary?.metrics ?? {}) as any;
 	const effective: Record<string, any[]> = m.effective ?? {};
@@ -185,13 +242,19 @@ async function remoteRulesReport(args: ParsedArgs, io: CliIo): Promise<RulesRepo
 		conflicts: insights.filter((i) => kindOf(i) === "conflict").map((i) => ({ topic: (i.metrics as any).topic, explanation: i.detail, evidence: ev(i) })),
 		warnings: insights.filter((i) => i !== summary && i.severity === "warn").map((i) => ({ topic: (i.metrics as any).topic, kind: kindOf(i) === "drift" ? "drift" : "policy", explanation: i.detail, evidence: ev(i) })),
 		overrides: insights.filter((i) => kindOf(i) === "overridden" && i.severity === "info").map((i) => ({ topic: (i.metrics as any).topic, explanation: i.detail, evidence: ev(i) })),
+		catalog: {
+			source: (catalogSummary?.metrics as any)?.source ?? "none",
+			version: (catalogSummary?.metrics as any)?.version ?? null,
+			behind: !!(catalogSummary?.metrics as any)?.behind,
+			violations: catalogInsights.filter((i) => i.severity === "conflict").map((i) => ({ kind: (i.metrics as any)?.kind, title: i.title, detail: i.detail, evidence: ev(i) })),
+		},
 		errors: summary?.severity === "warn" ? [summary.detail] : [],
 	};
 }
 
 async function rulesCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 	const report = await rulesReport(args, io);
-	const code = report.conflicts.length ? EXIT.findings : EXIT.ok;
+	const code = exitFor(report, args);
 	if (args.json) {
 		io.out(`${JSON.stringify({ ...report, exitCode: code }, null, 2)}\n`);
 		return code;
@@ -211,6 +274,12 @@ async function rulesCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 		lines.push("", `Conflicts (${report.conflicts.length})`);
 		for (const c of report.conflicts) lines.push(`  ✗ ${c.topic}: ${c.explanation}`);
 	}
+	if (report.catalog.violations.length) {
+		lines.push("", `Catalog violations (${report.catalog.violations.length}) — catalog ${report.catalog.version} (${report.catalog.source === "repo" ? "repo" : "org baseline"})`);
+		for (const v of report.catalog.violations) lines.push(`  ✗ ${v.title}: ${v.detail}`);
+	} else if (!args.quiet && report.catalog.source !== "none") {
+		lines.push("", `Catalog ${report.catalog.version} (${report.catalog.source === "repo" ? "repo" : "org baseline"}): no violations${report.catalog.behind ? " — repo catalog is behind the org's" : ""}`);
+	}
 	if (report.warnings.length) {
 		lines.push("", `Warnings (${report.warnings.length})`);
 		for (const w of report.warnings) lines.push(`  ! ${w.kind} ${w.topic}: ${w.explanation}`);
@@ -220,9 +289,64 @@ async function rulesCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 		if (args.verbose) for (const o of report.overrides) lines.push(`  · ${o.topic}: ${o.explanation}`);
 	}
 	for (const e of report.errors) lines.push("", `  error: ${e}`);
-	if (!args.quiet || code) lines.push("", code ? `✗ ${report.conflicts.length} conflict(s)` : "✓ no conflicts");
+	if (!args.quiet || code) lines.push("", verdict(report, code, args).text);
 	const text = lines.join("\n").replace(/^\n+/, "");
 	if (text) io.out(`${text}\n`);
+	return code;
+}
+
+/** Blocking findings exit 1; loading/extraction errors exit 2 (fail closed) unless --allow-on-error. */
+function exitFor(report: RulesReport, args: ParsedArgs): number {
+	if (report.errors.length && !args.allowOnError) return EXIT.error;
+	return report.conflicts.length || report.catalog.violations.length ? EXIT.findings : EXIT.ok;
+}
+
+function verdict(report: RulesReport, code: number, args: ParsedArgs): { action: "allow" | "block"; text: string } {
+	const parts = [report.conflicts.length && `${report.conflicts.length} instruction conflict(s)`, report.catalog.violations.length && `${report.catalog.violations.length} catalog violation(s)`].filter(Boolean);
+	if (code === EXIT.error) return { action: "block", text: `✗ blocked (fail-closed): ${report.errors.length} error(s) loading layers or the catalog — fix them, or pass --allow-on-error` };
+	if (code === EXIT.findings) return { action: "block", text: `✗ ${parts.join(", ")}` };
+	return { action: "allow", text: report.errors.length && args.allowOnError ? `✓ no conflicts (${report.errors.length} error(s) ignored by --allow-on-error)` : "✓ no conflicts or catalog violations" };
+}
+
+/** What `init` needs from here: a way to run `git next rules -q` in the new repo and capture the result. */
+function initDeps(io: CliIo): InitDeps {
+	return {
+		packageRoot: PACKAGE_ROOT,
+		runRules: async (cwd) => {
+			let text = "";
+			const capture = (t: string) => {
+				text += t;
+			};
+			const code = await rulesCommand(parseArgs(["rules", "-q"]), { ...io, cwd, out: capture, err: capture });
+			return { code, text };
+		},
+	};
+}
+
+// ── check (agent tool hooks) ──────────────────────────────────────────────────
+
+/** `git next check --hook-json` → {"action":"allow"|"block","reason"} for agent hooks (e.g. Claude Code PreToolUse). */
+async function checkCommand(args: ParsedArgs, io: CliIo): Promise<number> {
+	let report: RulesReport;
+	try {
+		report = await rulesReport(args, io);
+	} catch (err) {
+		// Fail closed: an error while checking is a block unless explicitly allowed.
+		const reason = `git next check failed: ${err instanceof Error ? err.message : String(err)}`;
+		const action = args.allowOnError ? "allow" : "block";
+		if (args.hookJson) io.out(`${JSON.stringify({ action, reason })}\n`);
+		else io.err(`${reason}\n`);
+		return args.hookJson ? EXIT.ok : action === "block" ? EXIT.error : EXIT.ok;
+	}
+	const code = exitFor(report, args);
+	const v = verdict(report, code, args);
+	const details = [...report.conflicts.map((c) => `${c.topic}: ${c.explanation}`), ...report.catalog.violations.map((c) => `${c.title}: ${c.detail}`), ...(code === EXIT.error ? report.errors : [])];
+	const reason = details.length ? `${v.text.replace(/^[✗✓] /, "")}. ${details.slice(0, 5).join(" | ")}` : v.text.replace(/^[✓✗] /, "");
+	if (args.hookJson || args.json) {
+		io.out(`${JSON.stringify({ action: v.action, reason, conflicts: report.conflicts.length, catalogViolations: report.catalog.violations.length, errors: report.errors.length })}\n`);
+		return args.hookJson ? EXIT.ok : code;
+	}
+	io.out(`${v.action}: ${reason}\n`);
 	return code;
 }
 
@@ -277,7 +401,7 @@ async function contextCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 		const res = await (io.fetcher ?? fetch)(`${args.workerUrl}/context`, {
 			method: "POST",
 			headers: { "content-type": "application/json" },
-			body: JSON.stringify({ repo: args.remote, ref: args.ref ?? "main", task, paths, budgetTokens: args.budget, ...(args.layers === "demo" ? { layers: "demo" } : {}) }),
+			body: JSON.stringify({ repo: args.remote, ref: args.ref ?? "main", task, paths, budgetTokens: args.budget, ...(args.layers === "demo" ? { layers: "demo" } : {}), ...(args.catalog === "org" ? { catalog: "org" } : {}) }),
 		});
 		const body = (await res.json()) as any;
 		if (!res.ok || body.error) throw new Error(`Worker /context: ${body.error ?? res.status}`);
@@ -285,26 +409,67 @@ async function contextCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 	} else {
 		const local = localContext(args, io);
 		const root = gitTopLevel(io.cwd);
-		ctx = await buildContext(local.files, { repo: local.repo, ref: local.ref, task, paths: paths.map((p) => resolvePath(io.cwd, p).slice(root.length + 1)), budgetTokens: args.budget });
+		const catalog = fallbackCatalog(args, io, local.layersDir);
+		ctx = await buildContext(local.files, { repo: local.repo, ref: local.ref, task, paths: paths.map((p) => resolvePath(io.cwd, p).slice(root.length + 1)), budgetTokens: args.budget, ...(catalog ? { catalog } : {}) });
 	}
 	if (args.json) {
 		io.out(`${JSON.stringify(ctx, null, 2)}\n`);
 		return EXIT.ok;
 	}
 	const s = ctx.stats;
-	const lines = [`Context for "${task}"${ctx.paths.length ? ` (${ctx.paths.join(", ")})` : ""}: ${s.tokensServed} of ${args.budget} tokens`, ""];
+	const lines = [`Context for "${task}"${ctx.paths.length ? ` (${ctx.paths.join(", ")})` : ""}: ${s.tokensServed} of ${args.budget} tokens (${s.pinnedTokens} pinned)`, ""];
+	const pinned = ctx.pinned;
+	if (pinned && (pinned.musts.length || pinned.catalog)) {
+		lines.push("Pinned (always loaded)");
+		for (const m of pinned.musts) lines.push(`  ${m.topic.padEnd(16)} ${m.value.padEnd(38)} ${m.kind.padEnd(8)} ${m.source.replace(`${ctx.repo}/`, "")}`);
+		if (pinned.catalog) lines.push(...pinned.catalog.split("\n").map((l: string) => `  ${l}`));
+		if (pinned.relevant.length) lines.push("  For this task:", ...pinned.relevant.map((l: string) => `    ${l}`));
+		lines.push("");
+	}
 	lines.push("Rules");
 	for (const r of ctx.rules) lines.push(`  ${r.topic.padEnd(16)} ${`${r.value}${r.strength === "must" ? " (must)" : ""}`.padEnd(38)} ${r.kind.padEnd(8)} ${r.source.replace(`${ctx.repo}/`, "")}`);
 	for (const c of ctx.conflicts) lines.push(`  ✗ ${c.topic}: ${c.explanation}`);
 	lines.push("", `Sections (${ctx.sections.length})`);
 	for (const x of ctx.sections) lines.push(`  ${`${x.path}:${x.startLine}`.padEnd(52)} ${(x.headings.at(-1) ?? "").slice(0, 48).padEnd(48)} ${String(x.tokens).padStart(5)} tok`);
 	lines.push("", `Omitted ${ctx.omitted.count} matching sections (${ctx.omitted.tokens} tokens, ${ctx.omitted.oversized} oversized). All markdown: ${s.tokensAllMarkdown} tokens in ${s.markdownFiles} files; instruction files on these paths: ${s.tokensInstructionFilesOnPath}.`);
-	if (args.print) for (const x of ctx.sections) lines.push("", `--- ${x.path}:${x.startLine} ---`, x.text);
+	if (args.print) {
+		if (pinned?.catalog) lines.push("", "--- pinned: org catalog ---", pinned.catalog, ...pinned.relevant);
+		for (const x of ctx.sections) lines.push("", `--- ${x.path}:${x.startLine} ---`, x.text);
+	}
 	io.out(`${lines.join("\n")}\n`);
 	return EXIT.ok;
 }
 
 // ── cost ──────────────────────────────────────────────────────────────────────
+
+interface CommitCost {
+	sha: string;
+	subject: string;
+	task: string;
+	cost: number;
+	requests: number;
+}
+
+/** Joins `Agent-Task: <task id>` commit trailers in this checkout to gateway records tagged with that task. */
+async function costByCommit(cwd: string, records: { task: string; cost: number }[]): Promise<CommitCost[]> {
+	if (!records.length || !existsSync(join(gitTopLevel(cwd), ".git"))) return [];
+	let log: string;
+	try {
+		log = execFileSync("git", ["-C", cwd, "log", "-n", "500", "--format=%H%x1f%s%x1f%(trailers:key=Agent-Task,valueonly,separator=%x2C)%x1e"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+	} catch {
+		return [];
+	}
+	const out: CommitCost[] = [];
+	for (const entry of log.split("\x1e")) {
+		const [sha, subject, trailer] = entry.trim().split("\x1f");
+		if (!sha || !trailer?.trim()) continue;
+		for (const task of trailer.split(",").map((t) => t.trim()).filter(Boolean)) {
+			const mine = records.filter((r) => r.task === task);
+			out.push({ sha, subject, task, cost: mine.reduce((n, r) => n + r.cost, 0), requests: mine.length });
+		}
+	}
+	return out;
+}
 
 /** Reads KEY=VALUE pairs from a .dev.vars-style file. Values are never printed. */
 export function readDevVars(path: string): Record<string, string> {
@@ -327,6 +492,7 @@ function costSource(io: CliIo): CostSource {
 
 async function costCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 	let insights: Insight[];
+	let commitCosts: CommitCost[] = [];
 	const repo = args.remote ?? args.repo ?? localRepoName(io.cwd);
 	if (args.remote) {
 		insights = await remoteInsights(args, io, "cost");
@@ -334,9 +500,10 @@ async function costCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 		const base = costSource(io);
 		const source: CostSource = args.fork ? { id: base.id, records: async (f) => (await base.records(f)).filter((r) => r.fork === args.fork) } : base;
 		insights = await costProvider(source).analyze({ repo, ref: "main", files: new RepoContext(async () => ({ listFiles: async () => [], readBlob: async () => null, log: async () => [] })) });
+		commitCosts = await costByCommit(io.cwd, await source.records({ repo }));
 	}
 	if (args.json) {
-		io.out(`${JSON.stringify({ repo, fork: args.fork ?? null, insights }, null, 2)}\n`);
+		io.out(`${JSON.stringify({ repo, fork: args.fork ?? null, insights, commits: commitCosts }, null, 2)}\n`);
 		return EXIT.ok;
 	}
 	const summary = insights.find((i) => i.title.startsWith("AI spend"));
@@ -351,6 +518,10 @@ async function costCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 	if (flags.length) lines.push("", "Flags", ...flags.map((f) => `  ! ${f.title} — ${f.detail}`));
 	const fits = insights.filter((i) => i.title.startsWith("Model fit"));
 	if (fits.length) lines.push("", "Model fit", ...fits.map((f) => `  → ${f.title.replace("Model fit: ", "")}: save ${usd((f.metrics as any).estimatedSaving)} (${(f.metrics as any).requests} req)`));
+	if (commitCosts.length) {
+		lines.push("", "By commit (Agent-Task trailer → gateway task)");
+		for (const c of commitCosts) lines.push(`  ${c.sha.slice(0, 8)}  ${usd(c.cost).padStart(10)}  ${String(c.requests).padStart(3)} req  ${c.task.padEnd(30)} ${c.subject.slice(0, 60)}`);
+	}
 	if (args.verbose) {
 		lines.push("", "Rollup");
 		const walk = (n: RollupNode, depth: number) => {

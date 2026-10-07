@@ -1,6 +1,7 @@
 import { parseJsonc } from "../parse/jsonc.ts";
 import { parseToml } from "../parse/toml.ts";
 import type { Insight, InsightProvider } from "../core/types.ts";
+import { CATALOG_FILE, bindingApproval, parseCatalog, type Catalog } from "./catalog.ts";
 
 export const BINDING_TYPES = [
 	"durable_objects",
@@ -105,6 +106,17 @@ export const resourceMapProvider: InsightProvider = {
 			return Promise.all(configs.map(async (f) => parseWranglerConfig(f.path, (await files.readFile(repo, r, f.path)) ?? "")));
 		};
 		const head = await load(ref);
+		// With a repo catalog, every binding is marked approved/unapproved, with the approved alternative.
+		let catalog: Catalog | undefined;
+		const catalogText = await files.readFile(repo, ref, CATALOG_FILE);
+		if (catalogText) {
+			try {
+				catalog = parseCatalog(catalogText);
+			} catch {
+				catalog = undefined; // reported by the catalog provider
+			}
+		}
+		const approval = (bs: Binding[]) => (catalog ? bs.map((b) => ({ type: b.type, name: b.name, resource: b.resource, ...bindingApproval(catalog!, b.type, b.resource) })) : undefined);
 		const baseByPath = base ? new Map((await load(base)).map((w) => [w.path, w])) : undefined;
 
 		const insights: Insight[] = head.map((w) => {
@@ -121,7 +133,7 @@ export const resourceMapProvider: InsightProvider = {
 						: `${w.worker}: ${w.bindings.length} binding${w.bindings.length === 1 ? "" : "s"}`,
 				detail: w.error ?? (summary.join("; ") || "No bindings declared."),
 				evidence: [{ repo, path: w.path }],
-				metrics: { worker: w.worker, bindings: byType(w.bindings), ...(diff ? { diff, newConfig: !baseByPath!.has(w.path) } : {}) },
+				metrics: { worker: w.worker, bindings: byType(w.bindings), ...(diff ? { diff, newConfig: !baseByPath!.has(w.path) } : {}), ...(catalog ? { catalogVersion: catalog.version, approval: approval(w.bindings) } : {}) },
 			};
 		});
 		if (baseByPath) {

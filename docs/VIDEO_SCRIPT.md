@@ -1,4 +1,4 @@
-# git.next demo video: shot list (target 8:00)
+# git.next demo video: shot list (target 9:25)
 
 Format: screen recording with voice-over. Two windows: the dashboard at `http://localhost:5173` (browser, about
 1440 px wide) and a terminal in `~/code/gitnext/git-next`, plus a second terminal tab for a scratch clone. Timings
@@ -25,7 +25,10 @@ are cumulative. Narration is written to be read aloud; trim to taste.
    `cp ~/code/gitnext/git-next/examples/hooks/pre-push .git/hooks/`, then
    `git clone -q --bare --single-branch --branch main https://github.com/cloudflare/agents /tmp/gn/remote.git && git remote add demo /tmp/gn/remote.git`.
    Pushing to GitHub would fail on permissions before the hook runs; the local bare repo lets the hook run for real.
-8. **Screen hygiene.** Use dark theme, a large terminal font, and close notifications. Account IDs appear in
+8. **New-repo demo.** Run `node scripts/demo-new-repo.ts --keep` once (about $0.08; capped at $0.50 across all runs)
+   so both repos exist in `$TMPDIR/git-next-demo-new-repo/`. For the shot, `--recheck` repeats the pushes and checks
+   without new model calls.
+9. **Screen hygiene.** Use dark theme, a large terminal font, and close notifications. Account IDs appear in
    Artifacts remote URLs; blur them in post or keep them off screen.
 
 ## Shot list
@@ -102,7 +105,32 @@ are cumulative. Narration is written to be read aloud; trim to taste.
   push is blocked with both sources cited. The fix is a human decision: amend the contract layer to defer to the
   project, and the same push goes through."
 
-### 8. The `git next` CLI: 6:40–7:20
+### 8. New repositories, smart by default: 6:40–8:10
+- **Terminal** (`cd $TMPDIR`): `git next new uploads-api --template worker-api --remote`. Show the dry-run note
+  (the Artifacts fork isn't created yet), then the summary: layers pinned at a content hash, catalog 2026.10.2,
+  files, hook installed, "rules ✓".
+- **Editor:** `uploads-api/AGENTS.md` (the "Project rules" blanks and the pinned inherited musts) and
+  `.gitnext/catalog.json` (scroll to the R2 entry: naming `acme-*`, shared `UPLOADS → acme-shared-uploads`, owner,
+  "how to bind").
+- **Terminal:** `cd uploads-api && git next context "add an endpoint that stores uploaded files" src/index.ts --budget 1500`.
+  Point at "Pinned (always loaded)" and "For this task: … UPLOADS → acme-shared-uploads".
+- **Narration:** "Most repos start empty and learn the org's rules from review comments. `git next new` starts a
+  repo already knowing them: the org, contract and tool layers pinned to a version, the org's catalog of approved
+  models, resources and tools, secure defaults, and the hook. Ask for context about uploads and the approved bucket
+  comes with it."
+- **Terminal, the payoff** (from `samples/new-repo-demo/summary.json`, or the end of `node scripts/demo-new-repo.ts --recheck`):
+  two agents, same model, same prompt. The plain repo: "3 finding(s) at first push; push BLOCKED". Unapproved
+  model `@cf/meta/llama-3.1-8b-instruct`, a model call that bypasses the org gateway, and bucket `uploads-bare`,
+  which isn't in the catalog, with the fix suggested ("use the shared UPLOADS → acme-shared-uploads"). The
+  `git next new` repo: "0 finding(s); push went through", using glm-5.3-flash through the gateway, the shared bucket,
+  `wrangler secret` for the key, and a `SOW-1234:` commit.
+- **Narration:** "Same agent, same model, same prompt. In the plain repo it picks an unapproved model, calls it
+  directly and invents a bucket, and the first push is blocked with the approved alternatives. In the repo made with
+  git next, it gets about a thousand tokens of pinned rules and catalog, and its first push is clean."
+- **Optional cut-in:** `cat $TMPDIR/git-next-demo-new-repo/uploads-bare/wrangler.toml` next to
+  `.../uploads-smart/wrangler.jsonc`.
+
+### 9. The `git next` CLI: 8:10–8:40
 - **Terminal** (scratch clone):
   - `git next rules --layers ~/code/gitnext/git-next/fixtures/demo-layers/.gitnext/stack.json packages/agents/src/mcp/client.ts`
   - `git next context "Fix MCP client reconnect when the transport drops" packages/agents/src/mcp/client.ts --budget 2000`
@@ -110,18 +138,18 @@ are cumulative. Narration is written to be read aloud; trim to taste.
 - **Narration:** "Everything is also a git subcommand. Use it as a person, in a hook, or as an agent with --json.
   It reads your working tree and local history, or asks the Worker about any Artifacts repo with --remote."
 
-### 9. Extensibility: a fifth provider in a few lines: 7:20–7:45
+### 10. Extensibility: a small provider in a few lines: 8:40–9:00
 - **Editor:** `src/providers/owners.ts` (scroll the `analyze` function) and the one-line `.register(ownersProvider)`
   in `src/registry.ts`. **Terminal:** `curl -s localhost:5173/providers | jq '.[].id'` shows `owners`.
 - **Narration:** "Each insight comes from a small provider with one interface. This one checks that every
   AGENTS.md has a code owner; cloudflare/agents doesn't have a CODEOWNERS file, so the rulebooks have no reviewers.
   Add a file, register it, and it's in the API, the dashboard data and the CLI."
 
-### 10. Close: 7:45–8:15
+### 11. Close: 9:00–9:25
 - **Dashboard:** slow pan across all panels on agents-demo-full, ending on the Demo agents panel.
 - **Narration:** "git.next: Git that versions the context and infrastructure around code. Built on Cloudflare
   Artifacts, Workers and AI Gateway. Three agents and three forks, every rule traced to a line, every binding
-  diffed, every model call costed, all for eleven cents. MIT licensed."
+  diffed, every model call costed, and new repos that follow the org from their first line. MIT licensed."
 
 ## Command reference (copy-paste)
 
@@ -134,4 +162,7 @@ curl -s 'localhost:5173/insights?repo=agents-demo-r2&ref=main&base=000d076d535b8
 git next rules --layers ~/code/gitnext/git-next/fixtures/demo-layers/.gitnext/stack.json packages/agents/src/mcp/client.ts
 git next resources --base HEAD~300 --strict; echo $?
 git next cost --verbose
+git next new uploads-api --template worker-api --remote
+git next context "add an endpoint that stores uploaded files" src/index.ts --budget 1500
+node scripts/demo-new-repo.ts --recheck              # re-run the plain-vs-smart pushes without model calls
 ```

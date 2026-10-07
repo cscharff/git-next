@@ -1,28 +1,53 @@
 #!/bin/sh
-# git.next pre-push hook: block pushes whose changed files are governed by conflicting AI instructions.
+# git.next pre-push hook (fail-closed): block pushes whose changed files are governed by conflicting AI
+# instructions or violate the org catalog (unapproved model, unlisted resource, inline secret).
 #
 # Install:  cp examples/hooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
-# Needs `git-next` on PATH (npm link in the git-next checkout). Skip once with: git push --no-verify
+#           (`git next new` installs it for you). Needs `git-next` on PATH (npm link in the git-next checkout).
 #
-# Optional: point GIT_NEXT_LAYERS at a stack.json to include org/contract/tool/personal layers,
-# and set GIT_NEXT_STRICT_RESOURCES=1 to also block pushes that add Cloudflare bindings vs the remote branch.
+# Fail-closed: if git-next is missing or cannot load the layers/catalog, the push is blocked.
+# Escape hatch for errors only (never for conflicts): GIT_NEXT_ALLOW_ON_ERROR=1 git push
+# Skip entirely, once:                                git push --no-verify
+#
+# Options: GIT_NEXT_LAYERS=<stack.json> adds org/contract/tool/personal layers (and their project's catalog.json);
+#          GIT_NEXT_CATALOG=<catalog.json> enforces an org catalog on repos without one;
+#          GIT_NEXT_STRICT_RESOURCES=1 also blocks pushes that add Cloudflare bindings vs the remote branch.
 
-command -v git-next >/dev/null 2>&1 || { echo "git-next not on PATH; skipping instruction checks" >&2; exit 0; }
+allow_on_error=""
+[ "$GIT_NEXT_ALLOW_ON_ERROR" = "1" ] && allow_on_error="--allow-on-error"
 
-layers=""
-[ -n "$GIT_NEXT_LAYERS" ] && layers="--layers $GIT_NEXT_LAYERS"
+if ! command -v git-next >/dev/null 2>&1; then
+	if [ -n "$allow_on_error" ]; then
+		echo "git-next: not on PATH; skipping checks because GIT_NEXT_ALLOW_ON_ERROR=1" >&2
+		exit 0
+	fi
+	echo "git-next: not on PATH, so instruction and catalog checks cannot run. Blocking (fail-closed)." >&2
+	echo "          Install it (npm link in the git-next checkout) or set GIT_NEXT_ALLOW_ON_ERROR=1." >&2
+	exit 1
+fi
+
+set --
+[ -n "$GIT_NEXT_LAYERS" ] && set -- "$@" --layers "$GIT_NEXT_LAYERS"
+[ -n "$GIT_NEXT_CATALOG" ] && set -- "$@" --catalog "$GIT_NEXT_CATALOG"
+[ -n "$allow_on_error" ] && set -- "$@" "$allow_on_error"
 
 zero=0000000000000000000000000000000000000000
 status=0
 # stdin lines: <local ref> <local sha> <remote ref> <remote sha>
 while read -r _local_ref local_sha _remote_ref remote_sha; do
 	[ "$local_sha" = "$zero" ] && continue # branch deletion
-	# Check the rules that govern the files this push changes (all files for a new branch).
-	paths=""
-	[ "$remote_sha" != "$zero" ] && paths=$(git diff --name-only "$remote_sha" "$local_sha")
-	# shellcheck disable=SC2086
-	if ! git next rules --quiet $layers -- $paths; then
-		echo "git-next: instruction conflicts govern files in this push. Run 'git next rules $layers -- <paths>' for details, or push with --no-verify." >&2
+	# Paths go through stdin, NUL-separated, so file names are never split or expanded by the shell.
+	if [ "$remote_sha" = "$zero" ]; then
+		git next rules --quiet "$@" </dev/null
+	else
+		git diff -z --name-only "$remote_sha" "$local_sha" | git next rules --quiet --paths-from-stdin "$@"
+	fi
+	code=$?
+	if [ "$code" -eq 1 ]; then
+		echo "git-next: instruction conflicts or catalog violations in this push (see above). Fix them, or push with --no-verify." >&2
+		status=1
+	elif [ "$code" -ne 0 ]; then
+		echo "git-next: could not check this push (exit $code). Blocking (fail-closed); GIT_NEXT_ALLOW_ON_ERROR=1 to override." >&2
 		status=1
 	fi
 	if [ "$GIT_NEXT_STRICT_RESOURCES" = "1" ] && [ "$remote_sha" != "$zero" ]; then

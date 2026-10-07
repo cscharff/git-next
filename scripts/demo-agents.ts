@@ -11,9 +11,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { readDevVars } from "../src/cli/main.ts";
-import { gatewayLogsSource } from "../src/providers/cost/logs.ts";
-import { MODELS } from "../src/providers/cost/model-fit.ts";
+import { estimateUsd, gatewaySource as gatewaySourceFor, gatewaySpend as gatewaySpendFor, parseEdits } from "./agent-lib.ts";
 
 const ROOT = resolve(dirname(new URL(import.meta.url).pathname), "..");
 const SOURCE_REPO = "agents-demo-full";
@@ -125,28 +123,8 @@ function gitWithToken(cwd: string, args: string[], token: string, extraEnv: Reco
 const redact = (s: string) => s.replace(/Bearer\s+\S+/g, "Bearer ***").replaceAll(ROOT, "<git-next>").replaceAll(WORKDIR, "<workdir>");
 const git = (cwd: string, ...args: string[]) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
 
-const gatewaySource = () => {
-	const vars = readDevVars(join(ROOT, ".dev.vars"));
-	if (!vars.CF_ACCOUNT_ID || !vars.AIG_LOGS_TOKEN) throw new Error(".dev.vars needs CF_ACCOUNT_ID and AIG_LOGS_TOKEN for spend tracking");
-	return gatewayLogsSource({ accountId: vars.CF_ACCOUNT_ID, gatewayId: GATEWAY_ID, token: vars.AIG_LOGS_TOKEN });
-};
-const gatewaySpend = async () => (await gatewaySource().records({})).reduce((n, r) => n + r.cost, 0);
-
-/** Upper-bound cost estimate for a call, from the model table ($/M tokens). */
-const estimateUsd = (model: string, promptChars: number, maxTokens: number) => {
-	const p = MODELS[model] ?? { in: 15, out: 75 };
-	return ((promptChars / 3) * p.in + maxTokens * p.out) / 1e6;
-};
-
-function parseEdits(text: string): { summary: string; edits: ({ path: string; find: string; replace: string } | { path: string; content: string })[] } {
-	// Strip only an outer code fence: file contents inside the JSON may contain their own ``` blocks.
-	const trimmed = text.trim();
-	const unfenced = /^```/.test(trimmed) ? trimmed.replace(/^```[a-z]*\s*\n?/, "").replace(/\n?```\s*$/, "") : trimmed;
-	const json = unfenced.slice(unfenced.indexOf("{"), unfenced.lastIndexOf("}") + 1);
-	const parsed = JSON.parse(json);
-	if (!parsed || typeof parsed.summary !== "string" || !Array.isArray(parsed.edits)) throw new Error("model output is not {summary, edits[]}");
-	return parsed;
-}
+const gatewaySpend = () => gatewaySpendFor(ROOT, GATEWAY_ID);
+const gatewaySource = () => gatewaySourceFor(ROOT, GATEWAY_ID);
 
 // ── one agent ─────────────────────────────────────────────────────────────────
 
@@ -214,7 +192,7 @@ async function runAgent(spec: AgentSpec, binDir: string, budget: { remaining: nu
 
 	git(dir, "add", "-A");
 	const message = `SOW-1042: ${plan.summary.replace(/^SOW-\d+:\s*/, "")}`;
-	execFileSync("git", ["-c", `user.name=${spec.name}`, "-c", `user.email=${spec.name}@git-next.local`, "commit", "-q", "-m", message, "-m", `Agent: ${spec.name} (${spec.model}) via git.next\nTask: ${spec.taskId}`], { cwd: dir });
+	execFileSync("git", ["-c", `user.name=${spec.name}`, "-c", `user.email=${spec.name}@git-next.local`, "commit", "-q", "-m", message, "-m", `Agent: ${spec.name} (${spec.model}) via git.next\nAgent-Task: ${spec.taskId}`], { cwd: dir });
 	result.commit = { sha: git(dir, "rev-parse", "HEAD"), message, diffstat: git(dir, "diff", "--shortstat", "HEAD~1", "HEAD") };
 
 	// Push through the pre-push hook with the demo layers; on a block, retry with the resolution layers.

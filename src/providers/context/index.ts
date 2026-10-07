@@ -2,6 +2,7 @@ import type { RepoContext } from "../../core/repo-context.ts";
 import { loadStack } from "../instruction-stack/index.ts";
 import { effectiveRules, resolve } from "../instruction-stack/resolve.ts";
 import type { Rule } from "../instruction-stack/types.ts";
+import { CATALOG_FILE, catalogSummary, parseCatalog, relevantCatalogEntries, type Catalog } from "../catalog.ts";
 import { Bm25Retriever, type Retriever, type Scored } from "./retrieve.ts";
 import { estimateTokens, splitSections, type Section } from "./sections.ts";
 
@@ -11,6 +12,8 @@ export interface ContextRequest {
 	task: string;
 	paths: string[];
 	budgetTokens: number;
+	/** Catalog to pin when the repo has none of its own (e.g. the org baseline). */
+	catalog?: Catalog;
 }
 
 export type RetrieverFactory = (sections: Section[]) => Retriever;
@@ -47,8 +50,26 @@ export async function buildContext(files: RepoContext, req: ContextRequest, make
 	const conflicts = resolve(stack.rules)
 		.filter((f) => f.kind === "conflict" && (!paths.length || paths.some((p) => f.rules.every((r) => reaches(r, p)))))
 		.map((f) => ({ topic: f.topic, explanation: f.explanation }));
+	// Pinned (always loaded, never traded for doc sections): inherited musts from org/contract/tool layers,
+	// a compact catalog summary, and the catalog entries relevant to this task.
+	let catalog = req.catalog;
+	const catalogText = await files.readFile(repo, ref, CATALOG_FILE);
+	if (catalogText) {
+		try {
+			catalog = parseCatalog(catalogText);
+		} catch {
+			// an invalid repo catalog is reported by the catalog provider; fall back to the given one
+		}
+	}
+	const pinnedMusts = [...ruleRows.values()].filter((r) => r.strength === "must" && r.kind !== "project" && r.kind !== "personal");
+	const pinned = {
+		musts: pinnedMusts.map((r) => ({ topic: r.topic, value: r.value, kind: r.kind, source: r.source })),
+		catalog: catalog ? catalogSummary(catalog) : null,
+		relevant: catalog ? relevantCatalogEntries(catalog, task) : [],
+	};
 	const rulesBlock = { rules: [...ruleRows.values()], conflicts };
-	const rulesTokens = estimateTokens(JSON.stringify(rulesBlock));
+	const pinnedTokens = estimateTokens(JSON.stringify(pinned));
+	const rulesTokens = estimateTokens(JSON.stringify(rulesBlock)) + pinnedTokens;
 
 	// 2. Index every markdown file into heading sections.
 	const sections = (await Promise.all(mdFiles.map(async (f) => splitSections(f.path, (await files.readFile(repo, ref, f.path)) ?? "")))).flat();
@@ -97,8 +118,14 @@ export async function buildContext(files: RepoContext, req: ContextRequest, make
 		paths,
 		budgetTokens,
 		retriever: retriever.id,
+		pinned,
 		...rulesBlock,
 		sections: included.map(({ section: s, score }) => ({ id: s.id, path: s.path, headings: s.headings, startLine: s.startLine, tokens: s.tokens, score: round(score), text: s.text })),
+		manifest: [
+			...pinned.musts.map((m) => ({ id: `pinned:${m.topic}`, pinned: true, source: m.source })),
+			...(pinned.catalog ? [{ id: `pinned:catalog@${catalog!.version}`, pinned: true, source: CATALOG_FILE }] : []),
+			...included.map(({ section: s }) => ({ id: s.id, pinned: false, source: `${s.path}:${s.startLine}` })),
+		],
 		omitted: {
 			count: omitted.length,
 			oversized: omitted.filter((o) => o.reason === "oversized").length,
@@ -110,6 +137,7 @@ export async function buildContext(files: RepoContext, req: ContextRequest, make
 			markdownFiles: mdFiles.length,
 			sections: sections.length,
 			rulesTokens,
+			pinnedTokens,
 			sectionTokens,
 			tokensServed,
 			tokensAllMarkdown,

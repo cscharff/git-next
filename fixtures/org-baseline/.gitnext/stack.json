@@ -1,0 +1,8 @@
+{
+	// Default layers every new repo inherits. Paths are relative to org-baseline.
+	"layers": [
+		{ "name": "acme-org", "kind": "org", "rank": 1, "path": "org/AGENTS.md" },
+		{ "name": "sow-1234", "kind": "contract", "rank": 2, "path": "contract/AGENTS.md" },
+		{ "name": "coding-agent", "kind": "tool", "rank": 4, "path": "tool/AGENTS.md" }
+	]
+}

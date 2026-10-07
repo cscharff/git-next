@@ -130,20 +130,22 @@ function render() {
 	state.repo = d.repo;
 	$("#meta").innerHTML = `${esc(d.repo)}@${esc(d.ref)}${d.base ? ` vs <code>${esc(String(d.base).slice(0, 10))}</code>` : ""} · ${d.insights.length} insights · ${esc(state.source)}`;
 	const by = (p) => d.insights.filter((i) => i.provider === p);
-	renderStack(by("instruction-stack"));
+	renderStack(by("instruction-stack"), by("catalog"));
 	renderResources(by("resource-map"));
 	renderCost(by("cost"));
 	renderContext();
 }
 
-function renderStack(items) {
+function renderStack(items, catalogItems = []) {
 	const body = $("#stack .body");
+	const catSummary = catalogItems.find((i) => i.severity !== "conflict");
+	const catViolations = catalogItems.filter((i) => i.severity === "conflict");
 	const summary = items.find((i) => i.title.startsWith("Instruction stack"));
 	if (!summary) return (body.innerHTML = `<p class="empty">No instruction-stack data.</p>`);
 	const m = summary.metrics;
 	const layers = [...m.layers].sort((a, b) => a.rank - b.rank || a.depth - b.depth);
 	const dirs = Object.keys(m.effective || {});
-	const findings = items.filter((i) => i !== summary).sort((a, b) => ({ conflict: 0, warn: 1, info: 2 })[a.severity] - ({ conflict: 0, warn: 1, info: 2 })[b.severity]);
+	const findings = [...items.filter((i) => i !== summary), ...catViolations].sort((a, b) => ({ conflict: 0, warn: 1, info: 2 })[a.severity] - ({ conflict: 0, warn: 1, info: 2 })[b.severity]);
 	body.innerHTML = `
 		<div class="stats">
 			<div class="stat"><b>${layers.length}</b><span>layers</span></div>
@@ -151,6 +153,7 @@ function renderStack(items) {
 			<div class="stat"><b>${findings.filter((f) => f.severity === "warn").length}</b><span>warnings</span></div>
 			<div class="stat"><b>${findings.filter((f) => f.severity === "info").length}</b><span>overrides</span></div>
 		</div>
+		${catSummary ? `<div class="row"><span class="chip ${catSummary.metrics?.behind ? "sev-warn" : catSummary.metrics?.source === "none" ? "" : "sev-info"}">${esc(catSummary.title)}</span><span class="sub" style="margin:0">${catViolations.length} catalog violation(s)${catSummary.metrics?.baselineVersion ? ` · org catalog ${esc(catSummary.metrics.baselineVersion)}` : ""}</span></div>` : ""}
 		<details><summary>Layers (lower rank wins; depth orders project files)</summary>
 			<table><tr><th style="width:48px">Rank</th><th style="width:40%">Layer</th><th>File</th></tr>
 			${layers.map((l) => `<tr><td>${l.rank}${l.kind === "project" ? `.${l.depth}` : ""}</td><td>${kind(l.kind)} ${esc(l.name)}</td><td><code>${esc(l.repo && l.repo !== state.repo ? l.repo + ":" : "")}${esc(l.path)}</code></td></tr>`).join("")}

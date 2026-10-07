@@ -1,0 +1,17 @@
+{
+	"name": "{{name}}",
+	"private": true,
+	"type": "module",
+	"packageManager": "pnpm@11.19.0",
+	"scripts": {
+		"dev": "wrangler dev",
+		"test": "vitest run",
+		"deploy": "wrangler deploy"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^5.0.0",
+		"typescript": "^7.0.2",
+		"vitest": "^5.0.3",
+		"wrangler": "^5.0.0"
+	}
+}

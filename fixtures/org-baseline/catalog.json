@@ -1,0 +1,45 @@
+{
+	"version": "2026.10.2",
+	"owner": "@acme/platform",
+	"gateway": {
+		"id": "git-next",
+		"owner": "@acme/ai-platform",
+		"how": "env.AI.run(model, input, { gateway: { id: \"git-next\", metadata: { developer, repo, fork, agent, task } } })",
+		"rule": "org/AGENTS.md: call models only through the org AI Gateway"
+	},
+	"models": [
+		{ "id": "anthropic/claude-sonnet-5", "jobs": ["coding", "review"], "owner": "@acme/ai-platform", "rule": "approved model providers" },
+		{ "id": "anthropic/claude-haiku-4.5", "jobs": ["chat", "classification"], "owner": "@acme/ai-platform", "rule": "approved model providers" },
+		{ "id": "@cf/zai-org/glm-5.3-flash", "jobs": ["summaries", "extraction"], "owner": "@acme/ai-platform", "rule": "approved model providers", "keywords": ["summary", "summarize", "extract", "describe"] },
+		{ "id": "@cf/google/embeddinggemma-300m", "jobs": ["embeddings"], "owner": "@acme/ai-platform", "rule": "approved model providers", "keywords": ["embedding", "search", "similar"] }
+	],
+	"bindings": [
+		{
+			"type": "r2_buckets",
+			"owner": "@acme/storage",
+			"naming": "acme-*",
+			"rule": "only bind resources listed in the catalog",
+			"keywords": ["upload", "uploads", "file", "files", "blob", "storage", "image"],
+			"shared": [
+				{ "name": "acme-shared-uploads", "binding": "UPLOADS", "owner": "@acme/storage", "how": "\"r2_buckets\": [{ \"binding\": \"UPLOADS\", \"bucket_name\": \"acme-shared-uploads\" }]  // keys: <repo>/<yyyy>/<mm>/<uuid>" }
+			]
+		},
+		{ "type": "kv_namespaces", "owner": "@acme/platform", "naming": "acme-*", "keywords": ["cache", "session", "config"] },
+		{ "type": "d1_databases", "owner": "@acme/data", "naming": "acme-*", "keywords": ["database", "sql", "table", "metadata"] },
+		{ "type": "durable_objects", "owner": "@acme/platform", "keywords": ["state", "realtime", "websocket", "agent"] },
+		{ "type": "queues", "owner": "@acme/platform", "naming": "acme-*", "keywords": ["queue", "background", "async"] },
+		{ "type": "workflows", "owner": "@acme/platform", "keywords": ["workflow", "steps", "retry"] },
+		{ "type": "ai", "owner": "@acme/ai-platform", "how": "\"ai\": { \"binding\": \"AI\" } and always pass gateway: { id: \"git-next\" }", "rule": "call models only through the org AI Gateway", "keywords": ["ai", "model", "llm", "summary"] },
+		{ "type": "services", "owner": "@acme/platform" },
+		{ "type": "artifacts", "owner": "@acme/platform" }
+	],
+	"tools": {
+		"mcpServers": [{ "name": "cloudflare-docs", "url": "https://docs.mcp.cloudflare.com/mcp", "owner": "@acme/devex" }],
+		"skills": [{ "name": "security-scan", "owner": "@acme/security" }]
+	},
+	"checks": [
+		{ "name": "instruction stack and catalog", "command": "git next rules", "rule": "pre-push hook (fail-closed)" },
+		{ "name": "tests", "command": "pnpm test" },
+		{ "name": "security scan", "command": "security-scan", "rule": "tool/AGENTS.md" }
+	]
+}

@@ -8,6 +8,8 @@ import { handleDevRoute } from "./dev-routes.ts";
 import { buildContext } from "./providers/context/index.ts";
 import { gatewayLogsSource } from "./providers/cost/logs.ts";
 import { createRegistry } from "./registry.ts";
+import baselineCatalogJson from "../fixtures/org-baseline/catalog.json" with { type: "json" };
+import { parseCatalog } from "./providers/catalog.ts";
 
 // Read-only analysis over Artifacts repos. No caller authentication yet, so local dev only.
 
@@ -20,11 +22,15 @@ const DEMO_RUN = Object.fromEntries(
 );
 const SAMPLES: Record<string, unknown> = { "insights-demo.json": sampleInsights, "context-agents-demo-full.json": sampleContext, ...DEMO_RUN };
 
+/** The org's current catalog (org-baseline). Validated at startup so a bad catalog fails loudly. */
+const BASELINE_CATALOG = parseCatalog(JSON.stringify(baselineCatalogJson));
+
 // Real AI Gateway logs when the account id and a read token are configured (.dev.vars / Worker secrets),
 // otherwise the cost provider uses the bundled fixture.
-const registry = createRegistry(
-	env.CF_ACCOUNT_ID && env.AIG_LOGS_TOKEN ? gatewayLogsSource({ accountId: env.CF_ACCOUNT_ID, gatewayId: GATEWAY_ID, token: env.AIG_LOGS_TOKEN }) : undefined,
-);
+const costSource = env.CF_ACCOUNT_ID && env.AIG_LOGS_TOKEN ? gatewayLogsSource({ accountId: env.CF_ACCOUNT_ID, gatewayId: GATEWAY_ID, token: env.AIG_LOGS_TOKEN }) : undefined;
+/** `enforce` checks repos without their own catalog against the org baseline (?catalog=org). */
+const registryFor = (enforce: boolean) => createRegistry(costSource, { baseline: BASELINE_CATALOG, enforceBaseline: enforce, maxFiles: 300, configOnlyWithoutCatalog: true });
+const registry = registryFor(false);
 
 /** The only models the smoke route may call: small and cheap, capped at 50 output tokens. */
 const SMOKE_MODELS = ["anthropic/claude-haiku-4.5", "@cf/zai-org/glm-5.3-flash"];
@@ -51,7 +57,7 @@ export default {
 			const files = contextFor(url, repo, url.searchParams.get("layers") === "demo");
 			const started = Date.now();
 			try {
-				const result = await registry.run({ repo, ref, base, files }, only);
+				const result = await (url.searchParams.get("catalog") === "org" ? registryFor(true) : registry).run({ repo, ref, base, files }, only);
 				return Response.json({ repo, ref, base: base ?? null, ms: Date.now() - started, ...result });
 			} catch (err) {
 				return Response.json({ error: String(err) }, { status: 500 });
@@ -60,7 +66,7 @@ export default {
 
 		// POST /context {repo, ref, task, paths[], budgetTokens} -> rules for those paths + best sections within budget.
 		if (request.method === "POST" && url.pathname === "/context") {
-			const body = (await request.json().catch(() => null)) as Partial<{ repo: string; ref: string; task: string; paths: string[]; budgetTokens: number; layers: string }> | null;
+			const body = (await request.json().catch(() => null)) as Partial<{ repo: string; ref: string; task: string; paths: string[]; budgetTokens: number; layers: string; catalog: string }> | null;
 			if (!body || !REPO_NAME.test(body.repo ?? "") || !body.task) return Response.json({ error: "repo and task are required" }, { status: 400 });
 			const files = contextFor(url, body.repo!, body.layers === "demo");
 			try {
@@ -71,6 +77,7 @@ export default {
 						task: body.task,
 						paths: Array.isArray(body.paths) ? body.paths.filter((p) => typeof p === "string") : [],
 						budgetTokens: Math.min(Math.max(Number(body.budgetTokens) || 4000, 500), 200_000),
+						...(body.catalog === "org" ? { catalog: BASELINE_CATALOG } : {}),
 					}),
 				);
 			} catch (err) {
@@ -111,6 +118,8 @@ export default {
 			for (const m of models) results.push(await call(m));
 			return Response.json({ gateway: GATEWAY_ID, metadata, results });
 		}
+
+		if (request.method === "GET" && url.pathname === "/catalog") return Response.json(BASELINE_CATALOG);
 
 		if (request.method === "GET" && url.pathname === "/providers") {
 			return Response.json(registry.list().map(({ id, title, needs }) => ({ id, title, needs })));
