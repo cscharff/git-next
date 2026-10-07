@@ -1,7 +1,7 @@
 import type { RepoContext } from "../../core/repo-context.ts";
 import { loadStack } from "../instruction-stack/index.ts";
 import { effectiveRules, resolve } from "../instruction-stack/resolve.ts";
-import type { Rule } from "../instruction-stack/types.ts";
+import type { Rule, RuleExtractor } from "../instruction-stack/types.ts";
 import { CATALOG_FILE, catalogSummary, parseCatalog, relevantCatalogEntries, type Catalog } from "../catalog.ts";
 import { Bm25Retriever, type Retriever, type Scored } from "./retrieve.ts";
 import { estimateTokens, splitSections, type Section } from "./sections.ts";
@@ -30,9 +30,9 @@ const MAX_SECTION_SHARE = 0.35;
  * Builds a task-sized context: the resolved rules for the touched paths, then the best-matching markdown
  * sections that fit the token budget, plus a manifest of what was left out and why.
  */
-export async function buildContext(files: RepoContext, req: ContextRequest, makeRetriever: RetrieverFactory = (s) => new Bm25Retriever(s)) {
+export async function buildContext(files: RepoContext, req: ContextRequest, makeRetriever: RetrieverFactory = (s) => new Bm25Retriever(s), extractor?: RuleExtractor) {
 	const { repo, ref, task, paths, budgetTokens } = req;
-	const [stack, mdFiles] = await Promise.all([loadStack(files, repo, ref), files.find(repo, ref, isMarkdown)]);
+	const [stack, mdFiles] = await Promise.all([loadStack(files, repo, ref, extractor), files.find(repo, ref, isMarkdown)]);
 
 	// 1. Rules: winners per topic for each touched directory, and conflicts that reach those paths.
 	const dirs = [...new Set(paths.map(dirOf))];

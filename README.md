@@ -68,7 +68,15 @@ The demo uses [cloudflare/agents](https://github.com/cloudflare/agents) (MIT, 1,
      command, commit format, changeset policy, lint strictness, allowed models, secrets and security scans. It then
      reports **overridden** rules, **conflicts** (two disagreeing "musts", or peers that disagree), policy violations
      (for example a model from a provider that isn't approved), and **drift** between instructions and config files.
-     The extractor is deterministic and sits behind a `RuleExtractor` interface, so an LLM extractor can replace it.
+     In the Worker, rules are extracted by **Workers AI GLM-5.3-Flash** through the org gateway
+     (`src/providers/instruction-stack/llm-extract.ts`). Each file goes to the model as numbered lines inside
+     delimiters. Long files are split into roughly 80-line chunks at headings, with at most 4 calls at once and
+     retries on rate limits. Every returned rule is validated against the topic vocabulary **and grounded**: the
+     cited line must actually mention the topic, so text planted in a layer can't add or hide rules. Results are
+     cached by content hash. Any chunk that fails falls back to the deterministic keyword extractor, which is also
+     the CLI's default and the test baseline (`?extractor=keyword` forces it). On cloudflare/agents the model reads
+     48 rules from 13 layers, against 29 for keywords. It catches things like agent-think's own test commands and
+     model fallback, and the summary reports per file whether the model, the cache or the fallback was used.
   2. **Resource map** parses every `wrangler.toml|json|jsonc` (with its own TOML and JSONC parsers). It lists each
      Worker's bindings across 13 types and, with `?base=`, diffs them (added, removed, unchanged, new or removed config).
   3. **Cost** parses AI Gateway logs, rolls spend up project → developer → fork → agent → task, flags anyone above

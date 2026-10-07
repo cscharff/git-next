@@ -128,6 +128,16 @@ describe("resolver", () => {
 		expect(resolve([rule("indentation", "tabs", org), rule("indentation", "2 spaces", otherOrg)])[0].kind).toBe("conflict");
 	});
 
+	it("treats test suites with the same runner as additive", () => {
+		expect(resolve([rule("testCommand", "pnpm run test", root, "must"), rule("testCommand", "pnpm run test:react", pkg, "must")])).toEqual([]);
+		expect(resolve([rule("testCommand", "pnpm run test", root, "must"), rule("testCommand", "npm test", pkg, "must")])[0].kind).toBe("conflict");
+	});
+
+	it("lets a narrower provider list sit inside a broader one", () => {
+		expect(resolve([rule("allowedModels", "providers:anthropic,workers-ai", org, "must"), rule("allowedModels", "providers:workers-ai", pkg, "must")])).toEqual([]);
+		expect(resolve([rule("allowedModels", "providers:anthropic", org, "must"), rule("allowedModels", "providers:openai", pkg, "must")])[0].kind).toBe("conflict");
+	});
+
 	it("checks model choices against an approved-provider list", () => {
 		const policy = rule("allowedModels", "providers:anthropic,workers-ai", org, "must");
 		expect(resolve([policy, rule("allowedModels", "claude-opus-5-5", pkg)])).toEqual([]);

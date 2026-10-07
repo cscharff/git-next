@@ -47,20 +47,23 @@ export interface LoadedStack {
 /** Collects layers, reads them (stack layers in other repos at HEAD), extracts rules and reads config facts. */
 export async function loadStack(files: RepoContext, repo: string, ref: string, extractor: RuleExtractor = keywordExtractor): Promise<LoadedStack> {
 	const { layers, errors } = await collectLayers(files, repo, ref);
-	const rules: Rule[] = [];
 	const texts = new Map<Layer, string>();
-	for (const layer of layers) {
-		const text = await files.readFile(layer.repo, layer.repo === repo ? ref : "HEAD", layer.path).catch((e) => {
-			errors.push(`${layer.repo}/${layer.path}: ${e}`);
-			return null;
-		});
-		if (text == null) {
-			if (layer.origin === "stack") errors.push(`${layer.repo}/${layer.path}: layer not found`);
-			continue;
-		}
-		texts.set(layer, text);
-		rules.push(...(await extractor.extract(layer, text)));
-	}
+	// Read and extract every layer in parallel (model-backed extraction makes this matter); keep layer order.
+	const perLayer = await Promise.all(
+		layers.map(async (layer) => {
+			const text = await files.readFile(layer.repo, layer.repo === repo ? ref : "HEAD", layer.path).catch((e) => {
+				errors.push(`${layer.repo}/${layer.path}: ${e}`);
+				return null;
+			});
+			if (text == null) {
+				if (layer.origin === "stack") errors.push(`${layer.repo}/${layer.path}: layer not found`);
+				return [];
+			}
+			texts.set(layer, text);
+			return extractor.extract(layer, text);
+		}),
+	);
+	const rules: Rule[] = perLayer.flat();
 	const factFiles = await files.find(repo, ref, isConfigFactFile);
 	const facts = (await Promise.all(factFiles.map(async (f) => configFacts(f.path, (await files.readFile(repo, ref, f.path)) ?? "")))).flat();
 	return { layers, rules, facts, texts, errors };
@@ -97,6 +100,8 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 					extractor: extractor.id,
 					layers: layers.map((l) => ({ name: l.name, kind: l.kind, rank: l.rank, depth: l.depth, repo: l.repo, path: l.path, origin: l.origin })),
 					// Rules each layer contributes, so the dashboard can show how much of the stack comes from where.
+					// How each layer was read: by the model, from cache, or by the keyword fallback.
+					extraction: Object.fromEntries(layers.map((l) => [`${l.repo}:${l.path}`, extractor.describe?.(l.path) ?? { source: "keyword" }])),
 					rulesPerLayer: Object.fromEntries([...Map.groupBy(rules, (r) => `${r.layer.repo}:${r.layer.path}`)].map(([k, rs]) => [k, rs.length])),
 					rulesByTopic: Object.fromEntries([...Map.groupBy(rules, (r) => r.topic)].map(([t, rs]) => [t, [...new Set(rs.map((r) => r.value))]])),
 					// Winning rule per topic at the repo root and in each directory with its own instruction file.

@@ -32,9 +32,21 @@ export function modelProvider(model: string): string {
 	return "unknown";
 }
 
-/** For allowedModels: a provider allowlist and a model list agree when every model's provider is allowed. */
+/** Test commands are additive (test, test:react, test:e2e…); they only disagree when the runner differs. */
+const runner = (cmd: string) => cmd.split(/\s+/)[0];
+
+/**
+ * Topic-specific agreement: test commands with the same runner agree; for allowedModels, a provider allowlist and a
+ * model list agree when every model's provider is allowed, and two provider lists agree when one is a subset of the
+ * other (a narrower list stays within the broader one).
+ */
 function compatible(a: Rule, b: Rule): boolean | null {
+	if (a.topic === "testCommand") return runner(a.value) === runner(b.value);
 	if (a.topic !== "allowedModels") return null;
+	if (a.value.startsWith("providers:") && b.value.startsWith("providers:")) {
+		const [x, y] = [a, b].map((r) => r.value.slice("providers:".length).split(","));
+		return x.every((p) => y.includes(p)) || y.every((p) => x.includes(p));
+	}
 	const [list, models] = a.value.startsWith("providers:") ? [a, b] : b.value.startsWith("providers:") ? [b, a] : [null, null];
 	if (!list || models.value.startsWith("providers:")) return null;
 	const allowed = list.value.slice("providers:".length).split(",");

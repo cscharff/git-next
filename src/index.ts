@@ -9,6 +9,9 @@ import { fixtureCostSource } from "./providers/cost/index.ts";
 import { createRegistry } from "./registry.ts";
 import baselineCatalogJson from "../fixtures/org-baseline/catalog.json" with { type: "json" };
 import { parseCatalog } from "./providers/catalog.ts";
+import { llmExtractor, memoryCache, type ExtractCache } from "./providers/instruction-stack/llm-extract.ts";
+import { keywordExtractor } from "./providers/instruction-stack/extract.ts";
+import type { RuleExtractor } from "./providers/instruction-stack/types.ts";
 
 // Read-only analysis over Artifacts repos. No caller authentication yet, so local dev only.
 
@@ -27,8 +30,24 @@ const BASELINE_CATALOG = parseCatalog(JSON.stringify(baselineCatalogJson));
 // Real AI Gateway logs when the account id and a read token are configured (.dev.vars / Worker secrets),
 // otherwise the cost provider uses the bundled fixture.
 const costSource = env.CF_ACCOUNT_ID && env.AIG_LOGS_TOKEN ? gatewayLogsSource({ accountId: env.CF_ACCOUNT_ID, gatewayId: GATEWAY_ID, token: env.AIG_LOGS_TOKEN }) : undefined;
+/** Rule extraction runs on Workers AI through the org gateway, cached by content hash (in-memory per isolate). */
+const EXTRACT_MODEL = "@cf/zai-org/glm-5.3-flash";
+const extractCache: ExtractCache = memoryCache();
+const modelExtractor: RuleExtractor | undefined = env.AI
+	? llmExtractor({
+			model: EXTRACT_MODEL,
+			cache: extractCache,
+			call: async (system, user) => {
+				const out = (await env.AI.run(EXTRACT_MODEL as any, { messages: [{ role: "system", content: system }, { role: "user", content: user }], max_tokens: 8000 } as any, { gateway: { id: GATEWAY_ID, metadata: { developer: "git-next", repo: "git-next", fork: "resolver", agent: "git-next-resolver", task: "extract#rules" } } })) as any;
+				return String(out?.response ?? out?.choices?.[0]?.message?.content ?? "");
+			},
+		})
+	: undefined;
+
 /** `enforce` checks repos without their own catalog against the org baseline (?catalog=org). */
-const registryFor = (enforce: boolean, cost: CostSource | undefined = costSource) => createRegistry(cost, { baseline: BASELINE_CATALOG, enforceBaseline: enforce, maxFiles: 300, configOnlyWithoutCatalog: true });
+/** `extractor: null` means the deterministic keyword extractor (undefined would pick the default). */
+const registryFor = (enforce: boolean, cost: CostSource | undefined = costSource, extractor: RuleExtractor | null = modelExtractor ?? null) =>
+	createRegistry(cost, { baseline: BASELINE_CATALOG, enforceBaseline: enforce, maxFiles: 300, configOnlyWithoutCatalog: true }, extractor ?? keywordExtractor);
 const registry = registryFor(false);
 
 /** The only models the smoke route may call: small and cheap, capped at 50 output tokens. */
@@ -59,7 +78,10 @@ export default {
 				// ?cost=fixture uses the bundled team sample instead of live gateway logs (for the team-overspend view).
 				const enforce = url.searchParams.get("catalog") === "org";
 				const fixture = url.searchParams.get("cost") === "fixture";
-				const result = await (enforce || fixture ? registryFor(enforce, fixture ? fixtureCostSource() : costSource) : registry).run({ repo, ref, base, files }, only);
+				// ?extractor=keyword skips the model and uses the deterministic extractor.
+				const keyword = url.searchParams.get("extractor") === "keyword";
+				const reg = enforce || fixture || keyword ? registryFor(enforce, fixture ? fixtureCostSource() : costSource, keyword ? null : (modelExtractor ?? null)) : registry;
+				const result = await reg.run({ repo, ref, base, files }, only);
 				return Response.json({ repo, ref, base: base ?? null, ms: Date.now() - started, ...result });
 			} catch (err) {
 				return Response.json({ error: String(err) }, { status: 500 });
@@ -68,19 +90,24 @@ export default {
 
 		// POST /context {repo, ref, task, paths[], budgetTokens} -> rules for those paths + best sections within budget.
 		if (request.method === "POST" && url.pathname === "/context") {
-			const body = (await request.json().catch(() => null)) as Partial<{ repo: string; ref: string; task: string; paths: string[]; budgetTokens: number; layers: string; catalog: string }> | null;
+			const body = (await request.json().catch(() => null)) as Partial<{ repo: string; ref: string; task: string; paths: string[]; budgetTokens: number; layers: string; catalog: string; extractor: string }> | null;
 			if (!body || !REPO_NAME.test(body.repo ?? "") || !body.task) return Response.json({ error: "repo and task are required" }, { status: 400 });
 			const files = contextFor(url, body.repo!, body.layers === "demo");
 			try {
 				return Response.json(
-					await buildContext(files, {
+					await buildContext(
+						files,
+						{
 						repo: body.repo!,
 						ref: body.ref || "HEAD",
 						task: body.task,
 						paths: Array.isArray(body.paths) ? body.paths.filter((p) => typeof p === "string") : [],
 						budgetTokens: Math.min(Math.max(Number(body.budgetTokens) || 4000, 500), 200_000),
 						...(body.catalog === "org" ? { catalog: BASELINE_CATALOG } : {}),
-					}),
+						},
+						undefined,
+						body.extractor === "keyword" ? undefined : modelExtractor,
+					),
 				);
 			} catch (err) {
 				return Response.json({ error: String(err) }, { status: 500 });

@@ -48,6 +48,15 @@ export interface Rule {
 export interface RuleExtractor {
 	id: string;
 	extract(layer: Layer, markdown: string): Promise<Rule[]>;
+	/** How the last extraction of this layer path went (model, cache or fallback), for the dashboard and logs. */
+	describe?(path: string): ExtractionInfo | undefined;
+}
+
+export interface ExtractionInfo {
+	source: "cache" | "model" | "fallback" | "keyword";
+	rules: number;
+	dropped?: number;
+	error?: string;
 }
 
 /** > 0 when layer a takes precedence over b, < 0 when b does, 0 when they are peers. */
