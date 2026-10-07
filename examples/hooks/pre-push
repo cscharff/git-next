@@ -1,0 +1,32 @@
+#!/bin/sh
+# git.next pre-push hook: block pushes that leave AI instruction conflicts behind.
+#
+# Install:  cp examples/hooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+# Needs `git-next` on PATH (npm link in the git-next checkout). Skip once with: git push --no-verify
+#
+# Optional: point GIT_NEXT_LAYERS at a stack.json to include org/contract/tool/personal layers,
+# and set GIT_NEXT_STRICT_RESOURCES=1 to also block pushes that add Cloudflare bindings vs the remote branch.
+
+command -v git-next >/dev/null 2>&1 || { echo "git-next not on PATH; skipping instruction checks" >&2; exit 0; }
+
+layers=""
+[ -n "$GIT_NEXT_LAYERS" ] && layers="--layers $GIT_NEXT_LAYERS"
+
+# shellcheck disable=SC2086
+if ! git next rules --quiet $layers; then
+	echo "git-next: instruction conflicts found. Run 'git next rules' for details, or push with --no-verify." >&2
+	exit 1
+fi
+
+if [ "$GIT_NEXT_STRICT_RESOURCES" = "1" ]; then
+	# stdin lines: <local ref> <local sha> <remote ref> <remote sha>
+	while read -r _local_ref local_sha _remote_ref remote_sha; do
+		[ "$remote_sha" = "0000000000000000000000000000000000000000" ] && continue
+		[ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue
+		if ! git next resources --base "$remote_sha" --ref "$local_sha" --strict --quiet; then
+			echo "git-next: this push adds Cloudflare bindings (run 'git next resources --base $remote_sha --ref $local_sha --verbose')." >&2
+			exit 1
+		fi
+	done
+fi
+exit 0

@@ -19,5 +19,7 @@
 		"src",
 		"cloudflare.config.ts",
 		".cloudflare/types"
-	]
+	],
+	// The Node CLI is checked by tsconfig.cli.json.
+	"exclude": ["src/cli"]
 }

@@ -89,3 +89,19 @@ export function memorySource(refs: Record<string, Record<string, string>>): Repo
 		},
 	};
 }
+
+/** Adds or replaces files in a source's listings (every ref) without touching the underlying repo. */
+export function overlayFiles(source: RepoSource, files: Record<string, string>): RepoSource {
+	const entries = Object.entries(files).map(([path, content], i) => ({ path, content, hash: `overlay${String(i).padStart(33, "0")}` }));
+	const byHash = new Map(entries.map((e) => [e.hash, e.content]));
+	return {
+		...source,
+		async listFiles(ref) {
+			const paths = new Set(entries.map((e) => e.path));
+			return [...(await source.listFiles(ref)).filter((f) => !paths.has(f.path)), ...entries.map(({ path, hash }) => ({ path, hash }))];
+		},
+		async readBlob(hash) {
+			return byHash.has(hash) ? byHash.get(hash)! : source.readBlob(hash);
+		},
+	};
+}

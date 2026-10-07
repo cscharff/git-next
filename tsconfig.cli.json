@@ -1,0 +1,10 @@
+{
+	// Node-side code: the git-next CLI, offline scripts and tests (reuses the providers, no Workers types).
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"types": ["node"],
+		"lib": ["es2024"]
+	},
+	"include": ["src/cli", "bin", "src/raw.d.ts"],
+	"exclude": []
+}

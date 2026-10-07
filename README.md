@@ -18,6 +18,25 @@ npm run dev     # cf dev on localhost:5173, reads real repos (remote binding, na
 
 The Worker has no caller authentication yet, so keep it to local dev.
 
+## `git next` CLI
+
+The same providers as a git subcommand, for people and for agents (`--json`). Requires Node 23.6+.
+
+```bash
+npm link                         # puts git-next on PATH; git runs it as `git next`
+git next rules [paths...]        # layers, winning rules, conflicts/drift with file:line; exit 1 on conflict
+git next rules --layers ~/acme/.gitnext/stack.json packages/api/src/index.ts
+git next resources --base origin/main --strict   # Workers + bindings, diff from local git objects; exit 1 if bindings added
+git next context "fix the reconnect loop" src/mcp/client.ts --budget 4000 [--print]
+git next cost [--fork chris/mcp-reconnect] [--verbose]   # gateway logs via .dev.vars, else the fixture
+git next rules --remote agents-demo-full --layers demo   # ask the local Worker about an Artifacts repo instead
+```
+
+By default it reads the working tree (tracked and untracked files, minus ignored ones); `--ref` reads a commit from
+local git objects. `--layers <stack.json>` adds layers whose `path`s are resolved from the stack file's project folder
+(the folder holding `.gitnext/`). Exit codes: 0 clean, 1 blocking findings, 2 usage or runtime error.
+`examples/hooks/pre-push` runs `git next rules --quiet` before every push (and optionally `resources --strict`).
+
 ## Layout
 
 - `src/core`: `Insight`/`InsightProvider` types, `RepoContext` (per-ref tree cache plus blob-hash content cache),
@@ -43,6 +62,7 @@ The Worker has no caller authentication yet, so keep it to local dev.
 - `POST /dev/gateway-smoke` (localhost only): one tiny call each to `anthropic/claude-haiku-4.5` (unified billing) and
   `@cf/zai-org/glm-5.3-flash` through the gateway, max 50 output tokens, tagged with the cost metadata keys.
 - `public/index.html`: the dashboard, served as a static asset by the same Worker.
+- `src/cli`: the `git next` CLI (`bin/git-next.ts`); `git-source.ts` reads the working tree or local git objects.
 
 ## Samples
 

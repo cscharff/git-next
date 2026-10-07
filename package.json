@@ -7,13 +7,20 @@
 		"dev": "cf dev",
 		"build": "cf build",
 		"test": "vitest run",
-		"typecheck": "cf workers types && tsc"
+		"typecheck": "cf workers types && tsc && tsc -p tsconfig.cli.json"
 	},
 	"devDependencies": {
 		"@cloudflare/vite-plugin": "beta",
+		"@types/node": "^26.6.4",
 		"cf": "^1.0.0-beta.13",
 		"typescript": "^7.0.2",
 		"vite": "^8.3.0",
 		"vitest": "^5.0.3"
+	},
+	"bin": {
+		"git-next": "bin/git-next.ts"
+	},
+	"engines": {
+		"node": ">=23.6"
 	}
 }
