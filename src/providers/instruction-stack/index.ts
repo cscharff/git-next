@@ -1,7 +1,7 @@
 import type { RepoContext } from "../../core/repo-context.ts";
 import type { Insight, InsightProvider, Severity } from "../../core/types.ts";
 import { parseJsonc } from "../../parse/jsonc.ts";
-import { configFacts, isConfigFactFile } from "./config-facts.ts";
+import { configFacts, isConfigFactFile, type ConfigFact } from "./config-facts.ts";
 import { keywordExtractor } from "./extract.ts";
 import { effectiveRules, resolve, type Finding } from "./resolve.ts";
 import { KIND_RANK, LAYER_KINDS, type Layer, type LayerKind, type Rule, type RuleExtractor } from "./types.ts";
@@ -35,6 +35,37 @@ export async function collectLayers(files: RepoContext, repo: string, ref: strin
 	return { layers, errors };
 }
 
+export interface LoadedStack {
+	layers: Layer[];
+	rules: Rule[];
+	facts: ConfigFact[];
+	/** Raw text per layer path, for callers that slice instruction files (e.g. the context provider). */
+	texts: Map<Layer, string>;
+	errors: string[];
+}
+
+/** Collects layers, reads them (stack layers in other repos at HEAD), extracts rules and reads config facts. */
+export async function loadStack(files: RepoContext, repo: string, ref: string, extractor: RuleExtractor = keywordExtractor): Promise<LoadedStack> {
+	const { layers, errors } = await collectLayers(files, repo, ref);
+	const rules: Rule[] = [];
+	const texts = new Map<Layer, string>();
+	for (const layer of layers) {
+		const text = await files.readFile(layer.repo, layer.repo === repo ? ref : "HEAD", layer.path).catch((e) => {
+			errors.push(`${layer.repo}/${layer.path}: ${e}`);
+			return null;
+		});
+		if (text == null) {
+			if (layer.origin === "stack") errors.push(`${layer.repo}/${layer.path}: layer not found`);
+			continue;
+		}
+		texts.set(layer, text);
+		rules.push(...(await extractor.extract(layer, text)));
+	}
+	const factFiles = await files.find(repo, ref, isConfigFactFile);
+	const facts = (await Promise.all(factFiles.map(async (f) => configFacts(f.path, (await files.readFile(repo, ref, f.path)) ?? "")))).flat();
+	return { layers, rules, facts, texts, errors };
+}
+
 const SEVERITY: Record<Finding["kind"], Severity> = { overridden: "info", drift: "warn", conflict: "conflict" };
 
 export function instructionStackProvider(extractor: RuleExtractor = keywordExtractor): InsightProvider {
@@ -43,22 +74,7 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 		title: "Instruction stack",
 		needs: ["tree", "files"],
 		async analyze({ repo, ref, files }) {
-			const { layers, errors } = await collectLayers(files, repo, ref);
-			const rules: Rule[] = [];
-			for (const layer of layers) {
-				// Stack layers in other repos are read at their default branch (HEAD).
-				const text = await files.readFile(layer.repo, layer.repo === repo ? ref : "HEAD", layer.path).catch((e) => {
-					errors.push(`${layer.repo}/${layer.path}: ${e}`);
-					return null;
-				});
-				if (text == null) {
-					if (layer.origin === "stack") errors.push(`${layer.repo}/${layer.path}: layer not found`);
-					continue;
-				}
-				rules.push(...(await extractor.extract(layer, text)));
-			}
-			const factFiles = await files.find(repo, ref, isConfigFactFile);
-			const facts = (await Promise.all(factFiles.map(async (f) => configFacts(f.path, (await files.readFile(repo, ref, f.path)) ?? "")))).flat();
+			const { layers, rules, facts, errors } = await loadStack(files, repo, ref, extractor);
 			const findings = resolve(rules, facts);
 
 			const insights: Insight[] = findings.map((f) => ({
