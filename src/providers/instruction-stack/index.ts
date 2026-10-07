@@ -1,6 +1,7 @@
 import type { RepoContext } from "../../core/repo-context.ts";
 import type { Insight, InsightProvider, Severity } from "../../core/types.ts";
 import { parseJsonc } from "../../parse/jsonc.ts";
+import { parseYamlSubset } from "../../parse/yaml.ts";
 import { configFacts, isConfigFactFile, type ConfigFact } from "./config-facts.ts";
 import { keywordExtractor } from "./extract.ts";
 import { effectiveRules, resolve, type Finding } from "./resolve.ts";
@@ -8,6 +9,10 @@ import { DEFAULT_ORDER, KIND_RANK, LAYER_KINDS, ranksFor, validOrder, type Layer
 
 export const STACK_FILE = ".gitnext/stack.json";
 export const isInstructionFile = (path: string) => /(^|\/)(AGENTS|CLAUDE)\.md$/.test(path);
+/** gitagent-style agent definitions: their model choices and rules join the stack as tool-rank layers. */
+export const isAgentFile = (path: string) => /(^|\/)agent\.ya?ml$/.test(path) && !/(^|\/)(node_modules|\.github)\//.test(path);
+/** Agent-written memory: the lowest-rank layer, so it never overrides a human-authored rule. */
+export const isMemoryFile = (path: string) => /^\.gitnext\/memory\/.+\.md$/.test(path) || /(^|\/)AGENT_MEMORY\.md$/.test(path);
 const dirOf = (path: string) => (path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "");
 
 /**
@@ -22,6 +27,14 @@ export async function collectLayers(files: RepoContext, repo: string, ref: strin
 		const dir = dirOf(f.path);
 		return { name: dir || "root", kind: "project", rank: ranks.project, depth: dir ? dir.split("/").length : 0, repo, path: f.path, scopeDir: dir, origin: "project" };
 	});
+	for (const f of await files.find(repo, ref, isAgentFile)) {
+		const dir = dirOf(f.path);
+		layers.push({ name: `agent ${f.path}`, kind: "tool", rank: ranks.tool, depth: dir ? dir.split("/").length : 0, repo, path: f.path, scopeDir: dir, origin: "agent" });
+	}
+	for (const f of await files.find(repo, ref, isMemoryFile)) {
+		const dir = f.path.startsWith(".gitnext/") ? "" : dirOf(f.path);
+		layers.push({ name: `memory ${f.path}`, kind: "memory", rank: ranks.memory, depth: dir ? dir.split("/").length : 0, repo, path: f.path, scopeDir: dir, origin: "memory" });
+	}
 	const stackText = await files.readFile(repo, ref, STACK_FILE);
 	if (stackText) {
 		try {
@@ -39,6 +52,31 @@ export async function collectLayers(files: RepoContext, repo: string, ref: strin
 		}
 	}
 	return { layers, errors };
+}
+
+/**
+ * Rules from an agent.yaml: its model(s) as an allowedModels rule (checked against the org's provider policy), and its
+ * rules/instructions list run through the normal extractor, one item per line, keeping real line numbers.
+ */
+export async function agentYamlRules(layer: Layer, text: string, extractor: RuleExtractor): Promise<Rule[]> {
+	const doc = parseYamlSubset(text);
+	const lines = text.split(/\r?\n/);
+	const lineOf = (needle: string) => Math.max(1, lines.findIndex((l) => l.includes(needle)) + 1);
+	const rules: Rule[] = [];
+	const modelField = doc.model ?? doc.models;
+	const models = (Array.isArray(modelField) ? modelField : modelField ? [modelField] : []).map(String).map((m) => m.toLowerCase().replace(/^anthropic\/(?=claude)/, "")).filter((m) => /^[@a-z0-9./-]+$/.test(m));
+	if (models.length) {
+		const line = lineOf(String(Array.isArray(modelField) ? modelField[0] : modelField));
+		rules.push({ topic: "allowedModels", value: [...new Set(models)].sort().join(","), strength: "must", layer, line, text: lines[line - 1].trim().slice(0, 240) });
+	}
+	const items = [doc.rules, doc.instructions].flatMap((v) => (Array.isArray(v) ? v.map(String) : typeof v === "string" ? [v] : []));
+	if (items.length) {
+		// Rebuild a document with each item on its original line so extracted line numbers point into agent.yaml.
+		const synthetic = lines.map(() => "");
+		for (const item of items) synthetic[lineOf(item) - 1] = item;
+		rules.push(...(await extractor.extract(layer, synthetic.join("\n"))));
+	}
+	return rules;
 }
 
 export interface LoadedStack {
@@ -66,7 +104,7 @@ export async function loadStack(files: RepoContext, repo: string, ref: string, e
 				return [];
 			}
 			texts.set(layer, text);
-			return extractor.extract(layer, text);
+			return layer.origin === "agent" ? agentYamlRules(layer, text, extractor) : extractor.extract(layer, text);
 		}),
 	);
 	const rules: Rule[] = perLayer.flat();

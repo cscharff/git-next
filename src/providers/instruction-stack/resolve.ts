@@ -25,6 +25,8 @@ const where = (r: Rule) => `${r.layer.name} [${r.layer.kind}] (${r.layer.path}:$
 
 /** Infers the vendor behind a model id, for checking model choices against a provider allowlist. */
 export function modelProvider(model: string): string {
+	const vendor = model.match(/^(anthropic|openai|google|mistral|deepseek|workers-ai)\//)?.[1];
+	if (vendor) return vendor;
 	if (/^claude-/.test(model)) return "anthropic";
 	if (/^(gpt-|o\d)/.test(model)) return "openai";
 	if (/^gemini-/.test(model)) return "google";

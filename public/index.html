@@ -32,7 +32,7 @@
 	.sev-warn { color: #1d1d1f; background: var(--warn); }
 	.sev-info { color: #fff; background: var(--info); }
 	.k-org { background: #6b46c1; color: #fff; } .k-contract { background: #2b6cb0; color: #fff; } .k-project { background: #2f855a; color: #fff; }
-	.k-tool { background: #975a16; color: #fff; } .k-personal { background: #718096; color: #fff; }
+	.k-tool { background: #975a16; color: #fff; } .k-personal { background: #718096; color: #fff; } .k-memory { background: #b83280; color: #fff; }
 	table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
 	td { overflow-wrap: anywhere; }
 	td .chip { white-space: normal; margin: 1px 0; }
@@ -76,7 +76,7 @@
 	.two { display: grid; grid-template-columns: minmax(300px, 0.9fr) minmax(360px, 1.1fr); gap: 20px; }
 	@media (max-width: 980px) { .two { grid-template-columns: 1fr; } }
 	.layer { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 8px; background: var(--chip); margin-bottom: 6px; border-left: 4px solid var(--line); }
-	.layer.org { border-left-color: #6b46c1; } .layer.contract { border-left-color: #2b6cb0; } .layer.project { border-left-color: #2f855a; } .layer.tool { border-left-color: #975a16; } .layer.personal { border-left-color: #718096; }
+	.layer.org { border-left-color: #6b46c1; } .layer.contract { border-left-color: #2b6cb0; } .layer.project { border-left-color: #2f855a; } .layer.tool { border-left-color: #975a16; } .layer.personal { border-left-color: #718096; } .layer.memory { border-left-color: #b83280; border-left-style: dashed; }
 	.layer .rank { font: 600 15px ui-monospace, monospace; color: var(--muted); text-align: center; }
 	.layer .who { min-width: 0; } .layer .who b { display: block; } .layer .who code { color: var(--muted); overflow-wrap: anywhere; }
 	.layer .counts { text-align: right; font-size: 12px; color: var(--muted); white-space: nowrap; }
@@ -287,7 +287,7 @@ function renderStack(items, catalogItems = []) {
 		<div class="two">
 			<div>
 				<h3 class="sub" style="margin:0 0 6px">The stack</h3>
-				<div class="legend">Lower rank wins: org 1 › contract 2 › project 3 (deeper folders win) › tool 4 › personal 5${m.precedence?.overridden ? ` · <b style="color:var(--warn)">precedence overridden by admin: ${esc(m.precedence.note)}</b>` : ""}</div>
+				<div class="legend">Lower rank wins: org 1 › contract 2 › project 3 (deeper folders win) › tool 4 › personal 5 › agent memory 6${m.precedence?.overridden ? ` · <b style="color:var(--warn)">precedence overridden by admin: ${esc(m.precedence.note)}</b>` : ""}</div>
 				<div id="prec"></div>
 				${layers.map((l) => `<div class="layer ${esc(l.kind)}"><div class="rank">${l.rank}${l.kind === "project" ? `.${l.depth}` : ""}</div><div class="who">${kind(l.kind)} <b style="display:inline">${esc(l.name)}</b><code style="display:block">${esc(l.repo && l.repo !== state.repo ? l.repo + ":" : "")}${esc(l.path)}</code></div><div class="counts">${ruleCount(l)} rule${ruleCount(l) === 1 ? "" : "s"}${rootWins(l) ? `<br><b style="color:var(--text)">wins ${rootWins(l)}</b> at root` : ""}</div></div>`).join("")}
 			</div>
@@ -323,7 +323,7 @@ async function renderPrecedence(repo, fromInsights) {
 	el.innerHTML = `
 		<div class="card ${override ? "warnb" : ""}" style="margin-bottom:10px;border-left-color:${override ? "var(--warn)" : "var(--line)"}">
 			<h4>Precedence ${override ? `<span class="chip sev-warn">overridden by admin</span>` : `<span class="chip">org default</span>`}</h4>
-			<div class="why">${esc((override?.order ?? ["org", "contract", "project", "tool", "personal"]).join(" › "))}${override ? ` · set by ${esc(override.by)} on ${esc(new Date(override.at).toLocaleString())}: “${esc(override.reason)}”` : " · org outranks contract"}</div>
+			<div class="why">${esc((override?.order ?? ["org", "contract", "project", "tool", "personal", "memory"]).join(" › "))}${override ? ` · set by ${esc(override.by)} on ${esc(new Date(override.at).toLocaleString())}: “${esc(override.reason)}”` : " · org outranks contract"}</div>
 			${audit.length ? `<details><summary>Audit trail (${audit.length})</summary>${audit.map((a) => `<div class="why">${esc(new Date(a.at).toLocaleString())} · ${esc(a.by)} · ${esc(a.action)} · ${esc((a.order || []).join(" › "))} · “${esc(a.reason)}”</div>`).join("")}</details>` : ""}
 			${prec?.policy === "admins" && who?.admin ? `<div class="row" style="margin-top:8px">
 				<label class="why"><input type="checkbox" id="pcontract" ${contractFirst ? "checked" : ""}> Let contract outrank org</label>
@@ -343,7 +343,7 @@ async function renderPrecedence(repo, fromInsights) {
 			showBanner(`Could not save precedence: ${err.message}`);
 		}
 	};
-	$("#psave")?.addEventListener("click", () => send($("#pcontract").checked ? ["contract", "org", "project", "tool", "personal"] : ["org", "contract", "project", "tool", "personal"]));
+	$("#psave")?.addEventListener("click", () => send($("#pcontract").checked ? ["contract", "org", "project", "tool", "personal", "memory"] : ["org", "contract", "project", "tool", "personal", "memory"]));
 	$("#preset")?.addEventListener("click", () => send(null));
 }
 

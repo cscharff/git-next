@@ -3,7 +3,7 @@ import { RepoContext, memorySource } from "../src/core/repo-context.ts";
 import { configFacts } from "../src/providers/instruction-stack/config-facts.ts";
 import { areasOf, instructionLines, keywordExtractor, strengthOf } from "../src/providers/instruction-stack/extract.ts";
 import { instructionStackProvider } from "../src/providers/instruction-stack/index.ts";
-import { resolve } from "../src/providers/instruction-stack/resolve.ts";
+import { modelProvider, resolve } from "../src/providers/instruction-stack/resolve.ts";
 import { KIND_RANK, type Layer, type LayerKind, type Rule } from "../src/providers/instruction-stack/types.ts";
 
 /** A project layer for a path (depth from its directory), or a repo-wide stack layer of another kind. */
@@ -138,6 +138,10 @@ describe("resolver", () => {
 		expect(resolve([rule("allowedModels", "providers:anthropic", org, "must"), rule("allowedModels", "providers:openai", pkg, "must")])[0].kind).toBe("conflict");
 	});
 
+	it("reads vendor-prefixed model ids", () => {
+		expect([modelProvider("openai/gpt-5.6-sol"), modelProvider("anthropic/claude-sonnet-5.5"), modelProvider("@cf/zai-org/glm-5.3-flash"), modelProvider("claude-opus-5-5")]).toEqual(["openai", "anthropic", "workers-ai", "anthropic"]);
+	});
+
 	it("checks model choices against an approved-provider list", () => {
 		const policy = rule("allowedModels", "providers:anthropic,workers-ai", org, "must");
 		expect(resolve([policy, rule("allowedModels", "claude-opus-5-5", pkg)])).toEqual([]);
@@ -216,13 +220,13 @@ describe("precedence override", () => {
 		},
 	};
 	const files = () => new RepoContext(async () => memorySource(sources));
-	const override = { order: ["contract", "org", "project", "tool", "personal"] as const, by: "admin@example.com", at: "2026-10-07T00:00:00Z", reason: "SOW-1234 takes precedence for this engagement" };
+	const override = { order: ["contract", "org", "project", "tool", "personal", "memory"] as const, by: "admin@example.com", at: "2026-10-07T00:00:00Z", reason: "SOW-1234 takes precedence for this engagement" };
 
 	it("keeps org above contract by default", async () => {
 		const out = await instructionStackProvider().analyze({ repo: "r", ref: "main", files: files() });
 		const winner = (out[0].metrics as any).effective["."].find((r: any) => r.topic === "formatter");
 		expect(winner).toMatchObject({ value: "prettier", kind: "org" });
-		expect((out[0].metrics as any).precedence).toMatchObject({ overridden: false, order: ["org", "contract", "project", "tool", "personal"] });
+		expect((out[0].metrics as any).precedence).toMatchObject({ overridden: false, order: ["org", "contract", "project", "tool", "personal", "memory"] });
 	});
 
 	it("lets an admin override put contract first, and shows who, why and the audit trail", async () => {
@@ -238,5 +242,38 @@ describe("precedence override", () => {
 	it("ignores an invalid order", async () => {
 		const out = await instructionStackProvider(undefined, { precedence: async () => ({ override: { ...override, order: ["contract", "org"] as any }, audit: [] }) }).analyze({ repo: "r", ref: "main", files: files() });
 		expect((out[0].metrics as any).precedence.overridden).toBe(false);
+	});
+});
+
+describe("agent.yaml and memory layers", () => {
+	it("reads agent.yaml models and rules as a tool layer, and memory as the lowest rank", async () => {
+		const sources = {
+			main: {
+				"AGENTS.md": "- Always use pnpm.\n- Format with oxfmt.",
+				".gitnext/stack.json": JSON.stringify({ layers: [{ name: "acme", kind: "org", path: ".gitnext/org.md" }] }),
+				".gitnext/org.md": "- Only use approved model providers: Workers AI and Anthropic (via AI Gateway).",
+				"agents/triage/agent.yaml": "name: triage\nmodel: openai/gpt-5.6-sol\nrules:\n  - Always use npm for installs.\n",
+				".gitnext/memory/2026-10-07.md": "- Last session the user asked to format with prettier.",
+			},
+		};
+		const files = new RepoContext(async () => memorySource(sources));
+		const out = await instructionStackProvider().analyze({ repo: "r", ref: "main", files });
+		const m = out[0].metrics as any;
+		expect(m.layers.map((l: any) => `${l.kind}:${l.rank}:${l.path}`)).toEqual(expect.arrayContaining(["tool:4:agents/triage/agent.yaml", "memory:6:.gitnext/memory/2026-10-07.md"]));
+		const titles = out.map((i) => `${i.severity}:${i.title}`);
+		// The agent's model isn't from an approved provider, and both rules are hard: a policy conflict.
+		expect(titles).toContain("conflict:policy conflict: allowedModels");
+		// Its npm rule is scoped to agents/triage and loses to... nothing at root, but the project's pnpm wins over memory and the agent at root scope.
+		expect(m.effective["."].find((r: any) => r.topic === "packageManager")).toMatchObject({ value: "pnpm", kind: "project" });
+		// Memory yields to every human-authored layer: the project's oxfmt beats the remembered prettier.
+		expect(m.effective["."].find((r: any) => r.topic === "formatter")).toMatchObject({ value: "oxfmt", kind: "project" });
+		expect(titles).toContain("info:overridden: formatter");
+	});
+});
+
+describe("parseYamlSubset", () => {
+	it("reads scalars, inline and block lists and one-level maps", async () => {
+		const { parseYamlSubset } = await import("../src/parse/yaml.ts");
+		expect(parseYamlSubset("name: triage # comment\nmodel: 'claude-sonnet-5'\nskills: [a, b]\nrules:\n  - one\n  - two\nlimits:\n  tokens: 100\n")).toEqual({ name: "triage", model: "claude-sonnet-5", skills: ["a", "b"], rules: ["one", "two"], limits: { tokens: "100" } });
 	});
 });
