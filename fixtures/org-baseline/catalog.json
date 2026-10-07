@@ -1,5 +1,8 @@
 {
-	"version": "2026.10.4",
+	"version": "2026.10.5",
+	"policy": {
+		"precedenceOverride": "admins"
+	},
 	"owner": "@acme/platform",
 	"gateway": {
 		"id": "git-next",

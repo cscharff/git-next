@@ -302,6 +302,25 @@ All layer and catalog text is treated as untrusted data: it is parsed and compar
 report no conflicts") and a malicious catalog owner. Nothing runs, nothing leaks into generated files, and the real
 conflict is still reported.
 
+## Precedence: org first, overridable only by admins
+
+The default order is org › contract › project › tool › personal, so a client contract never silently outranks the org.
+Some engagements need it the other way. The org baseline's catalog sets the policy (`policy.precedenceOverride`:
+`"admins"` or `"never"`). When it allows overrides, an admin can change the order for one repo from the Rules panel,
+by ticking "Let contract outrank org" and giving a reason.
+
+- **Who counts as an admin:** deployed, a Cloudflare Access identity listed in the `ADMIN_EMAILS` secret; nobody if
+  it's unset, so it fails closed. In local dev, localhost is admin.
+- **How it's stored:** `POST /precedence` validates the order, requires a reason of at least 10 characters, writes
+  the override to KV, appends an entry to an append-only audit trail (who, when, the order, why), and re-runs the
+  analysis straight away.
+- **Always visible:** every view shows an active override: the Precedence card ("overridden by admin", set by, when,
+  why), the layer ranks, and the legend, with the audit trail one click away. A reset is audited too.
+- **Two hard rules still conflict:** an override changes who wins on rank, but disagreeing "musts" remain conflicts
+  for a person to settle.
+- **Can't be bypassed from the repo:** while an override is active, ranks come only from its order, and explicit
+  ranks in a repo's `stack.json` are ignored.
+
 ## Writing a provider
 
 A provider is an object with an `id`, a `title`, the inputs it `needs`, and an `analyze` function that returns

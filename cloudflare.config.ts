@@ -31,6 +31,8 @@ export default defineConfig({
 			// For the cost provider's AI Gateway logs reads. Set in .dev.vars locally (gitignored) and as Worker secrets.
 			CF_ACCOUNT_ID: bindings.secret(),
 			AIG_LOGS_TOKEN: bindings.secret(),
+			// Comma-separated emails (Access identities) allowed to override layer precedence. Unset: nobody (fail closed).
+			ADMIN_EMAILS: bindings.secret(),
 		},
 		triggers: [triggers.queue({ name: "git-next-pushes", deadLetterQueue: "git-next-pushes-dlq", maxBatchSize: 5, maxRetries: 3, maxConcurrency: 2 })],
 	},

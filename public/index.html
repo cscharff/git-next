@@ -288,6 +288,7 @@ function renderStack(items, catalogItems = []) {
 			<div>
 				<h3 class="sub" style="margin:0 0 6px">The stack</h3>
 				<div class="legend">Lower rank wins: org 1 › contract 2 › project 3 (deeper folders win) › tool 4 › personal 5${m.precedence?.overridden ? ` · <b style="color:var(--warn)">precedence overridden by admin: ${esc(m.precedence.note)}</b>` : ""}</div>
+				<div id="prec"></div>
 				${layers.map((l) => `<div class="layer ${esc(l.kind)}"><div class="rank">${l.rank}${l.kind === "project" ? `.${l.depth}` : ""}</div><div class="who">${kind(l.kind)} <b style="display:inline">${esc(l.name)}</b><code style="display:block">${esc(l.repo && l.repo !== state.repo ? l.repo + ":" : "")}${esc(l.path)}</code></div><div class="counts">${ruleCount(l)} rule${ruleCount(l) === 1 ? "" : "s"}${rootWins(l) ? `<br><b style="color:var(--text)">wins ${rootWins(l)}</b> at root` : ""}</div></div>`).join("")}
 			</div>
 			<div>
@@ -308,6 +309,42 @@ function renderStack(items, catalogItems = []) {
 	};
 	$("#dir").addEventListener("change", showWinners);
 	showWinners();
+	renderPrecedence(state.repo, m.precedence);
+}
+
+// Precedence: shown to everyone; the change control only appears for admins (Access identity in ADMIN_EMAILS, or local dev).
+async function renderPrecedence(repo, fromInsights) {
+	const el = $("#prec");
+	if (!el) return;
+	const [who, prec] = await Promise.all([tryJson("/whoami"), tryJson(`/precedence?repo=${encodeURIComponent(repo)}`)]);
+	const audit = prec?.audit ?? fromInsights?.audit ?? [];
+	const override = prec ? prec.override : fromInsights?.overridden ? fromInsights : null;
+	const contractFirst = override?.order?.[0] === "contract";
+	el.innerHTML = `
+		<div class="card ${override ? "warnb" : ""}" style="margin-bottom:10px;border-left-color:${override ? "var(--warn)" : "var(--line)"}">
+			<h4>Precedence ${override ? `<span class="chip sev-warn">overridden by admin</span>` : `<span class="chip">org default</span>`}</h4>
+			<div class="why">${esc((override?.order ?? ["org", "contract", "project", "tool", "personal"]).join(" › "))}${override ? ` · set by ${esc(override.by)} on ${esc(new Date(override.at).toLocaleString())}: “${esc(override.reason)}”` : " · org outranks contract"}</div>
+			${audit.length ? `<details><summary>Audit trail (${audit.length})</summary>${audit.map((a) => `<div class="why">${esc(new Date(a.at).toLocaleString())} · ${esc(a.by)} · ${esc(a.action)} · ${esc((a.order || []).join(" › "))} · “${esc(a.reason)}”</div>`).join("")}</details>` : ""}
+			${prec?.policy === "admins" && who?.admin ? `<div class="row" style="margin-top:8px">
+				<label class="why"><input type="checkbox" id="pcontract" ${contractFirst ? "checked" : ""}> Let contract outrank org</label>
+				<input id="preason" placeholder="Reason (goes in the audit trail)" size="34">
+				<button type="button" id="psave">Save</button>
+				${override ? `<button type="button" class="secondary" id="preset">Reset to default</button>` : ""}
+				<span class="why">admin: ${esc(who.email)}</span></div>` : prec?.policy === "never" ? `<div class="why">Org policy: precedence can't be changed.</div>` : ""}
+		</div>`;
+	const send = async (order) => {
+		const reason = $("#preason").value;
+		try {
+			await getJson("/precedence", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ repo, order, reason }) });
+			showBanner("Precedence saved; re-analysed with the new order.");
+			state.followLive = true;
+			await loadStored(repo, "main", true);
+		} catch (err) {
+			showBanner(`Could not save precedence: ${err.message}`);
+		}
+	};
+	$("#psave")?.addEventListener("click", () => send($("#pcontract").checked ? ["contract", "org", "project", "tool", "personal"] : ["org", "contract", "project", "tool", "personal"]));
+	$("#preset")?.addEventListener("click", () => send(null));
 }
 
 // ── 2. New repositories ───────────────────────────────────────────────────────

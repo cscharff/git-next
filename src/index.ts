@@ -16,7 +16,7 @@ import baselineCatalogJson from "../fixtures/org-baseline/catalog.json" with { t
 import { parseCatalog } from "./providers/catalog.ts";
 import { llmExtractor, memoryCache, type ExtractCache } from "./providers/instruction-stack/llm-extract.ts";
 import { keywordExtractor } from "./providers/instruction-stack/extract.ts";
-import type { RuleExtractor } from "./providers/instruction-stack/types.ts";
+import { DEFAULT_ORDER, validOrder, type LayerKind, type PrecedenceOverride, type RuleExtractor } from "./providers/instruction-stack/types.ts";
 
 // Read-only analysis over Artifacts repos. No caller authentication yet, so local dev only.
 
@@ -66,9 +66,17 @@ const retrieverFor = (repo: string, forceBm25: boolean) => async (sections: Sect
 	return (await coverage(manifest, repo, sections)) >= 0.9 ? new HybridRetriever(bm25, new VectorizeRetriever(repo, sections, embed, env.SECTIONS)) : bm25;
 };
 
+// ── precedence overrides (KV, admin-only) ──
+const adminEmails = () => String(env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+async function precedenceFor(repo: string): Promise<{ override: PrecedenceOverride | null; audit: unknown[] }> {
+	if (!env.RESULTS) return { override: null, audit: [] };
+	const [override, audit] = await Promise.all([env.RESULTS.get(`precedence/${repo}`, "json"), env.RESULTS.get(`precedence-audit/${repo}`, "json")]);
+	return { override: (override as PrecedenceOverride | null) ?? null, audit: (audit as unknown[] | null) ?? [] };
+}
+
 /** `extractor: null` means the deterministic keyword extractor (undefined would pick the default). */
 const registryFor = (enforce: boolean, cost: CostSource | undefined = costSource, extractor: RuleExtractor | null = modelExtractor ?? null) =>
-	createRegistry(cost, { baseline: BASELINE_CATALOG, enforceBaseline: enforce, maxFiles: 300, configOnlyWithoutCatalog: true }, extractor ?? keywordExtractor);
+	createRegistry(cost, { baseline: BASELINE_CATALOG, enforceBaseline: enforce, maxFiles: 300, configOnlyWithoutCatalog: true }, extractor ?? keywordExtractor, { precedence: precedenceFor });
 const registry = registryFor(false);
 
 /** The only models the smoke route may call: small and cheap, capped at 50 output tokens. */
@@ -89,12 +97,15 @@ export default {
 		const url = new URL(request.url);
 
 		// Deployed: only requests that passed Cloudflare Access (verified JWT for this app) get anything, assets included.
+		let identity = { email: "local-admin", local: true };
 		if (!isLocal(url)) {
 			const aud = env.ACCESS_AUD === "unset" ? "" : env.ACCESS_AUD;
 			if (!aud) return new Response("git.next: Cloudflare Access is not configured for this deployment yet.", { status: 401 });
 			const user = await verifyAccess(accessToken(request), { teamDomain: env.ACCESS_TEAM_DOMAIN, aud }).catch(() => null);
 			if (!user) return new Response("Unauthorized", { status: 401 });
+			identity = { email: user.email ?? user.sub ?? "unknown", local: false };
 		}
+		const isAdmin = identity.local || adminEmails().includes(identity.email.toLowerCase());
 
 		// GET /insights?repo=&ref=&base=&providers=a,b -> run providers and return their insights.
 		if (request.method === "GET" && url.pathname === "/insights") {
@@ -180,6 +191,41 @@ export default {
 		}
 
 		if (request.method === "GET" && url.pathname === "/catalog") return Response.json(BASELINE_CATALOG);
+
+		if (request.method === "GET" && url.pathname === "/whoami") return Response.json({ email: identity.email, admin: isAdmin, local: identity.local });
+
+		// Precedence: org › contract › project › tool › personal by default; admins may change it per repo (if org policy allows).
+		if (url.pathname === "/precedence") {
+			const repo = (request.method === "GET" ? url.searchParams.get("repo") : null) ?? "";
+			if (request.method === "GET") {
+				if (!REPO_NAME.test(repo)) return Response.json({ error: "repo is required" }, { status: 400 });
+				return Response.json({ ...(await precedenceFor(repo)), policy: BASELINE_CATALOG.policy?.precedenceOverride ?? "never", admin: isAdmin });
+			}
+			if (request.method === "POST") {
+				const body = (await request.json().catch(() => ({}))) as { repo?: string; order?: unknown; reason?: string };
+				if (!REPO_NAME.test(body.repo ?? "")) return Response.json({ error: "repo is required" }, { status: 400 });
+				if ((BASELINE_CATALOG.policy?.precedenceOverride ?? "never") !== "admins") return Response.json({ error: "org policy does not allow precedence overrides" }, { status: 403 });
+				if (!isAdmin) return Response.json({ error: "only admins can change precedence" }, { status: 403 });
+				const reason = String(body.reason ?? "").trim().slice(0, 300);
+				if (reason.length < 10) return Response.json({ error: "a reason (10+ characters) is required; it goes in the audit trail" }, { status: 400 });
+				const reset = body.order === null;
+				if (!reset && !validOrder(body.order)) return Response.json({ error: `order must list each of ${DEFAULT_ORDER.join(", ")} exactly once, or be null to reset` }, { status: 400 });
+				const entry = { action: reset ? "reset" : "set", order: reset ? DEFAULT_ORDER : (body.order as LayerKind[]), by: identity.email, at: new Date().toISOString(), reason };
+				const auditKey = `precedence-audit/${body.repo}`;
+				const audit = ((await env.RESULTS.get(auditKey, "json")) as unknown[] | null) ?? [];
+				await env.RESULTS.put(auditKey, JSON.stringify([entry, ...audit].slice(0, 100)));
+				if (reset) await env.RESULTS.delete(`precedence/${body.repo}`);
+				else await env.RESULTS.put(`precedence/${body.repo}`, JSON.stringify({ order: entry.order, by: entry.by, at: entry.at, reason }));
+				// Re-analyse now so the dashboard shows the new winners (and the override) straight away.
+				using handle = await env.ARTIFACTS.get(body.repo!);
+				const [head] = await handle.log({ ref: "main", limit: 1 });
+				const started = Date.now();
+				const files = contextFor(null, body.repo!, true);
+				const result = await registry.run({ repo: body.repo!, ref: head.hash, files });
+				await putResult(env.RESULTS, body.repo!, "main", { repo: body.repo, ref: "main", commit: head.hash, base: null, ms: Date.now() - started, ...result }, null);
+				return Response.json({ ok: true, entry });
+			}
+		}
 
 		// Stored results written by the queue consumer on every push; the dashboard polls /results/index.
 		if (request.method === "GET" && url.pathname === "/results/index") return Response.json(await getIndex(env.RESULTS));

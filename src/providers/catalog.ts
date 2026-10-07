@@ -33,6 +33,8 @@ export interface CatalogModel {
 }
 export interface Catalog {
 	version: string;
+	/** Org policy: whether admins may override the default layer order per repo. */
+	policy?: { precedenceOverride?: "admins" | "never" };
 	owner?: string;
 	gateway?: { id: string; owner?: string; how?: string; rule?: string };
 	models: CatalogModel[];

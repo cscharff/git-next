@@ -59,6 +59,24 @@ export interface ExtractionInfo {
 	error?: string;
 }
 
+/** An admin-approved change to the default layer order, with who, when and why (shown in the UI and audit trail). */
+export interface PrecedenceOverride {
+	order: LayerKind[];
+	by: string;
+	at: string;
+	reason: string;
+}
+
+export const DEFAULT_ORDER: LayerKind[] = ["org", "contract", "project", "tool", "personal"];
+
+/** Validates an order: every layer kind exactly once. */
+export function validOrder(order: unknown): order is LayerKind[] {
+	return Array.isArray(order) && order.length === LAYER_KINDS.length && LAYER_KINDS.every((k) => order.includes(k));
+}
+
+/** Ranks (1 = highest) for an order of layer kinds. */
+export const ranksFor = (order: LayerKind[]): Record<LayerKind, number> => Object.fromEntries(order.map((k, i) => [k, i + 1])) as Record<LayerKind, number>;
+
 /** > 0 when layer a takes precedence over b, < 0 when b does, 0 when they are peers. */
 export function precedence(a: Layer, b: Layer): number {
 	if (a.rank !== b.rank) return b.rank - a.rank;
