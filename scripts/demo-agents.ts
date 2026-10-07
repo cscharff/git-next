@@ -60,7 +60,12 @@ function gitWithToken(cwd: string, args: string[], token: string, extraEnv: Reco
 	});
 }
 /** Hides tokens and this machine's paths in anything recorded to samples/. */
-const redact = (s: string) => s.replace(/Bearer\s+\S+/g, "Bearer ***").replaceAll(ROOT, "<git-next>").replaceAll(WORKDIR, "<workdir>");
+const redact = (s: string) =>
+	s
+		.replace(/Bearer\s+\S+/g, "Bearer ***")
+		.replace(/https:\/\/[0-9a-f]{32}\.artifacts\.cloudflare\.net/g, "https://<account>.artifacts.cloudflare.net")
+		.replaceAll(ROOT, "<git-next>")
+		.replaceAll(WORKDIR, "<workdir>");
 const git = (cwd: string, ...args: string[]) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
 
 const gatewaySpend = () => gatewaySpendFor(ROOT, GATEWAY_ID);
@@ -220,7 +225,7 @@ const summary = {
 	agentsCostUsd: merged.reduce((n, r) => n + (r.gateway?.cost ?? 0), 0),
 	agents: merged,
 };
-writeFileSync(summaryPath, `${JSON.stringify(summary, null, 2)}\n`);
+writeFileSync(summaryPath, `${redact(JSON.stringify(summary, null, 2))}\n`);
 console.log(`\nrun cost $${(spentAfter - spentBefore).toFixed(6)}; gateway total $${spentAfter.toFixed(6)}`);
 for (const r of results as any[]) console.log(`${r.agent.padEnd(11)} ${r.error ? `FAILED: ${r.error}` : `${r.fork} ${r.head?.slice(0, 10)} ${r.commit?.message} · $${r.gateway.cost.toFixed(5)}${r.hook?.blocked ? " · hook blocked, resolved" : ""}`}`);
 if (!KEEP) rmSync(WORKDIR, { recursive: true, force: true });

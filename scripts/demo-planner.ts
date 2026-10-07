@@ -37,7 +37,7 @@ const REUSE_PLAN = argv.includes("--reuse-plan");
 const ONLY = argv.includes("--only") ? opt("--only", "").split(",") : null;
 const WORKDIR = join(tmpdir(), "git-next-demo-planner");
 
-const redact = (s: string) => s.replace(/Bearer\s+\S+/g, "Bearer ***").replaceAll(ROOT, "<git-next>").replaceAll(WORKDIR, "<workdir>");
+const redact = (s: string) => s.replace(/Bearer\s+\S+/g, "Bearer ***").replace(/https:\/\/[0-9a-f]{32}\.artifacts\.cloudflare\.net/g, "https://<account>.artifacts.cloudflare.net").replaceAll(ROOT, "<git-next>").replaceAll(WORKDIR, "<workdir>");
 const git = (cwd: string, ...a: string[]) => execFileSync("git", a, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
 const post = <T>(path: string, body: unknown) => workerPost<T>(WORKER_URL, path, body);
 

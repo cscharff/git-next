@@ -31,7 +31,7 @@ const KEEP = argv.includes("--keep") || argv.includes("--recheck");
 const RECHECK = argv.includes("--recheck");
 const WORKDIR = join(tmpdir(), "git-next-demo-new-repo");
 
-const redact = (s: string) => s.replace(/Bearer\s+\S+/g, "Bearer ***").replaceAll(ROOT, "<git-next>").replaceAll(WORKDIR, "<workdir>");
+const redact = (s: string) => s.replace(/Bearer\s+\S+/g, "Bearer ***").replace(/https:\/\/[0-9a-f]{32}\.artifacts\.cloudflare\.net/g, "https://<account>.artifacts.cloudflare.net").replaceAll(ROOT, "<git-next>").replaceAll(WORKDIR, "<workdir>");
 const git = (cwd: string, ...a: string[]) => execFileSync("git", ["-c", "user.name=demo-agent", "-c", "user.email=demo-agent@git-next.local", ...a], { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
 
 async function cli(cwd: string, args: string[]) {
