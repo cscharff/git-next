@@ -75,7 +75,7 @@ describe("catalog", () => {
 				main: {
 					"src/a.test.ts": 'const API_KEY = "sk-ant-api03-abcdefghijklmnopqrstuvwxyz0123"; env.AI.run("@cf/meta/llama-3.1-8b-instruct", {});',
 					"worker-configuration.d.ts": 'type Models = "@cf/meta/llama-2-7b-chat-int8" | "openai/gpt-oss";\n// https://github.com/openai/openai-node',
-					"src/ai.ts": '// Pi calls env.AI.run() under the hood.\nconst docs = "https://github.com/openai/openai-node";',
+					"src/ai.ts": '// Pi calls env.AI.run() under the hood.\nconst docs = "https://github.com/openai/openai-node";\nimport { GoogleGenAI } from "@google/genai";',
 					".github/bonk-models.json": '{ "models": { "opus": { "id": "anthropic/claude-opus-4-7" } } }',
 				},
 			}),

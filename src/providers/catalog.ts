@@ -125,8 +125,8 @@ export function scanModels(path: string, text: string): { path: string; line: nu
 	const out: { path: string; line: number; model: string }[] = [];
 	text.split(/\r?\n/).forEach((line, i) => {
 		for (const m of line.matchAll(MODEL_ID)) {
-			// "github.com/openai/openai-node" is a URL, not a model.
-			if (/https?:\/\/\S*$/.test(line.slice(0, m.index))) continue;
+			// "github.com/openai/openai-node" is a URL and "@google/genai" an npm package, not models.
+			if (/https?:\/\/\S*$|@$/.test(line.slice(0, m.index))) continue;
 			out.push({ path, line: i + 1, model: m[0].replace(/[.,]+$/, "") });
 		}
 	});
