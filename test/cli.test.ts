@@ -133,6 +133,6 @@ describe("runCli against a temporary git repo", () => {
 		expect((await run("nope")).code).toBe(EXIT.error);
 		const r = await run("resources", "--base", "no-such-ref");
 		expect(r.code).toBe(EXIT.error);
-		expect(r.err).toContain("git next resources:");
+		expect(r.err).toContain("git next resources: ref not found: no-such-ref");
 	});
 });

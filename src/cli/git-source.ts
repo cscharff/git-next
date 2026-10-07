@@ -62,7 +62,13 @@ export function localSource(dir: string): RepoSource {
 		async listFiles(ref) {
 			if (ref === WORKTREE) return listWorktree();
 			if (!inGit) throw new Error(`${dir} is not a git repository, so --ref/--base cannot be read`);
-			return git(dir, ["ls-tree", "-r", "-z", "--full-tree", ref])
+			let listing: string;
+			try {
+				listing = git(dir, ["ls-tree", "-r", "-z", "--full-tree", ref]);
+			} catch {
+				throw new Error(`ref not found: ${ref}`);
+			}
+			return listing
 				.split("\0")
 				.filter(Boolean)
 				.flatMap((line) => {
