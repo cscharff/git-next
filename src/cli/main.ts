@@ -170,6 +170,8 @@ interface RulesReport {
 	repo: string;
 	ref: string;
 	layers: { rank: number; depth: number; kind: string; name: string; source: string }[];
+	/** Instruction files not counted as layers (symlinks and copies of a covering layer). */
+	skipped?: { path: string; reason: string; of: string }[];
 	winners: { path: string; rules: RuleRow[] }[];
 	conflicts: { topic: string; explanation: string; evidence: string[] }[];
 	warnings: { topic: string; kind: string; explanation: string; evidence: string[] }[];
@@ -203,6 +205,7 @@ async function rulesReport(args: ParsedArgs, io: CliIo): Promise<RulesReport> {
 		repo,
 		ref,
 		layers: [...stack.layers].sort((a, b) => a.rank - b.rank || a.depth - b.depth).map((l) => ({ rank: l.rank, depth: l.depth, kind: l.kind, name: l.name, source: `${l.repo === repo ? "" : `${l.repo}:`}${l.path}` })),
+		skipped: stack.skipped,
 		winners: winnerPaths.map((p) => ({ path: p || ".", rules: effectiveRules(stack.rules, isDirLike(root, p) ? p : dirOf(p)).map(row) })),
 		conflicts: findings.filter((f) => f.kind === "conflict" && inScope(f)).map((f) => ({ topic: f.topic, explanation: f.explanation, evidence: ev(f) })),
 		warnings: findings
@@ -264,6 +267,7 @@ async function rulesCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 		lines.push(`Instruction stack for ${report.repo}${report.ref === WORKTREE ? " (working tree)" : `@${report.ref}`}: ${report.layers.length} layers`);
 		lines.push("  rank  layer                                   file");
 		for (const l of report.layers) lines.push(`  ${`${l.rank}${l.kind === "project" ? `.${l.depth}` : ""}`.padEnd(5)} ${`${l.kind} ${l.name}`.padEnd(39)} ${l.source}`);
+		for (const s of report.skipped ?? []) lines.push(`  skip  ${`${s.reason} of ${s.of}`.padEnd(39)} ${s.path}`);
 		for (const w of report.winners) {
 			lines.push("", `Winning rules for ${w.path}`);
 			if (!w.rules.length) lines.push("  (none)");
@@ -275,7 +279,7 @@ async function rulesCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 		for (const c of report.conflicts) lines.push(`  ✗ ${c.topic}: ${c.explanation}`);
 	}
 	if (report.catalog.violations.length) {
-		lines.push("", `Catalog violations (${report.catalog.violations.length}) — catalog ${report.catalog.version} (${report.catalog.source === "repo" ? "repo" : "org baseline"})`);
+		lines.push("", `Catalog violations (${report.catalog.violations.length}) — ${report.catalog.source === "none" ? "no catalog, secrets scan only" : `catalog ${report.catalog.version} (${report.catalog.source === "repo" ? "repo" : "org baseline"})`}`);
 		for (const v of report.catalog.violations) lines.push(`  ✗ ${v.title}: ${v.detail}`);
 	} else if (!args.quiet && report.catalog.source !== "none") {
 		lines.push("", `Catalog ${report.catalog.version} (${report.catalog.source === "repo" ? "repo" : "org baseline"}): no violations${report.catalog.behind ? " — repo catalog is behind the org's" : ""}`);

@@ -200,3 +200,32 @@ describe("instructionStackProvider", () => {
 		expect(drift.detail).toContain('says "tabs" but .prettierrc implies "2 spaces"');
 	});
 });
+
+describe("layer dedupe", () => {
+	const root = "- Use pnpm.\n- Indent with tabs.";
+	const run = (main: Record<string, string>) => instructionStackProvider().analyze({ repo: "app", ref: "main", files: new RepoContext(async () => memorySource({ main })) });
+
+	it("skips symlink blobs and copies of a covering layer, and reports them", async () => {
+		const [summary] = await run({
+			"AGENTS.md": root,
+			".claude/CLAUDE.md": "../AGENTS.md\n", // a symlink as git stores it
+			"CLAUDE.md": root, // same directory, same bytes
+			"docs/AGENTS.md": root, // under the root layer, same bytes (e.g. read through a symlink)
+			"web/AGENTS.md": "- Use npm here.",
+		});
+		expect(summary.title).toBe("Instruction stack: 2 layers, 3 rules");
+		expect((summary.metrics as any).layers.map((l: any) => l.path)).toEqual(["AGENTS.md", "web/AGENTS.md"]);
+		expect((summary.metrics as any).skippedLayers).toEqual([
+			{ path: ".claude/CLAUDE.md", reason: "symlink", of: "AGENTS.md" },
+			{ path: "CLAUDE.md", reason: "duplicate", of: "AGENTS.md" },
+			{ path: "docs/AGENTS.md", reason: "duplicate", of: "AGENTS.md" },
+		]);
+		expect(summary.detail).toContain("Skipped 3 file(s)");
+	});
+
+	it("keeps identical copies in sibling directories, since each governs its own files", async () => {
+		const [summary] = await run({ "AGENTS.md": "- Use pnpm.", "templates/a/AGENTS.md": root, "templates/b/AGENTS.md": root });
+		expect(summary.title).toBe("Instruction stack: 3 layers, 5 rules");
+		expect((summary.metrics as any).skippedLayers).toEqual([]);
+	});
+});

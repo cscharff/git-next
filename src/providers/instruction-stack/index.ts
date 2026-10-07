@@ -35,38 +35,84 @@ export async function collectLayers(files: RepoContext, repo: string, ref: strin
 	return { layers, errors };
 }
 
+export interface SkippedLayer {
+	path: string;
+	reason: "symlink" | "duplicate";
+	/** The layer it points to or repeats. */
+	of: string;
+}
+
 export interface LoadedStack {
 	layers: Layer[];
 	rules: Rule[];
 	facts: ConfigFact[];
 	/** Raw text per layer path, for callers that slice instruction files (e.g. the context provider). */
 	texts: Map<Layer, string>;
+	/** Project files not counted as layers: symlinks, and copies of a layer that already governs their directory. */
+	skipped: SkippedLayer[];
 	errors: string[];
+}
+
+/** A git symlink arrives as a blob holding its target, e.g. `../AGENTS.md`. */
+export const symlinkTarget = (text: string) => text.trim().match(/^(?!\/)[^\s]*\.md$/i)?.[0] ?? null;
+const normalizePath = (path: string) => {
+	const out: string[] = [];
+	for (const seg of path.split("/")) seg === ".." ? out.pop() : seg && seg !== "." && out.push(seg);
+	return out.join("/");
+};
+const covers = (dir: string, sub: string) => dir === "" || sub === dir || sub.startsWith(`${dir}/`);
+
+/**
+ * Drops project layers that add nothing: symlinks (`.claude/CLAUDE.md -> ../AGENTS.md`, read through the link or
+ * as a link blob) and byte-identical copies of a layer whose scope already covers theirs. Identical files in
+ * sibling directories stay: each governs its own files.
+ */
+export function dedupeLayers(layers: Layer[], texts: Map<Layer, string>): { kept: Layer[]; skipped: SkippedLayer[] } {
+	const skipped: SkippedLayer[] = [];
+	const seen: Layer[] = [];
+	// Shallowest first, so a copy is compared against the layer that covers it.
+	for (const l of [...layers].sort((a, b) => (a.origin === "project" ? a.depth : -1) - (b.origin === "project" ? b.depth : -1))) {
+		const text = texts.get(l);
+		if (l.origin === "project" && text != null) {
+			const target = symlinkTarget(text);
+			if (target) {
+				skipped.push({ path: l.path, reason: "symlink", of: normalizePath(`${l.scopeDir}/${target}`) });
+				continue;
+			}
+			const same = seen.find((k) => k.origin === "project" && texts.get(k) === text && covers(k.scopeDir, l.scopeDir));
+			if (same) {
+				skipped.push({ path: l.path, reason: "duplicate", of: same.path });
+				continue;
+			}
+		}
+		seen.push(l);
+	}
+	const order = (path: string) => layers.findIndex((l) => l.path === path);
+	return { kept: layers.filter((l) => seen.includes(l)), skipped: skipped.sort((a, b) => order(a.path) - order(b.path)) };
 }
 
 /** Collects layers, reads them (stack layers in other repos at HEAD), extracts rules and reads config facts. */
 export async function loadStack(files: RepoContext, repo: string, ref: string, extractor: RuleExtractor = keywordExtractor): Promise<LoadedStack> {
-	const { layers, errors } = await collectLayers(files, repo, ref);
+	const { layers: collected, errors } = await collectLayers(files, repo, ref);
 	const texts = new Map<Layer, string>();
-	// Read and extract every layer in parallel (model-backed extraction makes this matter); keep layer order.
-	const perLayer = await Promise.all(
-		layers.map(async (layer) => {
+	await Promise.all(
+		collected.map(async (layer) => {
 			const text = await files.readFile(layer.repo, layer.repo === repo ? ref : "HEAD", layer.path).catch((e) => {
 				errors.push(`${layer.repo}/${layer.path}: ${e}`);
 				return null;
 			});
-			if (text == null) {
-				if (layer.origin === "stack") errors.push(`${layer.repo}/${layer.path}: layer not found`);
-				return [];
-			}
-			texts.set(layer, text);
-			return extractor.extract(layer, text);
+			if (text != null) texts.set(layer, text);
+			else if (layer.origin === "stack") errors.push(`${layer.repo}/${layer.path}: layer not found`);
 		}),
 	);
+	const { kept: layers, skipped } = dedupeLayers(collected, texts);
+	for (const s of skipped) texts.delete(collected.find((l) => l.path === s.path && l.origin === "project")!);
+	// Extract every layer in parallel (model-backed extraction makes this matter); keep layer order.
+	const perLayer = await Promise.all(layers.map((layer) => (texts.has(layer) ? extractor.extract(layer, texts.get(layer)!) : [])));
 	const rules: Rule[] = perLayer.flat();
 	const factFiles = await files.find(repo, ref, isConfigFactFile);
 	const facts = (await Promise.all(factFiles.map(async (f) => configFacts(f.path, (await files.readFile(repo, ref, f.path)) ?? "")))).flat();
-	return { layers, rules, facts, texts, errors };
+	return { layers, rules, facts, texts, skipped, errors };
 }
 
 const SEVERITY: Record<Finding["kind"], Severity> = { overridden: "info", drift: "warn", conflict: "conflict" };
@@ -77,7 +123,7 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 		title: "Instruction stack",
 		needs: ["tree", "files"],
 		async analyze({ repo, ref, files }) {
-			const { layers, rules, facts, errors } = await loadStack(files, repo, ref, extractor);
+			const { layers, rules, facts, skipped, errors } = await loadStack(files, repo, ref, extractor);
 			const findings = resolve(rules, facts);
 
 			const insights: Insight[] = findings.map((f) => ({
@@ -94,7 +140,9 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 				severity: errors.length ? "warn" : "info",
 				scope: { repo, ref },
 				title: `Instruction stack: ${layers.length} layers, ${rules.length} rules`,
-				detail: errors.length ? `Errors: ${errors.join("; ")}` : `Extractor ${extractor.id}; ${findings.length} findings.`,
+				detail: errors.length
+					? `Errors: ${errors.join("; ")}`
+					: `Extractor ${extractor.id}; ${findings.length} findings.${skipped.length ? ` Skipped ${skipped.length} file(s) that repeat a layer: ${skipped.map((s) => `${s.path} (${s.reason} of ${s.of})`).join(", ")}.` : ""}`,
 				evidence: layers.map((l) => ({ repo: l.repo, path: l.path })),
 				metrics: {
 					extractor: extractor.id,
@@ -111,6 +159,7 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 							effectiveRules(rules, dir).map((r) => ({ topic: r.topic, value: r.value, strength: r.strength, layer: r.layer.name, kind: r.layer.kind, path: r.layer.path, line: r.line })),
 						]),
 					),
+					skippedLayers: skipped,
 					counts: Object.fromEntries([...Map.groupBy(findings, (f) => f.kind)].map(([k, fs]) => [k, fs.length])),
 				},
 			});
