@@ -4,37 +4,43 @@
   "repo": "agents-demo-full",
   "ref": "main",
   "base": "d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-  "ms": 12790,
+  "ms": 382698,
   "providers": [
     {
       "id": "resource-map",
       "ok": true,
-      "ms": 12790,
+      "ms": 11692,
       "count": 146
     },
     {
       "id": "instruction-stack",
       "ok": true,
-      "ms": 8843,
+      "ms": 382698,
       "count": 10
     },
     {
       "id": "cost",
       "ok": true,
-      "ms": 1,
+      "ms": 2,
       "count": 15
     },
     {
       "id": "owners",
       "ok": true,
-      "ms": 6562,
+      "ms": 6522,
       "count": 1
     },
     {
       "id": "catalog",
       "ok": true,
-      "ms": 7724,
+      "ms": 7740,
       "count": 1
+    },
+    {
+      "id": "environments",
+      "ok": true,
+      "ms": 6516,
+      "count": 0
     }
   ],
   "insights": [
@@ -47,7 +53,7 @@
         "path": "agent-think/test/wrangler.jsonc"
       },
       "title": "agent-think: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ThinkAgent, WorkspaceAgent, Sandbox, WarmPool, CommandCenter, AgentThinkPromptTestAgent; r2_buckets: R2_SKILLS; ai: AI",
+      "detail": "durable_objects: ThinkAgent, WorkspaceAgent, Sandbox, WarmPool, CommandCenter, AgentThinkPromptTestAgent; r2_buckets: R2_SKILLS; ai: AI; worker_loaders: LOADER; assets: ASSETS",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -101,6 +107,19 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "ASSETS",
+              "resource": "client-fixture"
+            }
           ]
         },
         "diff": {
@@ -146,6 +165,15 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "ASSETS",
+              "resource": "client-fixture"
             }
           ]
         },
@@ -160,8 +188,8 @@
         "ref": "main",
         "path": "agent-think/tests-e2e/wrangler.jsonc"
       },
-      "title": "agent-think-e2e: +8 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ThinkAgent, WorkspaceAgent, Sandbox, WarmPool, CommandCenter; r2_buckets: R2_SKILLS; ai: AI; containers: Sandbox",
+      "title": "agent-think-e2e: +10 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: ThinkAgent, WorkspaceAgent, Sandbox, WarmPool, CommandCenter; r2_buckets: R2_SKILLS; ai: AI; containers: Sandbox; worker_loaders: LOADER; assets: ASSETS",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -217,6 +245,19 @@
               "name": "Sandbox",
               "resource": "../Dockerfile"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "ASSETS",
+              "resource": "../dist/client"
+            }
           ]
         },
         "diff": {
@@ -259,6 +300,15 @@
               "type": "containers",
               "name": "Sandbox",
               "resource": "../Dockerfile"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "ASSETS",
+              "resource": "../dist/client"
             }
           ],
           "removed": [],
@@ -276,7 +326,7 @@
         "path": "agent-think/wrangler.jsonc"
       },
       "title": "agent-think: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ThinkAgent, WorkspaceAgent, Sandbox, WarmPool, CommandCenter; r2_buckets: R2_SKILLS; ai: AI; services: GITHUB_AUTH; containers: Sandbox",
+      "detail": "durable_objects: ThinkAgent, WorkspaceAgent, Sandbox, WarmPool, CommandCenter; r2_buckets: R2_SKILLS; ai: AI; services: GITHUB_AUTH; containers: Sandbox; worker_loaders: LOADER; assets: ASSETS",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -339,6 +389,19 @@
               "name": "Sandbox",
               "resource": "./Dockerfile"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "ASSETS",
+              "resource": "dist/client"
+            }
           ]
         },
         "diff": {
@@ -389,6 +452,15 @@
               "type": "containers",
               "name": "Sandbox",
               "resource": "./Dockerfile"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "ASSETS",
+              "resource": "dist/client"
             }
           ]
         },
@@ -404,7 +476,7 @@
         "path": "examples/a2a/wrangler.jsonc"
       },
       "title": "a2a-agent-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: MyA2A; ai: AI",
+      "detail": "durable_objects: MyA2A; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -426,6 +498,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -440,6 +518,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -455,7 +537,7 @@
         "path": "examples/agent-skills/wrangler.jsonc"
       },
       "title": "agent-skills-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: SkillsAgent; ai: AI",
+      "detail": "durable_objects: SkillsAgent; ai: AI; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -477,6 +559,18 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -491,6 +585,14 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -567,7 +669,7 @@
         "path": "examples/agents-as-tools/wrangler.jsonc"
       },
       "title": "agents-as-tools-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: Assistant; ai: AI",
+      "detail": "durable_objects: Assistant; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -589,6 +691,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -603,6 +711,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -618,7 +730,7 @@
         "path": "examples/ai-chat/wrangler.jsonc"
       },
       "title": "ai-chat-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ChatAgent; ai: AI; browser: BROWSER",
+      "detail": "durable_objects: ChatAgent; ai: AI; browser: BROWSER; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -646,6 +758,18 @@
               "type": "browser",
               "name": "BROWSER"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -664,6 +788,14 @@
             {
               "type": "browser",
               "name": "BROWSER"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -679,7 +811,7 @@
         "path": "examples/assistant/src/tests/wrangler.jsonc"
       },
       "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: AssistantDirectory, MyAssistant",
+      "detail": "durable_objects: AssistantDirectory, MyAssistant; worker_loaders: LOADER",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -700,6 +832,12 @@
               "name": "MyAssistant",
               "resource": "MyAssistant"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
           ]
         },
         "diff": {
@@ -715,6 +853,10 @@
               "type": "durable_objects",
               "name": "MyAssistant",
               "resource": "MyAssistant"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
             }
           ]
         },
@@ -730,7 +872,7 @@
         "path": "examples/assistant/wrangler.jsonc"
       },
       "title": "think-assistant: +1 \u22121 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: AssistantDirectory; ai: AI; browser: BROWSER",
+      "detail": "durable_objects: AssistantDirectory; ai: AI; browser: BROWSER; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -758,6 +900,18 @@
               "type": "browser",
               "name": "BROWSER"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -783,6 +937,14 @@
             {
               "type": "browser",
               "name": "BROWSER"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -798,7 +960,7 @@
         "path": "examples/auth-agent/wrangler.jsonc"
       },
       "title": "auth-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ChatAgent; ai: AI",
+      "detail": "durable_objects: ChatAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -820,6 +982,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -834,6 +1002,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -849,7 +1021,7 @@
         "path": "examples/browser-live-view/wrangler.jsonc"
       },
       "title": "browser-live-view: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: LiveViewAgent; ai: AI; browser: BROWSER",
+      "detail": "durable_objects: LiveViewAgent; ai: AI; browser: BROWSER; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -877,6 +1049,18 @@
               "type": "browser",
               "name": "BROWSER"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -895,6 +1079,14 @@
             {
               "type": "browser",
               "name": "BROWSER"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -910,7 +1102,7 @@
         "path": "examples/browser-quick-actions/wrangler.jsonc"
       },
       "title": "browser-quick-actions: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: QuickActionsAgent; ai: AI; browser: BROWSER",
+      "detail": "durable_objects: QuickActionsAgent; ai: AI; browser: BROWSER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -938,6 +1130,12 @@
               "type": "browser",
               "name": "BROWSER"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -956,6 +1154,10 @@
             {
               "type": "browser",
               "name": "BROWSER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -1052,7 +1254,7 @@
         "path": "examples/chat-sdk-messenger/wrangler.jsonc"
       },
       "title": "chat-sdk-messenger: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ChatIngressAgent; ai: AI",
+      "detail": "durable_objects: ChatIngressAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1074,6 +1276,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -1088,6 +1296,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -1103,7 +1315,7 @@
         "path": "examples/codemode-browser/wrangler.jsonc"
       },
       "title": "codemode-browser-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: BrowserCodemode; ai: AI",
+      "detail": "durable_objects: BrowserCodemode; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1125,6 +1337,13 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "public"
+            }
           ]
         },
         "diff": {
@@ -1139,6 +1358,11 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "public"
             }
           ]
         },
@@ -1154,7 +1378,7 @@
         "path": "examples/codemode-connectors/wrangler.jsonc"
       },
       "title": "codemode-connectors-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: GitHubLikeMCP, Chat; ai: AI; browser: BROWSER",
+      "detail": "durable_objects: GitHubLikeMCP, Chat; ai: AI; browser: BROWSER; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1187,6 +1411,18 @@
               "type": "browser",
               "name": "BROWSER"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -1210,6 +1446,14 @@
             {
               "type": "browser",
               "name": "BROWSER"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -1225,7 +1469,7 @@
         "path": "examples/codemode-mcp-openapi/wrangler.jsonc"
       },
       "title": "codemode-mcp-openapi: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "No bindings declared.",
+      "detail": "worker_loaders: LOADER",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1234,11 +1478,23 @@
       ],
       "metrics": {
         "worker": "codemode-mcp-openapi",
-        "bindings": {},
+        "bindings": {
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
+        },
         "diff": {
           "added": [],
           "removed": [],
-          "unchanged": []
+          "unchanged": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
         },
         "newConfig": false
       }
@@ -1252,7 +1508,7 @@
         "path": "examples/codemode-mcp/wrangler.jsonc"
       },
       "title": "codemode-mcp: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "No bindings declared.",
+      "detail": "worker_loaders: LOADER",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1261,11 +1517,23 @@
       ],
       "metrics": {
         "worker": "codemode-mcp",
-        "bindings": {},
+        "bindings": {
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
+        },
         "diff": {
           "added": [],
           "removed": [],
-          "unchanged": []
+          "unchanged": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
         },
         "newConfig": false
       }
@@ -1279,7 +1547,7 @@
         "path": "examples/codemode/wrangler.jsonc"
       },
       "title": "codemode-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: Codemode; ai: AI",
+      "detail": "durable_objects: Codemode; ai: AI; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1301,6 +1569,19 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "public"
+            }
           ]
         },
         "diff": {
@@ -1315,6 +1596,15 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "public"
             }
           ]
         },
@@ -1330,7 +1620,7 @@
         "path": "examples/context-overflow-recovery/wrangler.jsonc"
       },
       "title": "context-overflow-recovery-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ContextOverflowAgent; ai: AI",
+      "detail": "durable_objects: ContextOverflowAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1352,6 +1642,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -1366,6 +1662,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -1422,7 +1722,7 @@
         "path": "examples/deploy-churn/wrangler.jsonc"
       },
       "title": "agents-deploy-churn: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: DeployChurnAgent, DeployChurnSubAgentChild; ai: AI",
+      "detail": "durable_objects: DeployChurnAgent, DeployChurnSubAgentChild; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1449,6 +1749,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -1468,6 +1774,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -1483,7 +1793,7 @@
         "path": "examples/dynamic-tools/wrangler.jsonc"
       },
       "title": "dynamic-tools-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: DynamicToolsAgent; ai: AI",
+      "detail": "durable_objects: DynamicToolsAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1505,6 +1815,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -1519,6 +1835,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -1534,7 +1854,7 @@
         "path": "examples/dynamic-workers-playground/wrangler.jsonc"
       },
       "title": "dynamic-workers-playground: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: LogSession",
+      "detail": "durable_objects: LogSession; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1550,6 +1870,18 @@
               "name": "LogSession",
               "resource": "LogSession"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -1560,6 +1892,14 @@
               "type": "durable_objects",
               "name": "LogSession",
               "resource": "LogSession"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -1575,7 +1915,7 @@
         "path": "examples/dynamic-workers/wrangler.jsonc"
       },
       "title": "dynamic-workers-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "No bindings declared.",
+      "detail": "worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1584,11 +1924,33 @@
       ],
       "metrics": {
         "worker": "dynamic-workers-example",
-        "bindings": {},
+        "bindings": {
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
+          ]
+        },
         "diff": {
           "added": [],
           "removed": [],
-          "unchanged": []
+          "unchanged": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
+          ]
         },
         "newConfig": false
       }
@@ -1602,7 +1964,7 @@
         "path": "examples/elevenlabs-starter/wrangler.jsonc"
       },
       "title": "elevenlabs-starter: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: VoiceChatAgent, SoundscapeAgent, CharacterAgent, MusicAgent; r2_buckets: AUDIO_BUCKET; ai: AI",
+      "detail": "durable_objects: VoiceChatAgent, SoundscapeAgent, CharacterAgent, MusicAgent; r2_buckets: AUDIO_BUCKET; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1646,6 +2008,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -1680,6 +2048,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -1695,7 +2067,7 @@
         "path": "examples/email-agent/wrangler.jsonc"
       },
       "title": "agents-email-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: EmailServiceAgent",
+      "detail": "durable_objects: EmailServiceAgent; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1711,6 +2083,12 @@
               "name": "EmailServiceAgent",
               "resource": "EmailServiceAgent"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -1721,6 +2099,10 @@
               "type": "durable_objects",
               "name": "EmailServiceAgent",
               "resource": "EmailServiceAgent"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -1736,7 +2118,7 @@
         "path": "examples/github-webhook/wrangler.jsonc"
       },
       "title": "github-webhook: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: RepoAgent",
+      "detail": "durable_objects: RepoAgent; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1752,6 +2134,13 @@
               "name": "RepoAgent",
               "resource": "RepoAgent"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "public"
+            }
           ]
         },
         "diff": {
@@ -1762,6 +2151,11 @@
               "type": "durable_objects",
               "name": "RepoAgent",
               "resource": "RepoAgent"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "public"
             }
           ]
         },
@@ -1777,7 +2171,7 @@
         "path": "examples/mcp-client/wrangler.jsonc"
       },
       "title": "mcp-client: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: MyAgent",
+      "detail": "durable_objects: MyAgent; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1793,6 +2187,12 @@
               "name": "MyAgent",
               "resource": "MyAgent"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -1803,6 +2203,10 @@
               "type": "durable_objects",
               "name": "MyAgent",
               "resource": "MyAgent"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -1892,7 +2296,7 @@
         "path": "examples/mcp-rpc-transport/wrangler.jsonc"
       },
       "title": "mcp-rpc-transport-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: MyMCP, Chat; ai: AI",
+      "detail": "durable_objects: MyMCP, Chat; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1919,6 +2323,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -1938,6 +2348,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -1980,7 +2394,7 @@
         "path": "examples/mcp-worker-authenticated/wrangler.jsonc"
       },
       "title": "mcp-worker-authenticated: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "kv_namespaces: OAUTH_KV",
+      "detail": "kv_namespaces: OAUTH_KV; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -1996,6 +2410,12 @@
               "name": "OAUTH_KV",
               "resource": "your-kv-namespace-id"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -2006,6 +2426,10 @@
               "type": "kv_namespaces",
               "name": "OAUTH_KV",
               "resource": "your-kv-namespace-id"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -2021,7 +2445,7 @@
         "path": "examples/mcp-worker/wrangler.jsonc"
       },
       "title": "mcp-worker: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "No bindings declared.",
+      "detail": "assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2030,11 +2454,23 @@
       ],
       "metrics": {
         "worker": "mcp-worker",
-        "bindings": {},
+        "bindings": {
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
+          ]
+        },
         "diff": {
           "added": [],
           "removed": [],
-          "unchanged": []
+          "unchanged": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
+          ]
         },
         "newConfig": false
       }
@@ -2048,7 +2484,7 @@
         "path": "examples/mcp/wrangler.jsonc"
       },
       "title": "mcp-agent-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: MyMCP",
+      "detail": "durable_objects: MyMCP; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2064,6 +2500,12 @@
               "name": "MyMCP",
               "resource": "MyMCP"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -2074,6 +2516,10 @@
               "type": "durable_objects",
               "name": "MyMCP",
               "resource": "MyMCP"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -2089,7 +2535,7 @@
         "path": "examples/multi-ai-chat/wrangler.jsonc"
       },
       "title": "multi-ai-chat-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: Inbox; ai: AI",
+      "detail": "durable_objects: Inbox; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2111,6 +2557,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -2125,6 +2577,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -2139,8 +2595,8 @@
         "ref": "main",
         "path": "examples/next/channels/wrangler.jsonc"
       },
-      "title": "channels: +3 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: AiSdkAgent, PiAgent; ai: AI",
+      "title": "channels: +4 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: AiSdkAgent, PiAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2167,6 +2623,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -2184,6 +2646,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "removed": [],
@@ -2200,8 +2666,8 @@
         "ref": "main",
         "path": "examples/next/dynamic-agents/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: Supervisor",
+      "title": "(unnamed): +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: Supervisor; worker_loaders: LOADER",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2217,6 +2683,12 @@
               "name": "Supervisor",
               "resource": "Supervisor"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
           ]
         },
         "diff": {
@@ -2225,6 +2697,10 @@
               "type": "durable_objects",
               "name": "Supervisor",
               "resource": "Supervisor"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
             }
           ],
           "removed": [],
@@ -2241,8 +2717,8 @@
         "ref": "main",
         "path": "examples/next/dynamic-agents/wrangler.jsonc"
       },
-      "title": "next-dynamic-agents: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: Supervisor",
+      "title": "next-dynamic-agents: +3 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: Supervisor; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2258,6 +2734,18 @@
               "name": "Supervisor",
               "resource": "Supervisor"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -2266,6 +2754,14 @@
               "type": "durable_objects",
               "name": "Supervisor",
               "resource": "Supervisor"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "removed": [],
@@ -2335,8 +2831,8 @@
         "ref": "main",
         "path": "examples/next/harnesses/codex/wrangler.jsonc"
       },
-      "title": "codex-harness-example: +3 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: Coder; r2_buckets: WORKSPACE; ai: AI",
+      "title": "codex-harness-example: +4 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: Coder; r2_buckets: WORKSPACE; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2365,6 +2861,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -2382,6 +2884,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "removed": [],
@@ -2467,8 +2973,8 @@
         "ref": "main",
         "path": "examples/next/harnesses/opencode/wrangler.jsonc"
       },
-      "title": "opencode-harness-example: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: OpenCodeAgent; ai: AI",
+      "title": "opencode-harness-example: +3 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: OpenCodeAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2490,6 +2996,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -2502,6 +3014,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "removed": [],
@@ -2559,8 +3075,8 @@
         "ref": "main",
         "path": "examples/next/harnesses/pi/wrangler.jsonc"
       },
-      "title": "pi-harness-example: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: PiAgent; ai: AI",
+      "title": "pi-harness-example: +4 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: PiAgent; ai: AI; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2582,6 +3098,18 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -2594,6 +3122,14 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "removed": [],
@@ -2610,8 +3146,8 @@
         "ref": "main",
         "path": "examples/next/harnesses/self-modifying/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: SELF_MODIFYING_HARNESS_TEST",
+      "title": "(unnamed): +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: SELF_MODIFYING_HARNESS_TEST; worker_loaders: LOADER",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2627,6 +3163,12 @@
               "name": "SELF_MODIFYING_HARNESS_TEST",
               "resource": "TestSelfModifyingHarnessObject"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
           ]
         },
         "diff": {
@@ -2635,6 +3177,10 @@
               "type": "durable_objects",
               "name": "SELF_MODIFYING_HARNESS_TEST",
               "resource": "TestSelfModifyingHarnessObject"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
             }
           ],
           "removed": [],
@@ -2651,8 +3197,8 @@
         "ref": "main",
         "path": "examples/next/harnesses/self-modifying/wrangler.jsonc"
       },
-      "title": "self-modifying-harness-example: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: SELF_MODIFYING_HARNESS; ai: AI",
+      "title": "self-modifying-harness-example: +4 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: SELF_MODIFYING_HARNESS; ai: AI; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2674,6 +3220,18 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -2686,6 +3244,14 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "removed": [],
@@ -2702,8 +3268,8 @@
         "ref": "main",
         "path": "examples/next/harnesses/think/wrangler.jsonc"
       },
-      "title": "think-harness-example: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ThinkAgent; ai: AI",
+      "title": "think-harness-example: +3 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: ThinkAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2725,6 +3291,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -2737,6 +3309,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "removed": [],
@@ -2794,8 +3370,8 @@
         "ref": "main",
         "path": "examples/next/mcp-client/wrangler.jsonc"
       },
-      "title": "next-mcp-client-capability: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: McpClientObject",
+      "title": "next-mcp-client-capability: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: McpClientObject; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2811,6 +3387,12 @@
               "name": "McpClientObject",
               "resource": "McpClientObject"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -2819,6 +3401,10 @@
               "type": "durable_objects",
               "name": "McpClientObject",
               "resource": "McpClientObject"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "removed": [],
@@ -2966,8 +3552,8 @@
         "ref": "main",
         "path": "examples/next/routing/wrangler.jsonc"
       },
-      "title": "next-routing: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: UserHub, ChatAgent",
+      "title": "next-routing: +3 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: UserHub, ChatAgent; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -2988,6 +3574,12 @@
               "name": "ChatAgent",
               "resource": "ChatAgent"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -3001,6 +3593,10 @@
               "type": "durable_objects",
               "name": "ChatAgent",
               "resource": "ChatAgent"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "removed": [],
@@ -3222,8 +3818,8 @@
         "ref": "main",
         "path": "examples/next/websockets/wrangler.jsonc"
       },
-      "title": "next-websockets: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: RoomObject",
+      "title": "next-websockets: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: RoomObject; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -3239,6 +3835,12 @@
               "name": "RoomObject",
               "resource": "RoomObject"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -3247,6 +3849,10 @@
               "type": "durable_objects",
               "name": "RoomObject",
               "resource": "RoomObject"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "removed": [],
@@ -3264,7 +3870,7 @@
         "path": "examples/playground/wrangler.jsonc"
       },
       "title": "agents-playground: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: StateAgent, CallableAgent, StreamingAgent, ScheduleAgent, SqlAgent, ConnectionsAgent, RoutingAgent, ReadonlyAgent, RetryAgent, DurableExecutionAgent, ChatAgent, ToolsAgent, CodemodeAgent, SupervisorAgent, ChildAgent, LobbyAgent, RoomAgent, ManagerAgent, FanoutWorkerAgent, PipelineOrchestratorAgent, ValidatorStageAgent, TransformStageAgent, EnrichStageAgent, PlaygroundMcpServer, McpClientAgent, BasicWorkflowAgent, ApprovalAgent, ReceiveEmailAgent, SecureEmailAgent, PlaygroundVoiceAgent; workflows: ProcessingWorkflow, ApprovalWorkflow; ai: AI",
+      "detail": "durable_objects: StateAgent, CallableAgent, StreamingAgent, ScheduleAgent, SqlAgent, ConnectionsAgent, RoutingAgent, ReadonlyAgent, RetryAgent, DurableExecutionAgent, ChatAgent, ToolsAgent, CodemodeAgent, SupervisorAgent, ChildAgent, LobbyAgent, RoomAgent, ManagerAgent, FanoutWorkerAgent, PipelineOrchestratorAgent, ValidatorStageAgent, TransformStageAgent, EnrichStageAgent, PlaygroundMcpServer, McpClientAgent, BasicWorkflowAgent, ApprovalAgent, ReceiveEmailAgent, SecureEmailAgent, PlaygroundVoiceAgent; workflows: ProcessingWorkflow, ApprovalWorkflow; ai: AI; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -3443,6 +4049,19 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "public"
+            }
           ]
         },
         "diff": {
@@ -3612,6 +4231,15 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "public"
             }
           ]
         },
@@ -3678,7 +4306,7 @@
         "path": "examples/push-notifications/wrangler.jsonc"
       },
       "title": "push-notifications: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ReminderAgent",
+      "detail": "durable_objects: ReminderAgent; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -3694,6 +4322,12 @@
               "name": "ReminderAgent",
               "resource": "ReminderAgent"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -3704,6 +4338,10 @@
               "type": "durable_objects",
               "name": "ReminderAgent",
               "resource": "ReminderAgent"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -3719,7 +4357,7 @@
         "path": "examples/resumable-stream-chat/wrangler.jsonc"
       },
       "title": "resumable-stream-chat: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ResumableStreamingChat; ai: AI",
+      "detail": "durable_objects: ResumableStreamingChat; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -3741,6 +4379,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -3755,6 +4399,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -3770,7 +4418,7 @@
         "path": "examples/sandbox-coding-agent/wrangler.jsonc"
       },
       "title": "sandbox-coding-agent-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: CodingOrchestrator, Sandbox; ai: AI; containers: Sandbox",
+      "detail": "durable_objects: CodingOrchestrator, Sandbox; ai: AI; containers: Sandbox; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -3804,6 +4452,12 @@
               "name": "Sandbox",
               "resource": "./Dockerfile"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -3828,6 +4482,10 @@
               "type": "containers",
               "name": "Sandbox",
               "resource": "./Dockerfile"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -3843,7 +4501,7 @@
         "path": "examples/structured-input/wrangler.jsonc"
       },
       "title": "structured-input-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: StructuredInputAgent; ai: AI",
+      "detail": "durable_objects: StructuredInputAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -3865,6 +4523,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -3879,6 +4543,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -3894,7 +4562,7 @@
         "path": "examples/telnyx-voice-agent/wrangler.jsonc"
       },
       "title": "telnyx-voice-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: MyVoiceAgent; ai: AI",
+      "detail": "durable_objects: MyVoiceAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -3916,6 +4584,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -3930,6 +4604,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -3945,7 +4623,7 @@
         "path": "examples/think-chat-sdk/wrangler.jsonc"
       },
       "title": "think-chat-sdk-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: SupportAgent; ai: AI",
+      "detail": "durable_objects: SupportAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -3967,6 +4645,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -3981,6 +4665,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -3996,7 +4684,7 @@
         "path": "examples/think-submissions/wrangler.jsonc"
       },
       "title": "think-submissions-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: TaskAgent; ai: AI",
+      "detail": "durable_objects: TaskAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4018,6 +4706,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4032,6 +4726,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4110,7 +4808,7 @@
         "path": "examples/tictactoe/wrangler.jsonc"
       },
       "title": "tictactoe: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: TicTacToe",
+      "detail": "durable_objects: TicTacToe; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4126,6 +4824,12 @@
               "name": "TicTacToe",
               "resource": "TicTacToe"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4136,6 +4840,10 @@
               "type": "durable_objects",
               "name": "TicTacToe",
               "resource": "TicTacToe"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4151,7 +4859,7 @@
         "path": "examples/voice-agent/wrangler.jsonc"
       },
       "title": "voice-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: MyVoiceAgent; ai: AI",
+      "detail": "durable_objects: MyVoiceAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4173,6 +4881,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4187,6 +4901,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4202,7 +4920,7 @@
         "path": "examples/voice-input/wrangler.jsonc"
       },
       "title": "voice-input-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: VoiceInputAgent; ai: AI",
+      "detail": "durable_objects: VoiceInputAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4224,6 +4942,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4238,6 +4962,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4252,8 +4980,8 @@
         "ref": "main",
         "path": "examples/vue-chat/wrangler.jsonc"
       },
-      "title": "vue-chat-example: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ChatAgent; ai: AI",
+      "title": "vue-chat-example: +3 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: ChatAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4275,6 +5003,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4287,6 +5021,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "removed": [],
@@ -4303,8 +5041,8 @@
         "ref": "main",
         "path": "examples/web-research/wrangler.jsonc"
       },
-      "title": "web-research-example: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ResearchAgent; ai: AI",
+      "title": "web-research-example: +3 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: ResearchAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4326,6 +5064,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4338,6 +5082,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "removed": [],
@@ -4348,14 +5096,14 @@
     },
     {
       "provider": "resource-map",
-      "severity": "info",
+      "severity": "warn",
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
         "path": "examples/webmcp-react/wrangler.jsonc"
       },
-      "title": "webmcp-starter: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "No bindings declared.",
+      "title": "webmcp-starter: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4364,9 +5112,21 @@
       ],
       "metrics": {
         "worker": "webmcp-starter",
-        "bindings": {},
+        "bindings": {
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
+          ]
+        },
         "diff": {
-          "added": [],
+          "added": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
+          ],
           "removed": [],
           "unchanged": []
         },
@@ -4382,7 +5142,7 @@
         "path": "examples/webmcp/wrangler.jsonc"
       },
       "title": "webmcp-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: MyMCP",
+      "detail": "durable_objects: MyMCP; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4398,6 +5158,12 @@
               "name": "MyMCP",
               "resource": "MyMCP"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4408,6 +5174,10 @@
               "type": "durable_objects",
               "name": "MyMCP",
               "resource": "MyMCP"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4423,7 +5193,7 @@
         "path": "examples/worker-bundler-playground/wrangler.jsonc"
       },
       "title": "worker-bundler-playground: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: WorkerPlayground; ai: AI",
+      "detail": "durable_objects: WorkerPlayground; ai: AI; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4445,6 +5215,18 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4459,6 +5241,14 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4474,7 +5264,7 @@
         "path": "examples/workflows/wrangler.jsonc"
       },
       "title": "workflows-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: TaskAgent; workflows: TASK_WORKFLOW",
+      "detail": "durable_objects: TaskAgent; workflows: TASK_WORKFLOW; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4497,6 +5287,12 @@
               "name": "TASK_WORKFLOW",
               "resource": "TaskProcessingWorkflow"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4512,6 +5308,10 @@
               "type": "workflows",
               "name": "TASK_WORKFLOW",
               "resource": "TaskProcessingWorkflow"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4527,7 +5327,7 @@
         "path": "examples/workspace-chat/wrangler.jsonc"
       },
       "title": "workspace-chat: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: WorkspaceChatAgent; ai: AI",
+      "detail": "durable_objects: WorkspaceChatAgent; ai: AI; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4549,6 +5349,18 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4563,6 +5375,14 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4578,7 +5398,7 @@
         "path": "examples/x402-mcp/wrangler.jsonc"
       },
       "title": "x402-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: PayMCP, PAY_AGENT",
+      "detail": "durable_objects: PayMCP, PAY_AGENT; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4599,6 +5419,12 @@
               "name": "PAY_AGENT",
               "resource": "PayAgent"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4614,6 +5440,10 @@
               "type": "durable_objects",
               "name": "PAY_AGENT",
               "resource": "PayAgent"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4629,7 +5459,7 @@
         "path": "examples/x402/wrangler.jsonc"
       },
       "title": "x402-http-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: PAY_AGENT",
+      "detail": "durable_objects: PAY_AGENT; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4645,6 +5475,12 @@
               "name": "PAY_AGENT",
               "resource": "PayAgent"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4655,6 +5491,10 @@
               "type": "durable_objects",
               "name": "PAY_AGENT",
               "resource": "PayAgent"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4711,7 +5551,7 @@
         "path": "experimental/forever-chat/wrangler.jsonc"
       },
       "title": "forever-chat: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ForeverChatAgent; ai: AI; services: INFERENCE_BUFFER",
+      "detail": "durable_objects: ForeverChatAgent; ai: AI; services: INFERENCE_BUFFER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4740,6 +5580,12 @@
               "name": "INFERENCE_BUFFER",
               "resource": "inference-buffer"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4759,6 +5605,10 @@
               "type": "services",
               "name": "INFERENCE_BUFFER",
               "resource": "inference-buffer"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4774,7 +5624,7 @@
         "path": "experimental/forever-fibers/wrangler.jsonc"
       },
       "title": "forever-fibers: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ResearchAgent",
+      "detail": "durable_objects: ResearchAgent; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4790,6 +5640,12 @@
               "name": "ResearchAgent",
               "resource": "ResearchAgent"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4800,6 +5656,10 @@
               "type": "durable_objects",
               "name": "ResearchAgent",
               "resource": "ResearchAgent"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4815,7 +5675,7 @@
         "path": "experimental/gadgets-chat/wrangler.jsonc"
       },
       "title": "gadgets-chat: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: OverseerAgent; ai: AI",
+      "detail": "durable_objects: OverseerAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4837,6 +5697,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4851,6 +5717,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4866,7 +5736,7 @@
         "path": "experimental/gadgets-gatekeeper/wrangler.jsonc"
       },
       "title": "gadgets-gatekeeper: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: GatekeeperAgent; ai: AI",
+      "detail": "durable_objects: GatekeeperAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4888,6 +5758,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4902,6 +5778,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4917,7 +5797,7 @@
         "path": "experimental/gadgets-sandbox/wrangler.jsonc"
       },
       "title": "gadgets-sandbox: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: SandboxAgent; ai: AI",
+      "detail": "durable_objects: SandboxAgent; ai: AI; worker_loaders: LOADER; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4939,6 +5819,18 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -4953,6 +5845,14 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -4968,7 +5868,7 @@
         "path": "experimental/gadgets-subagents/wrangler.jsonc"
       },
       "title": "gadgets-subagents: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: CoordinatorAgent; ai: AI",
+      "detail": "durable_objects: CoordinatorAgent; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -4990,6 +5890,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)"
+            }
           ]
         },
         "diff": {
@@ -5004,6 +5910,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ]
         },
@@ -5303,7 +6213,7 @@
         "path": "guides/anthropic-patterns/wrangler.json"
       },
       "title": "anthropic-agent-patterns: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: sequential, routing, parallel, orchestrator, evaluator",
+      "detail": "durable_objects: sequential, routing, parallel, orchestrator, evaluator; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -5339,6 +6249,13 @@
               "name": "evaluator",
               "resource": "Evaluator"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "public"
+            }
           ]
         },
         "diff": {
@@ -5369,6 +6286,11 @@
               "type": "durable_objects",
               "name": "evaluator",
               "resource": "Evaluator"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "public"
             }
           ]
         },
@@ -5384,7 +6306,7 @@
         "path": "guides/human-in-the-loop/wrangler.toml"
       },
       "title": "human-in-the-loop: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: HumanInTheLoop; ai: AI",
+      "detail": "durable_objects: HumanInTheLoop; ai: AI; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -5406,6 +6328,13 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "public"
+            }
           ]
         },
         "diff": {
@@ -5420,6 +6349,11 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "public"
             }
           ]
         },
@@ -5527,7 +6461,7 @@
         "path": "openai-sdk/chess-app/wrangler.jsonc"
       },
       "title": "chess-app: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: CHESS",
+      "detail": "durable_objects: CHESS; assets: ASSETS",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -5543,6 +6477,13 @@
               "name": "CHESS",
               "resource": "ChessGame"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "ASSETS",
+              "resource": "dist"
+            }
           ]
         },
         "diff": {
@@ -5553,6 +6494,11 @@
               "type": "durable_objects",
               "name": "CHESS",
               "resource": "ChessGame"
+            },
+            {
+              "type": "assets",
+              "name": "ASSETS",
+              "resource": "dist"
             }
           ]
         },
@@ -5834,7 +6780,7 @@
         "path": "packages/agents/src/browser-tests/wrangler.jsonc"
       },
       "title": "browser-e2e-test: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: BrowserTestAgent; browser: BROWSER",
+      "detail": "durable_objects: BrowserTestAgent; browser: BROWSER; worker_loaders: LOADER",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -5856,6 +6802,12 @@
               "type": "browser",
               "name": "BROWSER"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
           ]
         },
         "diff": {
@@ -5870,6 +6822,10 @@
             {
               "type": "browser",
               "name": "BROWSER"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
             }
           ]
         },
@@ -6291,7 +7247,7 @@
         "path": "packages/agents/src/tests/wrangler.jsonc"
       },
       "title": "(unnamed): +33 \u22123 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: CapabilityHarnessObject, PlainLifecycleObject, StatefulPlainObject, RetryableStartObject, ConcurrentStartObject, ScheduledLifecycleObject, SchedulerHarnessObject, SchedulerStartupWarnObject, QueueHarnessObject, BrowserHarnessObject, TestBrowserAgent, TaskHarnessObject, TaskSchedulerCoexistObject, StreamHarnessObject, ChannelsHarnessObject, AiSdkHarnessObject, CutoverHarnessObject, SqliteStrategiesBench, TaskStreamComposeObject, StreamBenchObject, SessionHarnessObject, SessionSearchHarnessObject, SessionBenchObject, PlainMcpClientObject, MCP_OBJECT, TestCodemodeMcpAgent, EmailAgent, CaseSensitiveAgent, UserNotificationAgent, TAG_AGENT, TestOAuthAgent, TestCustomOAuthAgent, TEST_MCP_JURISDICTION, TestAlarmInitAgent, TestDestroyScheduleAgent, TestReadonlyAgent, TestProtocolMessagesAgent, TestScheduleAgent, TestTaskAgent, TestOnStartScheduleWarnAgent, TestOnStartScheduleNoWarnAgent, TestOnStartScheduleExplicitFalseAgent, TestWorkflowAgent, TestAgentToolReplayAgent, TestAgentToolStubChild, TestAddMcpServerAgent, TestRpcMcpClientAgent, TestHttpMcpDedupAgent, TestStateAgent, TestStateAgentNoInitial, TestThrowingStateAgent, TestPersistedStateAgent, TestBothHooksAgent, TestNoIdentityAgent, TestCallableAgent, TestChildAgent, TestQueueAgent, TestChatSdkStateHostAgent, ChatSdkStateAgent, TestRetryAgent, TestRetryDefaultsAgent, TestRunFiberAgent, TestKeepAliveAgent, TestSessionAgent, TestWaitConnectionsAgent, TestNativeRpcAgent, RoutingOwnerAgent, RoutedChatAgent, TestSubAgentParent, CUSTOM_BOUND_SUB_AGENT_PARENT, CodemodeRuntime, CounterSubAgent, OuterSubAgent, DenyingSubAgent, InnerSubAgent, LeafSubAgent, CallbackSubAgent, BroadcastSubAgent, BodyProbeSubAgent, BodyProbeRootAgent, SlowReplySubAgent, TestMigrationAgent, TestConnectionUriAgent, SpikeSubParent, SpikeSubChild, HookingSubAgentParent, Sub, SUB, Sub_, ReservedClassParent, TestUnboundParentAgent, TestMinifiedNameParentAgent; workflows: TEST_WORKFLOW, SIMPLE_WORKFLOW, FACET_ORIGIN_WORKFLOW, FACET_APPROVAL_WORKFLOW, FACET_EVENT_STATE_WORKFLOW, THROW_IN_RUN_WORKFLOW, REPORT_ERROR_THEN_THROW_WORKFLOW, REPORT_ERROR_ONLY_WORKFLOW, THROW_NON_ERROR_WORKFLOW",
+      "detail": "durable_objects: CapabilityHarnessObject, PlainLifecycleObject, StatefulPlainObject, RetryableStartObject, ConcurrentStartObject, ScheduledLifecycleObject, SchedulerHarnessObject, SchedulerStartupWarnObject, QueueHarnessObject, BrowserHarnessObject, TestBrowserAgent, TaskHarnessObject, TaskSchedulerCoexistObject, StreamHarnessObject, ChannelsHarnessObject, AiSdkHarnessObject, CutoverHarnessObject, SqliteStrategiesBench, TaskStreamComposeObject, StreamBenchObject, SessionHarnessObject, SessionSearchHarnessObject, SessionBenchObject, PlainMcpClientObject, MCP_OBJECT, TestCodemodeMcpAgent, EmailAgent, CaseSensitiveAgent, UserNotificationAgent, TAG_AGENT, TestOAuthAgent, TestCustomOAuthAgent, TEST_MCP_JURISDICTION, TestAlarmInitAgent, TestDestroyScheduleAgent, TestReadonlyAgent, TestProtocolMessagesAgent, TestScheduleAgent, TestTaskAgent, TestOnStartScheduleWarnAgent, TestOnStartScheduleNoWarnAgent, TestOnStartScheduleExplicitFalseAgent, TestWorkflowAgent, TestAgentToolReplayAgent, TestAgentToolStubChild, TestAddMcpServerAgent, TestRpcMcpClientAgent, TestHttpMcpDedupAgent, TestStateAgent, TestStateAgentNoInitial, TestThrowingStateAgent, TestPersistedStateAgent, TestBothHooksAgent, TestNoIdentityAgent, TestCallableAgent, TestChildAgent, TestQueueAgent, TestChatSdkStateHostAgent, ChatSdkStateAgent, TestRetryAgent, TestRetryDefaultsAgent, TestRunFiberAgent, TestKeepAliveAgent, TestSessionAgent, TestWaitConnectionsAgent, TestNativeRpcAgent, RoutingOwnerAgent, RoutedChatAgent, TestSubAgentParent, CUSTOM_BOUND_SUB_AGENT_PARENT, CodemodeRuntime, CounterSubAgent, OuterSubAgent, DenyingSubAgent, InnerSubAgent, LeafSubAgent, CallbackSubAgent, BroadcastSubAgent, BodyProbeSubAgent, BodyProbeRootAgent, SlowReplySubAgent, TestMigrationAgent, TestConnectionUriAgent, SpikeSubParent, SpikeSubChild, HookingSubAgentParent, Sub, SUB, Sub_, ReservedClassParent, TestUnboundParentAgent, TestMinifiedNameParentAgent; workflows: TEST_WORKFLOW, SIMPLE_WORKFLOW, FACET_ORIGIN_WORKFLOW, FACET_APPROVAL_WORKFLOW, FACET_EVENT_STATE_WORKFLOW, THROW_IN_RUN_WORKFLOW, REPORT_ERROR_THEN_THROW_WORKFLOW, REPORT_ERROR_ONLY_WORKFLOW, THROW_NON_ERROR_WORKFLOW; worker_loaders: LOADER",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -6808,6 +7764,12 @@
               "type": "workflows",
               "name": "THROW_NON_ERROR_WORKFLOW",
               "resource": "ThrowNonErrorWorkflow"
+            }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
             }
           ]
         },
@@ -7336,6 +8298,10 @@
               "type": "workflows",
               "name": "THROW_NON_ERROR_WORKFLOW",
               "resource": "ThrowNonErrorWorkflow"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
             }
           ]
         },
@@ -8056,7 +9022,7 @@
         "path": "packages/codemode/e2e/wrangler.jsonc"
       },
       "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: CodemodeAgent; ai: AI",
+      "detail": "durable_objects: CodemodeAgent; ai: AI; worker_loaders: LOADER",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -8078,6 +9044,12 @@
               "type": "ai",
               "name": "AI"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
           ]
         },
         "diff": {
@@ -8092,6 +9064,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
             }
           ]
         },
@@ -8107,7 +9083,7 @@
         "path": "packages/codemode/src/runtime-tests/wrangler.jsonc"
       },
       "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: CodemodeTestHost, CodemodeRuntime",
+      "detail": "durable_objects: CodemodeTestHost, CodemodeRuntime; worker_loaders: LOADER",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -8128,6 +9104,12 @@
               "name": "CodemodeRuntime",
               "resource": "CodemodeRuntime"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
           ]
         },
         "diff": {
@@ -8143,6 +9125,10 @@
               "type": "durable_objects",
               "name": "CodemodeRuntime",
               "resource": "CodemodeRuntime"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
             }
           ]
         },
@@ -8158,7 +9144,7 @@
         "path": "packages/codemode/wrangler.jsonc"
       },
       "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "No bindings declared.",
+      "detail": "worker_loaders: LOADER",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -8167,11 +9153,23 @@
       ],
       "metrics": {
         "worker": "(unnamed)",
-        "bindings": {},
+        "bindings": {
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
+        },
         "diff": {
           "added": [],
           "removed": [],
-          "unchanged": []
+          "unchanged": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
+          ]
         },
         "newConfig": false
       }
@@ -8226,7 +9224,7 @@
         "path": "packages/shell/wrangler.jsonc"
       },
       "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: TestWorkspaceAgent, TestGitAgent",
+      "detail": "durable_objects: TestWorkspaceAgent, TestGitAgent; worker_loaders: LOADER",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -8247,6 +9245,12 @@
               "name": "TestGitAgent",
               "resource": "TestGitAgent"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
           ]
         },
         "diff": {
@@ -8262,6 +9266,10 @@
               "type": "durable_objects",
               "name": "TestGitAgent",
               "resource": "TestGitAgent"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
             }
           ]
         },
@@ -8522,7 +9530,7 @@
         "path": "packages/think/src/tests/wrangler.jsonc"
       },
       "title": "(unnamed): +19 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: ConnectionStateParent, ConnectionStateThink, TestAssistantToolsAgent, TestAssistantAgentAgent, BareAssistantAgent, LoopTestAgent, LoopToolTestAgent, OverflowRecoveryTestAgent, ThinkTestAgent, ThinkContinueOverrideTestAgent, ThinkPropsTestAgent, ThinkToolsTestAgent, ThinkFiberTestAgent, ThinkClientToolsAgent, ThinkSessionTestAgent, ThinkSystemPromptSkillsWarningAgent, ThinkDefaultSystemPromptSkillsAgent, ThinkInheritedSystemPromptSkillsAgent, ThinkSystemPromptFieldSkillsAgent, ThinkMissingClassifierWarningAgent, ThinkClassifierMethodAgent, ThinkInheritedClassifierAgent, ThinkClassifierFieldAgent, ThinkAsyncConfigSessionAgent, ThinkConfigTestAgent, ThinkLegacyConfigMigrationAgent, ThinkConfigInSessionAgent, ThinkProgrammaticTestAgent, ThinkScheduledTasksTestAgent, ThinkAsyncHookTestAgent, ThinkRecoveryTestAgent, ThinkNonRecoveryTestAgent, ThinkAgentToolParent, ThinkNestedMiddleAgent, StuckThinkAgentToolChild, ThinkExtensionHookAgent, ThinkExtensionBeforeTurnModelAgent, ThinkMessengerDeliveryTestAgent, ThinkMessengerRouteTestAgent, ThinkMcpToolMaterializationAgent, ThinkExecuteToolAgent, ThinkExecuteHitlAgent, ThinkFetchToolsTestAgent, ThinkOnStartReconcileFailureAgent, ThinkOnStartHydrationFailureAgent, ThinkWindowedHydrationAgent, ThinkMediaEvictionAgent, ThinkPromptCacheTestAgent, ThinkMediaEvictionAutoAgent, ThinkPointerHydrationAgent, ThinkLegacySessionApiAgent, BrowserToolsHost, CodemodeRuntime, ThinkMessengerStateAgent",
+      "detail": "durable_objects: ConnectionStateParent, ConnectionStateThink, TestAssistantToolsAgent, TestAssistantAgentAgent, BareAssistantAgent, LoopTestAgent, LoopToolTestAgent, OverflowRecoveryTestAgent, ThinkTestAgent, ThinkContinueOverrideTestAgent, ThinkPropsTestAgent, ThinkToolsTestAgent, ThinkFiberTestAgent, ThinkClientToolsAgent, ThinkSessionTestAgent, ThinkSystemPromptSkillsWarningAgent, ThinkDefaultSystemPromptSkillsAgent, ThinkInheritedSystemPromptSkillsAgent, ThinkSystemPromptFieldSkillsAgent, ThinkMissingClassifierWarningAgent, ThinkClassifierMethodAgent, ThinkInheritedClassifierAgent, ThinkClassifierFieldAgent, ThinkAsyncConfigSessionAgent, ThinkConfigTestAgent, ThinkLegacyConfigMigrationAgent, ThinkConfigInSessionAgent, ThinkProgrammaticTestAgent, ThinkScheduledTasksTestAgent, ThinkAsyncHookTestAgent, ThinkRecoveryTestAgent, ThinkNonRecoveryTestAgent, ThinkAgentToolParent, ThinkNestedMiddleAgent, StuckThinkAgentToolChild, ThinkExtensionHookAgent, ThinkExtensionBeforeTurnModelAgent, ThinkMessengerDeliveryTestAgent, ThinkMessengerRouteTestAgent, ThinkMcpToolMaterializationAgent, ThinkExecuteToolAgent, ThinkExecuteHitlAgent, ThinkFetchToolsTestAgent, ThinkOnStartReconcileFailureAgent, ThinkOnStartHydrationFailureAgent, ThinkWindowedHydrationAgent, ThinkMediaEvictionAgent, ThinkPromptCacheTestAgent, ThinkMediaEvictionAutoAgent, ThinkPointerHydrationAgent, ThinkLegacySessionApiAgent, BrowserToolsHost, CodemodeRuntime, ThinkMessengerStateAgent; worker_loaders: LOADER",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -8803,6 +9811,12 @@
               "name": "ThinkMessengerStateAgent",
               "resource": "ThinkMessengerStateAgent"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
           ]
         },
         "diff": {
@@ -9079,6 +10093,10 @@
               "type": "durable_objects",
               "name": "CodemodeRuntime",
               "resource": "CodemodeRuntime"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
             }
           ]
         },
@@ -9094,7 +10112,7 @@
         "path": "packages/worker-bundler/src/tests/wrangler.jsonc"
       },
       "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: FS_TEST",
+      "detail": "durable_objects: FS_TEST; worker_loaders: LOADER",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9110,6 +10128,12 @@
               "name": "FS_TEST",
               "resource": "FsTestDO"
             }
+          ],
+          "worker_loaders": [
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            }
           ]
         },
         "diff": {
@@ -9120,6 +10144,10 @@
               "type": "durable_objects",
               "name": "FS_TEST",
               "resource": "FsTestDO"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
             }
           ]
         },
@@ -9135,7 +10163,7 @@
         "path": "site/agents/wrangler.jsonc"
       },
       "title": "agents-site: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "kv_namespaces: DOCS_KV",
+      "detail": "kv_namespaces: DOCS_KV; assets: (assets)",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9151,6 +10179,13 @@
               "name": "DOCS_KV",
               "resource": "c438ca2bb9d84bbabb45ae5ca29dcce5"
             }
+          ],
+          "assets": [
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "./dist"
+            }
           ]
         },
         "diff": {
@@ -9161,6 +10196,11 @@
               "type": "kv_namespaces",
               "name": "DOCS_KV",
               "resource": "c438ca2bb9d84bbabb45ae5ca29dcce5"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "./dist"
             }
           ]
         },
@@ -9238,7 +10278,7 @@
         "path": "experimental/session-memory/wrangler.jsonc"
       },
       "title": "agents-session-memory-example: config removed vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "experimental/session-memory/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 2 bindings dropped.",
+      "detail": "experimental/session-memory/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 3 bindings dropped.",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9258,6 +10298,11 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "./public"
             }
           ],
           "unchanged": []
@@ -9273,7 +10318,7 @@
         "path": "experimental/session-multichat/wrangler.jsonc"
       },
       "title": "agents-session-multichat-example: config removed vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "experimental/session-multichat/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 2 bindings dropped.",
+      "detail": "experimental/session-multichat/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 3 bindings dropped.",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9293,6 +10338,11 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "./public"
             }
           ],
           "unchanged": []
@@ -9308,7 +10358,7 @@
         "path": "experimental/session-planetscale/wrangler.jsonc"
       },
       "title": "agents-session-planetscale-example: config removed vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "experimental/session-planetscale/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 3 bindings dropped.",
+      "detail": "experimental/session-planetscale/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 4 bindings dropped.",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9333,6 +10383,10 @@
               "type": "hyperdrive",
               "name": "HYPERDRIVE",
               "resource": "<your-hyperdrive-id>"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "unchanged": []
@@ -9348,7 +10402,7 @@
         "path": "experimental/session-search/wrangler.jsonc"
       },
       "title": "agents-session-search-example: config removed vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "experimental/session-search/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 2 bindings dropped.",
+      "detail": "experimental/session-search/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 3 bindings dropped.",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9368,6 +10422,11 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "./public"
             }
           ],
           "unchanged": []
@@ -9383,7 +10442,7 @@
         "path": "experimental/session-skills/wrangler.jsonc"
       },
       "title": "agents-session-skills-example: config removed vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "experimental/session-skills/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 3 bindings dropped.",
+      "detail": "experimental/session-skills/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 4 bindings dropped.",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9408,6 +10467,11 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)",
+              "resource": "./public"
             }
           ],
           "unchanged": []
@@ -9423,7 +10487,7 @@
         "path": "packages/think/src/tests/generated-entry/fixture/wrangler.jsonc"
       },
       "title": "(unnamed): config removed vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "packages/think/src/tests/generated-entry/fixture/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 5 bindings dropped.",
+      "detail": "packages/think/src/tests/generated-entry/fixture/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 6 bindings dropped.",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9459,6 +10523,10 @@
               "type": "durable_objects",
               "name": "ThinkSubAgent_Sales_Analyst",
               "resource": "ThinkSubAgent_Sales_Analyst"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "unchanged": []
@@ -9530,7 +10598,7 @@
         "path": "think-starters/basic/wrangler.jsonc"
       },
       "title": "think-basic-starter: config removed vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "think-starters/basic/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 2 bindings dropped.",
+      "detail": "think-starters/basic/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 3 bindings dropped.",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9550,6 +10618,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "unchanged": []
@@ -9565,7 +10637,7 @@
         "path": "think-starters/business-workflow/wrangler.jsonc"
       },
       "title": "think-business-workflow-starter: config removed vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "think-starters/business-workflow/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 2 bindings dropped.",
+      "detail": "think-starters/business-workflow/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 3 bindings dropped.",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9585,6 +10657,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "unchanged": []
@@ -9600,7 +10676,7 @@
         "path": "think-starters/coding-agent/wrangler.jsonc"
       },
       "title": "think-coding-agent-starter: config removed vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "think-starters/coding-agent/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 2 bindings dropped.",
+      "detail": "think-starters/coding-agent/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 4 bindings dropped.",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9620,6 +10696,14 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "unchanged": []
@@ -9635,7 +10719,7 @@
         "path": "think-starters/customer-support/wrangler.jsonc"
       },
       "title": "think-customer-support-starter: config removed vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "think-starters/customer-support/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 2 bindings dropped.",
+      "detail": "think-starters/customer-support/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 4 bindings dropped.",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9655,6 +10739,14 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "worker_loaders",
+              "name": "LOADER"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "unchanged": []
@@ -9670,7 +10762,7 @@
         "path": "think-starters/personal-assistant/wrangler.jsonc"
       },
       "title": "think-personal-assistant-starter: config removed vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "think-starters/personal-assistant/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 2 bindings dropped.",
+      "detail": "think-starters/personal-assistant/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 3 bindings dropped.",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9690,6 +10782,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "unchanged": []
@@ -9705,7 +10801,7 @@
         "path": "think-starters/webhook-agent/wrangler.jsonc"
       },
       "title": "think-webhook-agent-starter: config removed vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "think-starters/webhook-agent/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 2 bindings dropped.",
+      "detail": "think-starters/webhook-agent/wrangler.jsonc exists on d1ce3cbd765cada8edfaedaf5ea1041095ece79c but not on main; 3 bindings dropped.",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9725,6 +10821,10 @@
             {
               "type": "ai",
               "name": "AI"
+            },
+            {
+              "type": "assets",
+              "name": "(assets)"
             }
           ],
           "unchanged": []
@@ -9840,7 +10940,7 @@
         "repo": "agents-demo-full",
         "ref": "main"
       },
-      "title": "Instruction stack: 13 layers, 47 rules",
+      "title": "Instruction stack: 13 layers, 45 rules",
       "detail": "Extractor llm:@cf/zai-org/glm-5.3-flash; 9 findings.",
       "evidence": [
         {
@@ -10058,77 +11158,91 @@
         },
         "extraction": {
           "agents-demo-full:AGENTS.md": {
-            "source": "cache",
-            "rules": 12
+            "source": "model",
+            "rules": 12,
+            "dropped": 2
           },
           "agents-demo-full:agent-think/AGENTS.md": {
-            "source": "cache",
-            "rules": 6
+            "source": "model",
+            "rules": 5,
+            "dropped": 1
           },
           "agents-demo-full:design/AGENTS.md": {
-            "source": "cache",
-            "rules": 0
+            "source": "model",
+            "rules": 0,
+            "dropped": 0
           },
           "agents-demo-full:docs/AGENTS.md": {
-            "source": "cache",
-            "rules": 0
+            "source": "model",
+            "rules": 0,
+            "dropped": 0
           },
           "agents-demo-full:examples/AGENTS.md": {
-            "source": "cache",
-            "rules": 4
+            "source": "model",
+            "rules": 4,
+            "dropped": 0
           },
           "agents-demo-full:examples/webmcp-react/AGENTS.md": {
-            "source": "cache",
-            "rules": 0
+            "source": "model",
+            "rules": 0,
+            "dropped": 0
           },
           "agents-demo-full:guides/AGENTS.md": {
-            "source": "cache",
-            "rules": 1
+            "source": "model",
+            "rules": 2,
+            "dropped": 0
           },
           "agents-demo-full:packages/agents/AGENTS.md": {
-            "source": "cache",
-            "rules": 17
+            "source": "fallback",
+            "rules": 14,
+            "dropped": 0,
+            "error": "1/5 chunks fell back: Error: no JSON array in model output"
           },
           "agents-demo-full:packages/agents/src/tests/capabilities/AGENTS.md": {
-            "source": "cache",
-            "rules": 0
+            "source": "model",
+            "rules": 0,
+            "dropped": 0
           },
           "git-next-demo-layers:org/AGENTS.md": {
-            "source": "cache",
-            "rules": 2
+            "source": "model",
+            "rules": 3,
+            "dropped": 0
           },
           "git-next-demo-layers:contract/AGENTS.md": {
-            "source": "cache",
-            "rules": 2
+            "source": "model",
+            "rules": 2,
+            "dropped": 0
           },
           "git-next-demo-layers:tool/AGENTS.md": {
-            "source": "cache",
-            "rules": 1
+            "source": "model",
+            "rules": 1,
+            "dropped": 0
           },
           "git-next-demo-layers:personal/AGENTS.md": {
-            "source": "cache",
-            "rules": 2
+            "source": "model",
+            "rules": 2,
+            "dropped": 0
           }
         },
         "rulesPerLayer": {
           "agents-demo-full:AGENTS.md": 12,
-          "agents-demo-full:agent-think/AGENTS.md": 6,
+          "agents-demo-full:agent-think/AGENTS.md": 5,
           "agents-demo-full:examples/AGENTS.md": 4,
-          "agents-demo-full:guides/AGENTS.md": 1,
-          "agents-demo-full:packages/agents/AGENTS.md": 17,
-          "git-next-demo-layers:org/AGENTS.md": 2,
+          "agents-demo-full:guides/AGENTS.md": 2,
+          "agents-demo-full:packages/agents/AGENTS.md": 14,
+          "git-next-demo-layers:org/AGENTS.md": 3,
           "git-next-demo-layers:contract/AGENTS.md": 2,
           "git-next-demo-layers:tool/AGENTS.md": 1,
           "git-next-demo-layers:personal/AGENTS.md": 2
         },
         "rulesByTopic": {
-          "packageManager": [
-            "pnpm",
-            "npm"
-          ],
           "changesetPolicy": [
             "required",
             "not-required"
+          ],
+          "packageManager": [
+            "pnpm",
+            "npm"
           ],
           "testCommand": [
             "pnpm run test",
@@ -10142,10 +11256,7 @@
             "pnpm run test:channels",
             "pnpm run test:node",
             "pnpm run test:webmcp",
-            "pnpm run test:x402",
-            "pnpm run test:browser",
-            "pnpm exec vitest --project chat",
-            "pnpm run test:e2e"
+            "pnpm run test:x402"
           ],
           "formatter": [
             "oxfmt",
@@ -10157,7 +11268,10 @@
           "allowedModels": [
             "providers:workers-ai",
             "gpt-5.6-sol,claude-opus-5-5",
-            "providers:anthropic,workers-ai"
+            "providers:workers-ai,anthropic"
+          ],
+          "modelRouting": [
+            "org-gateway"
           ],
           "commitFormat": [
             "ticket-id-prefix"
@@ -10169,15 +11283,6 @@
         "effective": {
           ".": [
             {
-              "topic": "packageManager",
-              "value": "pnpm",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 55
-            },
-            {
               "topic": "changesetPolicy",
               "value": "not-required",
               "strength": "must",
@@ -10185,6 +11290,15 @@
               "kind": "contract",
               "path": "contract/AGENTS.md",
               "line": 4
+            },
+            {
+              "topic": "packageManager",
+              "value": "pnpm",
+              "strength": "should",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 58
             },
             {
               "topic": "testCommand",
@@ -10220,16 +11334,25 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
+              "line": 5
             },
             {
               "topic": "allowedModels",
-              "value": "providers:anthropic,workers-ai",
+              "value": "providers:workers-ai,anthropic",
               "strength": "must",
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
               "line": 3
+            },
+            {
+              "topic": "modelRouting",
+              "value": "org-gateway",
+              "strength": "must",
+              "layer": "acme-org",
+              "kind": "org",
+              "path": "org/AGENTS.md",
+              "line": 4
             },
             {
               "topic": "commitFormat",
@@ -10243,7 +11366,7 @@
             {
               "topic": "securityScan",
               "value": "before-pr",
-              "strength": "should",
+              "strength": "must",
               "layer": "coding-agent",
               "kind": "tool",
               "path": "tool/AGENTS.md",
@@ -10255,10 +11378,10 @@
               "topic": "packageManager",
               "value": "pnpm",
               "strength": "should",
-              "layer": "agent-think",
+              "layer": "root",
               "kind": "project",
-              "path": "agent-think/AGENTS.md",
-              "line": 175
+              "path": "AGENTS.md",
+              "line": 58
             },
             {
               "topic": "testCommand",
@@ -10294,16 +11417,25 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
+              "line": 5
             },
             {
               "topic": "allowedModels",
-              "value": "providers:anthropic,workers-ai",
+              "value": "providers:workers-ai,anthropic",
               "strength": "must",
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
               "line": 3
+            },
+            {
+              "topic": "modelRouting",
+              "value": "org-gateway",
+              "strength": "must",
+              "layer": "acme-org",
+              "kind": "org",
+              "path": "org/AGENTS.md",
+              "line": 4
             },
             {
               "topic": "commitFormat",
@@ -10326,7 +11458,7 @@
             {
               "topic": "securityScan",
               "value": "before-pr",
-              "strength": "should",
+              "strength": "must",
               "layer": "coding-agent",
               "kind": "tool",
               "path": "tool/AGENTS.md",
@@ -10341,7 +11473,7 @@
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 55
+              "line": 58
             },
             {
               "topic": "testCommand",
@@ -10377,16 +11509,25 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
+              "line": 5
             },
             {
               "topic": "allowedModels",
-              "value": "providers:anthropic,workers-ai",
+              "value": "providers:workers-ai,anthropic",
               "strength": "must",
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
               "line": 3
+            },
+            {
+              "topic": "modelRouting",
+              "value": "org-gateway",
+              "strength": "must",
+              "layer": "acme-org",
+              "kind": "org",
+              "path": "org/AGENTS.md",
+              "line": 4
             },
             {
               "topic": "commitFormat",
@@ -10409,7 +11550,7 @@
             {
               "topic": "securityScan",
               "value": "before-pr",
-              "strength": "should",
+              "strength": "must",
               "layer": "coding-agent",
               "kind": "tool",
               "path": "tool/AGENTS.md",
@@ -10424,7 +11565,7 @@
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 55
+              "line": 58
             },
             {
               "topic": "testCommand",
@@ -10460,16 +11601,25 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
+              "line": 5
             },
             {
               "topic": "allowedModels",
-              "value": "providers:anthropic,workers-ai",
+              "value": "providers:workers-ai,anthropic",
               "strength": "must",
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
               "line": 3
+            },
+            {
+              "topic": "modelRouting",
+              "value": "org-gateway",
+              "strength": "must",
+              "layer": "acme-org",
+              "kind": "org",
+              "path": "org/AGENTS.md",
+              "line": 4
             },
             {
               "topic": "commitFormat",
@@ -10492,7 +11642,7 @@
             {
               "topic": "securityScan",
               "value": "before-pr",
-              "strength": "should",
+              "strength": "must",
               "layer": "coding-agent",
               "kind": "tool",
               "path": "tool/AGENTS.md",
@@ -10543,7 +11693,7 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
+              "line": 5
             },
             {
               "topic": "changesetPolicy",
@@ -10556,12 +11706,21 @@
             },
             {
               "topic": "allowedModels",
-              "value": "providers:anthropic,workers-ai",
+              "value": "providers:workers-ai,anthropic",
               "strength": "must",
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
               "line": 3
+            },
+            {
+              "topic": "modelRouting",
+              "value": "org-gateway",
+              "strength": "must",
+              "layer": "acme-org",
+              "kind": "org",
+              "path": "org/AGENTS.md",
+              "line": 4
             },
             {
               "topic": "commitFormat",
@@ -10575,7 +11734,7 @@
             {
               "topic": "securityScan",
               "value": "before-pr",
-              "strength": "should",
+              "strength": "must",
               "layer": "coding-agent",
               "kind": "tool",
               "path": "tool/AGENTS.md",
@@ -10626,7 +11785,7 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
+              "line": 5
             },
             {
               "topic": "changesetPolicy",
@@ -10639,12 +11798,21 @@
             },
             {
               "topic": "allowedModels",
-              "value": "providers:anthropic,workers-ai",
+              "value": "providers:workers-ai,anthropic",
               "strength": "must",
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
               "line": 3
+            },
+            {
+              "topic": "modelRouting",
+              "value": "org-gateway",
+              "strength": "must",
+              "layer": "acme-org",
+              "kind": "org",
+              "path": "org/AGENTS.md",
+              "line": 4
             },
             {
               "topic": "commitFormat",
@@ -10658,7 +11826,7 @@
             {
               "topic": "securityScan",
               "value": "before-pr",
-              "strength": "should",
+              "strength": "must",
               "layer": "coding-agent",
               "kind": "tool",
               "path": "tool/AGENTS.md",
@@ -10670,10 +11838,10 @@
               "topic": "packageManager",
               "value": "pnpm",
               "strength": "should",
-              "layer": "root",
+              "layer": "guides",
               "kind": "project",
-              "path": "AGENTS.md",
-              "line": 55
+              "path": "guides/AGENTS.md",
+              "line": 41
             },
             {
               "topic": "testCommand",
@@ -10709,7 +11877,7 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
+              "line": 5
             },
             {
               "topic": "changesetPolicy",
@@ -10722,12 +11890,21 @@
             },
             {
               "topic": "allowedModels",
-              "value": "providers:anthropic,workers-ai",
+              "value": "providers:workers-ai,anthropic",
               "strength": "must",
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
               "line": 3
+            },
+            {
+              "topic": "modelRouting",
+              "value": "org-gateway",
+              "strength": "must",
+              "layer": "acme-org",
+              "kind": "org",
+              "path": "org/AGENTS.md",
+              "line": 4
             },
             {
               "topic": "commitFormat",
@@ -10741,7 +11918,7 @@
             {
               "topic": "securityScan",
               "value": "before-pr",
-              "strength": "should",
+              "strength": "must",
               "layer": "coding-agent",
               "kind": "tool",
               "path": "tool/AGENTS.md",
@@ -10750,15 +11927,6 @@
           ],
           "packages/agents": [
             {
-              "topic": "packageManager",
-              "value": "pnpm",
-              "strength": "should",
-              "layer": "packages/agents",
-              "kind": "project",
-              "path": "packages/agents/AGENTS.md",
-              "line": 211
-            },
-            {
               "topic": "changesetPolicy",
               "value": "not-required",
               "strength": "must",
@@ -10766,6 +11934,15 @@
               "kind": "contract",
               "path": "contract/AGENTS.md",
               "line": 4
+            },
+            {
+              "topic": "packageManager",
+              "value": "pnpm",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 211
             },
             {
               "topic": "testCommand",
@@ -10840,33 +12017,6 @@
               "line": 294
             },
             {
-              "topic": "testCommand",
-              "value": "pnpm run test:browser",
-              "strength": "should",
-              "layer": "packages/agents",
-              "kind": "project",
-              "path": "packages/agents/AGENTS.md",
-              "line": 302
-            },
-            {
-              "topic": "testCommand",
-              "value": "pnpm exec vitest --project chat",
-              "strength": "should",
-              "layer": "packages/agents",
-              "kind": "project",
-              "path": "packages/agents/AGENTS.md",
-              "line": 315
-            },
-            {
-              "topic": "testCommand",
-              "value": "pnpm run test:e2e",
-              "strength": "should",
-              "layer": "packages/agents",
-              "kind": "project",
-              "path": "packages/agents/AGENTS.md",
-              "line": 329
-            },
-            {
               "topic": "formatter",
               "value": "oxfmt",
               "strength": "should",
@@ -10882,11 +12032,20 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
+              "line": 5
+            },
+            {
+              "topic": "modelRouting",
+              "value": "org-gateway",
+              "strength": "must",
+              "layer": "acme-org",
+              "kind": "org",
+              "path": "org/AGENTS.md",
               "line": 4
             },
             {
               "topic": "allowedModels",
-              "value": "providers:anthropic,workers-ai",
+              "value": "providers:workers-ai,anthropic",
               "strength": "must",
               "layer": "acme-org",
               "kind": "org",
@@ -10905,7 +12064,7 @@
             {
               "topic": "securityScan",
               "value": "before-pr",
-              "strength": "should",
+              "strength": "must",
               "layer": "coding-agent",
               "kind": "tool",
               "path": "tool/AGENTS.md",
@@ -10914,15 +12073,6 @@
           ],
           "packages/agents/src/tests/capabilities": [
             {
-              "topic": "packageManager",
-              "value": "pnpm",
-              "strength": "should",
-              "layer": "packages/agents",
-              "kind": "project",
-              "path": "packages/agents/AGENTS.md",
-              "line": 211
-            },
-            {
               "topic": "changesetPolicy",
               "value": "not-required",
               "strength": "must",
@@ -10930,6 +12080,15 @@
               "kind": "contract",
               "path": "contract/AGENTS.md",
               "line": 4
+            },
+            {
+              "topic": "packageManager",
+              "value": "pnpm",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 211
             },
             {
               "topic": "testCommand",
@@ -11004,33 +12163,6 @@
               "line": 294
             },
             {
-              "topic": "testCommand",
-              "value": "pnpm run test:browser",
-              "strength": "should",
-              "layer": "packages/agents",
-              "kind": "project",
-              "path": "packages/agents/AGENTS.md",
-              "line": 302
-            },
-            {
-              "topic": "testCommand",
-              "value": "pnpm exec vitest --project chat",
-              "strength": "should",
-              "layer": "packages/agents",
-              "kind": "project",
-              "path": "packages/agents/AGENTS.md",
-              "line": 315
-            },
-            {
-              "topic": "testCommand",
-              "value": "pnpm run test:e2e",
-              "strength": "should",
-              "layer": "packages/agents",
-              "kind": "project",
-              "path": "packages/agents/AGENTS.md",
-              "line": 329
-            },
-            {
               "topic": "formatter",
               "value": "oxfmt",
               "strength": "should",
@@ -11046,11 +12178,20 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
+              "line": 5
+            },
+            {
+              "topic": "modelRouting",
+              "value": "org-gateway",
+              "strength": "must",
+              "layer": "acme-org",
+              "kind": "org",
+              "path": "org/AGENTS.md",
               "line": 4
             },
             {
               "topic": "allowedModels",
-              "value": "providers:anthropic,workers-ai",
+              "value": "providers:workers-ai,anthropic",
               "strength": "must",
               "layer": "acme-org",
               "kind": "org",
@@ -11069,7 +12210,7 @@
             {
               "topic": "securityScan",
               "value": "before-pr",
-              "strength": "should",
+              "strength": "must",
               "layer": "coding-agent",
               "kind": "tool",
               "path": "tool/AGENTS.md",
@@ -11077,206 +12218,11 @@
             }
           ]
         },
+        "skippedLayers": [],
         "counts": {
-          "overridden": 7,
-          "conflict": 2
+          "conflict": 2,
+          "overridden": 7
         }
-      }
-    },
-    {
-      "provider": "instruction-stack",
-      "severity": "info",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
-        "path": "AGENTS.md"
-      },
-      "title": "overridden: packageManager",
-      "detail": "root [project] (AGENTS.md:55) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
-      "evidence": [
-        {
-          "repo": "agents-demo-full",
-          "path": "AGENTS.md",
-          "line": 55
-        },
-        {
-          "repo": "git-next-demo-layers",
-          "path": "personal/AGENTS.md",
-          "line": 3
-        }
-      ],
-      "metrics": {
-        "kind": "overridden",
-        "topic": "packageManager",
-        "values": [
-          {
-            "value": "pnpm",
-            "strength": "should",
-            "layer": "root",
-            "kind": "project",
-            "rank": 3,
-            "path": "AGENTS.md",
-            "line": 55,
-            "text": "pnpm install       # installs all workspaces"
-          },
-          {
-            "value": "npm",
-            "strength": "should",
-            "layer": "chris",
-            "kind": "personal",
-            "rank": 5,
-            "path": "personal/AGENTS.md",
-            "line": 3,
-            "text": "- I prefer to use npm for installs."
-          }
-        ]
-      }
-    },
-    {
-      "provider": "instruction-stack",
-      "severity": "info",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
-        "path": "agent-think/AGENTS.md"
-      },
-      "title": "overridden: packageManager",
-      "detail": "agent-think [project] (agent-think/AGENTS.md:175) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
-      "evidence": [
-        {
-          "repo": "agents-demo-full",
-          "path": "agent-think/AGENTS.md",
-          "line": 175
-        },
-        {
-          "repo": "git-next-demo-layers",
-          "path": "personal/AGENTS.md",
-          "line": 3
-        }
-      ],
-      "metrics": {
-        "kind": "overridden",
-        "topic": "packageManager",
-        "values": [
-          {
-            "value": "pnpm",
-            "strength": "should",
-            "layer": "agent-think",
-            "kind": "project",
-            "rank": 3,
-            "path": "agent-think/AGENTS.md",
-            "line": 175,
-            "text": "pnpm test        # fast unit suite: workers pool + MSW, no container"
-          },
-          {
-            "value": "npm",
-            "strength": "should",
-            "layer": "chris",
-            "kind": "personal",
-            "rank": 5,
-            "path": "personal/AGENTS.md",
-            "line": 3,
-            "text": "- I prefer to use npm for installs."
-          }
-        ]
-      }
-    },
-    {
-      "provider": "instruction-stack",
-      "severity": "info",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
-        "path": "examples/AGENTS.md"
-      },
-      "title": "overridden: packageManager",
-      "detail": "examples [project] (examples/AGENTS.md:9) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
-      "evidence": [
-        {
-          "repo": "agents-demo-full",
-          "path": "examples/AGENTS.md",
-          "line": 9
-        },
-        {
-          "repo": "git-next-demo-layers",
-          "path": "personal/AGENTS.md",
-          "line": 3
-        }
-      ],
-      "metrics": {
-        "kind": "overridden",
-        "topic": "packageManager",
-        "values": [
-          {
-            "value": "pnpm",
-            "strength": "should",
-            "layer": "examples",
-            "kind": "project",
-            "rank": 3,
-            "path": "examples/AGENTS.md",
-            "line": 9,
-            "text": "Most examples have both a frontend and a backend. This makes them immediately runnable and visually demonstrable \u2014 users can `pnpm run start` and see the feature in action, not just read server logs."
-          },
-          {
-            "value": "npm",
-            "strength": "should",
-            "layer": "chris",
-            "kind": "personal",
-            "rank": 5,
-            "path": "personal/AGENTS.md",
-            "line": 3,
-            "text": "- I prefer to use npm for installs."
-          }
-        ]
-      }
-    },
-    {
-      "provider": "instruction-stack",
-      "severity": "info",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
-        "path": "packages/agents/AGENTS.md"
-      },
-      "title": "overridden: packageManager",
-      "detail": "packages/agents [project] (packages/agents/AGENTS.md:211) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
-      "evidence": [
-        {
-          "repo": "agents-demo-full",
-          "path": "packages/agents/AGENTS.md",
-          "line": 211
-        },
-        {
-          "repo": "git-next-demo-layers",
-          "path": "personal/AGENTS.md",
-          "line": 3
-        }
-      ],
-      "metrics": {
-        "kind": "overridden",
-        "topic": "packageManager",
-        "values": [
-          {
-            "value": "pnpm",
-            "strength": "should",
-            "layer": "packages/agents",
-            "kind": "project",
-            "rank": 3,
-            "path": "packages/agents/AGENTS.md",
-            "line": 211,
-            "text": "pnpm run build          # runs tsx scripts/build.ts"
-          },
-          {
-            "value": "npm",
-            "strength": "should",
-            "layer": "chris",
-            "kind": "personal",
-            "rank": 5,
-            "path": "personal/AGENTS.md",
-            "line": 3,
-            "text": "- I prefer to use npm for installs."
-          }
-        ]
       }
     },
     {
@@ -11373,6 +12319,202 @@
             "path": "packages/agents/AGENTS.md",
             "line": 7,
             "text": "Each export maps to a public entry point that users `import` from. These are the boundaries of the public API \u2014 changes here need a changeset."
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "AGENTS.md"
+      },
+      "title": "overridden: packageManager",
+      "detail": "root [project] (AGENTS.md:58) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "AGENTS.md",
+          "line": 58
+        },
+        {
+          "repo": "git-next-demo-layers",
+          "path": "personal/AGENTS.md",
+          "line": 3
+        }
+      ],
+      "metrics": {
+        "kind": "overridden",
+        "topic": "packageManager",
+        "values": [
+          {
+            "value": "pnpm",
+            "strength": "should",
+            "layer": "root",
+            "kind": "project",
+            "rank": 3,
+            "path": "AGENTS.md",
+            "line": 58,
+            "text": "Node 24+ required. Uses pnpm workspaces with [Nx](https://nx.dev) for task orchestration, caching, and affected detection."
+          },
+          {
+            "value": "npm",
+            "strength": "should",
+            "layer": "chris",
+            "kind": "personal",
+            "rank": 5,
+            "path": "personal/AGENTS.md",
+            "line": 3,
+            "text": "- I prefer to use npm for installs."
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "examples/AGENTS.md"
+      },
+      "title": "overridden: packageManager",
+      "detail": "examples [project] (examples/AGENTS.md:9) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "examples/AGENTS.md",
+          "line": 9
+        },
+        {
+          "repo": "git-next-demo-layers",
+          "path": "personal/AGENTS.md",
+          "line": 3
+        }
+      ],
+      "metrics": {
+        "kind": "overridden",
+        "topic": "packageManager",
+        "values": [
+          {
+            "value": "pnpm",
+            "strength": "should",
+            "layer": "examples",
+            "kind": "project",
+            "rank": 3,
+            "path": "examples/AGENTS.md",
+            "line": 9,
+            "text": "Most examples have both a frontend and a backend. This makes them immediately runnable and visually demonstrable \u2014 users can `pnpm run start` and see the feature in action, not just read server logs."
+          },
+          {
+            "value": "npm",
+            "strength": "should",
+            "layer": "chris",
+            "kind": "personal",
+            "rank": 5,
+            "path": "personal/AGENTS.md",
+            "line": 3,
+            "text": "- I prefer to use npm for installs."
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "guides/AGENTS.md"
+      },
+      "title": "overridden: packageManager",
+      "detail": "guides [project] (guides/AGENTS.md:41) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "guides/AGENTS.md",
+          "line": 41
+        },
+        {
+          "repo": "git-next-demo-layers",
+          "path": "personal/AGENTS.md",
+          "line": 3
+        }
+      ],
+      "metrics": {
+        "kind": "overridden",
+        "topic": "packageManager",
+        "values": [
+          {
+            "value": "pnpm",
+            "strength": "should",
+            "layer": "guides",
+            "kind": "project",
+            "rank": 3,
+            "path": "guides/AGENTS.md",
+            "line": 41,
+            "text": "4. **How to run it** \u2014 setup, env vars, `pnpm run dev`"
+          },
+          {
+            "value": "npm",
+            "strength": "should",
+            "layer": "chris",
+            "kind": "personal",
+            "rank": 5,
+            "path": "personal/AGENTS.md",
+            "line": 3,
+            "text": "- I prefer to use npm for installs."
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "packages/agents/AGENTS.md"
+      },
+      "title": "overridden: packageManager",
+      "detail": "packages/agents [project] (packages/agents/AGENTS.md:211) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "packages/agents/AGENTS.md",
+          "line": 211
+        },
+        {
+          "repo": "git-next-demo-layers",
+          "path": "personal/AGENTS.md",
+          "line": 3
+        }
+      ],
+      "metrics": {
+        "kind": "overridden",
+        "topic": "packageManager",
+        "values": [
+          {
+            "value": "pnpm",
+            "strength": "should",
+            "layer": "packages/agents",
+            "kind": "project",
+            "rank": 3,
+            "path": "packages/agents/AGENTS.md",
+            "line": 211,
+            "text": "pnpm run build          # runs tsx scripts/build.ts"
+          },
+          {
+            "value": "npm",
+            "strength": "should",
+            "layer": "chris",
+            "kind": "personal",
+            "rank": 5,
+            "path": "personal/AGENTS.md",
+            "line": 3,
+            "text": "- I prefer to use npm for installs."
           }
         ]
       }
@@ -11484,7 +12626,7 @@
         "path": "org/AGENTS.md"
       },
       "title": "policy overridden: allowedModels",
-      "detail": "acme-org [org] (org/AGENTS.md:3) (\"providers:anthropic,workers-ai\") overrides agent-think [project] (agent-think/AGENTS.md:192) (\"gpt-5.6-sol,claude-opus-5-5\") (model's provider is not on the approved list).",
+      "detail": "acme-org [org] (org/AGENTS.md:3) (\"providers:workers-ai,anthropic\") overrides agent-think [project] (agent-think/AGENTS.md:192) (\"gpt-5.6-sol,claude-opus-5-5\") (model's provider is not on the approved list).",
       "evidence": [
         {
           "repo": "git-next-demo-layers",
@@ -11503,7 +12645,7 @@
         "policyViolation": true,
         "values": [
           {
-            "value": "providers:anthropic,workers-ai",
+            "value": "providers:workers-ai,anthropic",
             "strength": "must",
             "layer": "acme-org",
             "kind": "org",
@@ -12439,7 +13581,28 @@
               "anthropic/claude-sonnet-5.5"
             ]
           }
-        ]
+        ],
+        "byCloud": [
+          {
+            "cloud": "cloudflare",
+            "mocked": false,
+            "cost": 39.96474,
+            "requests": 62,
+            "tokensIn": 3355273,
+            "tokensOut": 258220,
+            "models": [
+              "anthropic/claude-opus-5.5",
+              "anthropic/claude-sonnet-5.5",
+              "openai/gpt-5.6-sol",
+              "@cf/moonshotai/kimi-k2.7-code",
+              "@cf/zai-org/glm-5.3-flash"
+            ]
+          }
+        ],
+        "clouds": [
+          "cloudflare"
+        ],
+        "mockedRequests": 0
       }
     },
     {
@@ -12600,6 +13763,8 @@
         "model": "anthropic/claude-opus-5.5",
         "taskLabel": "format",
         "requests": 4,
+        "cloud": "cloudflare",
+        "mocked": false,
         "reason": "outside-jobs",
         "detail": "anthropic/claude-opus-5.5 is approved for planning/review/coding, but ran \"format\" (chores) work: approved model providers; fallback planner",
         "catalogVersion": "2026.10.5"
@@ -12623,6 +13788,8 @@
         "requests": 5,
         "reason": "not-in-catalog",
         "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.5",
+        "cloud": "cloudflare",
+        "mocked": false,
         "catalogVersion": "2026.10.5"
       }
     },
@@ -12644,6 +13811,8 @@
         "requests": 14,
         "reason": "not-in-catalog",
         "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.5",
+        "cloud": "cloudflare",
+        "mocked": false,
         "catalogVersion": "2026.10.5"
       }
     },
@@ -12663,6 +13832,8 @@
         "model": "anthropic/claude-opus-5.5",
         "taskLabel": "changelog",
         "requests": 6,
+        "cloud": "cloudflare",
+        "mocked": false,
         "reason": "outside-jobs",
         "detail": "anthropic/claude-opus-5.5 is approved for planning/review/coding, but ran \"changelog\" (chores) work: approved model providers; fallback planner",
         "catalogVersion": "2026.10.5"
@@ -12689,7 +13860,9 @@
         "requests": 14,
         "actualCost": 12.2742,
         "estimatedCost": 0.1772,
-        "estimatedSaving": 12.097
+        "estimatedSaving": 12.097,
+        "cloud": "cloudflare",
+        "mocked": false
       }
     },
     {
@@ -12713,7 +13886,9 @@
         "requests": 6,
         "actualCost": 2.7673,
         "estimatedCost": 0.0242,
-        "estimatedSaving": 2.7431
+        "estimatedSaving": 2.7431,
+        "cloud": "cloudflare",
+        "mocked": false
       }
     },
     {
@@ -12737,7 +13912,9 @@
         "requests": 4,
         "actualCost": 2.0615,
         "estimatedCost": 0.0198,
-        "estimatedSaving": 2.0417
+        "estimatedSaving": 2.0417,
+        "cloud": "cloudflare",
+        "mocked": false
       }
     },
     {
@@ -12759,7 +13936,7 @@
         "ref": "main"
       },
       "title": "No catalog (secrets scan only)",
-      "detail": "0 violation(s); scanned 156 of 2377 code/config files.",
+      "detail": "0 violation(s); scanned 156 of 2377 code/config files (785 test, fixture or generated files skipped).",
       "evidence": [],
       "metrics": {
         "source": "none",
@@ -12769,6 +13946,7 @@
         "behind": false,
         "scannedFiles": 156,
         "totalFiles": 2377,
+        "skippedTests": 785,
         "byKind": {}
       }
     }

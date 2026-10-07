@@ -4,12 +4,12 @@
   "repo": "agents-demo-full",
   "ref": "main",
   "base": null,
-  "ms": 421,
+  "ms": 346,
   "providers": [
     {
       "id": "cost",
       "ok": true,
-      "ms": 419,
+      "ms": 346,
       "count": 8
     }
   ],
@@ -308,7 +308,30 @@
               "anthropic/claude-haiku-4-5"
             ]
           }
-        ]
+        ],
+        "byCloud": [
+          {
+            "cloud": "cloudflare",
+            "mocked": false,
+            "cost": 0.801596,
+            "requests": 23,
+            "tokensIn": 110417,
+            "tokensOut": 27952,
+            "models": [
+              "anthropic/claude-sonnet-5.5",
+              "anthropic/claude-fable-5.1",
+              "anthropic/claude-opus-4.8",
+              "anthropic/claude-sonnet-5",
+              "anthropic/claude-haiku-4.5",
+              "@cf/zai-org/glm-5.3-flash",
+              "anthropic/claude-haiku-4-5"
+            ]
+          }
+        ],
+        "clouds": [
+          "cloudflare"
+        ],
+        "mockedRequests": 0
       }
     },
     {
@@ -434,6 +457,8 @@
         "requests": 3,
         "reason": "not-in-catalog",
         "detail": "anthropic/claude-opus-4.8 is not in catalog 2026.10.5",
+        "cloud": "cloudflare",
+        "mocked": false,
         "catalogVersion": "2026.10.5"
       }
     },
@@ -458,7 +483,9 @@
         "requests": 3,
         "actualCost": 0.0968,
         "estimatedCost": 0.0182,
-        "estimatedSaving": 0.0786
+        "estimatedSaving": 0.0786,
+        "cloud": "cloudflare",
+        "mocked": false
       }
     }
   ]

@@ -31,7 +31,7 @@ hidden otherwise. Timings are cumulative; narration is written to be read aloud.
 
 ### 0. Cold open: 0:00–0:20
 - **Screen:** the dashboard at the top: the "1 Rules in force" panel with its big numbers (13 layers, 2 conflicts
-  to settle, 1 policy warning, 4 overridden).
+  to settle, 1 policy warning, 6 overridden).
 - **Narration:** "This is git.next: Git that versions the context and infrastructure around code, not just the
   code. Three questions every team running agents should be able to answer: what rules are they following, are new
   projects set up right, and what is it all costing."
@@ -130,7 +130,7 @@ hidden otherwise. Timings are cumulative; narration is written to be read aloud.
   `r2_buckets: 1`.
   **Narration:** "Infrastructure changes show up in review too: this agent's change adds an R2 bucket."
 - **Sliced context panel:** 4,000 tokens served versus 889,608 in all markdown (0.4%), retrieved by BM25 plus
-  EmbeddingGemma vectors, with 130 tokens of pinned org rules always included.
+  EmbeddingGemma vectors, with 184 tokens of pinned org and contract rules always included.
 
 ### 6. Built to extend, and close: 7:50–8:40
 - **Screen:** `src/providers/owners.ts` beside the one-line `.register(ownersProvider)`, then back to the full
