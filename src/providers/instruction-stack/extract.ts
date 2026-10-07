@@ -1,7 +1,7 @@
 import type { Layer, Rule, RuleExtractor, Strength, Topic } from "./types.ts";
 
-const MUST = /\b(must|always|never|required?|do not|don't|only|mandatory|shall)\b/i;
-const NEGATED = /\b(never|do not|don't|no need|not required|avoid|without)\b/i;
+const MUST = /\b(must|always|never|required?|do not|don't|only|mandatory|shall|needs?)\b/i;
+const NEGATED = /\b(never|do not|don't|no need|not required|avoid|without|skip|omit)\b/i;
 
 type Matcher = (line: string) => string | null;
 
@@ -32,6 +32,7 @@ const MATCHERS: Record<Topic, Matcher> = {
 		return m ? m[1].trim().replace(/\s+/g, " ") : null;
 	},
 	commitFormat: (line) => {
+		if (/\bcommit/i.test(line) && /\b(ticket|jira|sow|issue)\b[^.]*\b(id|number|key|prefix)\b/i.test(line)) return "ticket-id-prefix";
 		if (/conventional commits?/i.test(line) || /\b(feat|fix|chore)(\([^)]*\))?:/.test(line)) return "conventional";
 		return null;
 	},
@@ -46,10 +47,15 @@ const MATCHERS: Record<Topic, Matcher> = {
 		return null;
 	},
 	allowedModels: (line) => {
+		if (/\bapproved (model )?providers?\b/i.test(line)) {
+			const providers = [...line.matchAll(/\b(workers ai|anthropic|openai|google|mistral|deepseek|meta)\b/gi)].map((m) => m[1].toLowerCase().replace(" ", "-"));
+			return providers.length ? `providers:${[...new Set(providers)].sort().join(",")}` : null;
+		}
 		const models = line.match(/\b(claude-[a-z0-9.-]+|gpt-[a-z0-9.-]+|gemini-[a-z0-9.-]+|o\d(?:-mini)?)\b/gi);
 		if (!models || !/\b(model|use|allowed|only)\b/i.test(line)) return null;
 		return [...new Set(models.map((m) => m.toLowerCase()))].sort().join(",");
 	},
+	securityScan: (line) => (/\bsecurity (scan|review|audit)\b/i.test(line) && /\b(before|prior to)\b[^.]*\b(pr|pull request|merge|push)/i.test(line) ? "before-pr" : null),
 	secrets: (line) => {
 		if (!/\b(secrets?|api keys?|credentials?|tokens?|\.env|\.dev\.vars)\b/i.test(line)) return null;
 		if (/\b(never|do not|don't|must not)\b[^.]*\b(commit|check in|hard-?code|log|print|expose)/i.test(line)) return "never-in-source";

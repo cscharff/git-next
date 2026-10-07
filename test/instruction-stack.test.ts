@@ -4,17 +4,14 @@ import { configFacts } from "../src/providers/instruction-stack/config-facts.ts"
 import { areasOf, instructionLines, keywordExtractor, strengthOf } from "../src/providers/instruction-stack/extract.ts";
 import { instructionStackProvider } from "../src/providers/instruction-stack/index.ts";
 import { resolve } from "../src/providers/instruction-stack/resolve.ts";
-import type { Layer, Rule } from "../src/providers/instruction-stack/types.ts";
+import { KIND_RANK, type Layer, type LayerKind, type Rule } from "../src/providers/instruction-stack/types.ts";
 
-const layer = (path: string, rank: number, scopeDir = path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : ""): Layer => ({
-	name: scopeDir || "root",
-	rank,
-	repo: "r",
-	path,
-	scopeDir,
-	origin: "project",
-});
-const extract = (md: string, l = layer("AGENTS.md", 100)) => keywordExtractor.extract(l, md);
+/** A project layer for a path (depth from its directory), or a repo-wide stack layer of another kind. */
+const layer = (path: string, kind: LayerKind = "project"): Layer => {
+	const scopeDir = kind === "project" && path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "";
+	return { name: kind === "project" ? scopeDir || "root" : kind, kind, rank: KIND_RANK[kind], depth: scopeDir ? scopeDir.split("/").length : 0, repo: kind === "project" ? "r" : kind, path, scopeDir, origin: kind === "project" ? "project" : "stack" };
+};
+const extract = (md: string, l = layer("AGENTS.md")) => keywordExtractor.extract(l, md);
 const values = (rules: Rule[]) => rules.map((r) => `${r.topic}=${r.value}`);
 
 describe("keyword extractor", () => {
@@ -58,6 +55,19 @@ describe("keyword extractor", () => {
 		expect(areasOf("Changes to `packages/` need a changeset")).toEqual(["packages"]);
 	});
 
+	it("extracts contract, org and tool layer rules", async () => {
+		const rules = await extract(
+			[
+				"- Every commit message must start with the SOW ticket ID, e.g. `SOW-1234: fix`.",
+				"- You must skip changesets for internal fixes.",
+				"- Only use approved model providers: Workers AI and Anthropic (via AI Gateway).",
+				"- Run a security scan before opening a pull request.",
+			].join("\n"),
+		);
+		expect(values(rules)).toEqual(["commitFormat=ticket-id-prefix", "changesetPolicy=not-required", "allowedModels=providers:anthropic,workers-ai", "securityScan=before-pr"]);
+		expect(rules.slice(0, 3).every((r) => r.strength === "must")).toBe(true);
+	});
+
 	it("scores strength per sentence", async () => {
 		const [rule] = await extract("Node 24+ required. Uses pnpm workspaces with Nx.");
 		expect(rule).toMatchObject({ topic: "packageManager", value: "pnpm", strength: "should", text: "Uses pnpm workspaces with Nx." });
@@ -80,29 +90,53 @@ describe("config facts", () => {
 
 describe("resolver", () => {
 	const rule = (topic: Rule["topic"], value: string, l: Layer, strength: Rule["strength"] = "should", extra: Partial<Rule> = {}): Rule => ({ topic, value, strength, layer: l, line: 1, text: "", ...extra });
-	const root = layer("AGENTS.md", 100);
-	const pkg = layer("packages/a/AGENTS.md", 102);
-	const sibling = layer("packages/b/AGENTS.md", 102);
+	const root = layer("AGENTS.md");
+	const pkg = layer("packages/a/AGENTS.md");
+	const sibling = layer("packages/b/AGENTS.md");
+	const org = layer("AGENTS.md", "org");
+	const personal = layer("AGENTS.md", "personal");
 
-	it("lets a more specific layer override a broader one", () => {
+	it("lets a deeper project file override a shallower one", () => {
 		const [f] = resolve([rule("packageManager", "npm", root), rule("packageManager", "pnpm", pkg)]);
 		expect(f.kind).toBe("overridden");
 		expect(f.rules.map((r) => r.value)).toEqual(["pnpm", "npm"]);
 	});
 
-	it("reports a conflict when both layers say must", () => {
-		const [f] = resolve([rule("formatter", "prettier", root, "must"), rule("formatter", "oxfmt", pkg, "must")]);
-		expect(f.kind).toBe("conflict");
+	it("decides winners by layer rank, not depth: org beats a nested project file", () => {
+		const [f] = resolve([rule("formatter", "prettier", org), rule("formatter", "oxfmt", pkg, "must")]);
+		expect(f.kind).toBe("overridden");
+		expect(f.rules.map((r) => `${r.layer.kind}:${r.value}`)).toEqual(["org:prettier", "project:oxfmt"]);
 	});
 
-	it("reports a conflict at equal rank across layers", () => {
-		const org = { ...layer("org/AGENTS.md", 100, ""), origin: "stack" as const, repo: "org" };
-		expect(resolve([rule("indentation", "tabs", root), rule("indentation", "2 spaces", org)])[0].kind).toBe("conflict");
+	it("lets project override personal preferences", () => {
+		const [f] = resolve([rule("packageManager", "npm", personal), rule("packageManager", "pnpm", root)]);
+		expect(f.rules.map((r) => r.layer.kind)).toEqual(["project", "personal"]);
+	});
+
+	it("reports a conflict when both rules say must, regardless of rank", () => {
+		const [f] = resolve([rule("formatter", "prettier", org, "must"), rule("formatter", "oxfmt", pkg, "must")]);
+		expect(f.kind).toBe("conflict");
+		expect(f.rules[0].layer.kind).toBe("org");
+	});
+
+	it("reports a conflict between peer layers", () => {
+		const otherOrg = { ...org, name: "org-2", repo: "org-2" };
+		expect(resolve([rule("indentation", "tabs", org), rule("indentation", "2 spaces", otherOrg)])[0].kind).toBe("conflict");
+	});
+
+	it("checks model choices against an approved-provider list", () => {
+		const policy = rule("allowedModels", "providers:anthropic,workers-ai", org, "must");
+		expect(resolve([policy, rule("allowedModels", "claude-opus-5-5", pkg)])).toEqual([]);
+		const [f] = resolve([policy, rule("allowedModels", "gpt-5.6-sol", pkg, "must")]);
+		expect(f.kind).toBe("conflict");
+		expect(f.explanation).toContain("not on the approved list");
+		expect(f.policyViolation).toBe(true);
 	});
 
 	it("ignores sibling directories and disjoint areas", () => {
 		expect(resolve([rule("packageManager", "npm", pkg), rule("packageManager", "pnpm", sibling)])).toEqual([]);
 		const examplesOnly = rule("changesetPolicy", "not-required", root, "must", { areas: ["examples", "guides"] });
+		expect(resolve([examplesOnly, rule("changesetPolicy", "required", org)])).toHaveLength(1);
 		expect(resolve([examplesOnly, rule("changesetPolicy", "required", pkg)])).toEqual([]);
 		expect(resolve([examplesOnly, rule("changesetPolicy", "required", root, "should", { areas: ["packages"] })])).toEqual([]);
 	});
@@ -132,7 +166,7 @@ describe("instructionStackProvider", () => {
 				main: {
 					"AGENTS.md": "- Use pnpm.\n- Indent with tabs.",
 					"web/AGENTS.md": "- Use npm for this package.",
-					".gitnext/stack.json": JSON.stringify({ layers: [{ name: "org", rank: 50, repo: "org-standards", path: "AGENTS.md" }] }),
+					".gitnext/stack.json": JSON.stringify({ layers: [{ name: "personal", kind: "personal", repo: "org-standards", path: "AGENTS.md" }] }),
 					".prettierrc": '{"useTabs": false}',
 					"pnpm-lock.yaml": "",
 				},

@@ -1,0 +1,10 @@
+{
+	// Extra instruction layers on top of the repo's own AGENTS.md/CLAUDE.md (kind "project", rank 3).
+	// rank: 1 org, 2 contract, 3 project, 4 tool, 5 personal. Lower rank wins; "kind" can replace "rank".
+	"layers": [
+		{ "name": "acme-org", "kind": "org", "rank": 1, "repo": "git-next-demo-layers", "path": "org/AGENTS.md" },
+		{ "name": "sow-1234", "kind": "contract", "rank": 2, "repo": "git-next-demo-layers", "path": "contract/AGENTS.md" },
+		{ "name": "coding-agent", "kind": "tool", "rank": 4, "repo": "git-next-demo-layers", "path": "tool/AGENTS.md" },
+		{ "name": "chris", "kind": "personal", "rank": 5, "repo": "git-next-demo-layers", "path": "personal/AGENTS.md" }
+	]
+}
