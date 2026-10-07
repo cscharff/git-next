@@ -58,6 +58,12 @@ const MATCHERS: Record<Topic, Matcher> = {
 		return [...new Set(models.map((m) => m.toLowerCase()))].sort().join(",");
 	},
 	securityScan: (line) => (/\bsecurity (scan|review|audit)\b/i.test(line) && /\b(before|prior to)\b[^.]*\b(pr|pull request|merge|push)/i.test(line) ? "before-pr" : null),
+	modelRouting: (line) => {
+		if (!/\b(models?|inference|llms?)\b/i.test(line)) return null;
+		if (/\bon-?prem(ises)?\b|\bself-hosted\b|\b(no|nothing|no data) (may |must |should )?leaves? the network\b|\bnever leaves? the network\b/i.test(line)) return "on-prem";
+		if (/\bai gateway\b/i.test(line) && /\b(call|calls|calling|route|routed|send)\b/i.test(line)) return "org-gateway";
+		return null;
+	},
 	secrets: (line) => {
 		if (!/\b(secrets?|api keys?|credentials?|tokens?|\.env|\.dev\.vars)\b/i.test(line)) return null;
 		if (/\b(never|do not|don't|must not)\b[^.]*\b(commit|check in|hard-?code|log|print|expose)/i.test(line)) return "never-in-source";

@@ -1,10 +1,10 @@
 import type { RepoContext } from "../../core/repo-context.ts";
-import type { Insight, InsightProvider, Severity } from "../../core/types.ts";
+import { isCloud, type Cloud, type Insight, type InsightProvider, type Severity } from "../../core/types.ts";
 import { parseJsonc } from "../../parse/jsonc.ts";
 import { configFacts, isConfigFactFile, type ConfigFact } from "./config-facts.ts";
 import { keywordExtractor } from "./extract.ts";
 import { effectiveRules, resolve, type Finding } from "./resolve.ts";
-import { KIND_RANK, LAYER_KINDS, type Layer, type LayerKind, type Rule, type RuleExtractor } from "./types.ts";
+import { KIND_RANK, LAYER_KINDS, ruleEnv, type Layer, type LayerKind, type Rule, type RuleExtractor } from "./types.ts";
 
 export const STACK_FILE = ".gitnext/stack.json";
 export const isInstructionFile = (path: string) => /(^|\/)(AGENTS|CLAUDE)\.md$/.test(path);
@@ -19,14 +19,18 @@ export async function collectLayers(files: RepoContext, repo: string, ref: strin
 	const stackText = await files.readFile(repo, ref, STACK_FILE);
 	if (stackText) {
 		try {
-			const stack = parseJsonc(stackText) as { layers?: { name: string; kind?: LayerKind; rank?: number; repo?: string; path: string }[] };
+			const stack = parseJsonc(stackText) as { layers?: { name: string; kind?: LayerKind; rank?: number; repo?: string; path: string; env?: Cloud }[] };
 			for (const l of stack.layers ?? []) {
 				const kind = l.kind ?? LAYER_KINDS[(l.rank ?? 0) - 1];
 				if (!kind || !(kind in KIND_RANK)) {
 					errors.push(`${STACK_FILE}: layer "${l.name}" needs a kind (${LAYER_KINDS.join("|")}) or a rank 1-5`);
 					continue;
 				}
-				layers.push({ name: l.name, kind, rank: l.rank ?? KIND_RANK[kind], depth: 0, repo: l.repo ?? repo, path: l.path, scopeDir: "", origin: "stack" });
+				if (l.env !== undefined && !isCloud(l.env)) {
+					errors.push(`${STACK_FILE}: layer "${l.name}" env must be one of cloudflare, gcp, aws, private`);
+					continue;
+				}
+				layers.push({ name: l.name, kind, rank: l.rank ?? KIND_RANK[kind], depth: 0, repo: l.repo ?? repo, path: l.path, scopeDir: "", origin: "stack", ...(l.env ? { env: l.env } : {}) });
 			}
 		} catch (err) {
 			errors.push(`${STACK_FILE}: ${err}`);
@@ -83,11 +87,11 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 			const insights: Insight[] = findings.map((f) => ({
 				provider: "instruction-stack",
 				severity: f.policyViolation && f.kind === "overridden" ? "warn" : SEVERITY[f.kind],
-				scope: { repo, ref, path: f.rules[0].layer.path },
-				title: `${f.policyViolation ? "policy " : ""}${f.kind}: ${f.topic}`,
+				scope: { repo, ref, path: f.rules[0].layer.path, ...(f.env ? { env: { cloud: f.env, ...(f.env !== "cloudflare" ? { mocked: true } : {}) } } : {}) },
+				title: `${f.policyViolation ? "policy " : ""}${f.kind}: ${f.topic}${f.env ? ` (env ${f.env})` : ""}`,
 				detail: f.explanation,
 				evidence: [...f.rules.map((r) => ({ repo: r.layer.repo, path: r.layer.path, line: r.line })), ...(f.fact ? [{ repo, path: f.fact.path }] : [])],
-				metrics: { kind: f.kind, topic: f.topic, ...(f.policyViolation ? { policyViolation: true } : {}), values: f.rules.map((r) => ({ value: r.value, strength: r.strength, layer: r.layer.name, kind: r.layer.kind, rank: r.layer.rank, path: r.layer.path, line: r.line, text: r.text })), ...(f.fact ? { configValue: f.fact.value } : {}) },
+				metrics: { kind: f.kind, topic: f.topic, ...(f.policyViolation ? { policyViolation: true } : {}), ...(f.env ? { env: f.env } : {}), values: f.rules.map((r) => ({ value: r.value, strength: r.strength, layer: r.layer.name, kind: r.layer.kind, rank: r.layer.rank, path: r.layer.path, line: r.line, text: r.text, ...(ruleEnv(r) ? { env: ruleEnv(r) } : {}) })), ...(f.fact ? { configValue: f.fact.value } : {}) },
 			}));
 			insights.unshift({
 				provider: "instruction-stack",
@@ -98,7 +102,7 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 				evidence: layers.map((l) => ({ repo: l.repo, path: l.path })),
 				metrics: {
 					extractor: extractor.id,
-					layers: layers.map((l) => ({ name: l.name, kind: l.kind, rank: l.rank, depth: l.depth, repo: l.repo, path: l.path, origin: l.origin })),
+					layers: layers.map((l) => ({ name: l.name, kind: l.kind, rank: l.rank, depth: l.depth, repo: l.repo, path: l.path, origin: l.origin, ...(l.env ? { env: l.env } : {}) })),
 					// Rules each layer contributes, so the dashboard can show how much of the stack comes from where.
 					// How each layer was read: by the model, from cache, or by the keyword fallback.
 					extraction: Object.fromEntries(layers.map((l) => [`${l.repo}:${l.path}`, extractor.describe?.(l.path) ?? { source: "keyword" }])),

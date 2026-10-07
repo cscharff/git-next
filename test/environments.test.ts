@@ -3,6 +3,9 @@ import { describe, expect, it } from "vitest";
 import { RepoContext, memorySource } from "../src/core/repo-context.ts";
 import { insightClouds, type Insight } from "../src/core/types.ts";
 import { bindingApproval, catalogSummary, equivalentApproval, equivalentModels, parseCatalog } from "../src/providers/catalog.ts";
+import { instructionStackProvider } from "../src/providers/instruction-stack/index.ts";
+import { effectiveRules, resolve } from "../src/providers/instruction-stack/resolve.ts";
+import { KIND_RANK, type Layer, type Rule } from "../src/providers/instruction-stack/types.ts";
 import { cloudflareResources, ENVIRONMENTS_FILE, environmentsProvider, parseEnvironments } from "../src/providers/environments.ts";
 
 const catalog = parseCatalog(readFileSync(new URL("../fixtures/org-baseline/catalog.json", import.meta.url), "utf8"));
@@ -138,5 +141,42 @@ describe("insightClouds", () => {
 		expect(insightClouds({ ...base, provider: "x", scope: { repo: "r", ref: "m", env: { cloud: "gcp" } } } as Insight)).toEqual(["gcp"]);
 		expect(insightClouds({ ...base, provider: "x", scope: { repo: "r", ref: "m" }, metrics: { clouds: ["aws", "private"] } } as Insight)).toEqual(["aws", "private"]);
 		expect(insightClouds({ ...base, provider: "instruction-stack", scope: { repo: "r", ref: "m" } } as Insight)).toHaveLength(4);
+	});
+});
+
+describe("environment-scoped rules", () => {
+	const layer = (name: string, env?: Layer["env"]): Layer => ({ name, kind: "org", rank: KIND_RANK.org, depth: 0, repo: "layers", path: `${name}/AGENTS.md`, scopeDir: "", origin: "stack", ...(env ? { env } : {}) });
+	const rule = (value: string, l: Layer): Rule => ({ topic: "modelRouting", value, strength: "must", layer: l, line: 1, text: value });
+	const org = rule("org-gateway", layer("org"));
+
+	it("reports a conflict with an env-scoped layer only for that environment", () => {
+		const [f, ...rest] = resolve([org, rule("on-prem", layer("onprem", "private"))]);
+		expect(rest).toEqual([]);
+		expect(f).toMatchObject({ kind: "conflict", topic: "modelRouting", env: "private" });
+		expect(f.explanation).toContain("in private environments");
+		// Rules scoped to different environments never meet.
+		expect(resolve([rule("on-prem", layer("a", "private")), rule("org-gateway", layer("b", "aws"))])).toEqual([]);
+		// Effective rules: unscoped by default, plus the env's own when asked.
+		expect(effectiveRules([org, rule("on-prem", layer("onprem", "private"))], "").map((r) => r.value)).toEqual(["org-gateway"]);
+		expect(effectiveRules([org, rule("on-prem", layer("onprem", "private"))], "", "private").map((r) => r.value)).toEqual(["org-gateway", "on-prem"]);
+	});
+
+	it("flows from stack.json through the extractor and resolver to an env-scoped insight", async () => {
+		const read = (p: string) => readFileSync(new URL(`../fixtures/${p}`, import.meta.url), "utf8");
+		const layers = { "org/AGENTS.md": read("demo-layers/org/AGENTS.md"), "private/AGENTS.md": read("demo-layers/private/AGENTS.md"), "contract/AGENTS.md": read("demo-layers/contract/AGENTS.md"), "tool/AGENTS.md": read("demo-layers/tool/AGENTS.md"), "personal/AGENTS.md": read("demo-layers/personal/AGENTS.md") };
+		const files = new RepoContext(async (name) => memorySource(name === "git-next-demo-layers" ? { HEAD: layers } : { main: { ".gitnext/stack.json": read("demo-environments/stack.json"), "AGENTS.md": "# Project\n" } }));
+		const out = await instructionStackProvider().analyze({ repo: "agents-demo-full", ref: "main", files });
+		const scoped = out.filter((i) => i.scope.env);
+		expect(scoped.map((i) => i.title)).toEqual(["conflict: modelRouting (env private)"]);
+		expect(scoped[0].scope.env).toEqual({ cloud: "private", mocked: true });
+		expect((scoped[0].metrics!.values as { value: string; env?: string }[]).map((v) => `${v.value}${v.env ? `@${v.env}` : ""}`)).toEqual(["org-gateway", "on-prem@private"]);
+		expect(insightClouds(scoped[0])).toEqual(["private"]);
+		expect((out[0].metrics!.layers as { name: string; env?: string }[]).find((l) => l.name === "onprem-platform")?.env).toBe("private");
+	});
+
+	it("rejects an unknown env on a stack layer", async () => {
+		const files = new RepoContext(async () => memorySource({ main: { ".gitnext/stack.json": '{"layers":[{"name":"x","kind":"org","path":"x.md","env":"azure"}]}' } }));
+		const [summary] = await instructionStackProvider().analyze({ repo: "r", ref: "main", files });
+		expect(summary.detail).toMatch(/env must be one of/);
 	});
 });
