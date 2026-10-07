@@ -3,7 +3,10 @@ import { artifactsSource } from "./core/artifacts-source.ts";
 import { RepoContext } from "./core/repo-context.ts";
 import { withDemoLayers } from "./demo-layers.ts";
 import { handleDevRoute } from "./dev-routes.ts";
-import { buildContext } from "./providers/context/index.ts";
+import { buildContext, sectionsOf } from "./providers/context/index.ts";
+import { Bm25Retriever } from "./providers/context/retrieve.ts";
+import type { Section } from "./providers/context/sections.ts";
+import { EMBED_MODEL, HybridRetriever, VectorizeRetriever, coverage, indexSections, type Manifest } from "./providers/context/vectorize.ts";
 import { gatewayLogsSource, type CostSource } from "./providers/cost/logs.ts";
 import { fixtureCostSource } from "./providers/cost/index.ts";
 import { accessToken, verifyAccess } from "./access.ts";
@@ -47,6 +50,22 @@ const modelExtractor: RuleExtractor | undefined = env.AI
 	: undefined;
 
 /** `enforce` checks repos without their own catalog against the org baseline (?catalog=org). */
+// ── embeddings ──
+const embed = async (texts: string[]): Promise<number[][]> => {
+	const out = (await env.AI.run(EMBED_MODEL as any, { text: texts } as any, { gateway: { id: GATEWAY_ID, metadata: { developer: "git-next", repo: "git-next", fork: "resolver", agent: "git-next-indexer", task: "embed#sections" } } })) as any;
+	return out.data as number[][];
+};
+const manifest: Manifest = {
+	get: async (repo) => (await env.RESULTS.get(`vindex/${repo}`, "json")) as string[] | null,
+	put: async (repo, ids) => env.RESULTS.put(`vindex/${repo}`, JSON.stringify(ids)),
+};
+/** Hybrid (BM25 + vectors) once ≥90% of the repo's sections are indexed; BM25 until then, or when asked. */
+const retrieverFor = (repo: string, forceBm25: boolean) => async (sections: Section[]) => {
+	const bm25 = new Bm25Retriever(sections);
+	if (forceBm25 || !env.SECTIONS) return bm25;
+	return (await coverage(manifest, repo, sections)) >= 0.9 ? new HybridRetriever(bm25, new VectorizeRetriever(repo, sections, embed, env.SECTIONS)) : bm25;
+};
+
 /** `extractor: null` means the deterministic keyword extractor (undefined would pick the default). */
 const registryFor = (enforce: boolean, cost: CostSource | undefined = costSource, extractor: RuleExtractor | null = modelExtractor ?? null) =>
 	createRegistry(cost, { baseline: BASELINE_CATALOG, enforceBaseline: enforce, maxFiles: 300, configOnlyWithoutCatalog: true }, extractor ?? keywordExtractor);
@@ -102,7 +121,7 @@ export default {
 
 		// POST /context {repo, ref, task, paths[], budgetTokens} -> rules for those paths + best sections within budget.
 		if (request.method === "POST" && url.pathname === "/context") {
-			const body = (await request.json().catch(() => null)) as Partial<{ repo: string; ref: string; task: string; paths: string[]; budgetTokens: number; layers: string; catalog: string; extractor: string }> | null;
+			const body = (await request.json().catch(() => null)) as Partial<{ repo: string; ref: string; task: string; paths: string[]; budgetTokens: number; layers: string; catalog: string; extractor: string; retriever: string }> | null;
 			if (!body || !REPO_NAME.test(body.repo ?? "") || !body.task) return Response.json({ error: "repo and task are required" }, { status: 400 });
 			const files = contextFor(url, body.repo!, body.layers === "demo");
 			try {
@@ -117,7 +136,7 @@ export default {
 						budgetTokens: Math.min(Math.max(Number(body.budgetTokens) || 4000, 500), 200_000),
 						...(body.catalog === "org" ? { catalog: BASELINE_CATALOG } : {}),
 						},
-						undefined,
+						retrieverFor(body.repo!, body.retriever === "bm25"),
 						body.extractor === "keyword" ? undefined : modelExtractor,
 					),
 				);
@@ -129,7 +148,7 @@ export default {
 		const sample = url.pathname.match(/^\/samples\/((?:[a-z0-9-]+\/)?[a-z0-9.-]+\.json)$/);
 		if (request.method === "GET" && sample && SAMPLES[sample[1]]) return Response.json(SAMPLES[sample[1]]);
 
-		if (url.pathname.startsWith("/dev/") && url.pathname !== "/dev/gateway-smoke" && url.pathname !== "/dev/enqueue") {
+		if (url.pathname.startsWith("/dev/") && url.pathname !== "/dev/gateway-smoke" && url.pathname !== "/dev/enqueue" && url.pathname !== "/dev/index") {
 			if (!isLocal(url)) return Response.json({ error: "not found" }, { status: 404 });
 			try {
 				const res = await handleDevRoute(request, url, env, GATEWAY_ID);
@@ -172,6 +191,16 @@ export default {
 			return stored ? Response.json(stored) : Response.json({ error: "no stored result yet" }, { status: 404 });
 		}
 
+		// POST /dev/index {"repo","ref"} (localhost only): embed and index a repo's markdown sections now.
+		if (request.method === "POST" && url.pathname === "/dev/index" && isLocal(url)) {
+			const body = (await request.json().catch(() => ({}))) as { repo?: string; ref?: string };
+			if (!REPO_NAME.test(body.repo ?? "")) return Response.json({ error: "repo is required" }, { status: 400 });
+			const started = Date.now();
+			const files = contextFor(url, body.repo!, false);
+			const result = await indexSections({ embed, index: env.SECTIONS, manifest }, body.repo!, await sectionsOf(files, body.repo!, body.ref || "main"));
+			return Response.json({ repo: body.repo, ...result, ms: Date.now() - started });
+		}
+
 		// POST /dev/enqueue {"repo","ref"} (localhost only): simulate an Artifacts push event for local testing.
 		if (request.method === "POST" && url.pathname === "/dev/enqueue" && isLocal(url)) {
 			const body = (await request.json().catch(() => ({}))) as { repo?: string; ref?: string };
@@ -210,6 +239,13 @@ export default {
 				const result = await registry.run({ repo: push.repo, ref: push.trigger.after, base: push.trigger.before ?? undefined, files });
 				const entry = await putResult(env.RESULTS, push.repo, push.ref, { repo: push.repo, ref: push.ref, commit: push.trigger.after, base: push.trigger.before, ms: Date.now() - started, ...result }, push.trigger);
 				console.log(JSON.stringify({ event: "analysed", repo: push.repo, ref: push.ref, after: push.trigger.after.slice(0, 10), ms: entry.ms, conflicts: entry.conflicts, catalogViolations: entry.catalogViolations }));
+				// Keep embeddings current for sliced context; a failure here doesn't fail the analysis.
+				try {
+					const indexed = await indexSections({ embed, index: env.SECTIONS, manifest }, push.repo, await sectionsOf(files, push.repo, push.trigger.after));
+					console.log(JSON.stringify({ event: "indexed", repo: push.repo, ...indexed }));
+				} catch (err) {
+					console.error(JSON.stringify({ event: "index-failed", repo: push.repo, error: String(err).slice(0, 300) }));
+				}
 				message.ack();
 			} catch (err) {
 				console.error(JSON.stringify({ event: "analysis-failed", repo: push.repo, ref: push.ref, error: String(err).slice(0, 300) }));

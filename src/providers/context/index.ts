@@ -16,7 +16,7 @@ export interface ContextRequest {
 	catalog?: Catalog;
 }
 
-export type RetrieverFactory = (sections: Section[]) => Retriever;
+export type RetrieverFactory = (sections: Section[]) => Retriever | Promise<Retriever>;
 
 export const isMarkdown = (path: string) => /\.mdx?$/i.test(path) && !/(^|\/)CHANGELOG\.md$/i.test(path);
 const dirOf = (path: string) => (path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "");
@@ -30,6 +30,12 @@ const MAX_SECTION_SHARE = 0.35;
  * Builds a task-sized context: the resolved rules for the touched paths, then the best-matching markdown
  * sections that fit the token budget, plus a manifest of what was left out and why.
  */
+/** Every markdown file at a ref, split into heading sections (also used to index embeddings at push time). */
+export async function sectionsOf(files: RepoContext, repo: string, ref: string, mdFiles?: { path: string }[]): Promise<Section[]> {
+	const list = mdFiles ?? (await files.find(repo, ref, isMarkdown));
+	return (await Promise.all(list.map(async (f) => splitSections(f.path, (await files.readFile(repo, ref, f.path)) ?? "")))).flat();
+}
+
 export async function buildContext(files: RepoContext, req: ContextRequest, makeRetriever: RetrieverFactory = (s) => new Bm25Retriever(s), extractor?: RuleExtractor) {
 	const { repo, ref, task, paths, budgetTokens } = req;
 	const [stack, mdFiles] = await Promise.all([loadStack(files, repo, ref, extractor), files.find(repo, ref, isMarkdown)]);
@@ -72,14 +78,14 @@ export async function buildContext(files: RepoContext, req: ContextRequest, make
 	const rulesTokens = estimateTokens(JSON.stringify(rulesBlock)) + pinnedTokens;
 
 	// 2. Index every markdown file into heading sections.
-	const sections = (await Promise.all(mdFiles.map(async (f) => splitSections(f.path, (await files.readFile(repo, ref, f.path)) ?? "")))).flat();
+	const sections = await sectionsOf(files, repo, ref, mdFiles);
 	const tokensAllMarkdown = sections.reduce((n, s) => n + s.tokens, 0);
 	const instructionPaths = new Set(stack.layers.filter((l) => l.repo === repo).map((l) => l.path));
 	const onPath = stack.layers.filter((l) => l.repo === repo && (paths.length ? paths.some((p) => governs(l.scopeDir, p)) : l.scopeDir === ""));
 	const tokensInstructionFilesOnPath = onPath.reduce((n, l) => n + estimateTokens(stack.texts.get(l) ?? ""), 0);
 
 	// 3. Retrieve and re-weight: governing instruction files and nearby docs up, unrelated instruction files down.
-	const retriever = makeRetriever(sections);
+	const retriever = await makeRetriever(sections);
 	// Task words count double; path words only when specific (not "src", "ts", "packages"...).
 	const pathWords = paths.flatMap((p) => p.split(/[/._-]/)).filter((w) => w && !GENERIC_PATH_WORDS.has(w.toLowerCase()));
 	const query = `${task} ${task} ${pathWords.join(" ")}`;

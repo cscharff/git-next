@@ -20,6 +20,8 @@ export default defineConfig({
 			ARTIFACTS: bindings.artifacts({ namespace: "default", dev: { remote: true } }),
 			// Workers AI, routed through the git-next AI Gateway (logs + cost per request metadata).
 			AI: bindings.ai({ dev: { remote: true } }),
+			// Embeddings of markdown sections (EmbeddingGemma-300m, 768-dim, cosine), filtered by repo.
+			SECTIONS: bindings.vectorize({ name: "git-next-sections", dev: { remote: true } }),
 			// Stored results (latest insights per repo/ref, index, recent pushes) and the rule-extraction cache.
 			RESULTS: bindings.kv({ id: "add53cfdb613401cbc50c632dfb058f9" }),
 			// Push events from Artifacts (event subscriptions → this queue); the producer is used by /dev/enqueue locally.

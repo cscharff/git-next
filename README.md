@@ -88,8 +88,12 @@ The demo uses [cloudflare/agents](https://github.com/cloudflare/agents) (MIT, 1,
   5. **Owners** (the stub, see [Writing a provider](#writing-a-provider)) reports instruction files that no
      CODEOWNERS rule covers.
   - **Sliced context** (`src/providers/context`) is the resolved rules for the touched paths, plus the
-    best-matching markdown sections within a token budget, plus a manifest of what was left out. It uses BM25 behind
-    `Retriever`/`Embedder` interfaces, ready for Workers AI EmbeddingGemma + Vectorize. On cloudflare/agents it
+    best-matching markdown sections within a token budget, plus a manifest of what was left out. In the Worker it uses
+    **hybrid retrieval**: BM25 fused with **EmbeddingGemma-300m vectors in Vectorize** (`git-next-sections`,
+    768-dim, filtered by repo), with vectors at half weight. On cloudflare/agents that adds the right docs for
+    natural-language tasks without losing exact matches. Sections are embedded at push time by the queue consumer;
+    only changed sections are re-embedded, and a KV manifest tracks coverage. Until a repo is at least 90% indexed,
+    or with `"retriever": "bm25"`, it uses BM25 alone. On cloudflare/agents it
     serves about 3,000–4,000 tokens out of 889,608 tokens of markdown.
 - **Dashboard** has panels for the instruction stack, resource map with diff badges, cost per agent, sliced context
   and the demo agents. A fork selector switches between agents-demo-full and the forks. It loads bundled samples
