@@ -11,6 +11,11 @@ export const CLOUDS = ["cloudflare", "gcp", "aws", "private"] as const;
 export type Cloud = (typeof CLOUDS)[number];
 export const isCloud = (v: unknown): v is Cloud => typeof v === "string" && (CLOUDS as readonly string[]).includes(v);
 
+/** Normalized resource kinds, so R2, GCS, S3 and MinIO can be compared as "object-store". */
+export const RESOURCE_KINDS = ["object-store", "sql-db", "kv-cache", "queue", "compute", "ai", "vector", "secrets"] as const;
+export type ResourceKind = (typeof RESOURCE_KINDS)[number];
+export const isResourceKind = (v: unknown): v is ResourceKind => typeof v === "string" && (RESOURCE_KINDS as readonly string[]).includes(v);
+
 export interface EnvScope {
 	cloud: Cloud;
 	/** Environment name from .gitnext/environments.json (e.g. prod-aws, staging-cf, onprem). */

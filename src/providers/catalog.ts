@@ -1,5 +1,5 @@
 import type { RepoContext, TreeFile } from "../core/repo-context.ts";
-import type { Insight, InsightProvider } from "../core/types.ts";
+import { isCloud, isResourceKind, type Cloud, type Insight, type InsightProvider, type ResourceKind } from "../core/types.ts";
 import { parseJsonc } from "../parse/jsonc.ts";
 import { isWranglerConfig, parseWranglerConfig, type BindingType } from "./resource-map.ts";
 
@@ -15,7 +15,14 @@ export interface CatalogShared {
 	how?: string;
 }
 export interface CatalogBinding {
-	type: BindingType;
+	/** Wrangler binding type on Cloudflare; a short service id elsewhere (e.g. "s3", "gcs", "minio"). */
+	type: BindingType | (string & {});
+	/** Default "cloudflare". Entries for other clouds only take part in equivalence checks. */
+	cloud?: Cloud;
+	/** Equivalence class: R2 (cloudflare), GCS (gcp), S3 (aws) and MinIO (private) are all "object-store". */
+	class?: ResourceKind;
+	/** Display name of the service (S3, Cloud SQL, MinIO...). */
+	service?: string;
 	owner?: string;
 	/** Glob for resource names (e.g. "acme-*"); shared resources are always allowed. */
 	naming?: string;
@@ -26,6 +33,10 @@ export interface CatalogBinding {
 }
 export interface CatalogModel {
 	id: string;
+	/** Default "cloudflare" (Workers AI or unified billing through the org gateway). */
+	cloud?: Cloud;
+	/** Equivalence class: the same model served by different clouds (e.g. "claude-sonnet-5"). */
+	class?: string;
 	jobs?: string[];
 	owner?: string;
 	rule?: string;
@@ -48,7 +59,50 @@ export function parseCatalog(text: string): Catalog {
 	if (typeof c.version !== "string" || !c.version) throw new Error("catalog.version must be a non-empty string");
 	if (!Array.isArray(c.models) || !c.models.every((m) => m && typeof m.id === "string")) throw new Error("catalog.models must be a list of { id }");
 	if (!Array.isArray(c.bindings) || !c.bindings.every((b) => b && typeof b.type === "string")) throw new Error("catalog.bindings must be a list of { type }");
+	for (const e of [...c.models, ...c.bindings] as { cloud?: unknown }[]) if (e.cloud !== undefined && !isCloud(e.cloud)) throw new Error(`catalog cloud must be one of cloudflare, gcp, aws, private (got ${JSON.stringify(e.cloud)})`);
+	for (const b of c.bindings) if (b.class !== undefined && !isResourceKind(b.class)) throw new Error(`catalog binding class ${JSON.stringify(b.class)} is not a resource kind`);
 	return c as Catalog;
+}
+
+export const cloudOf = (e: { cloud?: Cloud }): Cloud => e.cloud ?? "cloudflare";
+/** Cloudflare entries only: what Cloudflare repos are checked against and what agents are told. */
+const cf = <T extends { cloud?: Cloud }>(xs: T[]) => xs.filter((x) => cloudOf(x) === "cloudflare");
+
+/** Display name of a catalog binding entry (its service, or the binding type on Cloudflare). */
+const serviceName = (b: CatalogBinding) => b.service ?? b.type;
+
+export interface EquivalentApproval {
+	approved: boolean;
+	reason?: string;
+	alternative?: string;
+	/** Every approved service in the same class, per cloud. */
+	equivalents: { cloud: Cloud; service: string }[];
+}
+
+/**
+ * Approval of a resource on any cloud by its equivalence class: S3 on aws is approved when the catalog lists an
+ * object-store entry for aws naming S3. Cloudflare resources match by binding type, others by service name.
+ */
+export function equivalentApproval(catalog: Catalog, r: { cloud: Cloud; kind: ResourceKind; service: string; type?: string }): EquivalentApproval {
+	const inClass = catalog.bindings.filter((b) => b.class === r.kind);
+	const equivalents = inClass.map((b) => ({ cloud: cloudOf(b), service: serviceName(b) }));
+	const here = inClass.filter((b) => cloudOf(b) === r.cloud);
+	const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+	if (here.some((b) => (r.type && b.type === r.type) || norm(serviceName(b)) === norm(r.service) || norm(b.type) === norm(r.service))) return { approved: true, equivalents };
+	const elsewhere = equivalents.filter((e) => e.cloud !== r.cloud).map((e) => `${e.service} (${e.cloud})`);
+	return {
+		approved: false,
+		reason: here.length ? `${r.service} is not an approved ${r.kind} on ${r.cloud}` : `the catalog approves no ${r.kind} on ${r.cloud}`,
+		alternative: here.length ? `approved on ${r.cloud}: ${here.map(serviceName).join(", ")}` : elsewhere.length ? `approved elsewhere: ${elsewhere.join(", ")}` : undefined,
+		equivalents,
+	};
+}
+
+/** Approved models in the same equivalence class on other clouds (planning-only entries excluded). */
+export function equivalentModels(catalog: Catalog, model: string): CatalogModel[] {
+	const entry = catalogModel(catalog, model);
+	if (!entry?.class) return [];
+	return catalog.models.filter((m) => m !== entry && m.class === entry.class && cloudOf(m) !== cloudOf(entry) && !planningOnly(m));
 }
 
 /** Orders dotted/dashed versions numerically ("2026.10.2" > "2026.9.10"). */
@@ -128,8 +182,8 @@ export function modelApproved(catalog: Catalog, model: string): boolean {
 
 /** Approval of one binding against the catalog, with the approved alternative when it fails. */
 export function bindingApproval(catalog: Catalog, type: string, resource?: string): { approved: boolean; reason?: string; alternative?: string } {
-	const entry = catalog.bindings.find((b) => b.type === type);
-	if (!entry) return { approved: false, reason: `binding type ${type} is not in the catalog`, alternative: `approved types: ${catalog.bindings.map((b) => b.type).join(", ")}` };
+	const entry = cf(catalog.bindings).find((b) => b.type === type);
+	if (!entry) return { approved: false, reason: `binding type ${type} is not in the catalog`, alternative: `approved types: ${cf(catalog.bindings).map((b) => b.type).join(", ")}` };
 	if (!resource || !["r2_buckets", "kv_namespaces", "d1_databases", "queues", "vectorize"].includes(type)) return { approved: true };
 	const name = resource.replace(/^.*:/, "");
 	if (entry.shared?.some((s) => s.name === name)) return { approved: true };
@@ -210,7 +264,7 @@ export async function checkCatalog(files: RepoContext, repo: string, ref: string
 			}
 		}
 		for (const [model, where] of unapproved) {
-			const approved = catalog.models.filter((m) => !planningOnly(m)).map((m) => `${m.id}${m.jobs?.length ? ` (${m.jobs.join("/")})` : ""}`).join(", ");
+			const approved = cf(catalog.models).filter((m) => !planningOnly(m)).map((m) => `${m.id}${m.jobs?.length ? ` (${m.jobs.join("/")})` : ""}`).join(", ");
 			const entry = catalogModel(catalog, model);
 			findings.push(
 				entry
@@ -274,12 +328,12 @@ export function relevantCatalogEntries(catalog: Catalog, task: string): string[]
 	const words = new Set(task.toLowerCase().match(/[a-z0-9]+/g) ?? []);
 	const hit = (kw?: string[]) => kw?.some((k) => words.has(k) || words.has(`${k}s`) || words.has(k.replace(/s$/, "")));
 	const lines: string[] = [];
-	for (const b of catalog.bindings) {
+	for (const b of cf(catalog.bindings)) {
 		if (!hit(b.keywords)) continue;
 		lines.push(`${b.type}: approved${b.naming ? `; names must match ${b.naming}` : ""}${b.owner ? `; owner ${b.owner}` : ""}${b.how ? `; bind with ${b.how}` : ""}`);
 		for (const s of b.shared ?? []) lines.push(`  shared ${b.type}: ${s.binding ?? ""} → ${s.name}${s.how ? `; ${s.how}` : ""}`);
 	}
-	for (const m of catalog.models) if (hit(m.keywords)) lines.push(`model for ${m.jobs?.join("/") ?? "this job"}: ${m.id}`);
+	for (const m of cf(catalog.models)) if (hit(m.keywords)) lines.push(`model for ${m.jobs?.join("/") ?? "this job"}: ${m.id}`);
 	return lines;
 }
 
@@ -287,9 +341,9 @@ export function relevantCatalogEntries(catalog: Catalog, task: string): string[]
 export function catalogSummary(catalog: Catalog): string {
 	const lines = [`Org catalog ${catalog.version}${catalog.owner ? ` (owner ${catalog.owner})` : ""}.`];
 	if (catalog.gateway) lines.push(`AI only via gateway "${catalog.gateway.id}"${catalog.gateway.how ? `: ${catalog.gateway.how}` : ""}.`);
-	lines.push(`Approved models: ${catalog.models.map((m) => `${m.id}${m.jobs?.length ? ` (${m.jobs.join("/")})` : ""}`).join(", ")}.`);
-	lines.push(`Approved binding types: ${catalog.bindings.map((b) => `${b.type}${b.naming ? ` [${b.naming}]` : ""}`).join(", ")}.`);
-	const shared = catalog.bindings.flatMap((b) => (b.shared ?? []).map((s) => `${s.binding ?? b.type} → ${s.name}`));
+	lines.push(`Approved models: ${cf(catalog.models).map((m) => `${m.id}${m.jobs?.length ? ` (${m.jobs.join("/")})` : ""}`).join(", ")}.`);
+	lines.push(`Approved binding types: ${cf(catalog.bindings).map((b) => `${b.type}${b.naming ? ` [${b.naming}]` : ""}`).join(", ")}.`);
+	const shared = cf(catalog.bindings).flatMap((b) => (b.shared ?? []).map((s) => `${s.binding ?? b.type} → ${s.name}`));
 	if (shared.length) lines.push(`Shared resources: ${shared.join(", ")}.`);
 	if (catalog.checks?.length) lines.push(`Required checks: ${catalog.checks.map((c) => c.command ?? c.name).join(", ")}.`);
 	lines.push("Secrets: never inline; use wrangler secret put or .dev.vars.");
