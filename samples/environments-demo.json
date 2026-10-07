@@ -3,12 +3,12 @@
   "note": "MOCKED multi-cloud demo. staging-cf is agents-demo-full's recorded agent-think/wrangler.jsonc; prod-aws, analytics-gcp and onprem are declared in fixtures/demo-environments/environments.json and never read from a cloud. Cost: fixtures/ai-gateway-logs.json plus mocked Bedrock, Vertex AI and vLLM records (fixtures/mocked-clouds). Instruction stack: fixtures/demo-environments/stack.json (demo layers plus an on-prem layer scoped to env=private).",
   "repo": "agents-demo-full",
   "ref": "main",
-  "ms": 15,
+  "ms": 18,
   "providers": [
     {
       "id": "instruction-stack",
       "ok": true,
-      "ms": 14,
+      "ms": 17,
       "count": 2
     },
     {
@@ -20,7 +20,7 @@
     {
       "id": "environments",
       "ok": true,
-      "ms": 7,
+      "ms": 8,
       "count": 14
     }
   ],
@@ -1912,14 +1912,19 @@
         "agent": "agent-think"
       },
       "title": "agent agent-think spends 8.17× the median",
-      "detail": "$26.22 vs a median agent spend of $3.21.",
+      "detail": "$26.22 vs a median agent spend of $3.21. Includes mocked records.",
       "evidence": [],
       "metrics": {
         "level": "agent",
         "key": "agent-think",
         "cost": 26.224245,
         "median": 3.209288,
-        "multiple": 8.17
+        "multiple": 8.17,
+        "clouds": [
+          "cloudflare",
+          "aws"
+        ],
+        "mocked": true
       }
     },
     {
@@ -1930,14 +1935,19 @@
         "ref": "main"
       },
       "title": "developer devon spends 3.79× the median",
-      "detail": "$26.22 vs a median developer spend of $6.92.",
+      "detail": "$26.22 vs a median developer spend of $6.92. Includes mocked records.",
       "evidence": [],
       "metrics": {
         "level": "developer",
         "key": "devon",
         "cost": 26.224245,
         "median": 6.922767,
-        "multiple": 3.79
+        "multiple": 3.79,
+        "clouds": [
+          "cloudflare",
+          "aws"
+        ],
+        "mocked": true
       }
     },
     {
@@ -1956,7 +1966,11 @@
         "key": "claude-code",
         "cost": 8.1408,
         "median": 3.209288,
-        "multiple": 2.54
+        "multiple": 2.54,
+        "clouds": [
+          "cloudflare"
+        ],
+        "mocked": false
       }
     },
     {

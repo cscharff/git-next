@@ -101,9 +101,9 @@ export function costProvider(source: CostSource = fixtureCostSource(), opts: { c
 						severity: "warn",
 						scope: { repo, ref, ...(f.level === "agent" ? { agent: f.key } : {}) },
 						title: `${f.level} ${f.key} spends ${f.multiple}× the median`,
-						detail: `${usd(f.cost)} vs a median ${f.level} spend of ${usd(f.median)}.`,
+						detail: `${usd(f.cost)} vs a median ${f.level} spend of ${usd(f.median)}.${multi && records.some((r) => r[f.level] === f.key && r.mocked) ? " Includes mocked records." : ""}`,
 						evidence: [],
-						metrics: { ...f },
+						metrics: { ...f, ...(multi ? { clouds: [...new Set(records.filter((r) => r[f.level] === f.key).map((r) => r.cloud))], mocked: records.some((r) => r[f.level] === f.key && r.mocked) } : {}) },
 					}),
 				),
 				...policy.map(
