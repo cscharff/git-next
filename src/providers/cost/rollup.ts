@@ -36,6 +36,24 @@ export function rollup(records: CostRecord[], depth = 0): RollupNode[] {
 		.sort((a, b) => b.cost - a.cost);
 }
 
+export interface CloudSpend {
+	cloud: CostRecord["cloud"];
+	/** True when any record for this cloud came from a mocked source. */
+	mocked: boolean;
+	cost: number;
+	requests: number;
+	tokensIn: number;
+	tokensOut: number;
+	models: string[];
+}
+
+/** Spend per cloud (the "by cloud" dimension), most expensive first. */
+export function byCloud(records: CostRecord[]): CloudSpend[] {
+	return [...Map.groupBy(records, (r) => r.cloud)]
+		.map(([cloud, rs]) => ({ cloud, mocked: rs.some((r) => r.mocked), cost: round(rs.reduce((n, r) => n + r.cost, 0)), requests: rs.length, tokensIn: rs.reduce((n, r) => n + r.tokensIn, 0), tokensOut: rs.reduce((n, r) => n + r.tokensOut, 0), models: [...new Set(rs.map((r) => r.model))] }))
+		.sort((a, b) => b.cost - a.cost);
+}
+
 export function median(values: number[]): number {
 	if (!values.length) return 0;
 	const s = [...values].sort((a, b) => a - b);

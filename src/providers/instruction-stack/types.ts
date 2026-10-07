@@ -1,3 +1,5 @@
+import type { Cloud } from "../../core/types.ts";
+
 export const TOPICS = [
 	"packageManager",
 	"formatter",
@@ -9,6 +11,7 @@ export const TOPICS = [
 	"allowedModels",
 	"secrets",
 	"securityScan",
+	"modelRouting",
 ] as const;
 export type Topic = (typeof TOPICS)[number];
 
@@ -31,6 +34,8 @@ export interface Layer {
 	/** Directory the layer governs ("" = whole repo). Stack-file layers govern the whole repo. */
 	scopeDir: string;
 	origin: "project" | "stack";
+	/** Stack layers only: the layer applies in this cloud's environments only (e.g. an on-prem platform layer). */
+	env?: Cloud;
 }
 
 export interface Rule {
@@ -42,7 +47,12 @@ export interface Rule {
 	text: string;
 	/** Top-level directories the rule names (e.g. "examples, guides"); the rule only applies there. */
 	areas?: string[];
+	/** Environment scope; defaults to the layer's. Unscoped rules apply in every environment. */
+	env?: Cloud;
 }
+
+/** A rule's environment scope (its own, else its layer's); undefined = every environment. */
+export const ruleEnv = (r: Rule): Cloud | undefined => r.env ?? r.layer.env;
 
 /** Pluggable so a model-backed extractor can replace the deterministic one later. */
 export interface RuleExtractor {

@@ -1,0 +1,3141 @@
+{
+  "mocked": true,
+  "note": "MOCKED multi-cloud demo. staging-cf is agents-demo-full's recorded agent-think/wrangler.jsonc; prod-aws, analytics-gcp and onprem are declared in fixtures/demo-environments/environments.json and never read from a cloud. Cost: fixtures/ai-gateway-logs.json plus mocked Bedrock, Vertex AI and vLLM records (fixtures/mocked-clouds). Instruction stack: fixtures/demo-environments/stack.json (demo layers plus an on-prem layer scoped to env=private).",
+  "repo": "agents-demo-full",
+  "ref": "main",
+  "ms": 18,
+  "providers": [
+    {
+      "id": "instruction-stack",
+      "ok": true,
+      "ms": 17,
+      "count": 2
+    },
+    {
+      "id": "cost",
+      "ok": true,
+      "ms": 4,
+      "count": 25
+    },
+    {
+      "id": "environments",
+      "ok": true,
+      "ms": 8,
+      "count": 14
+    }
+  ],
+  "insights": [
+    {
+      "provider": "instruction-stack",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main"
+      },
+      "title": "Instruction stack: 5 layers, 9 rules",
+      "detail": "Extractor keyword-v1; 1 findings.",
+      "evidence": [
+        {
+          "repo": "git-next-demo-layers",
+          "path": "org/AGENTS.md"
+        },
+        {
+          "repo": "git-next-demo-layers",
+          "path": "private/AGENTS.md"
+        },
+        {
+          "repo": "git-next-demo-layers",
+          "path": "contract/AGENTS.md"
+        },
+        {
+          "repo": "git-next-demo-layers",
+          "path": "tool/AGENTS.md"
+        },
+        {
+          "repo": "git-next-demo-layers",
+          "path": "personal/AGENTS.md"
+        }
+      ],
+      "metrics": {
+        "extractor": "keyword-v1",
+        "layers": [
+          {
+            "name": "acme-org",
+            "kind": "org",
+            "rank": 1,
+            "depth": 0,
+            "repo": "git-next-demo-layers",
+            "path": "org/AGENTS.md",
+            "origin": "stack"
+          },
+          {
+            "name": "onprem-platform",
+            "kind": "org",
+            "rank": 1,
+            "depth": 0,
+            "repo": "git-next-demo-layers",
+            "path": "private/AGENTS.md",
+            "origin": "stack",
+            "env": "private"
+          },
+          {
+            "name": "sow-1234",
+            "kind": "contract",
+            "rank": 2,
+            "depth": 0,
+            "repo": "git-next-demo-layers",
+            "path": "contract/AGENTS.md",
+            "origin": "stack"
+          },
+          {
+            "name": "coding-agent",
+            "kind": "tool",
+            "rank": 4,
+            "depth": 0,
+            "repo": "git-next-demo-layers",
+            "path": "tool/AGENTS.md",
+            "origin": "stack"
+          },
+          {
+            "name": "chris",
+            "kind": "personal",
+            "rank": 5,
+            "depth": 0,
+            "repo": "git-next-demo-layers",
+            "path": "personal/AGENTS.md",
+            "origin": "stack"
+          }
+        ],
+        "extraction": {
+          "git-next-demo-layers:org/AGENTS.md": {
+            "source": "keyword"
+          },
+          "git-next-demo-layers:private/AGENTS.md": {
+            "source": "keyword"
+          },
+          "git-next-demo-layers:contract/AGENTS.md": {
+            "source": "keyword"
+          },
+          "git-next-demo-layers:tool/AGENTS.md": {
+            "source": "keyword"
+          },
+          "git-next-demo-layers:personal/AGENTS.md": {
+            "source": "keyword"
+          }
+        },
+        "rulesPerLayer": {
+          "git-next-demo-layers:org/AGENTS.md": 3,
+          "git-next-demo-layers:private/AGENTS.md": 1,
+          "git-next-demo-layers:contract/AGENTS.md": 2,
+          "git-next-demo-layers:tool/AGENTS.md": 1,
+          "git-next-demo-layers:personal/AGENTS.md": 2
+        },
+        "rulesByTopic": {
+          "allowedModels": [
+            "providers:anthropic,workers-ai"
+          ],
+          "modelRouting": [
+            "org-gateway",
+            "on-prem"
+          ],
+          "secrets": [
+            "never-in-source"
+          ],
+          "commitFormat": [
+            "ticket-id-prefix"
+          ],
+          "changesetPolicy": [
+            "not-required"
+          ],
+          "securityScan": [
+            "before-pr"
+          ],
+          "packageManager": [
+            "npm"
+          ],
+          "formatter": [
+            "prettier"
+          ]
+        },
+        "effective": {
+          ".": [
+            {
+              "topic": "allowedModels",
+              "value": "providers:anthropic,workers-ai",
+              "strength": "must",
+              "layer": "acme-org",
+              "kind": "org",
+              "path": "org/AGENTS.md",
+              "line": 3
+            },
+            {
+              "topic": "modelRouting",
+              "value": "org-gateway",
+              "strength": "must",
+              "layer": "acme-org",
+              "kind": "org",
+              "path": "org/AGENTS.md",
+              "line": 4
+            },
+            {
+              "topic": "secrets",
+              "value": "never-in-source",
+              "strength": "must",
+              "layer": "acme-org",
+              "kind": "org",
+              "path": "org/AGENTS.md",
+              "line": 5
+            },
+            {
+              "topic": "commitFormat",
+              "value": "ticket-id-prefix",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 3
+            },
+            {
+              "topic": "changesetPolicy",
+              "value": "not-required",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 4
+            },
+            {
+              "topic": "securityScan",
+              "value": "before-pr",
+              "strength": "should",
+              "layer": "coding-agent",
+              "kind": "tool",
+              "path": "tool/AGENTS.md",
+              "line": 3
+            },
+            {
+              "topic": "packageManager",
+              "value": "npm",
+              "strength": "should",
+              "layer": "chris",
+              "kind": "personal",
+              "path": "personal/AGENTS.md",
+              "line": 3
+            },
+            {
+              "topic": "formatter",
+              "value": "prettier",
+              "strength": "should",
+              "layer": "chris",
+              "kind": "personal",
+              "path": "personal/AGENTS.md",
+              "line": 4
+            }
+          ]
+        },
+        "counts": {
+          "conflict": 1
+        }
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "conflict",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "org/AGENTS.md",
+        "env": {
+          "cloud": "private",
+          "mocked": true
+        }
+      },
+      "title": "conflict: modelRouting (env private)",
+      "detail": "acme-org [org] (org/AGENTS.md:4) says \"org-gateway\" but onprem-platform [org] (private/AGENTS.md:5) says \"on-prem\" in private environments; both are hard requirements.",
+      "evidence": [
+        {
+          "repo": "git-next-demo-layers",
+          "path": "org/AGENTS.md",
+          "line": 4
+        },
+        {
+          "repo": "git-next-demo-layers",
+          "path": "private/AGENTS.md",
+          "line": 5
+        }
+      ],
+      "metrics": {
+        "kind": "conflict",
+        "topic": "modelRouting",
+        "env": "private",
+        "values": [
+          {
+            "value": "org-gateway",
+            "strength": "must",
+            "layer": "acme-org",
+            "kind": "org",
+            "rank": 1,
+            "path": "org/AGENTS.md",
+            "line": 4,
+            "text": "Call models only through the org AI Gateway `git-next`, never directly."
+          },
+          {
+            "value": "on-prem",
+            "strength": "must",
+            "layer": "onprem-platform",
+            "kind": "org",
+            "rank": 1,
+            "path": "private/AGENTS.md",
+            "line": 5,
+            "text": "No data leaves the network: models must run on-prem (vLLM in the onprem cluster), never through an external gateway.",
+            "env": "private"
+          }
+        ]
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main"
+      },
+      "title": "AI spend $43.60 across 87 requests",
+      "detail": "7 agents; 3 requests have no developer metadata (identity coverage 97%). Source: fixture:ai-gateway-logs+mocked:bedrock+mocked:vertex-ai+mocked:vllm. Includes 25 MOCKED requests (gcp, aws, private), not real spend.",
+      "evidence": [],
+      "metrics": {
+        "source": "fixture:ai-gateway-logs+mocked:bedrock+mocked:vertex-ai+mocked:vllm",
+        "total": 43.60125,
+        "requests": 87,
+        "rollup": [
+          {
+            "level": "project",
+            "key": "agents-demo-full",
+            "cost": 43.60125,
+            "requests": 87,
+            "tokensIn": 4174539,
+            "tokensOut": 323171,
+            "cachedRequests": 8,
+            "failedRequests": 2,
+            "children": [
+              {
+                "level": "developer",
+                "key": "devon",
+                "cost": 26.224245,
+                "requests": 30,
+                "tokensIn": 2167008,
+                "tokensOut": 150984,
+                "cachedRequests": 3,
+                "failedRequests": 2,
+                "children": [
+                  {
+                    "level": "fork",
+                    "key": "devon/think-repro",
+                    "cost": 26.224245,
+                    "requests": 30,
+                    "tokensIn": 2167008,
+                    "tokensOut": 150984,
+                    "cachedRequests": 3,
+                    "failedRequests": 2,
+                    "children": [
+                      {
+                        "level": "agent",
+                        "key": "agent-think",
+                        "cost": 26.224245,
+                        "requests": 30,
+                        "tokensIn": 2167008,
+                        "tokensOut": 150984,
+                        "cachedRequests": 3,
+                        "failedRequests": 2,
+                        "children": [
+                          {
+                            "level": "task",
+                            "key": "debug#140",
+                            "cost": 2.741715,
+                            "requests": 1,
+                            "tokensIn": 142966,
+                            "tokensOut": 7963,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "debug#141",
+                            "cost": 2.336235,
+                            "requests": 1,
+                            "tokensIn": 124909,
+                            "tokensOut": 6168,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "debug#144",
+                            "cost": 2.33181,
+                            "requests": 1,
+                            "tokensIn": 114224,
+                            "tokensOut": 8246,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "debug#143",
+                            "cost": 1.87761,
+                            "requests": 1,
+                            "tokensIn": 83544,
+                            "tokensOut": 8326,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "debug#139",
+                            "cost": 1.812315,
+                            "requests": 1,
+                            "tokensIn": 96101,
+                            "tokensOut": 4944,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "debug#142",
+                            "cost": 1.67148,
+                            "requests": 1,
+                            "tokensIn": 83027,
+                            "tokensOut": 5681,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#133",
+                            "cost": 1.34926,
+                            "requests": 1,
+                            "tokensIn": 104602,
+                            "tokensOut": 7581,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#131",
+                            "cost": 1.3414,
+                            "requests": 1,
+                            "tokensIn": 105252,
+                            "tokensOut": 7222,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#127",
+                            "cost": 1.29206,
+                            "requests": 1,
+                            "tokensIn": 104742,
+                            "tokensOut": 6116,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#130",
+                            "cost": 1.1913,
+                            "requests": 1,
+                            "tokensIn": 95034,
+                            "tokensOut": 6024,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#126",
+                            "cost": 1.18242,
+                            "requests": 1,
+                            "tokensIn": 88214,
+                            "tokensOut": 7507,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#129",
+                            "cost": 1.1658,
+                            "requests": 1,
+                            "tokensIn": 98608,
+                            "tokensOut": 4493,
+                            "cachedRequests": 0,
+                            "failedRequests": 1,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#125",
+                            "cost": 1.14597,
+                            "requests": 1,
+                            "tokensIn": 89437,
+                            "tokensOut": 6290,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#136",
+                            "cost": 0.90587,
+                            "requests": 1,
+                            "tokensIn": 60015,
+                            "tokensOut": 7643,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#132",
+                            "cost": 0.90498,
+                            "requests": 1,
+                            "tokensIn": 63538,
+                            "tokensOut": 6740,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#138",
+                            "cost": 0.89999,
+                            "requests": 1,
+                            "tokensIn": 69735,
+                            "tokensOut": 5066,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#128",
+                            "cost": 0.89515,
+                            "requests": 1,
+                            "tokensIn": 69915,
+                            "tokensOut": 4900,
+                            "cachedRequests": 0,
+                            "failedRequests": 1,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "review#205",
+                            "cost": 0.21239,
+                            "requests": 1,
+                            "tokensIn": 52652,
+                            "tokensOut": 3629,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "review#206",
+                            "cost": 0.21023,
+                            "requests": 1,
+                            "tokensIn": 50535,
+                            "tokensOut": 3908,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "review#203",
+                            "cost": 0.20961,
+                            "requests": 1,
+                            "tokensIn": 51881,
+                            "tokensOut": 3598,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "review#204",
+                            "cost": 0.18348,
+                            "requests": 1,
+                            "tokensIn": 39879,
+                            "tokensOut": 4256,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "review#201",
+                            "cost": 0.16144,
+                            "requests": 1,
+                            "tokensIn": 30002,
+                            "tokensOut": 4762,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "review#202",
+                            "cost": 0.15551,
+                            "requests": 1,
+                            "tokensIn": 38677,
+                            "tokensOut": 2632,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "chat#210",
+                            "cost": 0.01226,
+                            "requests": 1,
+                            "tokensIn": 7420,
+                            "tokensOut": 968,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "chat#208",
+                            "cost": 0.01191,
+                            "requests": 1,
+                            "tokensIn": 5871,
+                            "tokensOut": 1208,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "chat#207",
+                            "cost": 0.01179,
+                            "requests": 1,
+                            "tokensIn": 8084,
+                            "tokensOut": 742,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "chat#209",
+                            "cost": 0.01026,
+                            "requests": 1,
+                            "tokensIn": 7490,
+                            "tokensOut": 554,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#134",
+                            "cost": 0,
+                            "requests": 1,
+                            "tokensIn": 91557,
+                            "tokensOut": 6280,
+                            "cachedRequests": 1,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#135",
+                            "cost": 0,
+                            "requests": 1,
+                            "tokensIn": 88876,
+                            "tokensOut": 4329,
+                            "cachedRequests": 1,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "triage#137",
+                            "cost": 0,
+                            "requests": 1,
+                            "tokensIn": 100221,
+                            "tokensOut": 3208,
+                            "cachedRequests": 1,
+                            "failedRequests": 0,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "level": "developer",
+                "key": "chris",
+                "cost": 8.1408,
+                "requests": 15,
+                "tokensIn": 771656,
+                "tokensOut": 52749,
+                "cachedRequests": 2,
+                "failedRequests": 0,
+                "children": [
+                  {
+                    "level": "fork",
+                    "key": "chris/mcp-reconnect",
+                    "cost": 8.1408,
+                    "requests": 15,
+                    "tokensIn": 771656,
+                    "tokensOut": 52749,
+                    "cachedRequests": 2,
+                    "failedRequests": 0,
+                    "children": [
+                      {
+                        "level": "agent",
+                        "key": "claude-code",
+                        "cost": 8.1408,
+                        "requests": 15,
+                        "tokensIn": 771656,
+                        "tokensOut": 52749,
+                        "cachedRequests": 2,
+                        "failedRequests": 0,
+                        "children": [
+                          {
+                            "level": "task",
+                            "key": "debug#101",
+                            "cost": 1.35948,
+                            "requests": 1,
+                            "tokensIn": 61222,
+                            "tokensOut": 5882,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "debug#102",
+                            "cost": 1.30566,
+                            "requests": 1,
+                            "tokensIn": 75119,
+                            "tokensOut": 2385,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "debug#105",
+                            "cost": 1.163175,
+                            "requests": 1,
+                            "tokensIn": 54630,
+                            "tokensOut": 4583,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "debug#104",
+                            "cost": 1.008435,
+                            "requests": 1,
+                            "tokensIn": 45944,
+                            "tokensOut": 4257,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "format#114",
+                            "cost": 0.580155,
+                            "requests": 1,
+                            "tokensIn": 34707,
+                            "tokensOut": 794,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "format#115",
+                            "cost": 0.555615,
+                            "requests": 1,
+                            "tokensIn": 33701,
+                            "tokensOut": 668,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "format#112",
+                            "cost": 0.50388,
+                            "requests": 1,
+                            "tokensIn": 29822,
+                            "tokensOut": 754,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "format#113",
+                            "cost": 0.42183,
+                            "requests": 1,
+                            "tokensIn": 22682,
+                            "tokensOut": 1088,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#109",
+                            "cost": 0.270387,
+                            "requests": 1,
+                            "tokensIn": 67434,
+                            "tokensOut": 4539,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#108",
+                            "cost": 0.264483,
+                            "requests": 1,
+                            "tokensIn": 50216,
+                            "tokensOut": 7589,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#111",
+                            "cost": 0.257661,
+                            "requests": 1,
+                            "tokensIn": 58022,
+                            "tokensOut": 5573,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#110",
+                            "cost": 0.253278,
+                            "requests": 1,
+                            "tokensIn": 66986,
+                            "tokensOut": 3488,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#107",
+                            "cost": 0.196761,
+                            "requests": 1,
+                            "tokensIn": 38727,
+                            "tokensOut": 5372,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "debug#103",
+                            "cost": 0,
+                            "requests": 1,
+                            "tokensIn": 54070,
+                            "tokensOut": 2153,
+                            "cachedRequests": 1,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "debug#106",
+                            "cost": 0,
+                            "requests": 1,
+                            "tokensIn": 78374,
+                            "tokensOut": 3624,
+                            "cachedRequests": 1,
+                            "failedRequests": 0,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "level": "developer",
+                "key": "maya",
+                "cost": 5.704734,
+                "requests": 18,
+                "tokensIn": 728483,
+                "tokensOut": 65942,
+                "cachedRequests": 0,
+                "failedRequests": 0,
+                "children": [
+                  {
+                    "level": "fork",
+                    "key": "maya/workflows-example",
+                    "cost": 5.704734,
+                    "requests": 18,
+                    "tokensIn": 728483,
+                    "tokensOut": 65942,
+                    "cachedRequests": 0,
+                    "failedRequests": 0,
+                    "children": [
+                      {
+                        "level": "agent",
+                        "key": "codex",
+                        "cost": 3.254484,
+                        "requests": 9,
+                        "tokensIn": 334031,
+                        "tokensOut": 35007,
+                        "cachedRequests": 0,
+                        "failedRequests": 0,
+                        "children": [
+                          {
+                            "level": "task",
+                            "key": "feature#117",
+                            "cost": 0.73704,
+                            "requests": 1,
+                            "tokensIn": 48776,
+                            "tokensOut": 6232,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#119",
+                            "cost": 0.71056,
+                            "requests": 1,
+                            "tokensIn": 57524,
+                            "tokensOut": 3383,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#118",
+                            "cost": 0.6321,
+                            "requests": 1,
+                            "tokensIn": 41474,
+                            "tokensOut": 5434,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#116",
+                            "cost": 0.56458,
+                            "requests": 1,
+                            "tokensIn": 43818,
+                            "tokensOut": 3160,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#120",
+                            "cost": 0.45121,
+                            "requests": 1,
+                            "tokensIn": 32129,
+                            "tokensOut": 3248,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "test#124",
+                            "cost": 0.04579,
+                            "requests": 1,
+                            "tokensIn": 33038,
+                            "tokensOut": 3601,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "test#121",
+                            "cost": 0.045532,
+                            "requests": 1,
+                            "tokensIn": 34602,
+                            "tokensOut": 3165,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "test#122",
+                            "cost": 0.035266,
+                            "requests": 1,
+                            "tokensIn": 20739,
+                            "tokensOut": 3891,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "test#123",
+                            "cost": 0.032406,
+                            "requests": 1,
+                            "tokensIn": 21931,
+                            "tokensOut": 2893,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "level": "agent",
+                        "key": "analytics-agent",
+                        "cost": 2.45025,
+                        "requests": 9,
+                        "tokensIn": 394452,
+                        "tokensOut": 30935,
+                        "cachedRequests": 0,
+                        "failedRequests": 0,
+                        "children": [
+                          {
+                            "level": "task",
+                            "key": "feature#205",
+                            "cost": 0.54822,
+                            "requests": 1,
+                            "tokensIn": 76480,
+                            "tokensOut": 6633,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#201",
+                            "cost": 0.54023,
+                            "requests": 1,
+                            "tokensIn": 76896,
+                            "tokensOut": 6230,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#203",
+                            "cost": 0.52849,
+                            "requests": 1,
+                            "tokensIn": 76927,
+                            "tokensOut": 5754,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#204",
+                            "cost": 0.4615,
+                            "requests": 1,
+                            "tokensIn": 65750,
+                            "tokensOut": 5310,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#202",
+                            "cost": 0.35087,
+                            "requests": 1,
+                            "tokensIn": 44913,
+                            "tokensOut": 5052,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "classify#207",
+                            "cost": 0.00666,
+                            "requests": 1,
+                            "tokensIn": 18046,
+                            "tokensOut": 499,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "classify#209",
+                            "cost": 0.00514,
+                            "requests": 1,
+                            "tokensIn": 13142,
+                            "tokensOut": 477,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "classify#206",
+                            "cost": 0.00499,
+                            "requests": 1,
+                            "tokensIn": 12467,
+                            "tokensOut": 501,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "classify#208",
+                            "cost": 0.00415,
+                            "requests": 1,
+                            "tokensIn": 9831,
+                            "tokensOut": 479,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "level": "developer",
+                "key": "priya",
+                "cost": 3.171471,
+                "requests": 21,
+                "tokensIn": 432392,
+                "tokensOut": 44496,
+                "cachedRequests": 3,
+                "failedRequests": 0,
+                "children": [
+                  {
+                    "level": "fork",
+                    "key": "priya/docs-refresh",
+                    "cost": 3.171471,
+                    "requests": 21,
+                    "tokensIn": 432392,
+                    "tokensOut": 44496,
+                    "cachedRequests": 3,
+                    "failedRequests": 0,
+                    "children": [
+                      {
+                        "level": "agent",
+                        "key": "docs-bot",
+                        "cost": 3.164091,
+                        "requests": 15,
+                        "tokensIn": 300069,
+                        "tokensOut": 36737,
+                        "cachedRequests": 3,
+                        "failedRequests": 0,
+                        "children": [
+                          {
+                            "level": "task",
+                            "key": "changelog#150",
+                            "cost": 0.59556,
+                            "requests": 1,
+                            "tokensIn": 24914,
+                            "tokensOut": 2958,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "changelog#147",
+                            "cost": 0.471705,
+                            "requests": 1,
+                            "tokensIn": 18197,
+                            "tokensOut": 2650,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "changelog#146",
+                            "cost": 0.448935,
+                            "requests": 1,
+                            "tokensIn": 18654,
+                            "tokensOut": 2255,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "changelog#145",
+                            "cost": 0.4365,
+                            "requests": 1,
+                            "tokensIn": 18650,
+                            "tokensOut": 2090,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "changelog#149",
+                            "cost": 0.428205,
+                            "requests": 1,
+                            "tokensIn": 15457,
+                            "tokensOut": 2618,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "changelog#148",
+                            "cost": 0.386385,
+                            "requests": 1,
+                            "tokensIn": 18714,
+                            "tokensOut": 1409,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "docs#155",
+                            "cost": 0.138963,
+                            "requests": 1,
+                            "tokensIn": 26531,
+                            "tokensOut": 3958,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "docs#152",
+                            "cost": 0.13008,
+                            "requests": 1,
+                            "tokensIn": 26445,
+                            "tokensOut": 3383,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "docs#153",
+                            "cost": 0.119631,
+                            "requests": 1,
+                            "tokensIn": 20062,
+                            "tokensOut": 3963,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "format#157",
+                            "cost": 0.003094,
+                            "requests": 1,
+                            "tokensIn": 17588,
+                            "tokensOut": 911,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "format#156",
+                            "cost": 0.002611,
+                            "requests": 1,
+                            "tokensIn": 15447,
+                            "tokensOut": 588,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "format#159",
+                            "cost": 0.002422,
+                            "requests": 1,
+                            "tokensIn": 12394,
+                            "tokensOut": 1126,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "docs#151",
+                            "cost": 0,
+                            "requests": 1,
+                            "tokensIn": 31453,
+                            "tokensOut": 3493,
+                            "cachedRequests": 1,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "docs#154",
+                            "cost": 0,
+                            "requests": 1,
+                            "tokensIn": 22778,
+                            "tokensOut": 4705,
+                            "cachedRequests": 1,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "format#158",
+                            "cost": 0,
+                            "requests": 1,
+                            "tokensIn": 12785,
+                            "tokensOut": 630,
+                            "cachedRequests": 1,
+                            "failedRequests": 0,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "level": "agent",
+                        "key": "onprem-indexer",
+                        "cost": 0.00738,
+                        "requests": 6,
+                        "tokensIn": 132323,
+                        "tokensOut": 7759,
+                        "cachedRequests": 0,
+                        "failedRequests": 0,
+                        "children": [
+                          {
+                            "level": "task",
+                            "key": "summarize#201",
+                            "cost": 0.00158,
+                            "requests": 1,
+                            "tokensIn": 28745,
+                            "tokensOut": 1469,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "summarize#206",
+                            "cost": 0.0015,
+                            "requests": 1,
+                            "tokensIn": 28179,
+                            "tokensOut": 866,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "summarize#202",
+                            "cost": 0.00141,
+                            "requests": 1,
+                            "tokensIn": 24585,
+                            "tokensOut": 1853,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "summarize#204",
+                            "cost": 0.0012,
+                            "requests": 1,
+                            "tokensIn": 21213,
+                            "tokensOut": 1411,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "summarize#205",
+                            "cost": 0.00102,
+                            "requests": 1,
+                            "tokensIn": 18429,
+                            "tokensOut": 1032,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "summarize#203",
+                            "cost": 0.00067,
+                            "requests": 1,
+                            "tokensIn": 11172,
+                            "tokensOut": 1128,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "level": "developer",
+                "key": "(unattributed)",
+                "cost": 0.36,
+                "requests": 3,
+                "tokensIn": 75000,
+                "tokensOut": 9000,
+                "cachedRequests": 0,
+                "failedRequests": 0,
+                "children": [
+                  {
+                    "level": "fork",
+                    "key": "(unattributed)",
+                    "cost": 0.36,
+                    "requests": 3,
+                    "tokensIn": 75000,
+                    "tokensOut": 9000,
+                    "cachedRequests": 0,
+                    "failedRequests": 0,
+                    "children": [
+                      {
+                        "level": "agent",
+                        "key": "(unattributed)",
+                        "cost": 0.36,
+                        "requests": 3,
+                        "tokensIn": 75000,
+                        "tokensOut": 9000,
+                        "cachedRequests": 0,
+                        "failedRequests": 0,
+                        "children": [
+                          {
+                            "level": "task",
+                            "key": "(unattributed)",
+                            "cost": 0.36,
+                            "requests": 3,
+                            "tokensIn": 75000,
+                            "tokensOut": 9000,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "agents": [
+          {
+            "agent": "agent-think",
+            "cost": 26.224245,
+            "requests": 30,
+            "models": [
+              "openai/gpt-5.6-sol",
+              "anthropic/claude-opus-5.5",
+              "bedrock/anthropic.claude-sonnet-5",
+              "bedrock/anthropic.claude-haiku-4.5"
+            ],
+            "clouds": [
+              "cloudflare",
+              "aws"
+            ],
+            "mocked": true
+          },
+          {
+            "agent": "claude-code",
+            "cost": 8.1408,
+            "requests": 15,
+            "models": [
+              "anthropic/claude-opus-5.5",
+              "anthropic/claude-sonnet-5.5"
+            ],
+            "clouds": [
+              "cloudflare"
+            ],
+            "mocked": false
+          },
+          {
+            "agent": "codex",
+            "cost": 3.2544840000000006,
+            "requests": 9,
+            "models": [
+              "openai/gpt-5.6-sol",
+              "@cf/moonshotai/kimi-k2.7-code"
+            ],
+            "clouds": [
+              "cloudflare"
+            ],
+            "mocked": false
+          },
+          {
+            "agent": "docs-bot",
+            "cost": 3.164091,
+            "requests": 15,
+            "models": [
+              "anthropic/claude-opus-5.5",
+              "anthropic/claude-sonnet-5.5",
+              "@cf/zai-org/glm-5.3-flash"
+            ],
+            "clouds": [
+              "cloudflare"
+            ],
+            "mocked": false
+          },
+          {
+            "agent": "analytics-agent",
+            "cost": 2.45025,
+            "requests": 9,
+            "models": [
+              "vertex/anthropic.claude-opus-5.5",
+              "vertex/gemini-3-flash"
+            ],
+            "clouds": [
+              "gcp"
+            ],
+            "mocked": true
+          },
+          {
+            "agent": "(unattributed)",
+            "cost": 0.36,
+            "requests": 3,
+            "models": [
+              "anthropic/claude-sonnet-5.5"
+            ],
+            "clouds": [
+              "cloudflare"
+            ],
+            "mocked": false
+          },
+          {
+            "agent": "onprem-indexer",
+            "cost": 0.007379999999999999,
+            "requests": 6,
+            "models": [
+              "vllm/glm-5.3-flash"
+            ],
+            "clouds": [
+              "private"
+            ],
+            "mocked": true
+          }
+        ],
+        "byCloud": [
+          {
+            "cloud": "cloudflare",
+            "mocked": false,
+            "cost": 39.96474,
+            "requests": 62,
+            "tokensIn": 3355273,
+            "tokensOut": 258220,
+            "models": [
+              "anthropic/claude-opus-5.5",
+              "anthropic/claude-sonnet-5.5",
+              "openai/gpt-5.6-sol",
+              "@cf/moonshotai/kimi-k2.7-code",
+              "@cf/zai-org/glm-5.3-flash"
+            ]
+          },
+          {
+            "cloud": "gcp",
+            "mocked": true,
+            "cost": 2.45025,
+            "requests": 9,
+            "tokensIn": 394452,
+            "tokensOut": 30935,
+            "models": [
+              "vertex/anthropic.claude-opus-5.5",
+              "vertex/gemini-3-flash"
+            ]
+          },
+          {
+            "cloud": "aws",
+            "mocked": true,
+            "cost": 1.17888,
+            "requests": 10,
+            "tokensIn": 292491,
+            "tokensOut": 26257,
+            "models": [
+              "bedrock/anthropic.claude-sonnet-5",
+              "bedrock/anthropic.claude-haiku-4.5"
+            ]
+          },
+          {
+            "cloud": "private",
+            "mocked": true,
+            "cost": 0.00738,
+            "requests": 6,
+            "tokensIn": 132323,
+            "tokensOut": 7759,
+            "models": [
+              "vllm/glm-5.3-flash"
+            ]
+          }
+        ],
+        "clouds": [
+          "cloudflare",
+          "gcp",
+          "aws",
+          "private"
+        ],
+        "mockedRequests": 25
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "env": {
+          "cloud": "cloudflare",
+          "mocked": false
+        }
+      },
+      "title": "cloudflare: $39.96 over 62 requests",
+      "detail": "Models: anthropic/claude-opus-5.5, anthropic/claude-sonnet-5.5, openai/gpt-5.6-sol, @cf/moonshotai/kimi-k2.7-code, @cf/zai-org/glm-5.3-flash.",
+      "evidence": [],
+      "metrics": {
+        "cloud": "cloudflare",
+        "mocked": false,
+        "cost": 39.96474,
+        "requests": 62,
+        "tokensIn": 3355273,
+        "tokensOut": 258220,
+        "models": [
+          "anthropic/claude-opus-5.5",
+          "anthropic/claude-sonnet-5.5",
+          "openai/gpt-5.6-sol",
+          "@cf/moonshotai/kimi-k2.7-code",
+          "@cf/zai-org/glm-5.3-flash"
+        ]
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "env": {
+          "cloud": "gcp",
+          "mocked": true
+        }
+      },
+      "title": "gcp (mocked): $2.45 over 9 requests",
+      "detail": "Models: vertex/anthropic.claude-opus-5.5, vertex/gemini-3-flash. Mocked records, not real spend.",
+      "evidence": [],
+      "metrics": {
+        "cloud": "gcp",
+        "mocked": true,
+        "cost": 2.45025,
+        "requests": 9,
+        "tokensIn": 394452,
+        "tokensOut": 30935,
+        "models": [
+          "vertex/anthropic.claude-opus-5.5",
+          "vertex/gemini-3-flash"
+        ]
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "env": {
+          "cloud": "aws",
+          "mocked": true
+        }
+      },
+      "title": "aws (mocked): $1.18 over 10 requests",
+      "detail": "Models: bedrock/anthropic.claude-sonnet-5, bedrock/anthropic.claude-haiku-4.5. Mocked records, not real spend.",
+      "evidence": [],
+      "metrics": {
+        "cloud": "aws",
+        "mocked": true,
+        "cost": 1.17888,
+        "requests": 10,
+        "tokensIn": 292491,
+        "tokensOut": 26257,
+        "models": [
+          "bedrock/anthropic.claude-sonnet-5",
+          "bedrock/anthropic.claude-haiku-4.5"
+        ]
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "env": {
+          "cloud": "private",
+          "mocked": true
+        }
+      },
+      "title": "private (mocked): $0.00738 over 6 requests",
+      "detail": "Models: vllm/glm-5.3-flash. Mocked records, not real spend.",
+      "evidence": [],
+      "metrics": {
+        "cloud": "private",
+        "mocked": true,
+        "cost": 0.00738,
+        "requests": 6,
+        "tokensIn": 132323,
+        "tokensOut": 7759,
+        "models": [
+          "vllm/glm-5.3-flash"
+        ]
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "agent-think"
+      },
+      "title": "agent-think: $26.22 over 30 requests",
+      "detail": "Models: openai/gpt-5.6-sol, anthropic/claude-opus-5.5, bedrock/anthropic.claude-sonnet-5, bedrock/anthropic.claude-haiku-4.5.",
+      "evidence": [],
+      "metrics": {
+        "agent": "agent-think",
+        "cost": 26.224245,
+        "requests": 30,
+        "models": [
+          "openai/gpt-5.6-sol",
+          "anthropic/claude-opus-5.5",
+          "bedrock/anthropic.claude-sonnet-5",
+          "bedrock/anthropic.claude-haiku-4.5"
+        ],
+        "clouds": [
+          "cloudflare",
+          "aws"
+        ],
+        "mocked": true
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "claude-code"
+      },
+      "title": "claude-code: $8.14 over 15 requests",
+      "detail": "Models: anthropic/claude-opus-5.5, anthropic/claude-sonnet-5.5.",
+      "evidence": [],
+      "metrics": {
+        "agent": "claude-code",
+        "cost": 8.1408,
+        "requests": 15,
+        "models": [
+          "anthropic/claude-opus-5.5",
+          "anthropic/claude-sonnet-5.5"
+        ],
+        "clouds": [
+          "cloudflare"
+        ],
+        "mocked": false
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "codex"
+      },
+      "title": "codex: $3.25 over 9 requests",
+      "detail": "Models: openai/gpt-5.6-sol, @cf/moonshotai/kimi-k2.7-code.",
+      "evidence": [],
+      "metrics": {
+        "agent": "codex",
+        "cost": 3.2544840000000006,
+        "requests": 9,
+        "models": [
+          "openai/gpt-5.6-sol",
+          "@cf/moonshotai/kimi-k2.7-code"
+        ],
+        "clouds": [
+          "cloudflare"
+        ],
+        "mocked": false
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "docs-bot"
+      },
+      "title": "docs-bot: $3.16 over 15 requests",
+      "detail": "Models: anthropic/claude-opus-5.5, anthropic/claude-sonnet-5.5, @cf/zai-org/glm-5.3-flash.",
+      "evidence": [],
+      "metrics": {
+        "agent": "docs-bot",
+        "cost": 3.164091,
+        "requests": 15,
+        "models": [
+          "anthropic/claude-opus-5.5",
+          "anthropic/claude-sonnet-5.5",
+          "@cf/zai-org/glm-5.3-flash"
+        ],
+        "clouds": [
+          "cloudflare"
+        ],
+        "mocked": false
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "analytics-agent"
+      },
+      "title": "analytics-agent: $2.45 over 9 requests",
+      "detail": "Models: vertex/anthropic.claude-opus-5.5, vertex/gemini-3-flash.",
+      "evidence": [],
+      "metrics": {
+        "agent": "analytics-agent",
+        "cost": 2.45025,
+        "requests": 9,
+        "models": [
+          "vertex/anthropic.claude-opus-5.5",
+          "vertex/gemini-3-flash"
+        ],
+        "clouds": [
+          "gcp"
+        ],
+        "mocked": true
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "(unattributed)"
+      },
+      "title": "(unattributed): $0.36 over 3 requests",
+      "detail": "Models: anthropic/claude-sonnet-5.5.",
+      "evidence": [],
+      "metrics": {
+        "agent": "(unattributed)",
+        "cost": 0.36,
+        "requests": 3,
+        "models": [
+          "anthropic/claude-sonnet-5.5"
+        ],
+        "clouds": [
+          "cloudflare"
+        ],
+        "mocked": false
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "onprem-indexer"
+      },
+      "title": "onprem-indexer: $0.00738 over 6 requests",
+      "detail": "Models: vllm/glm-5.3-flash.",
+      "evidence": [],
+      "metrics": {
+        "agent": "onprem-indexer",
+        "cost": 0.007379999999999999,
+        "requests": 6,
+        "models": [
+          "vllm/glm-5.3-flash"
+        ],
+        "clouds": [
+          "private"
+        ],
+        "mocked": true
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "agent-think"
+      },
+      "title": "agent agent-think spends 8.17× the median",
+      "detail": "$26.22 vs a median agent spend of $3.21. Includes mocked records.",
+      "evidence": [],
+      "metrics": {
+        "level": "agent",
+        "key": "agent-think",
+        "cost": 26.224245,
+        "median": 3.209288,
+        "multiple": 8.17,
+        "clouds": [
+          "cloudflare",
+          "aws"
+        ],
+        "mocked": true
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main"
+      },
+      "title": "developer devon spends 3.79× the median",
+      "detail": "$26.22 vs a median developer spend of $6.92. Includes mocked records.",
+      "evidence": [],
+      "metrics": {
+        "level": "developer",
+        "key": "devon",
+        "cost": 26.224245,
+        "median": 6.922767,
+        "multiple": 3.79,
+        "clouds": [
+          "cloudflare",
+          "aws"
+        ],
+        "mocked": true
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "claude-code"
+      },
+      "title": "agent claude-code spends 2.54× the median",
+      "detail": "$8.14 vs a median agent spend of $3.21.",
+      "evidence": [],
+      "metrics": {
+        "level": "agent",
+        "key": "claude-code",
+        "cost": 8.1408,
+        "median": 3.209288,
+        "multiple": 2.54,
+        "clouds": [
+          "cloudflare"
+        ],
+        "mocked": false
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "claude-code"
+      },
+      "title": "Catalog: claude-code used anthropic/claude-opus-5.5 for format",
+      "detail": "anthropic/claude-opus-5.5 is approved for planning/review/coding, but ran \"format\" (chores) work: approved model providers; fallback planner (4 requests).",
+      "evidence": [],
+      "metrics": {
+        "agent": "claude-code",
+        "model": "anthropic/claude-opus-5.5",
+        "taskLabel": "format",
+        "requests": 4,
+        "cloud": "cloudflare",
+        "mocked": false,
+        "reason": "outside-jobs",
+        "detail": "anthropic/claude-opus-5.5 is approved for planning/review/coding, but ran \"format\" (chores) work: approved model providers; fallback planner",
+        "catalogVersion": "2026.10.4"
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "codex"
+      },
+      "title": "Catalog: codex used openai/gpt-5.6-sol",
+      "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.4 (5 requests).",
+      "evidence": [],
+      "metrics": {
+        "agent": "codex",
+        "model": "openai/gpt-5.6-sol",
+        "taskLabel": "feature",
+        "requests": 5,
+        "reason": "not-in-catalog",
+        "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.4",
+        "cloud": "cloudflare",
+        "mocked": false,
+        "catalogVersion": "2026.10.4"
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "agent-think"
+      },
+      "title": "Catalog: agent-think used openai/gpt-5.6-sol",
+      "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.4 (14 requests).",
+      "evidence": [],
+      "metrics": {
+        "agent": "agent-think",
+        "model": "openai/gpt-5.6-sol",
+        "taskLabel": "triage",
+        "requests": 14,
+        "reason": "not-in-catalog",
+        "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.4",
+        "cloud": "cloudflare",
+        "mocked": false,
+        "catalogVersion": "2026.10.4"
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "docs-bot"
+      },
+      "title": "Catalog: docs-bot used anthropic/claude-opus-5.5 for changelog",
+      "detail": "anthropic/claude-opus-5.5 is approved for planning/review/coding, but ran \"changelog\" (chores) work: approved model providers; fallback planner (6 requests).",
+      "evidence": [],
+      "metrics": {
+        "agent": "docs-bot",
+        "model": "anthropic/claude-opus-5.5",
+        "taskLabel": "changelog",
+        "requests": 6,
+        "cloud": "cloudflare",
+        "mocked": false,
+        "reason": "outside-jobs",
+        "detail": "anthropic/claude-opus-5.5 is approved for planning/review/coding, but ran \"changelog\" (chores) work: approved model providers; fallback planner",
+        "catalogVersion": "2026.10.4"
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "analytics-agent",
+        "env": {
+          "cloud": "gcp",
+          "mocked": true
+        }
+      },
+      "title": "Catalog: analytics-agent used vertex/gemini-3-flash",
+      "detail": "vertex/gemini-3-flash is not in catalog 2026.10.4 (4 requests).",
+      "evidence": [],
+      "metrics": {
+        "agent": "analytics-agent",
+        "model": "vertex/gemini-3-flash",
+        "taskLabel": "classify",
+        "requests": 4,
+        "reason": "not-in-catalog",
+        "detail": "vertex/gemini-3-flash is not in catalog 2026.10.4",
+        "cloud": "gcp",
+        "mocked": true,
+        "catalogVersion": "2026.10.4"
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "agent-think"
+      },
+      "title": "Model fit: triage on openai/gpt-5.6-sol → @cf/zai-org/glm-5.3-flash",
+      "detail": "agent-think ran 14 \"triage\" requests on a frontier model ($12.27); mechanical task; a small model is enough. Estimated $0.18, saving $12.10.",
+      "evidence": [],
+      "metrics": {
+        "agent": "agent-think",
+        "taskLabel": "triage",
+        "model": "openai/gpt-5.6-sol",
+        "tier": "frontier",
+        "suggest": "@cf/zai-org/glm-5.3-flash",
+        "why": "mechanical task; a small model is enough",
+        "requests": 14,
+        "actualCost": 12.2742,
+        "estimatedCost": 0.1772,
+        "estimatedSaving": 12.097,
+        "cloud": "cloudflare",
+        "mocked": false
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "docs-bot"
+      },
+      "title": "Model fit: changelog on anthropic/claude-opus-5.5 → @cf/zai-org/glm-5.3-flash",
+      "detail": "docs-bot ran 6 \"changelog\" requests on a frontier model ($2.77); mechanical task; a small model is enough. Estimated $0.02, saving $2.74.",
+      "evidence": [],
+      "metrics": {
+        "agent": "docs-bot",
+        "taskLabel": "changelog",
+        "model": "anthropic/claude-opus-5.5",
+        "tier": "frontier",
+        "suggest": "@cf/zai-org/glm-5.3-flash",
+        "why": "mechanical task; a small model is enough",
+        "requests": 6,
+        "actualCost": 2.7673,
+        "estimatedCost": 0.0242,
+        "estimatedSaving": 2.7431,
+        "cloud": "cloudflare",
+        "mocked": false
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "claude-code"
+      },
+      "title": "Model fit: format on anthropic/claude-opus-5.5 → @cf/zai-org/glm-5.3-flash",
+      "detail": "claude-code ran 4 \"format\" requests on a frontier model ($2.06); mechanical task; a small model is enough. Estimated $0.02, saving $2.04.",
+      "evidence": [],
+      "metrics": {
+        "agent": "claude-code",
+        "taskLabel": "format",
+        "model": "anthropic/claude-opus-5.5",
+        "tier": "frontier",
+        "suggest": "@cf/zai-org/glm-5.3-flash",
+        "why": "mechanical task; a small model is enough",
+        "requests": 4,
+        "actualCost": 2.0615,
+        "estimatedCost": 0.0198,
+        "estimatedSaving": 2.0417,
+        "cloud": "cloudflare",
+        "mocked": false
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "analytics-agent",
+        "env": {
+          "cloud": "gcp",
+          "mocked": true
+        }
+      },
+      "title": "Model fit: feature on vertex/anthropic.claude-opus-5.5 → anthropic/claude-opus-5.5 (cloudflare)",
+      "detail": "analytics-agent ran 5 \"feature\" requests on a frontier model ($2.43); same model class (claude-opus-5.5) is approved on cloudflare for coding and costs less there. Estimated $1.94, saving $0.49. Mocked records.",
+      "evidence": [],
+      "metrics": {
+        "agent": "analytics-agent",
+        "taskLabel": "feature",
+        "model": "vertex/anthropic.claude-opus-5.5",
+        "tier": "frontier",
+        "suggest": "anthropic/claude-opus-5.5",
+        "suggestCloud": "cloudflare",
+        "why": "same model class (claude-opus-5.5) is approved on cloudflare for coding and costs less there",
+        "requests": 5,
+        "actualCost": 2.4293,
+        "estimatedCost": 1.9434,
+        "estimatedSaving": 0.4859,
+        "cloud": "gcp",
+        "mocked": true
+      }
+    },
+    {
+      "provider": "cost",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "agent": "agent-think",
+        "env": {
+          "cloud": "aws",
+          "mocked": true
+        }
+      },
+      "title": "Model fit: review on bedrock/anthropic.claude-sonnet-5 → anthropic/claude-sonnet-5 (cloudflare)",
+      "detail": "agent-think ran 6 \"review\" requests on a mid model ($1.13); same model class (claude-sonnet-5) is approved on cloudflare for review and costs less there. Estimated $0.76, saving $0.38. Mocked records.",
+      "evidence": [],
+      "metrics": {
+        "agent": "agent-think",
+        "taskLabel": "review",
+        "model": "bedrock/anthropic.claude-sonnet-5",
+        "tier": "mid",
+        "suggest": "anthropic/claude-sonnet-5",
+        "suggestCloud": "cloudflare",
+        "why": "same model class (claude-sonnet-5) is approved on cloudflare for review and costs less there",
+        "requests": 6,
+        "actualCost": 1.1327,
+        "estimatedCost": 0.7551,
+        "estimatedSaving": 0.3776,
+        "cloud": "aws",
+        "mocked": true
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": ".gitnext/environments.json"
+      },
+      "title": "Environments: 4 for agent-think (1 live, 3 mocked)",
+      "detail": "5 resource kinds across cloudflare, aws, gcp, private; 5 drift, 3 cross-cloud edge(s). Mocked: prod-aws, analytics-gcp, onprem (declared in .gitnext/environments.json, no cloud API read).",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": ".gitnext/environments.json"
+        }
+      ],
+      "metrics": {
+        "app": "agent-think",
+        "clouds": [
+          "cloudflare",
+          "aws",
+          "gcp",
+          "private"
+        ],
+        "mocked": true,
+        "catalogVersion": "2026.10.4",
+        "kinds": [
+          "object-store",
+          "sql-db",
+          "compute",
+          "ai",
+          "secrets"
+        ],
+        "environments": [
+          {
+            "name": "staging-cf",
+            "cloud": "cloudflare",
+            "mocked": false,
+            "region": "global",
+            "wrangler": [
+              "agent-think/wrangler.jsonc"
+            ],
+            "resources": 9
+          },
+          {
+            "name": "prod-aws",
+            "cloud": "aws",
+            "mocked": true,
+            "region": "us-east-1",
+            "account": "acme-prod (mock)",
+            "resources": 5
+          },
+          {
+            "name": "analytics-gcp",
+            "cloud": "gcp",
+            "mocked": true,
+            "region": "europe-west4",
+            "account": "acme-analytics (mock)",
+            "resources": 3
+          },
+          {
+            "name": "onprem",
+            "cloud": "private",
+            "mocked": true,
+            "region": "fra-1",
+            "account": "dc-fra (mock)",
+            "resources": 5
+          }
+        ],
+        "matrix": {
+          "compute": {
+            "staging-cf": [
+              {
+                "service": "Workers",
+                "name": "agent-think",
+                "approved": null
+              },
+              {
+                "service": "Durable Objects",
+                "name": "ThinkAgent",
+                "approved": true
+              },
+              {
+                "service": "Durable Objects",
+                "name": "WorkspaceAgent",
+                "approved": true
+              },
+              {
+                "service": "Durable Objects",
+                "name": "Sandbox",
+                "approved": true
+              },
+              {
+                "service": "Durable Objects",
+                "name": "WarmPool",
+                "approved": true
+              },
+              {
+                "service": "Durable Objects",
+                "name": "CommandCenterAgent",
+                "approved": true
+              },
+              {
+                "service": "Containers",
+                "name": "./Dockerfile",
+                "approved": false,
+                "reason": "Containers is not an approved compute on cloudflare",
+                "alternative": "approved on cloudflare: durable_objects"
+              }
+            ],
+            "prod-aws": [
+              {
+                "service": "ECS Fargate",
+                "name": "agent-think-svc",
+                "approved": true
+              }
+            ],
+            "onprem": [
+              {
+                "service": "Kubernetes",
+                "name": "agent-think",
+                "approved": true
+              }
+            ]
+          },
+          "object-store": {
+            "staging-cf": [
+              {
+                "service": "R2",
+                "name": "agent-think-skills",
+                "approved": true
+              }
+            ],
+            "prod-aws": [
+              {
+                "service": "S3",
+                "name": "acme-prod-skills",
+                "approved": true
+              }
+            ],
+            "analytics-gcp": [
+              {
+                "service": "GCS",
+                "name": "acme-analytics-exports",
+                "approved": true
+              }
+            ],
+            "onprem": [
+              {
+                "service": "MinIO",
+                "name": "acme-skills-mirror",
+                "approved": true
+              }
+            ]
+          },
+          "ai": {
+            "staging-cf": [
+              {
+                "service": "Workers AI",
+                "name": "AI",
+                "approved": true
+              }
+            ],
+            "prod-aws": [
+              {
+                "service": "Bedrock",
+                "name": "bedrock-claude",
+                "approved": true
+              }
+            ],
+            "analytics-gcp": [
+              {
+                "service": "Vertex AI",
+                "name": "vertex-claude",
+                "approved": true
+              }
+            ],
+            "onprem": [
+              {
+                "service": "vLLM",
+                "name": "vllm-glm",
+                "approved": true
+              }
+            ]
+          },
+          "sql-db": {
+            "prod-aws": [
+              {
+                "service": "RDS Postgres",
+                "name": "acme-prod-db",
+                "approved": true
+              }
+            ],
+            "analytics-gcp": [
+              {
+                "service": "BigQuery",
+                "name": "agent_events",
+                "approved": false,
+                "reason": "BigQuery is not an approved sql-db on gcp",
+                "alternative": "approved on gcp: Cloud SQL"
+              }
+            ],
+            "onprem": [
+              {
+                "service": "Postgres",
+                "name": "agent-think-db",
+                "approved": true
+              }
+            ]
+          },
+          "secrets": {
+            "prod-aws": [
+              {
+                "service": "Secrets Manager",
+                "name": "agent-think/prod",
+                "approved": true
+              }
+            ],
+            "onprem": [
+              {
+                "service": "Vault",
+                "name": "agent-think",
+                "approved": true
+              }
+            ]
+          }
+        },
+        "errors": []
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "env": {
+          "cloud": "cloudflare",
+          "name": "staging-cf",
+          "region": "global",
+          "mocked": false
+        }
+      },
+      "title": "staging-cf: cloudflare global, 9 resources",
+      "detail": "From agent-think/wrangler.jsonc.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "agent-think/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "mocked": false,
+        "resources": [
+          {
+            "kind": "compute",
+            "name": "agent-think",
+            "service": "Workers",
+            "binding": "workers"
+          },
+          {
+            "kind": "compute",
+            "name": "ThinkAgent",
+            "service": "Durable Objects",
+            "binding": "durable_objects"
+          },
+          {
+            "kind": "compute",
+            "name": "WorkspaceAgent",
+            "service": "Durable Objects",
+            "binding": "durable_objects"
+          },
+          {
+            "kind": "compute",
+            "name": "Sandbox",
+            "service": "Durable Objects",
+            "binding": "durable_objects"
+          },
+          {
+            "kind": "compute",
+            "name": "WarmPool",
+            "service": "Durable Objects",
+            "binding": "durable_objects"
+          },
+          {
+            "kind": "compute",
+            "name": "CommandCenterAgent",
+            "service": "Durable Objects",
+            "binding": "durable_objects",
+            "alias": "CommandCenter"
+          },
+          {
+            "kind": "object-store",
+            "name": "agent-think-skills",
+            "service": "R2",
+            "binding": "r2_buckets",
+            "alias": "R2_SKILLS",
+            "talksTo": [
+              "prod-aws:acme-prod-skills"
+            ]
+          },
+          {
+            "kind": "ai",
+            "name": "AI",
+            "service": "Workers AI",
+            "binding": "ai"
+          },
+          {
+            "kind": "compute",
+            "name": "./Dockerfile",
+            "service": "Containers",
+            "binding": "containers",
+            "alias": "Sandbox"
+          }
+        ]
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "env": {
+          "cloud": "aws",
+          "name": "prod-aws",
+          "account": "acme-prod (mock)",
+          "region": "us-east-1",
+          "mocked": true
+        }
+      },
+      "title": "prod-aws: aws us-east-1 (mocked), 5 resources",
+      "detail": "Declared in .gitnext/environments.json; not read from aws.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": ".gitnext/environments.json"
+        }
+      ],
+      "metrics": {
+        "mocked": true,
+        "resources": [
+          {
+            "kind": "compute",
+            "name": "agent-think-svc",
+            "service": "ECS Fargate"
+          },
+          {
+            "kind": "object-store",
+            "name": "acme-prod-skills",
+            "service": "S3"
+          },
+          {
+            "kind": "sql-db",
+            "name": "acme-prod-db",
+            "service": "RDS Postgres"
+          },
+          {
+            "kind": "ai",
+            "name": "bedrock-claude",
+            "service": "Bedrock"
+          },
+          {
+            "kind": "secrets",
+            "name": "agent-think/prod",
+            "service": "Secrets Manager"
+          }
+        ]
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "env": {
+          "cloud": "gcp",
+          "name": "analytics-gcp",
+          "account": "acme-analytics (mock)",
+          "region": "europe-west4",
+          "mocked": true
+        }
+      },
+      "title": "analytics-gcp: gcp europe-west4 (mocked), 3 resources",
+      "detail": "Declared in .gitnext/environments.json; not read from gcp.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": ".gitnext/environments.json"
+        }
+      ],
+      "metrics": {
+        "mocked": true,
+        "resources": [
+          {
+            "kind": "object-store",
+            "name": "acme-analytics-exports",
+            "service": "GCS"
+          },
+          {
+            "kind": "sql-db",
+            "name": "agent_events",
+            "service": "BigQuery",
+            "talksTo": [
+              "prod-aws:acme-prod-db"
+            ]
+          },
+          {
+            "kind": "ai",
+            "name": "vertex-claude",
+            "service": "Vertex AI"
+          }
+        ]
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "env": {
+          "cloud": "private",
+          "name": "onprem",
+          "account": "dc-fra (mock)",
+          "region": "fra-1",
+          "mocked": true
+        }
+      },
+      "title": "onprem: private fra-1 (mocked), 5 resources",
+      "detail": "Declared in .gitnext/environments.json; not read from private.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": ".gitnext/environments.json"
+        }
+      ],
+      "metrics": {
+        "mocked": true,
+        "resources": [
+          {
+            "kind": "compute",
+            "name": "agent-think",
+            "service": "Kubernetes"
+          },
+          {
+            "kind": "object-store",
+            "name": "acme-skills-mirror",
+            "service": "MinIO",
+            "talksTo": [
+              "staging-cf:R2_SKILLS"
+            ]
+          },
+          {
+            "kind": "sql-db",
+            "name": "agent-think-db",
+            "service": "Postgres"
+          },
+          {
+            "kind": "ai",
+            "name": "vllm-glm",
+            "service": "vLLM"
+          },
+          {
+            "kind": "secrets",
+            "name": "agent-think",
+            "service": "Vault"
+          }
+        ]
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main"
+      },
+      "title": "Environment drift: object-store is R2 on staging-cf, S3 on prod-aws, GCS on analytics-gcp, MinIO on onprem",
+      "detail": "Same app, different object-store service per environment. Not wrong by itself, but code paths, limits and failure modes differ: test against each, or keep the differences behind one interface. Includes mocked environments.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": ".gitnext/environments.json"
+        }
+      ],
+      "metrics": {
+        "kind": "object-store",
+        "services": [
+          {
+            "env": "staging-cf",
+            "cloud": "cloudflare",
+            "mocked": false,
+            "services": [
+              "R2"
+            ]
+          },
+          {
+            "env": "prod-aws",
+            "cloud": "aws",
+            "mocked": true,
+            "services": [
+              "S3"
+            ]
+          },
+          {
+            "env": "analytics-gcp",
+            "cloud": "gcp",
+            "mocked": true,
+            "services": [
+              "GCS"
+            ]
+          },
+          {
+            "env": "onprem",
+            "cloud": "private",
+            "mocked": true,
+            "services": [
+              "MinIO"
+            ]
+          }
+        ],
+        "clouds": [
+          "cloudflare",
+          "aws",
+          "gcp",
+          "private"
+        ],
+        "mocked": true
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main"
+      },
+      "title": "Environment drift: sql-db is RDS Postgres on prod-aws, BigQuery on analytics-gcp, Postgres on onprem",
+      "detail": "Same app, different sql-db service per environment. Not wrong by itself, but code paths, limits and failure modes differ: test against each, or keep the differences behind one interface. Includes mocked environments.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": ".gitnext/environments.json"
+        }
+      ],
+      "metrics": {
+        "kind": "sql-db",
+        "services": [
+          {
+            "env": "prod-aws",
+            "cloud": "aws",
+            "mocked": true,
+            "services": [
+              "RDS Postgres"
+            ]
+          },
+          {
+            "env": "analytics-gcp",
+            "cloud": "gcp",
+            "mocked": true,
+            "services": [
+              "BigQuery"
+            ]
+          },
+          {
+            "env": "onprem",
+            "cloud": "private",
+            "mocked": true,
+            "services": [
+              "Postgres"
+            ]
+          }
+        ],
+        "clouds": [
+          "aws",
+          "gcp",
+          "private"
+        ],
+        "mocked": true
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main"
+      },
+      "title": "Environment drift: compute is Workers+Durable Objects+Containers on staging-cf, ECS Fargate on prod-aws, Kubernetes on onprem",
+      "detail": "Same app, different compute service per environment. Not wrong by itself, but code paths, limits and failure modes differ: test against each, or keep the differences behind one interface. Includes mocked environments.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": ".gitnext/environments.json"
+        }
+      ],
+      "metrics": {
+        "kind": "compute",
+        "services": [
+          {
+            "env": "staging-cf",
+            "cloud": "cloudflare",
+            "mocked": false,
+            "services": [
+              "Workers",
+              "Durable Objects",
+              "Containers"
+            ]
+          },
+          {
+            "env": "prod-aws",
+            "cloud": "aws",
+            "mocked": true,
+            "services": [
+              "ECS Fargate"
+            ]
+          },
+          {
+            "env": "onprem",
+            "cloud": "private",
+            "mocked": true,
+            "services": [
+              "Kubernetes"
+            ]
+          }
+        ],
+        "clouds": [
+          "cloudflare",
+          "aws",
+          "private"
+        ],
+        "mocked": true
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main"
+      },
+      "title": "Environment drift: ai is Workers AI on staging-cf, Bedrock on prod-aws, Vertex AI on analytics-gcp, vLLM on onprem",
+      "detail": "Same app, different ai service per environment. Not wrong by itself, but code paths, limits and failure modes differ: test against each, or keep the differences behind one interface. Includes mocked environments.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": ".gitnext/environments.json"
+        }
+      ],
+      "metrics": {
+        "kind": "ai",
+        "services": [
+          {
+            "env": "staging-cf",
+            "cloud": "cloudflare",
+            "mocked": false,
+            "services": [
+              "Workers AI"
+            ]
+          },
+          {
+            "env": "prod-aws",
+            "cloud": "aws",
+            "mocked": true,
+            "services": [
+              "Bedrock"
+            ]
+          },
+          {
+            "env": "analytics-gcp",
+            "cloud": "gcp",
+            "mocked": true,
+            "services": [
+              "Vertex AI"
+            ]
+          },
+          {
+            "env": "onprem",
+            "cloud": "private",
+            "mocked": true,
+            "services": [
+              "vLLM"
+            ]
+          }
+        ],
+        "clouds": [
+          "cloudflare",
+          "aws",
+          "gcp",
+          "private"
+        ],
+        "mocked": true
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main"
+      },
+      "title": "Environment drift: secrets is Secrets Manager on prod-aws, Vault on onprem",
+      "detail": "Same app, different secrets service per environment. Not wrong by itself, but code paths, limits and failure modes differ: test against each, or keep the differences behind one interface. Includes mocked environments.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": ".gitnext/environments.json"
+        }
+      ],
+      "metrics": {
+        "kind": "secrets",
+        "services": [
+          {
+            "env": "prod-aws",
+            "cloud": "aws",
+            "mocked": true,
+            "services": [
+              "Secrets Manager"
+            ]
+          },
+          {
+            "env": "onprem",
+            "cloud": "private",
+            "mocked": true,
+            "services": [
+              "Vault"
+            ]
+          }
+        ],
+        "clouds": [
+          "aws",
+          "private"
+        ],
+        "mocked": true
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "env": {
+          "cloud": "cloudflare",
+          "name": "staging-cf",
+          "region": "global",
+          "mocked": false
+        }
+      },
+      "title": "Cross-cloud edge: staging-cf:agent-think-skills (R2) → prod-aws:acme-prod-skills (S3)",
+      "detail": "cloudflare → aws: data leaves one cloud for another. Check egress cost and data residency. Mocked environment.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": ".gitnext/environments.json"
+        }
+      ],
+      "metrics": {
+        "from": {
+          "env": "staging-cf",
+          "cloud": "cloudflare",
+          "mocked": false,
+          "resource": "agent-think-skills",
+          "kind": "object-store",
+          "service": "R2"
+        },
+        "to": {
+          "env": "prod-aws",
+          "cloud": "aws",
+          "mocked": true,
+          "resource": "acme-prod-skills",
+          "kind": "object-store",
+          "service": "S3"
+        },
+        "clouds": [
+          "cloudflare",
+          "aws"
+        ],
+        "mocked": true
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "env": {
+          "cloud": "gcp",
+          "name": "analytics-gcp",
+          "account": "acme-analytics (mock)",
+          "region": "europe-west4",
+          "mocked": true
+        }
+      },
+      "title": "Cross-cloud edge: analytics-gcp:agent_events (BigQuery) → prod-aws:acme-prod-db (RDS Postgres)",
+      "detail": "gcp → aws: data leaves one cloud for another. Check egress cost and data residency. Mocked environment.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": ".gitnext/environments.json"
+        }
+      ],
+      "metrics": {
+        "from": {
+          "env": "analytics-gcp",
+          "cloud": "gcp",
+          "mocked": true,
+          "resource": "agent_events",
+          "kind": "sql-db",
+          "service": "BigQuery"
+        },
+        "to": {
+          "env": "prod-aws",
+          "cloud": "aws",
+          "mocked": true,
+          "resource": "acme-prod-db",
+          "kind": "sql-db",
+          "service": "RDS Postgres"
+        },
+        "clouds": [
+          "gcp",
+          "aws"
+        ],
+        "mocked": true
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "env": {
+          "cloud": "private",
+          "name": "onprem",
+          "account": "dc-fra (mock)",
+          "region": "fra-1",
+          "mocked": true
+        }
+      },
+      "title": "Cross-cloud edge: onprem:acme-skills-mirror (MinIO) → staging-cf:agent-think-skills (R2)",
+      "detail": "private → cloudflare: data leaves the private network. Check egress cost and data residency (on-prem data must not leave the network). Mocked environment.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": ".gitnext/environments.json"
+        }
+      ],
+      "metrics": {
+        "from": {
+          "env": "onprem",
+          "cloud": "private",
+          "mocked": true,
+          "resource": "acme-skills-mirror",
+          "kind": "object-store",
+          "service": "MinIO"
+        },
+        "to": {
+          "env": "staging-cf",
+          "cloud": "cloudflare",
+          "mocked": false,
+          "resource": "agent-think-skills",
+          "kind": "object-store",
+          "service": "R2"
+        },
+        "clouds": [
+          "private",
+          "cloudflare"
+        ],
+        "mocked": true
+      }
+    },
+    {
+      "provider": "environments",
+      "severity": "warn",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "env": {
+          "cloud": "gcp",
+          "name": "analytics-gcp",
+          "account": "acme-analytics (mock)",
+          "region": "europe-west4",
+          "mocked": true
+        }
+      },
+      "title": "Not in catalog: BigQuery as sql-db on analytics-gcp",
+      "detail": "analytics-gcp:agent_events: BigQuery is not an approved sql-db on gcp. Approved on gcp: Cloud SQL. Mocked environment.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": ".gitnext/environments.json"
+        }
+      ],
+      "metrics": {
+        "kind": "sql-db",
+        "service": "BigQuery",
+        "resource": "agent_events",
+        "catalogVersion": "2026.10.4",
+        "mocked": true
+      }
+    }
+  ]
+}

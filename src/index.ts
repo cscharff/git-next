@@ -6,6 +6,7 @@ import { handleDevRoute } from "./dev-routes.ts";
 import { buildContext } from "./providers/context/index.ts";
 import { gatewayLogsSource, type CostSource } from "./providers/cost/logs.ts";
 import { fixtureCostSource } from "./providers/cost/index.ts";
+import { withMockedClouds } from "./providers/cost/mocked.ts";
 import { createRegistry } from "./registry.ts";
 import { getIndex, getResult, kvExtractCache, parsePushEvent, putResult } from "./results.ts";
 import baselineCatalogJson from "../fixtures/org-baseline/catalog.json" with { type: "json" };
@@ -58,10 +59,10 @@ const isLocal = (url: URL) => ["localhost", "127.0.0.1", "[::1]"].includes(url.h
 /** Demo layers are allowed locally, and when deployed with DEMO_LAYERS=on (for agents-demo-* repos only). */
 const demoLayersFor = (url: URL | null, repo: string) => (url ? isLocal(url) : false) || (env.DEMO_LAYERS === "on" && repo.startsWith("agents-demo"));
 
-/** Repo reader for a request; `demo` overlays fixtures/demo-layers without touching the repo. */
-function contextFor(url: URL | null, repo: string, demo: boolean): RepoContext {
+/** Repo reader for a request; `demo` overlays fixtures/demo-layers (and `envs` the mocked environments) without touching the repo. */
+function contextFor(url: URL | null, repo: string, demo: boolean, envs = false): RepoContext {
 	const factory = (name: string) => artifactsSource(env.ARTIFACTS, name);
-	return new RepoContext(demo && demoLayersFor(url, repo) ? withDemoLayers(factory, repo) : factory);
+	return new RepoContext((demo || envs) && demoLayersFor(url, repo) ? withDemoLayers(factory, repo, { envs }) : factory);
 }
 
 export default {
@@ -75,7 +76,9 @@ export default {
 			const ref = url.searchParams.get("ref") || "HEAD";
 			const base = url.searchParams.get("base") || undefined;
 			const only = url.searchParams.get("providers")?.split(",").filter(Boolean);
-			const files = contextFor(url, repo, url.searchParams.get("layers") === "demo");
+			// ?envs=demo adds the MOCKED multi-cloud environments and the Bedrock/Vertex/vLLM cost fixtures (demo layers only).
+			const envs = url.searchParams.get("envs") === "demo" && demoLayersFor(url, repo);
+			const files = contextFor(url, repo, url.searchParams.get("layers") === "demo", envs);
 			const started = Date.now();
 			try {
 				// ?cost=fixture uses the bundled team sample instead of live gateway logs (for the team-overspend view).
@@ -83,7 +86,8 @@ export default {
 				const fixture = url.searchParams.get("cost") === "fixture";
 				// ?extractor=keyword skips the model and uses the deterministic extractor.
 				const keyword = url.searchParams.get("extractor") === "keyword";
-				const reg = enforce || fixture || keyword ? registryFor(enforce, fixture ? fixtureCostSource() : costSource, keyword ? null : (modelExtractor ?? null)) : registry;
+				const cost = fixture ? fixtureCostSource() : costSource;
+				const reg = enforce || fixture || keyword || envs ? registryFor(enforce, envs ? withMockedClouds(cost ?? fixtureCostSource()) : cost, keyword ? null : (modelExtractor ?? null)) : registry;
 				const result = await reg.run({ repo, ref, base, files }, only);
 				return Response.json({ repo, ref, base: base ?? null, ms: Date.now() - started, ...result });
 			} catch (err) {

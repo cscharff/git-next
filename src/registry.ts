@@ -1,6 +1,7 @@
 import { ProviderRegistry } from "./core/registry.ts";
 import { catalogProvider, type CatalogOptions } from "./providers/catalog.ts";
 import { costProvider } from "./providers/cost/index.ts";
+import { environmentsProvider } from "./providers/environments.ts";
 import type { CostSource } from "./providers/cost/logs.ts";
 import type { RuleExtractor } from "./providers/instruction-stack/types.ts";
 import { instructionStackProvider } from "./providers/instruction-stack/index.ts";
@@ -14,4 +15,5 @@ export const createRegistry = (cost?: CostSource, catalog?: CatalogOptions, extr
 		.register(instructionStackProvider(extractor))
 		.register(costProvider(cost, { catalog: catalog?.baseline }))
 		.register(ownersProvider)
-		.register(catalogProvider(catalog));
+		.register(catalogProvider(catalog))
+		.register(environmentsProvider({ baseline: catalog?.baseline }));
