@@ -21,6 +21,7 @@ The demo uses [cloudflare/agents](https://github.com/cloudflare/agents) (MIT, 1,
 - [Setup from a clean machine](#setup-from-a-clean-machine)
 - [Using it](#using-it)
 - [New repositories: smart by default](#new-repositories-smart-by-default)
+- [Multi-cloud environments (mocked)](#multi-cloud-environments-mocked)
 - [Writing a provider](#writing-a-provider)
 - [Secrets](#secrets)
 - [Known limits](#known-limits)
@@ -87,6 +88,9 @@ The demo uses [cloudflare/agents](https://github.com/cloudflare/agents) (MIT, 1,
      See [New repositories: smart by default](#new-repositories-smart-by-default).
   5. **Owners** (the stub, see [Writing a provider](#writing-a-provider)) reports instruction files that no
      CODEOWNERS rule covers.
+  6. **Environments** reads `.gitnext/environments.json`: the same app on Cloudflare (real wrangler config) and on
+     GCP, AWS or a private cloud (declared and **mocked**). See
+     [Multi-cloud environments (mocked)](#multi-cloud-environments-mocked).
   - **Sliced context** (`src/providers/context`) is the resolved rules for the touched paths, plus the
     best-matching markdown sections within a token budget, plus a manifest of what was left out. It uses BM25 behind
     `Retriever`/`Embedder` interfaces, ready for Workers AI EmbeddingGemma + Vectorize. On cloudflare/agents it
@@ -107,7 +111,7 @@ git clone <this repo> git-next && cd git-next
 npm install
 npx cf auth login            # browser sign-in
 npx cf auth whoami           # check the account before creating anything
-npm test                     # 83 unit tests; no network
+npm test                     # 109 unit tests; no network
 ```
 
 ### 1. Artifacts namespace and the demo repo
@@ -182,7 +186,8 @@ curl -X POST localhost:5173/context -H 'content-type: application/json' \
 ```
 
 `layers=demo` (localhost only) overlays the hypothetical org, contract, tool and personal layers from
-`fixtures/demo-layers` without pushing anything to the repo being analysed.
+`fixtures/demo-layers` without pushing anything to the repo being analysed. `envs=demo` also overlays the mocked
+multi-cloud environments and adds the mocked Bedrock, Vertex AI and vLLM cost records (see below).
 
 **CLI.** Run inside any git checkout. Add `--json` for agents. Exit codes: 0 clean, 1 blocking findings, 2 error.
 
@@ -298,6 +303,41 @@ All layer and catalog text is treated as untrusted data: it is parsed and compar
 report no conflicts") and a malicious catalog owner. Nothing runs, nothing leaks into generated files, and the real
 conflict is still reported.
 
+## Multi-cloud environments (mocked)
+
+A thin, clearly labelled slice for showing Cloudflare next to other clouds. **Only Cloudflare is real**: its
+resources come from the repo's wrangler configs and its cost from the AI Gateway. GCP, AWS and private-cloud
+environments are declared in a file and never read from a cloud: no accounts, credentials or API calls exist for
+them, and every insight, record and dashboard element about them says `mocked`.
+
+- **Environments** (`.gitnext/environments.json`, JSONC): each has `name`, `cloud` (`cloudflare | gcp | aws |
+  private`), `mocked`, `region`, `account`, and `resources: [{ kind, name, service, talksTo? }]`. A Cloudflare
+  environment lists `wrangler` config paths instead; its bindings map to the same kinds (r2 → object-store,
+  d1/hyperdrive → sql-db, kv → kv-cache, queues → queue, the Worker, DOs, containers and worker loaders → compute,
+  ai → ai, vectorize → vector). Non-Cloudflare environments are always treated as mocked. The provider emits a
+  kinds × environments matrix, **drift** (the same kind on different services across environments, e.g. R2 on
+  staging-cf and S3 on prod-aws; informational), **cross-cloud edges** (a `talksTo` into another cloud: egress and
+  data residency) and mocked resources the catalog doesn't approve. Insights carry `scope.env` (`cloud`, `name`,
+  `account`, `region`, `mocked`); no env means Cloudflare.
+- **Catalog equivalents.** Catalog bindings and models take an optional `cloud` (default `cloudflare`) and `class`:
+  object-store is approved as R2, GCS, S3, MinIO or Ceph per cloud. Cloudflare checks, summaries and agent context
+  still see Cloudflare entries only.
+- **Environment-scoped rules.** A `stack.json` layer can carry `env`; its rules only meet unscoped rules or rules for
+  the same env. In `fixtures/demo-environments/stack.json`, the on-prem layer ("no data leaves the network: models
+  must run on-prem") conflicts with the org's "call models only through the org AI Gateway" for `env=private`
+  only (topic `modelRouting`).
+- **Cost by cloud.** Records carry `cloud` (metadata) and `mocked`. `fixtures/mocked-clouds/` holds Bedrock (aws),
+  Vertex AI (gcp) and vLLM (private) records with the gateway's tags. The summary adds `byCloud`; model fit can
+  suggest the same model class on a cheaper cloud only where the catalog approves it for the job, never moves
+  private work off-prem, and doesn't suggest self-hosted targets.
+- **Demo.** `fixtures/demo-environments/` declares `agent-think` on staging-cf (real `agent-think/wrangler.jsonc`),
+  prod-aws (S3, RDS, Bedrock), analytics-gcp (GCS, BigQuery as sql-db, Vertex AI) and onprem (MinIO, Postgres,
+  vLLM). `node scripts/demo-environments.ts [checkout] > samples/environments-demo.json` regenerates the sample
+  (without a checkout it rebuilds the wrangler config from the bindings recorded in `samples/insights-demo.json`).
+  The dashboard's sample mode overlays it: an environment switcher appears in the header, the Environments panel
+  sits after the resource map, and the cost panel gains an "All clouds" view. Open the page with `?envs=demo` to
+  add the mocked environments to live runs.
+
 ## Writing a provider
 
 A provider is an object with an `id`, a `title`, the inputs it `needs`, and an `analyze` function that returns
@@ -375,13 +415,13 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
 | Path | What |
 | --- | --- |
 | `src/core` | `Insight`/`InsightProvider`, `RepoContext`, `artifactsSource`, `ProviderRegistry` |
-| `src/providers` | `instruction-stack/`, `resource-map.ts`, `cost/`, `context/`, `catalog.ts`, `owners.ts` |
+| `src/providers` | `instruction-stack/`, `resource-map.ts`, `cost/`, `context/`, `catalog.ts`, `owners.ts`, `environments.ts` |
 | `src/parse` | JSONC and minimal TOML parsers |
 | `src/index.ts`, `src/dev-routes.ts` | Worker routes (`/insights`, `/context`, samples, localhost-only `/dev/*`) |
 | `src/cli`, `bin/git-next.ts` | the `git next` CLI (`init.ts` for `git next new`) |
 | `public/index.html` | dashboard |
 | `scripts/` | `demo-agents.ts`, `demo-planner.ts`, `demo-new-repo.ts`, offline sample generators (`demo-insights.ts`, `demo-context.ts`, `demo-stack.ts`) |
-| `fixtures/` | org baseline (layers, catalog, templates), demo instruction layers (and the resolved variant), AI Gateway log fixture |
+| `fixtures/` | org baseline (layers, catalog, templates), demo instruction layers (and the resolved variant), AI Gateway log fixture, mocked multi-cloud environments and cost logs |
 | `samples/` | live outputs the dashboard falls back to; `samples/demo-run/` is the last agent run |
 | `examples/hooks/` | the fail-closed pre-push hook and the Claude Code PreToolUse adapter |
 | `docs/VIDEO_SCRIPT.md` | demo video shot list |
