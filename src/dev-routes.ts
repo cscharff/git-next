@@ -2,7 +2,15 @@
 // so the caller must check isLocal() before dispatching here, and they must never be deployed as-is.
 
 /** Models the demo agents may call through the gateway, with a hard output cap. */
-export const AGENT_MODELS = ["anthropic/claude-opus-4.8", "anthropic/claude-sonnet-5", "anthropic/claude-haiku-4.5", "@cf/zai-org/glm-5.3-flash"];
+export const AGENT_MODELS = [
+	"anthropic/claude-fable-5.1",
+	"anthropic/claude-opus-5.5",
+	"anthropic/claude-opus-4.8",
+	"anthropic/claude-sonnet-5.5",
+	"anthropic/claude-sonnet-5",
+	"anthropic/claude-haiku-4.5",
+	"@cf/zai-org/glm-5.3-flash",
+];
 const MAX_OUTPUT_TOKENS = 4000;
 const SOURCE_REPO = "agents-demo-full";
 const FORK_NAME = /^agents-demo-[a-z0-9-]{1,40}$/;
@@ -61,7 +69,7 @@ export async function handleDevRoute(request: Request, url: URL, env: Env, gatew
 		try {
 			const out = (await env.AI.run(model as any, input as any, { gateway: { id: gatewayId, metadata } })) as any;
 			const text = out?.response ?? out?.choices?.[0]?.message?.content ?? out?.content?.map?.((c: any) => c.text ?? "").join("") ?? "";
-			return Response.json({ model, text: String(text), usage: out?.usage ?? null });
+			return Response.json({ model, text: String(text), usage: out?.usage ?? null, stopReason: out?.stop_reason ?? out?.choices?.[0]?.finish_reason ?? null });
 		} catch (err) {
 			return bad(String(err).slice(0, 500), 502);
 		}

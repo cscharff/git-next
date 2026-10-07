@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { RepoContext, memorySource } from "../src/core/repo-context.ts";
-import { costProvider, fixtureCostSource, usd } from "../src/providers/cost/index.ts";
+import { costProvider, fixtureCostSource, modelPolicy, usd } from "../src/providers/cost/index.ts";
+import { parseCatalog } from "../src/providers/catalog.ts";
+import { readFileSync } from "node:fs";
 import { gatewayLogsSource, parseGatewayLogs, staticCostSource, taskLabelOf, UNATTRIBUTED } from "../src/providers/cost/logs.ts";
 import { modelFit } from "../src/providers/cost/model-fit.ts";
 import { median, rollup, spendFlags } from "../src/providers/cost/rollup.ts";
@@ -102,6 +104,19 @@ describe("costProvider", () => {
 		const files = new RepoContext(async () => memorySource({}));
 		const [i] = await costProvider(staticCostSource("empty", [])).analyze({ repo: "x", ref: "main", files });
 		expect(i.title).toBe("No AI Gateway usage for this repo");
+	});
+});
+
+describe("modelPolicy", () => {
+	it("flags models outside the catalog and planning-only models doing code work", () => {
+		const catalog = parseCatalog(readFileSync(new URL("../fixtures/org-baseline/catalog.json", import.meta.url), "utf8"));
+		const recs = parseGatewayLogs([
+			log({ model: "anthropic/claude-fable-5.1" }, { agent: "planner", task: "plan#demo" }),
+			log({ model: "anthropic/claude-fable-5.1" }, { agent: "docs-agent", task: "docs#typo" }),
+			log({ model: "anthropic/claude-sonnet-5.5" }, { agent: "r2-agent", task: "feature#r2" }),
+			log({ model: "anthropic/claude-opus-4.8" }, { agent: "old-agent", task: "docs#x" }),
+		]);
+		expect(modelPolicy(recs, catalog).map((p) => `${p.agent}:${p.reason}`)).toEqual(["docs-agent:outside-jobs", "old-agent:not-in-catalog"]);
 	});
 });
 

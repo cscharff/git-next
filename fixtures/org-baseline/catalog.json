@@ -1,5 +1,5 @@
 {
-	"version": "2026.10.2",
+	"version": "2026.10.3",
 	"owner": "@acme/platform",
 	"gateway": {
 		"id": "git-next",
@@ -8,6 +8,9 @@
 		"rule": "org/AGENTS.md: call models only through the org AI Gateway"
 	},
 	"models": [
+		{ "id": "anthropic/claude-fable-5.1", "jobs": ["planning"], "owner": "@acme/ai-platform", "rule": "approved for planning and orchestration only: never for code edits or app code" },
+		{ "id": "anthropic/claude-opus-5.5", "jobs": ["planning", "review"], "owner": "@acme/ai-platform", "rule": "approved model providers; fallback planner" },
+		{ "id": "anthropic/claude-sonnet-5.5", "jobs": ["coding", "review"], "owner": "@acme/ai-platform", "rule": "approved model providers" },
 		{ "id": "anthropic/claude-sonnet-5", "jobs": ["coding", "review"], "owner": "@acme/ai-platform", "rule": "approved model providers" },
 		{ "id": "anthropic/claude-haiku-4.5", "jobs": ["chat", "classification"], "owner": "@acme/ai-platform", "rule": "approved model providers" },
 		{ "id": "@cf/zai-org/glm-5.3-flash", "jobs": ["summaries", "extraction"], "owner": "@acme/ai-platform", "rule": "approved model providers", "keywords": ["summary", "summarize", "extract", "describe"] },

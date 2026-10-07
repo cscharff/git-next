@@ -261,6 +261,21 @@ function renderAgents() {
 		</div>
 		<table><tr><th style="width:18%">Agent / fork</th><th style="width:14%">Model</th><th style="width:15%">Context</th><th style="width:10%">Cost</th><th style="width:14%">Pre-push</th><th>Commit</th></tr>${rows}</table>
 		${blocked ? `<details><summary>Why ${esc(blocked.agent)} was blocked, and how it was resolved</summary><pre class="mono" style="white-space:pre-wrap">${esc(blocked.hook.output.split("\nerror:")[0])}</pre><p class="sub">Resolved by amending the contract layer (${esc(blocked.resolution?.layers || "")}) so its changeset rule defers to the project; the re-run check passed and the push went through.</p></details>` : ""}`;
+	const pr = state.plannerRun;
+	if (pr) {
+		$("#agents .body").insertAdjacentHTML("beforeend", `
+			<h3 class="sub" style="margin-top:18px">Planner run: ${esc(pr.planner.model.replace("anthropic/", ""))} plans, ${pr.workers.length} × ${esc((pr.workers[0]?.model ?? "").replace("anthropic/", ""))} edit${pr.planner.fallback ? ` (fallback used: ${esc(pr.planner.fallback.reason)})` : ""}</h3>
+			<div class="stats">
+				<div class="stat"><b>${usd(pr.planner.cost)}</b><span>planner (${esc(pr.planner.model.replace("anthropic/", ""))})</span></div>
+				<div class="stat"><b>${usd(pr.workers.reduce((n, w) => n + (w.gateway?.cost ?? 0), 0))}</b><span>${pr.workers.length} workers</span></div>
+				<div class="stat"><b>${pr.catalogPolicy.length}</b><span>catalog policy findings</span></div>
+			</div>
+			<p class="sub">${esc(pr.planner.notes)}</p>
+			<table><tr><th style="width:16%">Worker</th><th style="width:34%">Planned task</th><th style="width:12%">Context</th><th style="width:9%">Cost</th><th style="width:13%">Pre-push</th><th>Commit</th></tr>
+			${pr.workers.map((w) => `<tr><td><b>${esc(w.agent)}</b><br><code>${esc(w.fork)}</code></td><td>${esc(w.plan?.task ?? "")}<br><span class="sub">${esc(w.plan?.taskLabel ?? "")}</span></td><td>${num(w.context?.tokensServed ?? 0)} tok</td><td>${usd(w.gateway?.cost ?? 0)}<br><span class="sub">${w.gateway?.requests ?? 0} req</span></td><td>${w.error ? `<span class="chip sev-conflict">failed</span>` : w.hook?.blocked ? `<span class="chip sev-conflict">blocked</span> → <span class="chip sev-info">resolved</span>` : `<span class="chip">passed</span>`}</td><td>${w.commit ? `<code>${esc(w.commit.sha.slice(0, 8))}</code> ${esc(w.commit.message)}<br><span class="sub">${esc(w.commit.diffstat)}${w.resourcesAdded ? ` · +${w.resourcesAdded} binding` : ""}</span>` : esc(w.error || "")}</td></tr>`).join("")}
+			</table>
+			<p class="sub">${esc(pr.local)}</p>`);
+	}
 	panel.querySelectorAll("a[data-fork]").forEach((el) => el.addEventListener("click", (e) => { e.preventDefault(); selectFork(el.dataset.fork); }));
 }
 
@@ -269,6 +284,11 @@ async function loadDemoRun() {
 		state.demoRun = await getJson("/samples/demo-run/summary.json");
 	} catch {
 		return;
+	}
+	try {
+		state.plannerRun = await getJson("/samples/demo-run-planner/summary.json");
+	} catch {
+		state.plannerRun = null;
 	}
 	const sel = $("#fork");
 	for (const a of state.demoRun.agents) if (a.base) sel.insertAdjacentHTML("beforeend", `<option value="${esc(a.fork)}">${esc(a.fork)} (${esc(a.agent)})</option>`);

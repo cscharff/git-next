@@ -54,7 +54,7 @@ const FLAGS: Record<string, FlagSpec> = {
 	"--print": { key: "print", type: "bool", commands: ["context"] },
 	"--fork": { key: "fork", type: "string", commands: ["cost"] },
 	"--repo": { key: "repo", type: "string", commands: ["cost"] },
-	"--catalog": { key: "catalog", type: "string", commands: ["rules", "check", "context"] },
+	"--catalog": { key: "catalog", type: "string", commands: ["rules", "check", "context", "cost"] },
 	"--allow-on-error": { key: "allowOnError", type: "bool", commands: ["rules", "check"] },
 	"--paths-from-stdin": { key: "pathsFromStdin", type: "bool", commands: ["rules", "check"] },
 	"--hook-json": { key: "hookJson", type: "bool", commands: ["check"] },

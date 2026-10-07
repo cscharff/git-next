@@ -11,6 +11,6 @@ export const createRegistry = (cost?: CostSource, catalog?: CatalogOptions) =>
 	new ProviderRegistry()
 		.register(resourceMapProvider)
 		.register(instructionStackProvider())
-		.register(costProvider(cost))
+		.register(costProvider(cost, { catalog: catalog?.baseline }))
 		.register(ownersProvider)
 		.register(catalogProvider(catalog));

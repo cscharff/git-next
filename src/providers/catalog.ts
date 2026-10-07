@@ -110,10 +110,20 @@ export function scanModels(path: string, text: string): { path: string; line: nu
 	return out;
 }
 
-/** Whether a model id is approved; "claude-sonnet-5" matches "anthropic/claude-sonnet-5". */
+const bareModel = (id: string) => id.toLowerCase().replace(/^(anthropic|openai|google|mistral|deepseek)\//, "");
+
+/** The catalog entry for a model id; "claude-sonnet-5" matches "anthropic/claude-sonnet-5". */
+export function catalogModel(catalog: Catalog, model: string): CatalogModel | undefined {
+	return catalog.models.find((m) => m.id.toLowerCase() === model.toLowerCase() || bareModel(m.id) === bareModel(model));
+}
+
+/** Models approved only for planning/orchestration must not appear in application code. */
+export const planningOnly = (m: CatalogModel) => !!m.jobs?.length && m.jobs.every((j) => j === "planning");
+
+/** Whether a model id is approved for use in application code. */
 export function modelApproved(catalog: Catalog, model: string): boolean {
-	const bare = (id: string) => id.toLowerCase().replace(/^(anthropic|openai|google|mistral|deepseek)\//, "");
-	return catalog.models.some((m) => m.id.toLowerCase() === model.toLowerCase() || bare(m.id) === bare(model));
+	const entry = catalogModel(catalog, model);
+	return !!entry && !planningOnly(entry);
 }
 
 /** Approval of one binding against the catalog, with the approved alternative when it fails. */
@@ -200,8 +210,13 @@ export async function checkCatalog(files: RepoContext, repo: string, ref: string
 			}
 		}
 		for (const [model, where] of unapproved) {
-			const approved = catalog.models.map((m) => `${m.id}${m.jobs?.length ? ` (${m.jobs.join("/")})` : ""}`).join(", ");
-			findings.push({ kind: "model", title: `Unapproved model: ${model}`, detail: `${model} is not in catalog ${catalog.version}. Approved: ${approved}.`, evidence: where.slice(0, 5) });
+			const approved = catalog.models.filter((m) => !planningOnly(m)).map((m) => `${m.id}${m.jobs?.length ? ` (${m.jobs.join("/")})` : ""}`).join(", ");
+			const entry = catalogModel(catalog, model);
+			findings.push(
+				entry
+					? { kind: "model", title: `Planning-only model in code: ${model}`, detail: `${model} is approved for ${entry.jobs!.join("/")} only (${entry.rule ?? "catalog"}), not for application code. Approved for code: ${approved}.`, evidence: where.slice(0, 5) }
+					: { kind: "model", title: `Unapproved model: ${model}`, detail: `${model} is not in catalog ${catalog.version}. Approved: ${approved}.`, evidence: where.slice(0, 5) },
+			);
 		}
 		for (const f of configs) {
 			const text = texts.find((t) => t.path === f.path)?.text ?? "";

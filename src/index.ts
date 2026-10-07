@@ -18,7 +18,7 @@ const GATEWAY_ID = "git-next";
 
 // Samples the dashboard falls back to when there is no live run, plus the last demo-agents run (one file per fork).
 const DEMO_RUN = Object.fromEntries(
-	Object.entries(import.meta.glob<unknown>("../samples/demo-run/*.json", { eager: true, import: "default" })).map(([path, json]) => [`demo-run/${path.split("/").pop()}`, json]),
+	Object.entries(import.meta.glob<unknown>("../samples/demo-run*/*.json", { eager: true, import: "default" })).map(([path, json]) => [path.split("/").slice(-2).join("/"), json]),
 );
 const SAMPLES: Record<string, unknown> = { "insights-demo.json": sampleInsights, "context-agents-demo-full.json": sampleContext, ...DEMO_RUN };
 
@@ -85,7 +85,7 @@ export default {
 			}
 		}
 
-		const sample = url.pathname.match(/^\/samples\/((?:demo-run\/)?[a-z0-9.-]+\.json)$/);
+		const sample = url.pathname.match(/^\/samples\/((?:demo-run(?:-planner)?\/)?[a-z0-9.-]+\.json)$/);
 		if (request.method === "GET" && sample && SAMPLES[sample[1]]) return Response.json(SAMPLES[sample[1]]);
 
 		if (url.pathname.startsWith("/dev/") && url.pathname !== "/dev/gateway-smoke") {

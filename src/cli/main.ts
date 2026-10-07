@@ -499,7 +499,10 @@ async function costCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 	} else {
 		const base = costSource(io);
 		const source: CostSource = args.fork ? { id: base.id, records: async (f) => (await base.records(f)).filter((r) => r.fork === args.fork) } : base;
-		insights = await costProvider(source).analyze({ repo, ref: "main", files: new RepoContext(async () => ({ listFiles: async () => [], readBlob: async () => null, log: async () => [] })) });
+		// Check gateway calls against --catalog, or this checkout's own catalog when it has one.
+		const repoCatalogPath = join(gitTopLevel(io.cwd), ".gitnext/catalog.json");
+		const catalog = fallbackCatalog(args, io) ?? (existsSync(repoCatalogPath) ? parseCatalog(readFileSync(repoCatalogPath, "utf8")) : undefined);
+		insights = await costProvider(source, { catalog }).analyze({ repo, ref: "main", files: new RepoContext(async () => ({ listFiles: async () => [], readBlob: async () => null, log: async () => [] })) });
 		commitCosts = await costByCommit(io.cwd, await source.records({ repo }));
 	}
 	if (args.json) {
@@ -516,6 +519,8 @@ async function costCommand(args: ParsedArgs, io: CliIo): Promise<number> {
 	for (const a of m.agents) lines.push(`  ${a.agent.padEnd(20)} ${usd(a.cost).padStart(10)}  ${String(a.requests).padStart(4)} req  ${a.models.join(", ")}`);
 	const flags = insights.filter((i) => i.severity === "warn");
 	if (flags.length) lines.push("", "Flags", ...flags.map((f) => `  ! ${f.title} — ${f.detail}`));
+	const policy = insights.filter((i) => i.title.startsWith("Catalog:"));
+	if (policy.length) lines.push("", "Catalog policy", ...policy.map((p) => `  ! ${p.title.replace("Catalog: ", "")} — ${p.detail}`));
 	const fits = insights.filter((i) => i.title.startsWith("Model fit"));
 	if (fits.length) lines.push("", "Model fit", ...fits.map((f) => `  → ${f.title.replace("Model fit: ", "")}: save ${usd((f.metrics as any).estimatedSaving)} (${(f.metrics as any).requests} req)`));
 	if (commitCosts.length) {

@@ -99,7 +99,7 @@ git clone <this repo> git-next && cd git-next
 npm install
 npx cf auth login            # browser sign-in
 npx cf auth whoami           # check the account before creating anything
-npm test                     # 81 unit tests; no network
+npm test                     # 83 unit tests; no network
 ```
 
 ### 1. Artifacts namespace and the demo repo
@@ -212,6 +212,30 @@ makes one Claude call through the gateway tagged `developer/repo/fork/agent/task
 `SOW-1042: …` and pushes through the hook. mcp-agent is blocked by the contract-vs-project changeset conflict, then
 retried with `fixtures/demo-layers-resolved`. Results go to `samples/demo-run/`. `--only <agent>` re-runs one agent,
 and `--insights-only` refreshes the samples without model calls.
+
+**Planner and workers.** `scripts/demo-planner.ts` adds a planner on top of the same three slots. **Claude Fable
+5.1** reads the goal, each slot's resolved rules and conflicts, and the org catalog, then writes a JSON plan with a
+task, paths, instructions and acceptance criteria for each worker. The script checks the plan stays inside each
+slot's paths. If Fable refuses or errors, the same request falls back to **Claude Opus 5.5**, and the summary records
+it. Three **Claude Sonnet 5.5** workers then carry out the plan in parallel, each with its own sliced context. Every
+commit carries `Planned-By:` and `Agent-Task:` trailers. This run is local: forks are cloned with read tokens and
+pushed through the hook to local bare remotes. The catalog approves Fable for `planning` only. The catalog provider
+flags a planning-only model in application code, and the cost provider flags any gateway call that uses a model
+outside its approved jobs (for example Fable doing a docs edit), next to the usual model-fit suggestions.
+
+Last run (`samples/demo-run-planner/`, shown in the dashboard's Demo agents panel):
+
+| | Model | What happened | Cost |
+| --- | --- | --- | --- |
+| planner | Claude Fable 5.1 (no fallback needed) | 3-item plan; noticed r2-agent's suggested template path was outside its slot and redirected it; told mcp-agent its changeset conflict needs human review | $0.143 |
+| docs-agent | Claude Sonnet 5.5 | added a "Choosing a transport" decision list to the MCP transports doc; hook passed | $0.062 (2 calls) |
+| r2-agent | Claude Sonnet 5.5 | moved the R2 example to `/uploads` routes and the catalog's shared bucket `acme-shared-uploads`; hook passed; 0 catalog violations | $0.084 (2 calls) |
+| mcp-agent | Claude Sonnet 5.5 | tightened the JSDoc in `mcp/abort.ts`; hook **blocked** on the changeset conflict, passed with the resolved layers | $0.045 (2 calls) |
+
+Total $0.33 of the $0.50 cap: 0 catalog-policy findings, and no model-fit suggestions, since each model did the job
+it's approved for. Workers that ran out of output tokens were re-run against the same plan
+(`--reuse-plan --only <agent>`). Sonnet 5.5's thinking counts toward output tokens, so workers now get 3,000+.
+`--recheck-pushes` repeats the hook pushes without model calls.
 
 ## New repositories: smart by default
 
@@ -327,8 +351,9 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
   account lookups.
 - **Context retrieval is BM25.** It re-indexes markdown on every request (about 10–15 s for 278 files over the
   binding). Embeddings and a persistent index (Vectorize) are the next step.
-- **Cost.** Model-fit prices for Anthropic and OpenAI models in `MODELS` are illustrative; actual costs come from
-  the gateway logs. The 2× median flag needs a few developers or agents to mean anything.
+- **Cost.** Model-fit prices in `MODELS` are estimates (Anthropic models use the published per-token rates);
+  actual costs always come from the gateway logs. The job check maps task labels (`plan`, `docs`, `feature`, …) to
+  catalog jobs; unlabeled tasks aren't checked. The 2× median flag needs a few developers or agents to mean anything.
 - **Artifacts.** Full-history import of large repos failed, hence create + push. Concurrent `fork()` calls returned
   internal errors, so the script forks sequentially. In `cf dev`, the remote bindings occasionally drop a request
   ("Network connection lost"); retry it. The demo script retries `/context` automatically.
@@ -347,7 +372,7 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
 | `src/index.ts`, `src/dev-routes.ts` | Worker routes (`/insights`, `/context`, samples, localhost-only `/dev/*`) |
 | `src/cli`, `bin/git-next.ts` | the `git next` CLI (`init.ts` for `git next new`) |
 | `public/index.html` | dashboard |
-| `scripts/` | `demo-agents.ts`, `demo-new-repo.ts`, offline sample generators (`demo-insights.ts`, `demo-context.ts`, `demo-stack.ts`) |
+| `scripts/` | `demo-agents.ts`, `demo-planner.ts`, `demo-new-repo.ts`, offline sample generators (`demo-insights.ts`, `demo-context.ts`, `demo-stack.ts`) |
 | `fixtures/` | org baseline (layers, catalog, templates), demo instruction layers (and the resolved variant), AI Gateway log fixture |
 | `samples/` | live outputs the dashboard falls back to; `samples/demo-run/` is the last agent run |
 | `examples/hooks/` | the fail-closed pre-push hook and the Claude Code PreToolUse adapter |

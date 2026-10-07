@@ -50,6 +50,14 @@ describe("catalog", () => {
 		expect(JSON.stringify(hits)).not.toContain("abcdefghijklmnop");
 	});
 
+	it("treats planning-only models as unapproved in application code", async () => {
+		expect(modelApproved(catalog, "anthropic/claude-fable-5.1")).toBe(false);
+		expect(modelApproved(catalog, "anthropic/claude-sonnet-5.5")).toBe(true);
+		const files = new RepoContext(async () => memorySource({ main: { ".gitnext/catalog.json": catalogText, "src/a.ts": 'env.AI.run("anthropic/claude-fable-5.1", x, { gateway: { id: "git-next" } });' } }));
+		const out = await catalogProvider().analyze({ repo: "r", ref: "main", files });
+		expect(out.map((i) => i.title)).toContain("Planning-only model in code: anthropic/claude-fable-5.1");
+	});
+
 	it("scans model ids in code", () => {
 		expect(scanModels("a.ts", 'env.AI.run("@cf/meta/llama-3.1-8b-instruct", x);\nconst m = "anthropic/claude-sonnet-5";').map((m) => m.model)).toEqual(["@cf/meta/llama-3.1-8b-instruct", "anthropic/claude-sonnet-5"]);
 	});
@@ -58,7 +66,7 @@ describe("catalog", () => {
 		const files = new RepoContext(async () =>
 			memorySource({
 				main: {
-					".gitnext/catalog.json": catalogText.replace('"2026.10.2"', '"2026.10.1"'),
+					".gitnext/catalog.json": catalogText.replace(`"${catalog.version}"`, '"2026.10.1"'),
 					"wrangler.jsonc": '{ "name": "bare", "r2_buckets": [{ "binding": "FILES", "bucket_name": "uploads" }], "ai": { "binding": "AI" } }',
 					"src/index.ts": 'const API_KEY = "sk-ant-api03-abcdefghijklmnopqrstuvwxyz0123";\nexport default { fetch: (r, env) => env.AI.run("@cf/meta/llama-3.1-8b-instruct", {}) };',
 					"README.md": "Uses claude-opus-4.8 in docs, which is not scanned.",
@@ -66,7 +74,7 @@ describe("catalog", () => {
 			}),
 		);
 		const out = await catalogProvider({ baseline: catalog }).analyze({ repo: "r", ref: "main", files });
-		expect(out[0].title).toBe("Catalog 2026.10.1 (repo): behind 2026.10.2");
+		expect(out[0].title).toBe(`Catalog 2026.10.1 (repo): behind ${catalog.version}`);
 		expect(out.slice(1).map((i) => `${i.severity}:${(i.metrics as any).kind}`).sort()).toEqual(["conflict:binding", "conflict:gateway", "conflict:model", "conflict:secret"]);
 	});
 
@@ -74,7 +82,7 @@ describe("catalog", () => {
 		const files = new RepoContext(async () => memorySource({ main: { "wrangler.jsonc": '{ "name": "x", "browser": { "binding": "B" } }' } }));
 		expect((await catalogProvider({ baseline: catalog }).analyze({ repo: "r", ref: "main", files })).map((i) => i.title)).toEqual(["No catalog (secrets scan only)"]);
 		const enforced = await catalogProvider({ baseline: catalog, enforceBaseline: true }).analyze({ repo: "r", ref: "main", files });
-		expect(enforced.map((i) => i.title)).toEqual(["Catalog 2026.10.2 (org baseline)", "Unapproved binding: browser B"]);
+		expect(enforced.map((i) => i.title)).toEqual([`Catalog ${catalog.version} (org baseline)`, "Unapproved binding: browser B"]);
 	});
 
 	it("pins musts and the catalog in sliced context, with task-relevant entries", async () => {
@@ -92,8 +100,8 @@ describe("catalog", () => {
 		);
 		const ctx = await buildContext(files, { repo: "r", ref: "main", task: "add an endpoint that stores uploads", paths: ["src/index.ts"], budgetTokens: 2000 });
 		expect(ctx.pinned.musts).toEqual([{ topic: "secrets", value: "never-in-source", kind: "org", source: "r/.gitnext/layers/org.md:1" }]);
-		expect(ctx.pinned.catalog).toContain("Org catalog 2026.10.2");
-		expect(ctx.manifest.filter((m: any) => m.pinned).map((m: any) => m.id)).toEqual(["pinned:secrets", "pinned:catalog@2026.10.2"]);
+		expect(ctx.pinned.catalog).toContain(`Org catalog ${catalog.version}`);
+		expect(ctx.manifest.filter((m: any) => m.pinned).map((m: any) => m.id)).toEqual(["pinned:secrets", `pinned:catalog@${catalog.version}`]);
 		expect(ctx.stats.pinnedTokens).toBeGreaterThan(0);
 	});
 });
@@ -112,7 +120,7 @@ describe("git next new / init", () => {
 		const dir = join(work, "uploads-smart");
 		for (const f of [".gitnext/stack.json", ".gitnext/catalog.json", ".gitnext/layers/org-acme-org.md", "AGENTS.md", "wrangler.jsonc", ".gitignore", "CODEOWNERS", ".git/hooks/pre-push"]) expect(existsSync(join(dir, f)), f).toBe(true);
 		const stack = JSON.parse(readFileSync(join(dir, ".gitnext/stack.json"), "utf8"));
-		expect(stack.baseline).toMatchObject({ source: "org-baseline", template: "worker-api", catalogVersion: "2026.10.2" });
+		expect(stack.baseline).toMatchObject({ source: "org-baseline", template: "worker-api", catalogVersion: catalog.version });
 		expect(stack.layers.map((l: any) => l.kind)).toEqual(["org", "contract", "tool"]);
 		const agents = readFileSync(join(dir, "AGENTS.md"), "utf8");
 		expect(agents).toContain("## Project rules");
@@ -153,7 +161,7 @@ describe("--layers with an external stack", () => {
 		const r = JSON.parse((await run(dir, ["rules", "--json", "--layers", join(BASELINE, ".gitnext/stack.json")])).out);
 		expect(r.errors).toEqual([]);
 		expect(r.layers.map((l: any) => l.kind)).toEqual(["org", "contract", "tool"]);
-		expect(r.catalog).toMatchObject({ source: "org", version: "2026.10.2" });
+		expect(r.catalog).toMatchObject({ source: "org", version: catalog.version });
 		expect(r.catalog.violations.map((v: any) => v.title)).toEqual(["Unapproved binding: r2_buckets B → uploads"]);
 		expect(r.exitCode).toBe(EXIT.findings);
 		rmSync(dir, { recursive: true, force: true });

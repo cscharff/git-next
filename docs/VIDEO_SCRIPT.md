@@ -28,7 +28,9 @@ are cumulative. Narration is written to be read aloud; trim to taste.
 8. **New-repo demo.** Run `node scripts/demo-new-repo.ts --keep` once (about $0.08; capped at $0.50 across all runs)
    so both repos exist in `$TMPDIR/git-next-demo-new-repo/`. For the shot, `--recheck` repeats the pushes and checks
    without new model calls.
-9. **Screen hygiene.** Use dark theme, a large terminal font, and close notifications. Account IDs appear in
+9. **Planner run (optional cut-in in shot 4).** `node scripts/demo-planner.ts --keep` (about $0.30, capped at $0.50
+   across runs; local pushes only). The dashboard reads `samples/demo-run-planner/summary.json`.
+10. **Screen hygiene.** Use dark theme, a large terminal font, and close notifications. Account IDs appear in
    Artifacts remote URLs; blur them in post or keep them off screen.
 
 ## Shot list
@@ -75,6 +77,12 @@ are cumulative. Narration is written to be read aloud; trim to taste.
   goes through our AI Gateway, tagged with developer, fork, agent and task."
 - **Optional cut-in:** `curl -s -X POST localhost:5173/context …` from the README "Using it" section, piped into
   `| jq '.stats'`.
+- **Optional cut-in, planner and workers (+30s):** scroll the Demo agents panel to "Planner run: claude-fable-5.1
+  plans, 3 × claude-sonnet-5.5 edit". Point at the planner's note (it redirected r2-agent away from a path outside its
+  slot and flagged mcp-agent's conflict for human review) and the cost split: planner $0.14, three workers $0.19.
+  **Narration:** "Or let a planner run the team. Fable 5.1 is approved in our catalog for planning only. It reads
+  the rules and the catalog, writes a plan for three Sonnet 5.5 workers, and catches problems before anyone writes
+  code. git.next checks that every model did the job it's approved for: here, zero policy findings."
 
 ### 5. Resource map diff: the new R2 bucket: 4:00–4:50
 - **Dashboard:** fork selector → `agents-demo-r2 (r2-agent)`. In the **Resource map** panel, tick "changed only".
@@ -165,4 +173,5 @@ git next cost --verbose
 git next new uploads-api --template worker-api --remote
 git next context "add an endpoint that stores uploaded files" src/index.ts --budget 1500
 node scripts/demo-new-repo.ts --recheck              # re-run the plain-vs-smart pushes without model calls
+node scripts/demo-planner.ts --recheck-pushes         # re-run the planner run's hook pushes without model calls
 ```
