@@ -1,0 +1,57 @@
+{
+	// MOCKED multi-cloud demo for agents-demo-full. Only "staging-cf" is real: its resources are read from the repo's
+	// own agent-think/wrangler.jsonc. prod-aws, analytics-gcp and onprem are declared here and never read from a cloud:
+	// no accounts, credentials or API calls exist for them. Served as .gitnext/environments.json with ?envs=demo.
+	"app": "agent-think",
+	"environments": [
+		{
+			"name": "staging-cf",
+			"cloud": "cloudflare",
+			"mocked": false,
+			"region": "global",
+			"wrangler": ["agent-think/wrangler.jsonc"],
+			// Annotations on real bindings (matched by binding or resource name).
+			"resources": [{ "kind": "object-store", "name": "R2_SKILLS", "service": "R2", "talksTo": ["prod-aws:acme-prod-skills"] }]
+		},
+		{
+			"name": "prod-aws",
+			"cloud": "aws",
+			"mocked": true,
+			"account": "acme-prod (mock)",
+			"region": "us-east-1",
+			"resources": [
+				{ "kind": "compute", "name": "agent-think-svc", "service": "ECS Fargate" },
+				{ "kind": "object-store", "name": "acme-prod-skills", "service": "S3" },
+				{ "kind": "sql-db", "name": "acme-prod-db", "service": "RDS Postgres" },
+				{ "kind": "ai", "name": "bedrock-claude", "service": "Bedrock" },
+				{ "kind": "secrets", "name": "agent-think/prod", "service": "Secrets Manager" }
+			]
+		},
+		{
+			"name": "analytics-gcp",
+			"cloud": "gcp",
+			"mocked": true,
+			"account": "acme-analytics (mock)",
+			"region": "europe-west4",
+			"resources": [
+				{ "kind": "object-store", "name": "acme-analytics-exports", "service": "GCS" },
+				{ "kind": "sql-db", "name": "agent_events", "service": "BigQuery", "talksTo": ["prod-aws:acme-prod-db"] },
+				{ "kind": "ai", "name": "vertex-claude", "service": "Vertex AI" }
+			]
+		},
+		{
+			"name": "onprem",
+			"cloud": "private",
+			"mocked": true,
+			"account": "dc-fra (mock)",
+			"region": "fra-1",
+			"resources": [
+				{ "kind": "compute", "name": "agent-think", "service": "Kubernetes" },
+				{ "kind": "object-store", "name": "acme-skills-mirror", "service": "MinIO", "talksTo": ["staging-cf:R2_SKILLS"] },
+				{ "kind": "sql-db", "name": "agent-think-db", "service": "Postgres" },
+				{ "kind": "ai", "name": "vllm-glm", "service": "vLLM" },
+				{ "kind": "secrets", "name": "agent-think", "service": "Vault" }
+			]
+		}
+	]
+}
