@@ -13,7 +13,9 @@ smallest slice of context an agent needs for a task. You get it as a JSON API, a
 and a pre-push hook that blocks pushes governed by conflicting rules.
 
 The demo uses [cloudflare/agents](https://github.com/cloudflare/agents) (MIT, 1,699 commits, 128 Worker configs,
-9 `AGENTS.md` files) imported into Artifacts as `agents-demo-full`, plus three agent forks.
+9 `AGENTS.md` files) imported into Artifacts as `agents-demo-full`, plus three agent forks. A second repo,
+[emdash-cms/emdash](https://github.com/emdash-cms/emdash) (2,291 commits on `main`), is imported as `emdash-demo`
+with the create-and-push method below (the direct import returned a 502); the dashboard header switches between them.
 
 ## Contents
 
