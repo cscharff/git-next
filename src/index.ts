@@ -6,6 +6,7 @@ import { handleDevRoute } from "./dev-routes.ts";
 import { buildContext } from "./providers/context/index.ts";
 import { gatewayLogsSource, type CostSource } from "./providers/cost/logs.ts";
 import { fixtureCostSource } from "./providers/cost/index.ts";
+import { accessToken, verifyAccess } from "./access.ts";
 import { createRegistry } from "./registry.ts";
 import { getIndex, getResult, kvExtractCache, parsePushEvent, putResult } from "./results.ts";
 import baselineCatalogJson from "../fixtures/org-baseline/catalog.json" with { type: "json" };
@@ -67,6 +68,14 @@ function contextFor(url: URL | null, repo: string, demo: boolean): RepoContext {
 export default {
 	async fetch(request) {
 		const url = new URL(request.url);
+
+		// Deployed: only requests that passed Cloudflare Access (verified JWT for this app) get anything, assets included.
+		if (!isLocal(url)) {
+			const aud = env.ACCESS_AUD === "unset" ? "" : env.ACCESS_AUD;
+			if (!aud) return new Response("git.next: Cloudflare Access is not configured for this deployment yet.", { status: 401 });
+			const user = await verifyAccess(accessToken(request), { teamDomain: env.ACCESS_TEAM_DOMAIN, aud }).catch(() => null);
+			if (!user) return new Response("Unauthorized", { status: 401 });
+		}
 
 		// GET /insights?repo=&ref=&base=&providers=a,b -> run providers and return their insights.
 		if (request.method === "GET" && url.pathname === "/insights") {
@@ -183,6 +192,7 @@ export default {
 			return Response.json(registry.list().map(({ id, title, needs }) => ({ id, title, needs })));
 		}
 
+		if (!url.pathname.startsWith("/insights") && !url.pathname.startsWith("/context") && !url.pathname.startsWith("/dev/")) return env.ASSETS.fetch(request);
 		return Response.json({ message: "Use GET /insights?repo=&ref=&base=, POST /context or GET /providers." }, { status: 404 });
 	},
 

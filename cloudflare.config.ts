@@ -6,9 +6,15 @@ export default defineConfig({
 		name: "git-next",
 		compatibilityDate: "2026-10-06",
 		entrypoint,
-		// public/index.html is the dashboard; API routes go to the Worker first.
-		assets: { notFoundHandling: "none", runWorkerFirst: ["/insights", "/context", "/providers", "/samples/*", "/dev/*", "/catalog", "/results", "/results/*"] },
+		// public/index.html is the dashboard. Every request goes to the Worker first so the Access check covers static
+		// files too; the Worker serves assets through the ASSETS binding after the check.
+		assets: { notFoundHandling: "none", runWorkerFirst: true },
 		env: {
+			ASSETS: bindings.assets(),
+			// Cloudflare Access: the team domain and this application's audience tag. "unset" refuses every non-local
+			// request (fail closed) until the Access application exists.
+			ACCESS_TEAM_DOMAIN: bindings.text("circus.cloudflareaccess.com"),
+			ACCESS_AUD: bindings.text("unset"),
 			// Read-only use: providers read trees, blobs and commits from repos in this namespace.
 			// `remote: true` makes local dev read the real Artifacts repos.
 			ARTIFACTS: bindings.artifacts({ namespace: "default", dev: { remote: true } }),
