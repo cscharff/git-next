@@ -34,6 +34,8 @@ export default defineConfig({
 			// Comma-separated emails (Access identities) allowed to override layer precedence. Unset: nobody (fail closed).
 			ADMIN_EMAILS: bindings.secret(),
 		},
-		triggers: [triggers.queue({ name: "git-next-pushes", deadLetterQueue: "git-next-pushes-dlq", maxBatchSize: 5, maxRetries: 3, maxConcurrency: 2 })],
+		// One push per invocation: a first analysis plus embedding can take several minutes, so batching would risk
+		// the invocation time limit; up to 3 pushes are analysed in parallel.
+		triggers: [triggers.queue({ name: "git-next-pushes", deadLetterQueue: "git-next-pushes-dlq", maxBatchSize: 1, maxRetries: 3, maxConcurrency: 3 })],
 	},
 });
