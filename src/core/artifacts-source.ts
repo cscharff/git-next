@@ -33,7 +33,7 @@ export async function artifactsSource(binding: Artifacts, name: string): Promise
 				}
 				queue = next;
 			}
-			return files.sort((a, b) => a.path.localeCompare(b.path));
+			return files;
 		},
 		async readBlob(hash) {
 			const blob = await repo.readBlob(hash);

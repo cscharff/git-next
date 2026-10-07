@@ -1,27 +1,27 @@
 {
-  "offline": true,
-  "note": "Local clone of cloudflare/agents at the agents-demo-full HEAD, demo instruction layers from fixtures/demo-layers, cost from fixtures/ai-gateway-logs.json.",
+  "live": true,
+  "note": "Live GET /insights against agents-demo-full@main via the Artifacts binding, demo layers overlaid (layers=demo); cost from fixtures/ai-gateway-logs.json. Identical to the offline run (scripts/demo-insights.ts).",
   "repo": "agents-demo-full",
   "ref": "main",
   "base": "d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-  "ms": 21,
+  "ms": 15225,
   "providers": [
     {
       "id": "resource-map",
       "ok": true,
-      "ms": 14,
+      "ms": 15225,
       "count": 146
     },
     {
       "id": "instruction-stack",
       "ok": true,
-      "ms": 20,
+      "ms": 12137,
       "count": 8
     },
     {
       "id": "cost",
       "ok": true,
-      "ms": 3,
+      "ms": 0,
       "count": 11
     }
   ],
@@ -34,7 +34,7 @@
         "ref": "main",
         "path": "agent-think/test/wrangler.jsonc"
       },
-      "title": "agent-think: +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "agent-think: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ThinkAgent, WorkspaceAgent, Sandbox, WarmPool, CommandCenter, AgentThinkPromptTestAgent; r2_buckets: R2_SKILLS; ai: AI",
       "evidence": [
         {
@@ -148,7 +148,7 @@
         "ref": "main",
         "path": "agent-think/tests-e2e/wrangler.jsonc"
       },
-      "title": "agent-think-e2e: +8 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "agent-think-e2e: +8 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ThinkAgent, WorkspaceAgent, Sandbox, WarmPool, CommandCenter; r2_buckets: R2_SKILLS; ai: AI; containers: Sandbox",
       "evidence": [
         {
@@ -263,7 +263,7 @@
         "ref": "main",
         "path": "agent-think/wrangler.jsonc"
       },
-      "title": "agent-think: +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "agent-think: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ThinkAgent, WorkspaceAgent, Sandbox, WarmPool, CommandCenter; r2_buckets: R2_SKILLS; ai: AI; services: GITHUB_AUTH; containers: Sandbox",
       "evidence": [
         {
@@ -391,7 +391,7 @@
         "ref": "main",
         "path": "examples/a2a/wrangler.jsonc"
       },
-      "title": "a2a-agent-demo: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "a2a-agent-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyA2A; ai: AI",
       "evidence": [
         {
@@ -442,7 +442,7 @@
         "ref": "main",
         "path": "examples/agent-skills/wrangler.jsonc"
       },
-      "title": "agent-skills-example: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "agent-skills-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: SkillsAgent; ai: AI",
       "evidence": [
         {
@@ -493,7 +493,7 @@
         "ref": "main",
         "path": "examples/agents-as-tools/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: Assistant, Researcher, Planner",
       "evidence": [
         {
@@ -554,7 +554,7 @@
         "ref": "main",
         "path": "examples/agents-as-tools/wrangler.jsonc"
       },
-      "title": "agents-as-tools-example: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "agents-as-tools-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: Assistant; ai: AI",
       "evidence": [
         {
@@ -605,7 +605,7 @@
         "ref": "main",
         "path": "examples/ai-chat/wrangler.jsonc"
       },
-      "title": "ai-chat-example: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "ai-chat-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ChatAgent; ai: AI; browser: BROWSER",
       "evidence": [
         {
@@ -666,7 +666,7 @@
         "ref": "main",
         "path": "examples/assistant/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: AssistantDirectory, MyAssistant",
       "evidence": [
         {
@@ -717,7 +717,7 @@
         "ref": "main",
         "path": "examples/assistant/wrangler.jsonc"
       },
-      "title": "think-assistant: +1 −1 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "think-assistant: +1 \u22121 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: AssistantDirectory; ai: AI; browser: BROWSER",
       "evidence": [
         {
@@ -785,7 +785,7 @@
         "ref": "main",
         "path": "examples/auth-agent/wrangler.jsonc"
       },
-      "title": "auth-agent: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "auth-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ChatAgent; ai: AI",
       "evidence": [
         {
@@ -836,7 +836,7 @@
         "ref": "main",
         "path": "examples/browser-live-view/wrangler.jsonc"
       },
-      "title": "browser-live-view: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "browser-live-view: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: LiveViewAgent; ai: AI; browser: BROWSER",
       "evidence": [
         {
@@ -897,7 +897,7 @@
         "ref": "main",
         "path": "examples/browser-quick-actions/wrangler.jsonc"
       },
-      "title": "browser-quick-actions: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "browser-quick-actions: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: QuickActionsAgent; ai: AI; browser: BROWSER",
       "evidence": [
         {
@@ -958,7 +958,7 @@
         "ref": "main",
         "path": "examples/chat-sdk-messenger/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: TestHostAgent, ChatIngressAgent, ConversationAgent, ChatSdkStateAgent, TestChatSdkStateAgent",
       "evidence": [
         {
@@ -1039,7 +1039,7 @@
         "ref": "main",
         "path": "examples/chat-sdk-messenger/wrangler.jsonc"
       },
-      "title": "chat-sdk-messenger: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "chat-sdk-messenger: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ChatIngressAgent; ai: AI",
       "evidence": [
         {
@@ -1088,60 +1088,9 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
-        "path": "examples/codemode/wrangler.jsonc"
-      },
-      "title": "codemode-demo: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: Codemode; ai: AI",
-      "evidence": [
-        {
-          "repo": "agents-demo-full",
-          "path": "examples/codemode/wrangler.jsonc"
-        }
-      ],
-      "metrics": {
-        "worker": "codemode-demo",
-        "bindings": {
-          "durable_objects": [
-            {
-              "type": "durable_objects",
-              "name": "Codemode",
-              "resource": "Codemode"
-            }
-          ],
-          "ai": [
-            {
-              "type": "ai",
-              "name": "AI"
-            }
-          ]
-        },
-        "diff": {
-          "added": [],
-          "removed": [],
-          "unchanged": [
-            {
-              "type": "durable_objects",
-              "name": "Codemode",
-              "resource": "Codemode"
-            },
-            {
-              "type": "ai",
-              "name": "AI"
-            }
-          ]
-        },
-        "newConfig": false
-      }
-    },
-    {
-      "provider": "resource-map",
-      "severity": "info",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
         "path": "examples/codemode-browser/wrangler.jsonc"
       },
-      "title": "codemode-browser-demo: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "codemode-browser-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: BrowserCodemode; ai: AI",
       "evidence": [
         {
@@ -1192,7 +1141,7 @@
         "ref": "main",
         "path": "examples/codemode-connectors/wrangler.jsonc"
       },
-      "title": "codemode-connectors-demo: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "codemode-connectors-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: GitHubLikeMCP, Chat; ai: AI; browser: BROWSER",
       "evidence": [
         {
@@ -1261,36 +1210,9 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
-        "path": "examples/codemode-mcp/wrangler.jsonc"
-      },
-      "title": "codemode-mcp: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "No bindings declared.",
-      "evidence": [
-        {
-          "repo": "agents-demo-full",
-          "path": "examples/codemode-mcp/wrangler.jsonc"
-        }
-      ],
-      "metrics": {
-        "worker": "codemode-mcp",
-        "bindings": {},
-        "diff": {
-          "added": [],
-          "removed": [],
-          "unchanged": []
-        },
-        "newConfig": false
-      }
-    },
-    {
-      "provider": "resource-map",
-      "severity": "info",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
         "path": "examples/codemode-mcp-openapi/wrangler.jsonc"
       },
-      "title": "codemode-mcp-openapi: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "codemode-mcp-openapi: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "No bindings declared.",
       "evidence": [
         {
@@ -1315,9 +1237,87 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
+        "path": "examples/codemode-mcp/wrangler.jsonc"
+      },
+      "title": "codemode-mcp: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "No bindings declared.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "examples/codemode-mcp/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "codemode-mcp",
+        "bindings": {},
+        "diff": {
+          "added": [],
+          "removed": [],
+          "unchanged": []
+        },
+        "newConfig": false
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "examples/codemode/wrangler.jsonc"
+      },
+      "title": "codemode-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: Codemode; ai: AI",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "examples/codemode/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "codemode-demo",
+        "bindings": {
+          "durable_objects": [
+            {
+              "type": "durable_objects",
+              "name": "Codemode",
+              "resource": "Codemode"
+            }
+          ],
+          "ai": [
+            {
+              "type": "ai",
+              "name": "AI"
+            }
+          ]
+        },
+        "diff": {
+          "added": [],
+          "removed": [],
+          "unchanged": [
+            {
+              "type": "durable_objects",
+              "name": "Codemode",
+              "resource": "Codemode"
+            },
+            {
+              "type": "ai",
+              "name": "AI"
+            }
+          ]
+        },
+        "newConfig": false
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
         "path": "examples/context-overflow-recovery/wrangler.jsonc"
       },
-      "title": "context-overflow-recovery-example: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "context-overflow-recovery-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ContextOverflowAgent; ai: AI",
       "evidence": [
         {
@@ -1368,7 +1368,7 @@
         "ref": "main",
         "path": "examples/cross-domain/wrangler.jsonc"
       },
-      "title": "cross-domain: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "cross-domain: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -1409,7 +1409,7 @@
         "ref": "main",
         "path": "examples/deploy-churn/wrangler.jsonc"
       },
-      "title": "agents-deploy-churn: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "agents-deploy-churn: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: DeployChurnAgent, DeployChurnSubAgentChild; ai: AI",
       "evidence": [
         {
@@ -1470,7 +1470,7 @@
         "ref": "main",
         "path": "examples/dynamic-tools/wrangler.jsonc"
       },
-      "title": "dynamic-tools-example: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "dynamic-tools-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: DynamicToolsAgent; ai: AI",
       "evidence": [
         {
@@ -1519,36 +1519,9 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
-        "path": "examples/dynamic-workers/wrangler.jsonc"
-      },
-      "title": "dynamic-workers-example: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "No bindings declared.",
-      "evidence": [
-        {
-          "repo": "agents-demo-full",
-          "path": "examples/dynamic-workers/wrangler.jsonc"
-        }
-      ],
-      "metrics": {
-        "worker": "dynamic-workers-example",
-        "bindings": {},
-        "diff": {
-          "added": [],
-          "removed": [],
-          "unchanged": []
-        },
-        "newConfig": false
-      }
-    },
-    {
-      "provider": "resource-map",
-      "severity": "info",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
         "path": "examples/dynamic-workers-playground/wrangler.jsonc"
       },
-      "title": "dynamic-workers-playground: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "dynamic-workers-playground: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: LogSession",
       "evidence": [
         {
@@ -1587,9 +1560,36 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
+        "path": "examples/dynamic-workers/wrangler.jsonc"
+      },
+      "title": "dynamic-workers-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "No bindings declared.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "examples/dynamic-workers/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "dynamic-workers-example",
+        "bindings": {},
+        "diff": {
+          "added": [],
+          "removed": [],
+          "unchanged": []
+        },
+        "newConfig": false
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
         "path": "examples/elevenlabs-starter/wrangler.jsonc"
       },
-      "title": "elevenlabs-starter: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "elevenlabs-starter: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: VoiceChatAgent, SoundscapeAgent, CharacterAgent, MusicAgent; r2_buckets: AUDIO_BUCKET; ai: AI",
       "evidence": [
         {
@@ -1682,7 +1682,7 @@
         "ref": "main",
         "path": "examples/email-agent/wrangler.jsonc"
       },
-      "title": "agents-email-agent: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "agents-email-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: EmailServiceAgent",
       "evidence": [
         {
@@ -1723,7 +1723,7 @@
         "ref": "main",
         "path": "examples/github-webhook/wrangler.jsonc"
       },
-      "title": "github-webhook: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "github-webhook: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: RepoAgent",
       "evidence": [
         {
@@ -1762,50 +1762,9 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
-        "path": "examples/mcp/wrangler.jsonc"
-      },
-      "title": "mcp-agent-demo: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: MyMCP",
-      "evidence": [
-        {
-          "repo": "agents-demo-full",
-          "path": "examples/mcp/wrangler.jsonc"
-        }
-      ],
-      "metrics": {
-        "worker": "mcp-agent-demo",
-        "bindings": {
-          "durable_objects": [
-            {
-              "type": "durable_objects",
-              "name": "MyMCP",
-              "resource": "MyMCP"
-            }
-          ]
-        },
-        "diff": {
-          "added": [],
-          "removed": [],
-          "unchanged": [
-            {
-              "type": "durable_objects",
-              "name": "MyMCP",
-              "resource": "MyMCP"
-            }
-          ]
-        },
-        "newConfig": false
-      }
-    },
-    {
-      "provider": "resource-map",
-      "severity": "info",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
         "path": "examples/mcp-client/wrangler.jsonc"
       },
-      "title": "mcp-client: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "mcp-client: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -1840,13 +1799,40 @@
     },
     {
       "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "examples/mcp-elicitation-mrtr/wrangler.jsonc"
+      },
+      "title": "mcp-elicitation-mrtr-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "No bindings declared.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "examples/mcp-elicitation-mrtr/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "mcp-elicitation-mrtr-demo",
+        "bindings": {},
+        "diff": {
+          "added": [],
+          "removed": [],
+          "unchanged": []
+        },
+        "newConfig": true
+      }
+    },
+    {
+      "provider": "resource-map",
       "severity": "warn",
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
         "path": "examples/mcp-elicitation/wrangler.jsonc"
       },
-      "title": "mcp-elicitation-legacy-demo: +1 −1 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "mcp-elicitation-legacy-demo: +1 \u22121 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: LegacyElicitationAgent",
       "evidence": [
         {
@@ -1891,36 +1877,9 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
-        "path": "examples/mcp-elicitation-mrtr/wrangler.jsonc"
-      },
-      "title": "mcp-elicitation-mrtr-demo: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "No bindings declared.",
-      "evidence": [
-        {
-          "repo": "agents-demo-full",
-          "path": "examples/mcp-elicitation-mrtr/wrangler.jsonc"
-        }
-      ],
-      "metrics": {
-        "worker": "mcp-elicitation-mrtr-demo",
-        "bindings": {},
-        "diff": {
-          "added": [],
-          "removed": [],
-          "unchanged": []
-        },
-        "newConfig": true
-      }
-    },
-    {
-      "provider": "resource-map",
-      "severity": "info",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
         "path": "examples/mcp-rpc-transport/wrangler.jsonc"
       },
-      "title": "mcp-rpc-transport-demo: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "mcp-rpc-transport-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyMCP, Chat; ai: AI",
       "evidence": [
         {
@@ -1981,7 +1940,7 @@
         "ref": "main",
         "path": "examples/mcp-server/wrangler.jsonc"
       },
-      "title": "mcp-server: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "mcp-server: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "No bindings declared.",
       "evidence": [
         {
@@ -2006,36 +1965,9 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
-        "path": "examples/mcp-worker/wrangler.jsonc"
-      },
-      "title": "mcp-worker: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "No bindings declared.",
-      "evidence": [
-        {
-          "repo": "agents-demo-full",
-          "path": "examples/mcp-worker/wrangler.jsonc"
-        }
-      ],
-      "metrics": {
-        "worker": "mcp-worker",
-        "bindings": {},
-        "diff": {
-          "added": [],
-          "removed": [],
-          "unchanged": []
-        },
-        "newConfig": false
-      }
-    },
-    {
-      "provider": "resource-map",
-      "severity": "info",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
         "path": "examples/mcp-worker-authenticated/wrangler.jsonc"
       },
-      "title": "mcp-worker-authenticated: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "mcp-worker-authenticated: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "kv_namespaces: OAUTH_KV",
       "evidence": [
         {
@@ -2074,9 +2006,77 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
+        "path": "examples/mcp-worker/wrangler.jsonc"
+      },
+      "title": "mcp-worker: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "No bindings declared.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "examples/mcp-worker/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "mcp-worker",
+        "bindings": {},
+        "diff": {
+          "added": [],
+          "removed": [],
+          "unchanged": []
+        },
+        "newConfig": false
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "examples/mcp/wrangler.jsonc"
+      },
+      "title": "mcp-agent-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: MyMCP",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "examples/mcp/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "mcp-agent-demo",
+        "bindings": {
+          "durable_objects": [
+            {
+              "type": "durable_objects",
+              "name": "MyMCP",
+              "resource": "MyMCP"
+            }
+          ]
+        },
+        "diff": {
+          "added": [],
+          "removed": [],
+          "unchanged": [
+            {
+              "type": "durable_objects",
+              "name": "MyMCP",
+              "resource": "MyMCP"
+            }
+          ]
+        },
+        "newConfig": false
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
         "path": "examples/multi-ai-chat/wrangler.jsonc"
       },
-      "title": "multi-ai-chat-example: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "multi-ai-chat-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: Inbox; ai: AI",
       "evidence": [
         {
@@ -2127,7 +2127,7 @@
         "ref": "main",
         "path": "examples/next/channels/wrangler.jsonc"
       },
-      "title": "channels: +3 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "channels: +3 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: AiSdkAgent, PiAgent; ai: AI",
       "evidence": [
         {
@@ -2188,7 +2188,7 @@
         "ref": "main",
         "path": "examples/next/dynamic-agents/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: Supervisor",
       "evidence": [
         {
@@ -2229,7 +2229,7 @@
         "ref": "main",
         "path": "examples/next/dynamic-agents/wrangler.jsonc"
       },
-      "title": "next-dynamic-agents: +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "next-dynamic-agents: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: Supervisor",
       "evidence": [
         {
@@ -2270,7 +2270,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/codex/src/stress/wrangler.jsonc"
       },
-      "title": "codex-harness-stress: +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "codex-harness-stress: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: STRESS; r2_buckets: WORKSPACE",
       "evidence": [
         {
@@ -2323,7 +2323,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/codex/wrangler.jsonc"
       },
-      "title": "codex-harness-example: +3 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "codex-harness-example: +3 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: Coder; r2_buckets: WORKSPACE; ai: AI",
       "evidence": [
         {
@@ -2386,7 +2386,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/container/wrangler.jsonc"
       },
-      "title": "next-container-harness: +4 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "next-container-harness: +4 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ClaudeCodeAgent, CodexAgent; containers: ClaudeCodeAgent, CodexAgent",
       "evidence": [
         {
@@ -2455,7 +2455,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/opencode/wrangler.jsonc"
       },
-      "title": "opencode-harness-example: +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "opencode-harness-example: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: OpenCodeAgent; ai: AI",
       "evidence": [
         {
@@ -2506,7 +2506,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/pi/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: PI_HARNESS_TEST",
       "evidence": [
         {
@@ -2547,7 +2547,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/pi/wrangler.jsonc"
       },
-      "title": "pi-harness-example: +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "pi-harness-example: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: PiAgent; ai: AI",
       "evidence": [
         {
@@ -2598,7 +2598,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/self-modifying/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: SELF_MODIFYING_HARNESS_TEST",
       "evidence": [
         {
@@ -2639,7 +2639,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/self-modifying/wrangler.jsonc"
       },
-      "title": "self-modifying-harness-example: +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "self-modifying-harness-example: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: SELF_MODIFYING_HARNESS; ai: AI",
       "evidence": [
         {
@@ -2690,7 +2690,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/think/wrangler.jsonc"
       },
-      "title": "think-harness-example: +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "think-harness-example: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ThinkAgent; ai: AI",
       "evidence": [
         {
@@ -2741,7 +2741,7 @@
         "ref": "main",
         "path": "examples/next/lifecycle/wrangler.jsonc"
       },
-      "title": "next-lifecycle: +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "next-lifecycle: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: DoAgent",
       "evidence": [
         {
@@ -2782,7 +2782,7 @@
         "ref": "main",
         "path": "examples/next/mcp-client/wrangler.jsonc"
       },
-      "title": "next-mcp-client-capability: +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "next-mcp-client-capability: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: McpClientObject",
       "evidence": [
         {
@@ -2823,7 +2823,7 @@
         "ref": "main",
         "path": "examples/next/models/wrangler.jsonc"
       },
-      "title": "next-models: +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "next-models: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "ai: AI",
       "evidence": [
         {
@@ -2862,7 +2862,7 @@
         "ref": "main",
         "path": "examples/next/queue/wrangler.jsonc"
       },
-      "title": "next-queue: +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "next-queue: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: UploadObject",
       "evidence": [
         {
@@ -2903,7 +2903,7 @@
         "ref": "main",
         "path": "examples/next/routing/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: UserHub, ChatAgent",
       "evidence": [
         {
@@ -2954,7 +2954,7 @@
         "ref": "main",
         "path": "examples/next/routing/wrangler.jsonc"
       },
-      "title": "next-routing: +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "next-routing: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: UserHub, ChatAgent",
       "evidence": [
         {
@@ -3005,7 +3005,7 @@
         "ref": "main",
         "path": "examples/next/schedules/wrangler.jsonc"
       },
-      "title": "next-schedules: +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "next-schedules: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ReminderObject",
       "evidence": [
         {
@@ -3046,7 +3046,7 @@
         "ref": "main",
         "path": "examples/next/sessions/wrangler.jsonc"
       },
-      "title": "next-sessions: +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "next-sessions: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: SessionObject",
       "evidence": [
         {
@@ -3087,7 +3087,7 @@
         "ref": "main",
         "path": "examples/next/streams/wrangler.jsonc"
       },
-      "title": "next-streams: +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "next-streams: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: GenerateObject",
       "evidence": [
         {
@@ -3128,7 +3128,7 @@
         "ref": "main",
         "path": "examples/next/tasks/wrangler.jsonc"
       },
-      "title": "next-tasks: +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "next-tasks: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ReportObject",
       "evidence": [
         {
@@ -3169,7 +3169,7 @@
         "ref": "main",
         "path": "examples/next/websockets/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: RoomObject",
       "evidence": [
         {
@@ -3210,7 +3210,7 @@
         "ref": "main",
         "path": "examples/next/websockets/wrangler.jsonc"
       },
-      "title": "next-websockets: +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "next-websockets: +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: RoomObject",
       "evidence": [
         {
@@ -3251,7 +3251,7 @@
         "ref": "main",
         "path": "examples/playground/wrangler.jsonc"
       },
-      "title": "agents-playground: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "agents-playground: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: StateAgent, CallableAgent, StreamingAgent, ScheduleAgent, SqlAgent, ConnectionsAgent, RoutingAgent, ReadonlyAgent, RetryAgent, DurableExecutionAgent, ChatAgent, ToolsAgent, CodemodeAgent, SupervisorAgent, ChildAgent, LobbyAgent, RoomAgent, ManagerAgent, FanoutWorkerAgent, PipelineOrchestratorAgent, ValidatorStageAgent, TransformStageAgent, EnrichStageAgent, PlaygroundMcpServer, McpClientAgent, BasicWorkflowAgent, ApprovalAgent, ReceiveEmailAgent, SecureEmailAgent, PlaygroundVoiceAgent; workflows: ProcessingWorkflow, ApprovalWorkflow; ai: AI",
       "evidence": [
         {
@@ -3614,7 +3614,7 @@
         "ref": "main",
         "path": "examples/plivo-voice-agent/wrangler.jsonc"
       },
-      "title": "plivo-voice-agent: +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "plivo-voice-agent: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyVoiceAgent; ai: AI",
       "evidence": [
         {
@@ -3665,7 +3665,7 @@
         "ref": "main",
         "path": "examples/push-notifications/wrangler.jsonc"
       },
-      "title": "push-notifications: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "push-notifications: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ReminderAgent",
       "evidence": [
         {
@@ -3706,7 +3706,7 @@
         "ref": "main",
         "path": "examples/resumable-stream-chat/wrangler.jsonc"
       },
-      "title": "resumable-stream-chat: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "resumable-stream-chat: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ResumableStreamingChat; ai: AI",
       "evidence": [
         {
@@ -3757,7 +3757,7 @@
         "ref": "main",
         "path": "examples/sandbox-coding-agent/wrangler.jsonc"
       },
-      "title": "sandbox-coding-agent-example: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "sandbox-coding-agent-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: CodingOrchestrator, Sandbox; ai: AI; containers: Sandbox",
       "evidence": [
         {
@@ -3830,7 +3830,7 @@
         "ref": "main",
         "path": "examples/structured-input/wrangler.jsonc"
       },
-      "title": "structured-input-example: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "structured-input-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: StructuredInputAgent; ai: AI",
       "evidence": [
         {
@@ -3881,7 +3881,7 @@
         "ref": "main",
         "path": "examples/telnyx-voice-agent/wrangler.jsonc"
       },
-      "title": "telnyx-voice-agent: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "telnyx-voice-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyVoiceAgent; ai: AI",
       "evidence": [
         {
@@ -3932,7 +3932,7 @@
         "ref": "main",
         "path": "examples/think-chat-sdk/wrangler.jsonc"
       },
-      "title": "think-chat-sdk-example: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "think-chat-sdk-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: SupportAgent; ai: AI",
       "evidence": [
         {
@@ -3983,7 +3983,7 @@
         "ref": "main",
         "path": "examples/think-submissions/wrangler.jsonc"
       },
-      "title": "think-submissions-example: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "think-submissions-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: TaskAgent; ai: AI",
       "evidence": [
         {
@@ -4034,7 +4034,7 @@
         "ref": "main",
         "path": "examples/think-workflows/wrangler.jsonc"
       },
-      "title": "think-workflows-example: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "think-workflows-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ReportAgent; workflows: REPORT_WORKFLOW; ai: AI",
       "evidence": [
         {
@@ -4097,7 +4097,7 @@
         "ref": "main",
         "path": "examples/tictactoe/wrangler.jsonc"
       },
-      "title": "tictactoe: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "tictactoe: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: TicTacToe",
       "evidence": [
         {
@@ -4138,7 +4138,7 @@
         "ref": "main",
         "path": "examples/voice-agent/wrangler.jsonc"
       },
-      "title": "voice-agent: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "voice-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyVoiceAgent; ai: AI",
       "evidence": [
         {
@@ -4189,7 +4189,7 @@
         "ref": "main",
         "path": "examples/voice-input/wrangler.jsonc"
       },
-      "title": "voice-input-example: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "voice-input-example: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: VoiceInputAgent; ai: AI",
       "evidence": [
         {
@@ -4240,7 +4240,7 @@
         "ref": "main",
         "path": "examples/vue-chat/wrangler.jsonc"
       },
-      "title": "vue-chat-example: +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "vue-chat-example: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ChatAgent; ai: AI",
       "evidence": [
         {
@@ -4291,7 +4291,7 @@
         "ref": "main",
         "path": "examples/web-research/wrangler.jsonc"
       },
-      "title": "web-research-example: +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "web-research-example: +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ResearchAgent; ai: AI",
       "evidence": [
         {
@@ -4340,9 +4340,36 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
+        "path": "examples/webmcp-react/wrangler.jsonc"
+      },
+      "title": "webmcp-starter: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "No bindings declared.",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "examples/webmcp-react/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "webmcp-starter",
+        "bindings": {},
+        "diff": {
+          "added": [],
+          "removed": [],
+          "unchanged": []
+        },
+        "newConfig": true
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
         "path": "examples/webmcp/wrangler.jsonc"
       },
-      "title": "webmcp-demo: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "webmcp-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyMCP",
       "evidence": [
         {
@@ -4381,36 +4408,9 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
-        "path": "examples/webmcp-react/wrangler.jsonc"
-      },
-      "title": "webmcp-starter: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "No bindings declared.",
-      "evidence": [
-        {
-          "repo": "agents-demo-full",
-          "path": "examples/webmcp-react/wrangler.jsonc"
-        }
-      ],
-      "metrics": {
-        "worker": "webmcp-starter",
-        "bindings": {},
-        "diff": {
-          "added": [],
-          "removed": [],
-          "unchanged": []
-        },
-        "newConfig": true
-      }
-    },
-    {
-      "provider": "resource-map",
-      "severity": "info",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
         "path": "examples/worker-bundler-playground/wrangler.jsonc"
       },
-      "title": "worker-bundler-playground: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "worker-bundler-playground: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: WorkerPlayground; ai: AI",
       "evidence": [
         {
@@ -4461,7 +4461,7 @@
         "ref": "main",
         "path": "examples/workflows/wrangler.jsonc"
       },
-      "title": "workflows-demo: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "workflows-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: TaskAgent; workflows: TASK_WORKFLOW",
       "evidence": [
         {
@@ -4514,7 +4514,7 @@
         "ref": "main",
         "path": "examples/workspace-chat/wrangler.jsonc"
       },
-      "title": "workspace-chat: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "workspace-chat: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: WorkspaceChatAgent; ai: AI",
       "evidence": [
         {
@@ -4563,50 +4563,9 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
-        "path": "examples/x402/wrangler.jsonc"
-      },
-      "title": "x402-http-demo: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "durable_objects: PAY_AGENT",
-      "evidence": [
-        {
-          "repo": "agents-demo-full",
-          "path": "examples/x402/wrangler.jsonc"
-        }
-      ],
-      "metrics": {
-        "worker": "x402-http-demo",
-        "bindings": {
-          "durable_objects": [
-            {
-              "type": "durable_objects",
-              "name": "PAY_AGENT",
-              "resource": "PayAgent"
-            }
-          ]
-        },
-        "diff": {
-          "added": [],
-          "removed": [],
-          "unchanged": [
-            {
-              "type": "durable_objects",
-              "name": "PAY_AGENT",
-              "resource": "PayAgent"
-            }
-          ]
-        },
-        "newConfig": false
-      }
-    },
-    {
-      "provider": "resource-map",
-      "severity": "info",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
         "path": "examples/x402-mcp/wrangler.jsonc"
       },
-      "title": "x402-demo: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "x402-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: PayMCP, PAY_AGENT",
       "evidence": [
         {
@@ -4655,9 +4614,50 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
+        "path": "examples/x402/wrangler.jsonc"
+      },
+      "title": "x402-http-demo: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "durable_objects: PAY_AGENT",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "examples/x402/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "x402-http-demo",
+        "bindings": {
+          "durable_objects": [
+            {
+              "type": "durable_objects",
+              "name": "PAY_AGENT",
+              "resource": "PayAgent"
+            }
+          ]
+        },
+        "diff": {
+          "added": [],
+          "removed": [],
+          "unchanged": [
+            {
+              "type": "durable_objects",
+              "name": "PAY_AGENT",
+              "resource": "PayAgent"
+            }
+          ]
+        },
+        "newConfig": false
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
         "path": "experimental/chat-recovery-probe/wrangler.jsonc"
       },
-      "title": "chat-recovery-probe: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "chat-recovery-probe: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ProbeAgent",
       "evidence": [
         {
@@ -4698,7 +4698,7 @@
         "ref": "main",
         "path": "experimental/forever-chat/wrangler.jsonc"
       },
-      "title": "forever-chat: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "forever-chat: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ForeverChatAgent; ai: AI; services: INFERENCE_BUFFER",
       "evidence": [
         {
@@ -4761,7 +4761,7 @@
         "ref": "main",
         "path": "experimental/forever-fibers/wrangler.jsonc"
       },
-      "title": "forever-fibers: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "forever-fibers: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ResearchAgent",
       "evidence": [
         {
@@ -4802,7 +4802,7 @@
         "ref": "main",
         "path": "experimental/gadgets-chat/wrangler.jsonc"
       },
-      "title": "gadgets-chat: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "gadgets-chat: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: OverseerAgent; ai: AI",
       "evidence": [
         {
@@ -4853,7 +4853,7 @@
         "ref": "main",
         "path": "experimental/gadgets-gatekeeper/wrangler.jsonc"
       },
-      "title": "gadgets-gatekeeper: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "gadgets-gatekeeper: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: GatekeeperAgent; ai: AI",
       "evidence": [
         {
@@ -4904,7 +4904,7 @@
         "ref": "main",
         "path": "experimental/gadgets-sandbox/wrangler.jsonc"
       },
-      "title": "gadgets-sandbox: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "gadgets-sandbox: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: SandboxAgent; ai: AI",
       "evidence": [
         {
@@ -4955,7 +4955,7 @@
         "ref": "main",
         "path": "experimental/gadgets-subagents/wrangler.jsonc"
       },
-      "title": "gadgets-subagents: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "gadgets-subagents: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: CoordinatorAgent; ai: AI",
       "evidence": [
         {
@@ -5004,48 +5004,9 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
-        "path": "experimental/gateway-resume/wrangler.jsonc"
-      },
-      "title": "gateway-resume: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-      "detail": "ai: AI",
-      "evidence": [
-        {
-          "repo": "agents-demo-full",
-          "path": "experimental/gateway-resume/wrangler.jsonc"
-        }
-      ],
-      "metrics": {
-        "worker": "gateway-resume",
-        "bindings": {
-          "ai": [
-            {
-              "type": "ai",
-              "name": "AI"
-            }
-          ]
-        },
-        "diff": {
-          "added": [],
-          "removed": [],
-          "unchanged": [
-            {
-              "type": "ai",
-              "name": "AI"
-            }
-          ]
-        },
-        "newConfig": false
-      }
-    },
-    {
-      "provider": "resource-map",
-      "severity": "info",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
         "path": "experimental/gateway-resume-think/wrangler.jsonc"
       },
-      "title": "gateway-resume-think: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "gateway-resume-think: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: GatewayResumeAgent; ai: AI",
       "evidence": [
         {
@@ -5094,9 +5055,48 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
+        "path": "experimental/gateway-resume/wrangler.jsonc"
+      },
+      "title": "gateway-resume: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "detail": "ai: AI",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "experimental/gateway-resume/wrangler.jsonc"
+        }
+      ],
+      "metrics": {
+        "worker": "gateway-resume",
+        "bindings": {
+          "ai": [
+            {
+              "type": "ai",
+              "name": "AI"
+            }
+          ]
+        },
+        "diff": {
+          "added": [],
+          "removed": [],
+          "unchanged": [
+            {
+              "type": "ai",
+              "name": "AI"
+            }
+          ]
+        },
+        "newConfig": false
+      }
+    },
+    {
+      "provider": "resource-map",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
         "path": "experimental/inference-buffer/wrangler.jsonc"
       },
-      "title": "inference-buffer: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "inference-buffer: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: INFERENCE_BUFFER; ai: AI",
       "evidence": [
         {
@@ -5147,7 +5147,7 @@
         "ref": "main",
         "path": "experimental/ops-approval-agent/wrangler.jsonc"
       },
-      "title": "ops-approval-agent: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "ops-approval-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: OpsApprovalAgent; ai: AI",
       "evidence": [
         {
@@ -5198,7 +5198,7 @@
         "ref": "main",
         "path": "experimental/pi-recovery/wrangler.jsonc"
       },
-      "title": "pi-recovery: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "pi-recovery: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: PiAgent",
       "evidence": [
         {
@@ -5239,7 +5239,7 @@
         "ref": "main",
         "path": "experimental/tanstack-recovery/wrangler.jsonc"
       },
-      "title": "tanstack-recovery: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "tanstack-recovery: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: TanStackAgent; ai: AI",
       "evidence": [
         {
@@ -5290,7 +5290,7 @@
         "ref": "main",
         "path": "guides/anthropic-patterns/wrangler.json"
       },
-      "title": "anthropic-agent-patterns: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "anthropic-agent-patterns: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: sequential, routing, parallel, orchestrator, evaluator",
       "evidence": [
         {
@@ -5371,7 +5371,7 @@
         "ref": "main",
         "path": "guides/human-in-the-loop/wrangler.toml"
       },
-      "title": "human-in-the-loop: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "human-in-the-loop: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: HumanInTheLoop; ai: AI",
       "evidence": [
         {
@@ -5422,7 +5422,7 @@
         "ref": "main",
         "path": "openai-sdk/basic/wrangler.jsonc"
       },
-      "title": "basic-openai-cloudflare-agent: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "basic-openai-cloudflare-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyAgent; ai: AI",
       "evidence": [
         {
@@ -5473,7 +5473,7 @@
         "ref": "main",
         "path": "openai-sdk/call-my-agent/wrangler.jsonc"
       },
-      "title": "call-my-agent: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "call-my-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -5514,7 +5514,7 @@
         "ref": "main",
         "path": "openai-sdk/chess-app/wrangler.jsonc"
       },
-      "title": "chess-app: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "chess-app: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: CHESS",
       "evidence": [
         {
@@ -5555,7 +5555,7 @@
         "ref": "main",
         "path": "openai-sdk/handoffs/wrangler.jsonc"
       },
-      "title": "handoffs-openai-cloudflare-agent: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "handoffs-openai-cloudflare-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -5596,7 +5596,7 @@
         "ref": "main",
         "path": "openai-sdk/human-in-the-loop/wrangler.jsonc"
       },
-      "title": "human-in-the-loop-openai-cloudflare-agent: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "human-in-the-loop-openai-cloudflare-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -5637,7 +5637,7 @@
         "ref": "main",
         "path": "openai-sdk/llm-as-a-judge/wrangler.jsonc"
       },
-      "title": "llm-as-a-judge-openai-cloudflare-agent: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "llm-as-a-judge-openai-cloudflare-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -5678,7 +5678,7 @@
         "ref": "main",
         "path": "openai-sdk/pizzaz/wrangler.jsonc"
       },
-      "title": "pizzaz-mcp: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "pizzaz-mcp: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MCP_OBJECT",
       "evidence": [
         {
@@ -5719,7 +5719,7 @@
         "ref": "main",
         "path": "openai-sdk/streaming-chat/wrangler.jsonc"
       },
-      "title": "streaming-chat-openai-cloudflare-agent: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "streaming-chat-openai-cloudflare-agent: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -5760,7 +5760,7 @@
         "ref": "main",
         "path": "packages/agents/conformance/wrangler.jsonc"
       },
-      "title": "agents-mcp-conformance-host: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "agents-mcp-conformance-host: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ConformanceHost, EverythingMcpAgent, EverythingHandlerAgent",
       "evidence": [
         {
@@ -5821,7 +5821,7 @@
         "ref": "main",
         "path": "packages/agents/src/browser-tests/wrangler.jsonc"
       },
-      "title": "browser-e2e-test: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "browser-e2e-test: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: BrowserTestAgent; browser: BROWSER",
       "evidence": [
         {
@@ -5872,7 +5872,7 @@
         "ref": "main",
         "path": "packages/agents/src/e2e-tests/wrangler.jsonc"
       },
-      "title": "fiber-e2e-test: +3 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "fiber-e2e-test: +3 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: RunFiberTestAgent, SubAgentFiberParent, SubAgentFiberChild, PoisonRowAgent, ScanDeadlineAgent, ConcurrentFiberAgent, PoisonBackoffAgent, FacetRecoveryParent, FacetRecoveryChild, TaskKillTestAgent, StreamKillTestAgent, CutoverKillAgent",
       "evidence": [
         {
@@ -6024,7 +6024,7 @@
         "ref": "main",
         "path": "packages/agents/src/harness/container/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +4 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +4 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: CONTAINER_HARNESS_TEST, CONTAINER_RETRY_TEST, CONTAINER_MANAGED_TEST, HARNESS_STORE_TEST",
       "evidence": [
         {
@@ -6095,7 +6095,7 @@
         "ref": "main",
         "path": "packages/agents/src/harness/opencode/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: OPENCODE_HARNESS_TEST, TABLE_PREFIX_TEST",
       "evidence": [
         {
@@ -6146,7 +6146,7 @@
         "ref": "main",
         "path": "packages/agents/src/harness/pi/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +5 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +5 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: PI_HARNESS_TEST, PI_STORE_TEST, PI_NO_DEFAULTS_TEST, PI_FACTORY_TEST, PI_FLAKY_FACTORY_TEST",
       "evidence": [
         {
@@ -6227,7 +6227,7 @@
         "ref": "main",
         "path": "packages/agents/src/harness/think/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +2 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +2 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: THINK_HARNESS_TEST, THINK_WITH_STREAMS",
       "evidence": [
         {
@@ -6278,7 +6278,7 @@
         "ref": "main",
         "path": "packages/agents/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +33 −3 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +33 \u22123 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: CapabilityHarnessObject, PlainLifecycleObject, StatefulPlainObject, RetryableStartObject, ConcurrentStartObject, ScheduledLifecycleObject, SchedulerHarnessObject, SchedulerStartupWarnObject, QueueHarnessObject, BrowserHarnessObject, TestBrowserAgent, TaskHarnessObject, TaskSchedulerCoexistObject, StreamHarnessObject, ChannelsHarnessObject, AiSdkHarnessObject, CutoverHarnessObject, SqliteStrategiesBench, TaskStreamComposeObject, StreamBenchObject, SessionHarnessObject, SessionSearchHarnessObject, SessionBenchObject, PlainMcpClientObject, MCP_OBJECT, TestCodemodeMcpAgent, EmailAgent, CaseSensitiveAgent, UserNotificationAgent, TAG_AGENT, TestOAuthAgent, TestCustomOAuthAgent, TEST_MCP_JURISDICTION, TestAlarmInitAgent, TestDestroyScheduleAgent, TestReadonlyAgent, TestProtocolMessagesAgent, TestScheduleAgent, TestTaskAgent, TestOnStartScheduleWarnAgent, TestOnStartScheduleNoWarnAgent, TestOnStartScheduleExplicitFalseAgent, TestWorkflowAgent, TestAgentToolReplayAgent, TestAgentToolStubChild, TestAddMcpServerAgent, TestRpcMcpClientAgent, TestHttpMcpDedupAgent, TestStateAgent, TestStateAgentNoInitial, TestThrowingStateAgent, TestPersistedStateAgent, TestBothHooksAgent, TestNoIdentityAgent, TestCallableAgent, TestChildAgent, TestQueueAgent, TestChatSdkStateHostAgent, ChatSdkStateAgent, TestRetryAgent, TestRetryDefaultsAgent, TestRunFiberAgent, TestKeepAliveAgent, TestSessionAgent, TestWaitConnectionsAgent, TestNativeRpcAgent, RoutingOwnerAgent, RoutedChatAgent, TestSubAgentParent, CUSTOM_BOUND_SUB_AGENT_PARENT, CodemodeRuntime, CounterSubAgent, OuterSubAgent, DenyingSubAgent, InnerSubAgent, LeafSubAgent, CallbackSubAgent, BroadcastSubAgent, BodyProbeSubAgent, BodyProbeRootAgent, SlowReplySubAgent, TestMigrationAgent, TestConnectionUriAgent, SpikeSubParent, SpikeSubChild, HookingSubAgentParent, Sub, SUB, Sub_, ReservedClassParent, TestUnboundParentAgent, TestMinifiedNameParentAgent; workflows: TEST_WORKFLOW, SIMPLE_WORKFLOW, FACET_ORIGIN_WORKFLOW, FACET_APPROVAL_WORKFLOW, FACET_EVENT_STATE_WORKFLOW, THROW_IN_RUN_WORKFLOW, REPORT_ERROR_THEN_THROW_WORKFLOW, REPORT_ERROR_ONLY_WORKFLOW, THROW_NON_ERROR_WORKFLOW",
       "evidence": [
         {
@@ -7338,7 +7338,7 @@
         "ref": "main",
         "path": "packages/agents/src/voice/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +10 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +10 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: TestVoiceAgent, TestDiagnosticVoiceAgent, TestEmptyResponseVoiceAgent, TestContextVoiceAgent, TestAiSdkFullStreamVoiceAgent, TestAiSdkTextStreamVoiceAgent, TestPcm24kVoiceAgent, TestVoiceInputAgent, TestDiagnosticVoiceInputAgent, TestRejectCallVoiceInputAgent",
       "evidence": [
         {
@@ -7469,7 +7469,7 @@
         "ref": "main",
         "path": "packages/ai-chat/e2e/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ChatAgent, LlmChatAgent, ClientToolAgent, ClientToolApprovalAgent, SlowAgent, BadKeyAgent, SanitizeAgent, MaxPersistedAgent, DataPartsAgent, ResponseLlmAgent, ResponseChainAgent; ai: AI",
       "evidence": [
         {
@@ -7620,7 +7620,7 @@
         "ref": "main",
         "path": "packages/ai-chat/src/e2e-tests/wrangler.jsonc"
       },
-      "title": "chat-recovery-e2e-test: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "chat-recovery-e2e-test: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ChatRecoveryTestAgent, ChatNoProgressExhaustAgent, ChatAbortedExhaustAgent, ChatWorkBudgetExhaustAgent, ChatNoContinueAgent, ChatNoPersistNoContinueAgent, ChatBufferCleanupAgent, ChatHangingRecoveryAgent, ChatRecoveryHelperChild, ChatRecoveryHelperParent",
       "evidence": [
         {
@@ -7751,7 +7751,7 @@
         "ref": "main",
         "path": "packages/ai-chat/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: TestChatAgent, CustomSanitizeAgent, AgentWithSuperCall, AgentWithoutSuperCall, SlowStreamAgent, ResponseAgent, ResponseContinuationAgent, ResponseThrowingAgent, ResponseSaveMessagesAgent, LatestMessageConcurrencyAgent, MergeMessageConcurrencyAgent, DropMessageConcurrencyAgent, DebounceMessageConcurrencyAgent, InvalidDebounceMessageConcurrencyAgent, MissingDebounceMessageConcurrencyAgent, WaitMcpTrueAgent, WaitMcpTimeoutAgent, WaitMcpFalseAgent, ChatRecoveryTestAgent, NonChatRecoveryTestAgent, RecoveryThrowingAgent, RecoverySlowStreamAgent, AIChatAgentToolParent, AIChatAgentToolChild, StuckAgentToolChild, OverridingPersistAgent",
       "evidence": [
         {
@@ -8043,7 +8043,7 @@
         "ref": "main",
         "path": "packages/codemode/e2e/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: CodemodeAgent; ai: AI",
       "evidence": [
         {
@@ -8094,7 +8094,7 @@
         "ref": "main",
         "path": "packages/codemode/src/runtime-tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: CodemodeTestHost, CodemodeRuntime",
       "evidence": [
         {
@@ -8145,7 +8145,7 @@
         "ref": "main",
         "path": "packages/codemode/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "No bindings declared.",
       "evidence": [
         {
@@ -8172,7 +8172,7 @@
         "ref": "main",
         "path": "packages/hono-agents/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +1 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +1 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: TestHonoAgent",
       "evidence": [
         {
@@ -8213,7 +8213,7 @@
         "ref": "main",
         "path": "packages/shell/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: TestWorkspaceAgent, TestGitAgent",
       "evidence": [
         {
@@ -8264,7 +8264,7 @@
         "ref": "main",
         "path": "packages/think/src/e2e-tests/wrangler.jsonc"
       },
-      "title": "think-e2e-test: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "think-e2e-test: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: TestAssistant, ThinkRecoveryE2EAgent, ThinkRecoveryHelperParent, ThinkRecoveryHelperAgent, ThinkToolRollbackE2EAgent, ThinkPersistFalseE2EAgent, ThinkStallRecoveryE2EAgent, ThinkTaskParentE2EAgent, ThinkAgentToolNaturalParentE2EAgent, ThinkSlowChildE2EAgent, ThinkSlowChildParentE2EAgent, TestStructuredAgent, ThinkContextOverflowE2EAgent, ThinkSubmissionRecoveryE2EAgent, ThinkMessengerRecoveryE2EAgent, ThinkWorkflowRecoveryE2EAgent, ThinkActionPauseRecoveryE2EAgent, ThinkActionLedgerRecoveryE2EAgent; r2_buckets: R2; workflows: STEP_PROMPT_WORKFLOW; ai: AI",
       "evidence": [
         {
@@ -8509,7 +8509,7 @@
         "ref": "main",
         "path": "packages/think/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +19 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +19 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: ConnectionStateParent, ConnectionStateThink, TestAssistantToolsAgent, TestAssistantAgentAgent, BareAssistantAgent, LoopTestAgent, LoopToolTestAgent, OverflowRecoveryTestAgent, ThinkTestAgent, ThinkContinueOverrideTestAgent, ThinkPropsTestAgent, ThinkToolsTestAgent, ThinkFiberTestAgent, ThinkClientToolsAgent, ThinkSessionTestAgent, ThinkSystemPromptSkillsWarningAgent, ThinkDefaultSystemPromptSkillsAgent, ThinkInheritedSystemPromptSkillsAgent, ThinkSystemPromptFieldSkillsAgent, ThinkMissingClassifierWarningAgent, ThinkClassifierMethodAgent, ThinkInheritedClassifierAgent, ThinkClassifierFieldAgent, ThinkAsyncConfigSessionAgent, ThinkConfigTestAgent, ThinkLegacyConfigMigrationAgent, ThinkConfigInSessionAgent, ThinkProgrammaticTestAgent, ThinkScheduledTasksTestAgent, ThinkAsyncHookTestAgent, ThinkRecoveryTestAgent, ThinkNonRecoveryTestAgent, ThinkAgentToolParent, ThinkNestedMiddleAgent, StuckThinkAgentToolChild, ThinkExtensionHookAgent, ThinkExtensionBeforeTurnModelAgent, ThinkMessengerDeliveryTestAgent, ThinkMessengerRouteTestAgent, ThinkMcpToolMaterializationAgent, ThinkExecuteToolAgent, ThinkExecuteHitlAgent, ThinkFetchToolsTestAgent, ThinkOnStartReconcileFailureAgent, ThinkOnStartHydrationFailureAgent, ThinkWindowedHydrationAgent, ThinkMediaEvictionAgent, ThinkPromptCacheTestAgent, ThinkMediaEvictionAutoAgent, ThinkPointerHydrationAgent, ThinkLegacySessionApiAgent, BrowserToolsHost, CodemodeRuntime, ThinkMessengerStateAgent",
       "evidence": [
         {
@@ -9081,7 +9081,7 @@
         "ref": "main",
         "path": "packages/worker-bundler/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "(unnamed): +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "durable_objects: FS_TEST",
       "evidence": [
         {
@@ -9122,7 +9122,7 @@
         "ref": "main",
         "path": "site/agents/wrangler.jsonc"
       },
-      "title": "agents-site: +0 −0 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
+      "title": "agents-site: +0 \u22120 bindings vs d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
       "detail": "kv_namespaces: DOCS_KV",
       "evidence": [
         {
@@ -11080,7 +11080,7 @@
             "rank": 3,
             "path": "packages/agents/AGENTS.md",
             "line": 7,
-            "text": "These are the boundaries of the public API — changes here need a changeset."
+            "text": "These are the boundaries of the public API \u2014 changes here need a changeset."
           }
         ]
       }
@@ -12164,7 +12164,7 @@
         "repo": "agents-demo-full",
         "ref": "main"
       },
-      "title": "developer devon spends 4.4× the median",
+      "title": "developer devon spends 4.4\u00d7 the median",
       "detail": "$25.05 vs a median developer spend of $5.70.",
       "evidence": [],
       "metrics": {
@@ -12183,7 +12183,7 @@
         "ref": "main",
         "agent": "agent-think"
       },
-      "title": "agent agent-think spends 4.4× the median",
+      "title": "agent agent-think spends 4.4\u00d7 the median",
       "detail": "$25.05 vs a median agent spend of $5.70.",
       "evidence": [],
       "metrics": {
@@ -12202,7 +12202,7 @@
         "ref": "main",
         "agent": "agent-think"
       },
-      "title": "Model fit: triage on gpt-5.6-sol → @cf/zai-org/glm-5.3-flash",
+      "title": "Model fit: triage on gpt-5.6-sol \u2192 @cf/zai-org/glm-5.3-flash",
       "detail": "agent-think ran 14 \"triage\" requests on a frontier model ($12.27); mechanical task; a small model is enough. Estimated $0.18, saving $12.10.",
       "evidence": [],
       "metrics": {
@@ -12226,7 +12226,7 @@
         "ref": "main",
         "agent": "docs-bot"
       },
-      "title": "Model fit: changelog on claude-opus-5-5 → @cf/zai-org/glm-5.3-flash",
+      "title": "Model fit: changelog on claude-opus-5-5 \u2192 @cf/zai-org/glm-5.3-flash",
       "detail": "docs-bot ran 6 \"changelog\" requests on a frontier model ($2.77); mechanical task; a small model is enough. Estimated $0.02, saving $2.74.",
       "evidence": [],
       "metrics": {
@@ -12250,7 +12250,7 @@
         "ref": "main",
         "agent": "claude-code"
       },
-      "title": "Model fit: format on claude-opus-5-5 → @cf/zai-org/glm-5.3-flash",
+      "title": "Model fit: format on claude-opus-5-5 \u2192 @cf/zai-org/glm-5.3-flash",
       "detail": "claude-code ran 4 \"format\" requests on a frontier model ($2.06); mechanical task; a small model is enough. Estimated $0.02, saving $2.04.",
       "evidence": [],
       "metrics": {

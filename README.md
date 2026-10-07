@@ -45,8 +45,11 @@ The Worker has no caller authentication yet, so keep it to local dev.
 
 - `samples/insights-agents-demo-full-main.json`: live run against `agents-demo-full@main`.
 - `samples/resource-map-diff-agents-demo-full.json`: `main` diffed against a commit 300 first-parent commits back.
-- `samples/insights-demo.json`: every provider offline (`node scripts/demo-insights.ts <checkout> <base-sha>`), with the
-  demo layers and the cost fixture. The dashboard's default data.
-- `samples/context-agents-demo-full.json`: `/context` for three example tasks (`node scripts/demo-context.ts <checkout>`).
+- `samples/insights-demo.json`: live `/insights?...&layers=demo` (demo layers overlaid, cost fixture); identical to the
+  offline `node scripts/demo-insights.ts <checkout> <base-sha>`. The dashboard's default data.
+- `samples/context-agents-demo-full.json`: live `/context` for three example tasks; identical to `node scripts/demo-context.ts <checkout>`.
+
+`layers=demo` (query param on `/insights`, body field on `/context`) only works on localhost: it serves
+`fixtures/demo-layers` as the `git-next-demo-layers` repo and overlays its `stack.json`, so nothing is pushed to the analysed repo.
 - `samples/instruction-stack-demo-layers.json`: offline run over the repo's real instruction and config files plus the
   hypothetical layers in `fixtures/demo-layers` (`node scripts/demo-stack.ts <checkout>`).

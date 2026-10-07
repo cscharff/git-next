@@ -63,7 +63,8 @@
 	<form id="live">
 		<input id="repo" value="agents-demo-full" size="16" aria-label="Repository">
 		<input id="ref" value="main" size="8" aria-label="Ref">
-		<input id="base" placeholder="base ref (optional)" size="14" aria-label="Base ref">
+		<input id="base" placeholder="base ref (optional)" value="d1ce3cbd765cada8edfaedaf5ea1041095ece79c" size="14" aria-label="Base ref">
+		<label class="meta"><input type="checkbox" id="demo" checked> demo layers</label>
 		<button type="submit">Run live</button>
 		<button type="button" class="secondary" id="sample">Use sample</button>
 	</form>
@@ -105,7 +106,7 @@ async function loadLive(e) {
 	const repo = $("#repo").value.trim(), ref = $("#ref").value.trim() || "main", base = $("#base").value.trim();
 	showBanner(`Running providers on ${repo}@${ref}…`);
 	try {
-		const qs = new URLSearchParams({ repo, ref, ...(base ? { base } : {}) });
+		const qs = new URLSearchParams({ repo, ref, ...(base ? { base } : {}), ...($("#demo").checked ? { layers: "demo" } : {}) });
 		state.insights = await getJson(`/insights?${qs}`);
 		state.repo = repo;
 		state.source = "live";
@@ -246,7 +247,7 @@ function renderContext() {
 	};
 	$("#ctask").addEventListener("change", (e) => show(results[e.target.value]));
 	$("#nrun").addEventListener("click", async () => {
-		const payload = { repo: $("#repo").value.trim(), ref: $("#ref").value.trim() || "main", task: $("#ntask").value, paths: $("#npaths").value.split(",").map((s) => s.trim()).filter(Boolean), budgetTokens: Number($("#nbudget").value) };
+		const payload = { repo: $("#repo").value.trim(), ref: $("#ref").value.trim() || "main", task: $("#ntask").value, paths: $("#npaths").value.split(",").map((s) => s.trim()).filter(Boolean), budgetTokens: Number($("#nbudget").value), ...($("#demo").checked ? { layers: "demo" } : {}) };
 		$("#cbody").innerHTML = `<p class="empty">Slicing…</p>`;
 		try {
 			show(await getJson("/context", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }));

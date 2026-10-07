@@ -44,7 +44,8 @@ export class RepoContext {
 	readTree(repo: string, ref: string): Promise<TreeFile[]> {
 		const key = `${repo}@${ref}`;
 		let t = this.trees.get(key);
-		if (!t) this.trees.set(key, (t = this.source(repo).then((s) => s.listFiles(ref))));
+		// Sorted by code unit so every source (Artifacts, fixtures, local checkouts) yields the same order.
+		if (!t) this.trees.set(key, (t = this.source(repo).then(async (s) => (await s.listFiles(ref)).sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0)))));
 		return t;
 	}
 
