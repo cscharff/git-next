@@ -65,6 +65,10 @@ const globToRegExp = (glob: string) => new RegExp(`^${glob.replace(/[.+^${}()|[\
 
 const CODE_FILE = /\.(ts|tsx|js|jsx|mjs|cjs|py|json|jsonc|toml|ya?ml)$/i;
 const SKIP_PATH = /(^|\/)(node_modules|\.git|dist|build|\.wrangler)\/|(^|\/)(package-lock\.json|pnpm-lock\.yaml|yarn\.lock)$|^\.gitnext\//;
+/** Tests, fixtures and generated type declarations: full of sample keys and model lists nobody deploys. */
+export const isTestOrGenerated = (path: string) => /(^|\/)(test|tests|__tests__|__mocks__|fixtures?|__fixtures__)\/|\.(test|spec)\.[a-z]+$|\.d\.[cm]?ts$/i.test(path);
+/** Files that list models for tools or CI (e.g. .github/bonk-models.json): read before the file cap applies. */
+const MODEL_REGISTRY = /(^|\/)[^/]*models?[^/]*\.jsonc?$/i;
 const MODEL_ID = /@cf\/[a-z0-9-]+\/[a-z0-9._-]+|\b(?:anthropic|openai|google|mistral|deepseek)\/[a-z0-9._-]+|\bclaude-(?:opus|sonnet|haiku|fable|instant)[a-z0-9.-]*|\bgpt-\d[a-z0-9.-]*|\bgemini-[0-9][a-z0-9.-]*/gi;
 
 const SECRET_PATTERNS: { kind: string; re: RegExp }[] = [
@@ -78,6 +82,21 @@ const SECRET_PATTERNS: { kind: string; re: RegExp }[] = [
 ];
 // Values that look like placeholders, references or examples rather than real secrets.
 const PLACEHOLDER = /^(?:x+|\*+|<.*>|\$\{.*\}|your[-_].*|example.*|changeme|replace[-_]?me.*|todo|test[-_].*|dummy.*|fake.*)$/i;
+
+/**
+ * Whether a quoted value could be a credential rather than a name for one: not an UPPER_SNAKE constant or env var
+ * name (TOKEN_EXPIRED), not a URL or path (/oauth/token), not a masked bullet string, and not an identifier that
+ * names the credential itself (installation-token, private_key_jwt, emdash:preview_secret).
+ */
+export function plausibleSecret(value: string): boolean {
+	if (/^[A-Z][A-Z0-9_]*$/.test(value)) return false;
+	if (/[/\\]|^https?:/i.test(value)) return false;
+	if (new Set(value).size < 5) return false;
+	if (/^[a-z]+(?:[-_.][a-z0-9]+)*$/i.test(value) && /(token|secret|key|password|passwd|jwt|auth|credential)/i.test(value)) return false;
+	// Namespaced storage keys and domains ("emdash:preview_secret", "app:action:v1:").
+	if (/^[a-z][a-z0-9]*(?::[a-z0-9_.-]*)+$/.test(value)) return false;
+	return true;
+}
 
 export interface SecretHit {
 	path: string;
@@ -94,7 +113,7 @@ export function scanSecrets(path: string, text: string): SecretHit[] {
 			const m = line.match(re);
 			if (!m) continue;
 			const value = m[1] ?? m[0];
-			if (kind === "hard-coded credential" && (PLACEHOLDER.test(value) || /process\.env|env\.|import\.meta/.test(line))) continue;
+			if (kind === "hard-coded credential" && (PLACEHOLDER.test(value) || !plausibleSecret(value) || /process\.env|env\.|import\.meta/.test(line))) continue;
 			hits.push({ path, line: i + 1, kind, masked: value.length > 8 ? `${value.slice(0, 4)}…${value.slice(-2)}` : "…" });
 			break;
 		}
@@ -105,7 +124,11 @@ export function scanSecrets(path: string, text: string): SecretHit[] {
 export function scanModels(path: string, text: string): { path: string; line: number; model: string }[] {
 	const out: { path: string; line: number; model: string }[] = [];
 	text.split(/\r?\n/).forEach((line, i) => {
-		for (const m of line.matchAll(MODEL_ID)) out.push({ path, line: i + 1, model: m[0].replace(/[.,]+$/, "") });
+		for (const m of line.matchAll(MODEL_ID)) {
+			// "github.com/openai/openai-node" is a URL, not a model.
+			if (/https?:\/\/\S*$/.test(line.slice(0, m.index))) continue;
+			out.push({ path, line: i + 1, model: m[0].replace(/[.,]+$/, "") });
+		}
 	});
 	return out;
 }
@@ -159,6 +182,8 @@ export interface CatalogCheck {
 	behind: boolean;
 	scannedFiles: number;
 	totalFiles: number;
+	/** Test, fixture and generated files left out of the secret and model scans. */
+	skippedTests: number;
 	findings: CatalogFinding[];
 	errors: string[];
 }
@@ -191,9 +216,13 @@ export async function checkCatalog(files: RepoContext, repo: string, ref: string
 	const configs = tree.filter((f) => isWranglerConfig(f.path) && !SKIP_PATH.test(f.path));
 	const scannable = tree.filter((f) => !SKIP_PATH.test(f.path) && (CODE_FILE.test(f.path) || /(^|\/)\.env[^/]*$|\.dev\.vars$/.test(f.path)));
 	const max = opts.maxFiles ?? 2000;
-	// Config files first so they are always covered, then the rest up to the cap.
+	// Config, env and model-registry files first so they are always covered, then the rest up to the cap.
+	// Tests, fixtures and generated .d.ts files are left out (wrangler configs are still checked for bindings).
 	const envFiles = scannable.filter((f) => /(^|\/)\.env[^/]*$|\.dev\.vars$/.test(f.path));
-	const toScan: TreeFile[] = !catalog && opts.configOnlyWithoutCatalog ? [...configs, ...envFiles] : [...configs, ...scannable.filter((f) => !isWranglerConfig(f.path))].slice(0, max);
+	const rest = scannable.filter((f) => !isWranglerConfig(f.path) && !isTestOrGenerated(f.path));
+	const registries = rest.filter((f) => MODEL_REGISTRY.test(f.path));
+	const toScan: TreeFile[] = !catalog && opts.configOnlyWithoutCatalog ? [...configs, ...envFiles] : [...new Set([...configs, ...envFiles, ...registries, ...rest])].slice(0, max);
+	const skippedTests = scannable.filter((f) => !isWranglerConfig(f.path) && isTestOrGenerated(f.path)).length;
 	const findings: CatalogFinding[] = [];
 
 	const texts = await Promise.all(toScan.map(async (f) => ({ path: f.path, text: (await files.readFile(repo, ref, f.path)) ?? "" })));
@@ -204,8 +233,10 @@ export async function checkCatalog(files: RepoContext, repo: string, ref: string
 		const unapproved = new Map<string, { path: string; line: number }[]>();
 		for (const { path, text } of texts) {
 			for (const m of scanModels(path, text)) if (!modelApproved(catalog, m.model)) unapproved.set(m.model, [...(unapproved.get(m.model) ?? []), { path, line: m.line }]);
-			if (/\.AI\.run\s*\(/.test(text) && catalog.gateway && !text.includes(catalog.gateway.id)) {
-				const line = text.split(/\r?\n/).findIndex((l) => /\.AI\.run\s*\(/.test(l)) + 1;
+			// A call in code, not a mention in a comment ("Pi calls env.AI.run() under the hood").
+			const call = text.split(/\r?\n/).findIndex((l) => /\.AI\.run\s*\(/.test(l) && !/^\s*(\/\/|\/?\*|#)/.test(l));
+			if (call >= 0 && catalog.gateway && !text.includes(catalog.gateway.id)) {
+				const line = call + 1;
 				findings.push({ kind: "gateway", title: "Model call bypasses the org gateway", detail: `${path}:${line} calls env.AI.run without gateway "${catalog.gateway.id}". ${catalog.gateway.how ? `Approved: ${catalog.gateway.how}` : ""}`.trim(), evidence: [{ path, line }] });
 			}
 		}
@@ -237,6 +268,7 @@ export async function checkCatalog(files: RepoContext, repo: string, ref: string
 		behind: !!(repoVersion && baselineVersion && compareVersions(repoVersion, baselineVersion) < 0),
 		scannedFiles: toScan.length,
 		totalFiles: scannable.length,
+		skippedTests,
 		findings,
 		errors,
 	};
@@ -257,9 +289,9 @@ export function catalogProvider(opts: CatalogOptions = {}): InsightProvider {
 					c.source === "none"
 						? "No catalog (secrets scan only)"
 						: `Catalog ${c.catalog!.version} (${c.source === "repo" ? "repo" : "org baseline"})${c.behind ? `: behind ${c.baselineVersion}` : ""}`,
-				detail: `${c.findings.length} violation(s); scanned ${c.scannedFiles} of ${c.totalFiles} code/config files.${c.errors.length ? ` Errors: ${c.errors.join("; ")}` : ""}`,
+				detail: `${c.findings.length} violation(s); scanned ${c.scannedFiles} of ${c.totalFiles} code/config files${c.skippedTests ? ` (${c.skippedTests} test, fixture or generated files skipped)` : ""}.${c.errors.length ? ` Errors: ${c.errors.join("; ")}` : ""}`,
 				evidence: c.source === "repo" ? [{ repo, path: CATALOG_FILE }] : [],
-				metrics: { source: c.source, version: c.catalog?.version ?? null, repoVersion: c.repoVersion ?? null, baselineVersion: c.baselineVersion ?? null, behind: c.behind, scannedFiles: c.scannedFiles, totalFiles: c.totalFiles, byKind: Object.fromEntries([...Map.groupBy(c.findings, (f) => f.kind)].map(([k, v]) => [k, v.length])) },
+				metrics: { source: c.source, version: c.catalog?.version ?? null, repoVersion: c.repoVersion ?? null, baselineVersion: c.baselineVersion ?? null, behind: c.behind, scannedFiles: c.scannedFiles, totalFiles: c.totalFiles, skippedTests: c.skippedTests, byKind: Object.fromEntries([...Map.groupBy(c.findings, (f) => f.kind)].map(([k, v]) => [k, v.length])) },
 			};
 			return [
 				summary,

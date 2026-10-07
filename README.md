@@ -366,8 +366,9 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
   internal errors, so the script forks sequentially. In `cf dev`, the remote bindings occasionally drop a request
   ("Network connection lost"); retry it. The demo script retries `/context` automatically.
 - **Catalog checks are static.** Model ids are found by pattern in code and config, and inline secrets by a short
-  list of patterns plus a generic `key = "…"` rule that skips placeholders and env references. Expect false
-  negatives on unusual formats. Without a catalog, the Worker scans only wrangler and env files.
+  list of patterns plus a generic `key = "…"` rule that skips placeholders, env references, constant names, URLs
+  and paths. Tests, fixtures and generated `*.d.ts` files are not scanned; model registries (`*models*.json`) are
+  always read. Expect false negatives on unusual formats. Without a catalog, the Worker scans only wrangler and env files.
 - **Not deployed.** There's no auth on the API, and the dashboard and Worker are local-dev only.
 
 ## Repository layout
