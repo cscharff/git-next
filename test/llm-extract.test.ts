@@ -28,6 +28,20 @@ describe("validateRules", () => {
 		expect(rules[0].text).toBe("- Always use pnpm for installs.");
 		expect(dropped).toBe(6);
 	});
+
+	it("drops a formatter cited only from a tool directive like prettier-ignore", () => {
+		const lines = ["Directives such as `eslint-disable` and `prettier-ignore` are exempt.", "- **oxfmt** -- formatting (configured in `.prettierrc`)."];
+		const { rules } = validateRules(
+			[
+				{ topic: "formatter", value: "prettier", strength: "should", line: 1 },
+				{ topic: "formatter", value: "prettier", strength: "should", line: 2 },
+				{ topic: "formatter", value: "oxfmt", strength: "should", line: 2 },
+			],
+			layer,
+			lines,
+		);
+		expect(rules.map((r) => `${r.value}@${r.line}`)).toEqual(["oxfmt@2"]);
+	});
 });
 
 describe("chunkLines", () => {

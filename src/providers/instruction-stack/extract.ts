@@ -3,6 +3,9 @@ import type { Layer, Rule, RuleExtractor, Strength, Topic } from "./types.ts";
 const MUST = /\b(must|always|never|required?|do not|don't|only|mandatory|shall|needs?)\b/i;
 const NEGATED = /\b(never|do not|don't|no need|not required|avoid|without|skip|omit)\b/i;
 
+/** A formatter named as a tool; `prettier-ignore`/`biome-ignore` style directives mention one without choosing it. */
+export const FORMATTER = /\b(prettier|oxfmt|biome|dprint)\b(?![-:](?:ignore|disable))/i;
+
 type Matcher = (line: string) => string | null;
 
 const firstOf = (re: RegExp, map: (m: RegExpMatchArray) => string = (m) => m[1].toLowerCase()): Matcher => (line) => {
@@ -19,7 +22,7 @@ const MATCHERS: Record<Topic, Matcher> = {
 			line.match(/\bpackage manager\b[^.]*?\b(npm|pnpm|yarn|bun)\b/i);
 		return m ? m[1].toLowerCase() : null;
 	},
-	formatter: firstOf(/\b(prettier|oxfmt|biome|dprint)\b/i),
+	formatter: firstOf(FORMATTER),
 	indentation: (line) => {
 		if (!/\b(indent|indentation|tabs?|spaces)\b/i.test(line)) return null;
 		const spaces = line.match(/\b(\d)[- ]?space/i);

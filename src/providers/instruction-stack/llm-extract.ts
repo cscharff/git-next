@@ -1,4 +1,4 @@
-import { keywordExtractor } from "./extract.ts";
+import { FORMATTER, keywordExtractor } from "./extract.ts";
 import { TOPICS, type ExtractionInfo, type Layer, type Rule, type RuleExtractor, type Topic } from "./types.ts";
 
 // Model-backed rule extraction. A small model reads one instruction file and returns rules for the fixed topics;
@@ -90,7 +90,9 @@ export function validateRules(raw: unknown[], layer: Layer, lines: string[]): { 
 			Number.isInteger(line) &&
 			line >= 1 &&
 			line <= lines.length &&
-			GROUNDING[topic].test(lines[line - 1]);
+			GROUNDING[topic].test(lines[line - 1]) &&
+			// A formatter must be named on the line as a tool, not only in a `prettier-ignore` directive.
+			(topic !== "formatter" || [...lines[line - 1].matchAll(new RegExp(FORMATTER, "gi"))].some((m) => m[1].toLowerCase() === value));
 		const key = `${topic}|${value}|${line}`;
 		if (!ok || seen.has(key)) {
 			dropped++;

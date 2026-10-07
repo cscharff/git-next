@@ -42,6 +42,12 @@ describe("keyword extractor", () => {
 		]);
 	});
 
+	it("does not read a formatter choice from prettier-ignore style directives", async () => {
+		const md = ["Tool directives are exempt: `eslint-disable`, `prettier-ignore`, `biome-ignore` and similar.", "- **oxfmt** -- formatting (tabs, configured in `.prettierrc`)."].join("\n");
+		expect(values(await extract(md))).toEqual(["formatter=oxfmt", "indentation=tabs"]);
+		expect(values(await extract("Use `prettier-ignore` sparingly; we format with biome."))).toEqual(["formatter=biome"]);
+	});
+
 	it("skips headings and fenced code blocks", async () => {
 		const md = "# Use npm\n```sh\nnpm install\n```\nUse tabs for indentation.";
 		expect([...instructionLines(md)]).toEqual([{ line: 5, text: "Use tabs for indentation." }]);
