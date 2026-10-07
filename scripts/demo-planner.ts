@@ -229,7 +229,7 @@ async function runWorker(spec: AgentSpec, item: PlanItem) {
 	charge(WORKER, WORKER_SYSTEM.length + prompt.length, maxTokens);
 	const out = await llm(WORKER, WORKER_SYSTEM, prompt, maxTokens, { developer: "chris", repo: "agents-demo-full", fork: spec.fork, agent: spec.name, task: taskId });
 	const edits = applyEdits(dir, parseEdits(out.text).edits, (p) => spec.allowed.some((a) => p.startsWith(a)));
-	const summary = parseEdits(out.text).summary.replace(/^SOW-\d+:\s*/, "");
+	const summary = parseEdits(out.text).summary.replace(/^sow-\d+:\s*/i, "");
 	git(dir, "add", "-A");
 	execFileSync("git", ["-c", `user.name=${spec.name}`, "-c", `user.email=${spec.name}@git-next.local`, "commit", "-q", "-m", `SOW-1042: ${summary}`, "-m", `Agent: ${spec.name} (${WORKER}) via git.next\nPlanned-By: planner (${plannerModel})\nAgent-Task: ${taskId}`], { cwd: dir });
 	const head = git(dir, "rev-parse", "HEAD");

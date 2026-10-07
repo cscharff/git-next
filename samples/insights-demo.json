@@ -4,36 +4,36 @@
   "repo": "agents-demo-full",
   "ref": "main",
   "base": "d1ce3cbd765cada8edfaedaf5ea1041095ece79c",
-  "ms": 14200,
+  "ms": 12790,
   "providers": [
     {
       "id": "resource-map",
       "ok": true,
-      "ms": 14199,
+      "ms": 12790,
       "count": 146
     },
     {
       "id": "instruction-stack",
       "ok": true,
-      "ms": 11766,
-      "count": 8
+      "ms": 8843,
+      "count": 10
     },
     {
       "id": "cost",
       "ok": true,
-      "ms": 2,
+      "ms": 1,
       "count": 15
     },
     {
       "id": "owners",
       "ok": true,
-      "ms": 7584,
+      "ms": 6562,
       "count": 1
     },
     {
       "id": "catalog",
       "ok": true,
-      "ms": 8826,
+      "ms": 7724,
       "count": 1
     }
   ],
@@ -9840,8 +9840,8 @@
         "repo": "agents-demo-full",
         "ref": "main"
       },
-      "title": "Instruction stack: 13 layers, 27 rules",
-      "detail": "Extractor keyword-v1; 7 findings.",
+      "title": "Instruction stack: 13 layers, 47 rules",
+      "detail": "Extractor llm:@cf/zai-org/glm-5.3-flash; 9 findings.",
       "evidence": [
         {
           "repo": "agents-demo-full",
@@ -9897,7 +9897,7 @@
         }
       ],
       "metrics": {
-        "extractor": "keyword-v1",
+        "extractor": "llm:@cf/zai-org/glm-5.3-flash",
         "layers": [
           {
             "name": "root",
@@ -10017,11 +10017,105 @@
             "origin": "stack"
           }
         ],
+        "precedence": {
+          "order": [
+            "org",
+            "contract",
+            "project",
+            "tool",
+            "personal",
+            "memory"
+          ],
+          "overridden": false,
+          "audit": [
+            {
+              "action": "reset",
+              "order": [
+                "org",
+                "contract",
+                "project",
+                "tool",
+                "personal"
+              ],
+              "by": "local-admin",
+              "at": "2026-10-07T22:42:55.911Z",
+              "reason": "Engagement review done: org standards take precedence again"
+            },
+            {
+              "action": "set",
+              "order": [
+                "contract",
+                "org",
+                "project",
+                "tool",
+                "personal"
+              ],
+              "by": "local-admin",
+              "at": "2026-10-07T22:42:18.625Z",
+              "reason": "SOW-1234: the client contract governs this engagement"
+            }
+          ]
+        },
+        "extraction": {
+          "agents-demo-full:AGENTS.md": {
+            "source": "cache",
+            "rules": 12
+          },
+          "agents-demo-full:agent-think/AGENTS.md": {
+            "source": "cache",
+            "rules": 6
+          },
+          "agents-demo-full:design/AGENTS.md": {
+            "source": "cache",
+            "rules": 0
+          },
+          "agents-demo-full:docs/AGENTS.md": {
+            "source": "cache",
+            "rules": 0
+          },
+          "agents-demo-full:examples/AGENTS.md": {
+            "source": "cache",
+            "rules": 4
+          },
+          "agents-demo-full:examples/webmcp-react/AGENTS.md": {
+            "source": "cache",
+            "rules": 0
+          },
+          "agents-demo-full:guides/AGENTS.md": {
+            "source": "cache",
+            "rules": 1
+          },
+          "agents-demo-full:packages/agents/AGENTS.md": {
+            "source": "cache",
+            "rules": 17
+          },
+          "agents-demo-full:packages/agents/src/tests/capabilities/AGENTS.md": {
+            "source": "cache",
+            "rules": 0
+          },
+          "git-next-demo-layers:org/AGENTS.md": {
+            "source": "cache",
+            "rules": 2
+          },
+          "git-next-demo-layers:contract/AGENTS.md": {
+            "source": "cache",
+            "rules": 2
+          },
+          "git-next-demo-layers:tool/AGENTS.md": {
+            "source": "cache",
+            "rules": 1
+          },
+          "git-next-demo-layers:personal/AGENTS.md": {
+            "source": "cache",
+            "rules": 2
+          }
+        },
         "rulesPerLayer": {
-          "agents-demo-full:AGENTS.md": 14,
-          "agents-demo-full:agent-think/AGENTS.md": 1,
-          "agents-demo-full:examples/AGENTS.md": 2,
-          "agents-demo-full:packages/agents/AGENTS.md": 3,
+          "agents-demo-full:AGENTS.md": 12,
+          "agents-demo-full:agent-think/AGENTS.md": 6,
+          "agents-demo-full:examples/AGENTS.md": 4,
+          "agents-demo-full:guides/AGENTS.md": 1,
+          "agents-demo-full:packages/agents/AGENTS.md": 17,
           "git-next-demo-layers:org/AGENTS.md": 2,
           "git-next-demo-layers:contract/AGENTS.md": 2,
           "git-next-demo-layers:tool/AGENTS.md": 1,
@@ -10032,23 +10126,37 @@
             "pnpm",
             "npm"
           ],
-          "formatter": [
-            "oxfmt",
-            "prettier"
-          ],
-          "testCommand": [
-            "pnpm run test",
-            "pnpm run test:react"
-          ],
-          "secrets": [
-            "never-in-source"
-          ],
           "changesetPolicy": [
             "required",
             "not-required"
           ],
+          "testCommand": [
+            "pnpm run test",
+            "pnpm exec nx affected -t test",
+            "pnpm test",
+            "pnpm test:e2e",
+            "pnpm run test:workers",
+            "pnpm run test:react",
+            "pnpm run test:voice:workers",
+            "pnpm run test:voice:react",
+            "pnpm run test:channels",
+            "pnpm run test:node",
+            "pnpm run test:webmcp",
+            "pnpm run test:x402",
+            "pnpm run test:browser",
+            "pnpm exec vitest --project chat",
+            "pnpm run test:e2e"
+          ],
+          "formatter": [
+            "oxfmt",
+            "prettier"
+          ],
+          "secrets": [
+            "never-in-source"
+          ],
           "allowedModels": [
-            "gpt-5.6-sol",
+            "providers:workers-ai",
+            "gpt-5.6-sol,claude-opus-5-5",
             "providers:anthropic,workers-ai"
           ],
           "commitFormat": [
@@ -10067,16 +10175,16 @@
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 58
+              "line": 55
             },
             {
-              "topic": "formatter",
-              "value": "oxfmt",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 67
+              "topic": "changesetPolicy",
+              "value": "not-required",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 4
             },
             {
               "topic": "testCommand",
@@ -10089,12 +10197,21 @@
             },
             {
               "topic": "testCommand",
-              "value": "pnpm run test:react",
+              "value": "pnpm exec nx affected -t test",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 156
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
               "strength": "should",
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -10103,15 +10220,6 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
-            },
-            {
-              "topic": "changesetPolicy",
-              "value": "not-required",
-              "strength": "must",
-              "layer": "sow-1234",
-              "kind": "contract",
-              "path": "contract/AGENTS.md",
               "line": 4
             },
             {
@@ -10147,10 +10255,28 @@
               "topic": "packageManager",
               "value": "pnpm",
               "strength": "should",
-              "layer": "root",
+              "layer": "agent-think",
               "kind": "project",
-              "path": "AGENTS.md",
-              "line": 58
+              "path": "agent-think/AGENTS.md",
+              "line": 175
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm test",
+              "strength": "should",
+              "layer": "agent-think",
+              "kind": "project",
+              "path": "agent-think/AGENTS.md",
+              "line": 175
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm test:e2e",
+              "strength": "should",
+              "layer": "agent-think",
+              "kind": "project",
+              "path": "agent-think/AGENTS.md",
+              "line": 176
             },
             {
               "topic": "formatter",
@@ -10159,25 +10285,7 @@
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 67
-            },
-            {
-              "topic": "testCommand",
-              "value": "pnpm run test",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 68
-            },
-            {
-              "topic": "testCommand",
-              "value": "pnpm run test:react",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -10186,15 +10294,6 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
-            },
-            {
-              "topic": "changesetPolicy",
-              "value": "not-required",
-              "strength": "must",
-              "layer": "sow-1234",
-              "kind": "contract",
-              "path": "contract/AGENTS.md",
               "line": 4
             },
             {
@@ -10214,6 +10313,15 @@
               "kind": "contract",
               "path": "contract/AGENTS.md",
               "line": 3
+            },
+            {
+              "topic": "changesetPolicy",
+              "value": "not-required",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 4
             },
             {
               "topic": "securityScan",
@@ -10233,16 +10341,7 @@
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 58
-            },
-            {
-              "topic": "formatter",
-              "value": "oxfmt",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 67
+              "line": 55
             },
             {
               "topic": "testCommand",
@@ -10255,12 +10354,21 @@
             },
             {
               "topic": "testCommand",
-              "value": "pnpm run test:react",
+              "value": "pnpm exec nx affected -t test",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 156
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
               "strength": "should",
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -10269,15 +10377,6 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
-            },
-            {
-              "topic": "changesetPolicy",
-              "value": "not-required",
-              "strength": "must",
-              "layer": "sow-1234",
-              "kind": "contract",
-              "path": "contract/AGENTS.md",
               "line": 4
             },
             {
@@ -10297,6 +10396,15 @@
               "kind": "contract",
               "path": "contract/AGENTS.md",
               "line": 3
+            },
+            {
+              "topic": "changesetPolicy",
+              "value": "not-required",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 4
             },
             {
               "topic": "securityScan",
@@ -10316,16 +10424,7 @@
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 58
-            },
-            {
-              "topic": "formatter",
-              "value": "oxfmt",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 67
+              "line": 55
             },
             {
               "topic": "testCommand",
@@ -10338,12 +10437,21 @@
             },
             {
               "topic": "testCommand",
-              "value": "pnpm run test:react",
+              "value": "pnpm exec nx affected -t test",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 156
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
               "strength": "should",
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -10352,15 +10460,6 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
-            },
-            {
-              "topic": "changesetPolicy",
-              "value": "not-required",
-              "strength": "must",
-              "layer": "sow-1234",
-              "kind": "contract",
-              "path": "contract/AGENTS.md",
               "line": 4
             },
             {
@@ -10382,6 +10481,15 @@
               "line": 3
             },
             {
+              "topic": "changesetPolicy",
+              "value": "not-required",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 4
+            },
+            {
               "topic": "securityScan",
               "value": "before-pr",
               "strength": "should",
@@ -10395,20 +10503,11 @@
             {
               "topic": "packageManager",
               "value": "pnpm",
-              "strength": "must",
+              "strength": "should",
               "layer": "examples",
               "kind": "project",
               "path": "examples/AGENTS.md",
-              "line": 297
-            },
-            {
-              "topic": "formatter",
-              "value": "oxfmt",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 67
+              "line": 9
             },
             {
               "topic": "testCommand",
@@ -10421,12 +10520,21 @@
             },
             {
               "topic": "testCommand",
-              "value": "pnpm run test:react",
+              "value": "pnpm exec nx affected -t test",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 156
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
               "strength": "should",
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -10478,20 +10586,11 @@
             {
               "topic": "packageManager",
               "value": "pnpm",
-              "strength": "must",
+              "strength": "should",
               "layer": "examples",
               "kind": "project",
               "path": "examples/AGENTS.md",
-              "line": 297
-            },
-            {
-              "topic": "formatter",
-              "value": "oxfmt",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 67
+              "line": 9
             },
             {
               "topic": "testCommand",
@@ -10504,12 +10603,21 @@
             },
             {
               "topic": "testCommand",
-              "value": "pnpm run test:react",
+              "value": "pnpm exec nx affected -t test",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 156
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
               "strength": "should",
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -10565,16 +10673,7 @@
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 58
-            },
-            {
-              "topic": "formatter",
-              "value": "oxfmt",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 67
+              "line": 55
             },
             {
               "topic": "testCommand",
@@ -10587,12 +10686,21 @@
             },
             {
               "topic": "testCommand",
-              "value": "pnpm run test:react",
+              "value": "pnpm exec nx affected -t test",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 156
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
               "strength": "should",
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -10645,10 +10753,118 @@
               "topic": "packageManager",
               "value": "pnpm",
               "strength": "should",
-              "layer": "root",
+              "layer": "packages/agents",
               "kind": "project",
-              "path": "AGENTS.md",
-              "line": 58
+              "path": "packages/agents/AGENTS.md",
+              "line": 211
+            },
+            {
+              "topic": "changesetPolicy",
+              "value": "not-required",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 4
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:workers",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 230
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:react",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 250
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:voice:workers",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 258
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:voice:react",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 259
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:channels",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 268
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:node",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 277
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:webmcp",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 286
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:x402",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 294
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:browser",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 302
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm exec vitest --project chat",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 315
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:e2e",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 329
             },
             {
               "topic": "formatter",
@@ -10660,39 +10876,12 @@
               "line": 216
             },
             {
-              "topic": "testCommand",
-              "value": "pnpm run test",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 68
-            },
-            {
-              "topic": "testCommand",
-              "value": "pnpm run test:react",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 69
-            },
-            {
               "topic": "secrets",
               "value": "never-in-source",
               "strength": "must",
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
-            },
-            {
-              "topic": "changesetPolicy",
-              "value": "not-required",
-              "strength": "must",
-              "layer": "sow-1234",
-              "kind": "contract",
-              "path": "contract/AGENTS.md",
               "line": 4
             },
             {
@@ -10728,10 +10917,118 @@
               "topic": "packageManager",
               "value": "pnpm",
               "strength": "should",
-              "layer": "root",
+              "layer": "packages/agents",
               "kind": "project",
-              "path": "AGENTS.md",
-              "line": 58
+              "path": "packages/agents/AGENTS.md",
+              "line": 211
+            },
+            {
+              "topic": "changesetPolicy",
+              "value": "not-required",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 4
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:workers",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 230
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:react",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 250
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:voice:workers",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 258
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:voice:react",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 259
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:channels",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 268
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:node",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 277
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:webmcp",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 286
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:x402",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 294
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:browser",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 302
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm exec vitest --project chat",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 315
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:e2e",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 329
             },
             {
               "topic": "formatter",
@@ -10743,39 +11040,12 @@
               "line": 216
             },
             {
-              "topic": "testCommand",
-              "value": "pnpm run test",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 68
-            },
-            {
-              "topic": "testCommand",
-              "value": "pnpm run test:react",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 69
-            },
-            {
               "topic": "secrets",
               "value": "never-in-source",
               "strength": "must",
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
-            },
-            {
-              "topic": "changesetPolicy",
-              "value": "not-required",
-              "strength": "must",
-              "layer": "sow-1234",
-              "kind": "contract",
-              "path": "contract/AGENTS.md",
               "line": 4
             },
             {
@@ -10808,7 +11078,7 @@
           ]
         },
         "counts": {
-          "overridden": 5,
+          "overridden": 7,
           "conflict": 2
         }
       }
@@ -10822,12 +11092,12 @@
         "path": "AGENTS.md"
       },
       "title": "overridden: packageManager",
-      "detail": "root [project] (AGENTS.md:58) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
+      "detail": "root [project] (AGENTS.md:55) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
       "evidence": [
         {
           "repo": "agents-demo-full",
           "path": "AGENTS.md",
-          "line": 58
+          "line": 55
         },
         {
           "repo": "git-next-demo-layers",
@@ -10846,8 +11116,8 @@
             "kind": "project",
             "rank": 3,
             "path": "AGENTS.md",
-            "line": 58,
-            "text": "Uses pnpm workspaces with [Nx](https://nx.dev) for task orchestration, caching, and affected detection."
+            "line": 55,
+            "text": "pnpm install       # installs all workspaces"
           },
           {
             "value": "npm",
@@ -10857,7 +11127,7 @@
             "rank": 5,
             "path": "personal/AGENTS.md",
             "line": 3,
-            "text": "I prefer to use npm for installs."
+            "text": "- I prefer to use npm for installs."
           }
         ]
       }
@@ -10868,15 +11138,15 @@
       "scope": {
         "repo": "agents-demo-full",
         "ref": "main",
-        "path": "examples/AGENTS.md"
+        "path": "agent-think/AGENTS.md"
       },
       "title": "overridden: packageManager",
-      "detail": "examples [project] (examples/AGENTS.md:297) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
+      "detail": "agent-think [project] (agent-think/AGENTS.md:175) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
       "evidence": [
         {
           "repo": "agents-demo-full",
-          "path": "examples/AGENTS.md",
-          "line": 297
+          "path": "agent-think/AGENTS.md",
+          "line": 175
         },
         {
           "repo": "git-next-demo-layers",
@@ -10890,13 +11160,13 @@
         "values": [
           {
             "value": "pnpm",
-            "strength": "must",
-            "layer": "examples",
+            "strength": "should",
+            "layer": "agent-think",
             "kind": "project",
             "rank": 3,
-            "path": "examples/AGENTS.md",
-            "line": 297,
-            "text": "How to run it (`pnpm install && pnpm run start` for full-stack examples, `pnpm install && pnpm run dev` for server-only examples)"
+            "path": "agent-think/AGENTS.md",
+            "line": 175,
+            "text": "pnpm test        # fast unit suite: workers pool + MSW, no container"
           },
           {
             "value": "npm",
@@ -10906,7 +11176,203 @@
             "rank": 5,
             "path": "personal/AGENTS.md",
             "line": 3,
-            "text": "I prefer to use npm for installs."
+            "text": "- I prefer to use npm for installs."
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "examples/AGENTS.md"
+      },
+      "title": "overridden: packageManager",
+      "detail": "examples [project] (examples/AGENTS.md:9) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "examples/AGENTS.md",
+          "line": 9
+        },
+        {
+          "repo": "git-next-demo-layers",
+          "path": "personal/AGENTS.md",
+          "line": 3
+        }
+      ],
+      "metrics": {
+        "kind": "overridden",
+        "topic": "packageManager",
+        "values": [
+          {
+            "value": "pnpm",
+            "strength": "should",
+            "layer": "examples",
+            "kind": "project",
+            "rank": 3,
+            "path": "examples/AGENTS.md",
+            "line": 9,
+            "text": "Most examples have both a frontend and a backend. This makes them immediately runnable and visually demonstrable \u2014 users can `pnpm run start` and see the feature in action, not just read server logs."
+          },
+          {
+            "value": "npm",
+            "strength": "should",
+            "layer": "chris",
+            "kind": "personal",
+            "rank": 5,
+            "path": "personal/AGENTS.md",
+            "line": 3,
+            "text": "- I prefer to use npm for installs."
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "packages/agents/AGENTS.md"
+      },
+      "title": "overridden: packageManager",
+      "detail": "packages/agents [project] (packages/agents/AGENTS.md:211) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
+      "evidence": [
+        {
+          "repo": "agents-demo-full",
+          "path": "packages/agents/AGENTS.md",
+          "line": 211
+        },
+        {
+          "repo": "git-next-demo-layers",
+          "path": "personal/AGENTS.md",
+          "line": 3
+        }
+      ],
+      "metrics": {
+        "kind": "overridden",
+        "topic": "packageManager",
+        "values": [
+          {
+            "value": "pnpm",
+            "strength": "should",
+            "layer": "packages/agents",
+            "kind": "project",
+            "rank": 3,
+            "path": "packages/agents/AGENTS.md",
+            "line": 211,
+            "text": "pnpm run build          # runs tsx scripts/build.ts"
+          },
+          {
+            "value": "npm",
+            "strength": "should",
+            "layer": "chris",
+            "kind": "personal",
+            "rank": 5,
+            "path": "personal/AGENTS.md",
+            "line": 3,
+            "text": "- I prefer to use npm for installs."
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "conflict",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "contract/AGENTS.md"
+      },
+      "title": "conflict: changesetPolicy",
+      "detail": "sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but root [project] (AGENTS.md:10) says \"required\"; both are hard requirements.",
+      "evidence": [
+        {
+          "repo": "git-next-demo-layers",
+          "path": "contract/AGENTS.md",
+          "line": 4
+        },
+        {
+          "repo": "agents-demo-full",
+          "path": "AGENTS.md",
+          "line": 10
+        }
+      ],
+      "metrics": {
+        "kind": "conflict",
+        "topic": "changesetPolicy",
+        "values": [
+          {
+            "value": "not-required",
+            "strength": "must",
+            "layer": "sow-1234",
+            "kind": "contract",
+            "rank": 2,
+            "path": "contract/AGENTS.md",
+            "line": 4,
+            "text": "- You must skip changesets for internal fixes billed under this SOW."
+          },
+          {
+            "value": "required",
+            "strength": "must",
+            "layer": "root",
+            "kind": "project",
+            "rank": 3,
+            "path": "AGENTS.md",
+            "line": 10,
+            "text": "packages/          # Published npm packages (need changesets for changes)"
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "conflict",
+      "scope": {
+        "repo": "agents-demo-full",
+        "ref": "main",
+        "path": "contract/AGENTS.md"
+      },
+      "title": "conflict: changesetPolicy",
+      "detail": "sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but packages/agents [project] (packages/agents/AGENTS.md:7) says \"required\"; both are hard requirements.",
+      "evidence": [
+        {
+          "repo": "git-next-demo-layers",
+          "path": "contract/AGENTS.md",
+          "line": 4
+        },
+        {
+          "repo": "agents-demo-full",
+          "path": "packages/agents/AGENTS.md",
+          "line": 7
+        }
+      ],
+      "metrics": {
+        "kind": "conflict",
+        "topic": "changesetPolicy",
+        "values": [
+          {
+            "value": "not-required",
+            "strength": "must",
+            "layer": "sow-1234",
+            "kind": "contract",
+            "rank": 2,
+            "path": "contract/AGENTS.md",
+            "line": 4,
+            "text": "- You must skip changesets for internal fixes billed under this SOW."
+          },
+          {
+            "value": "required",
+            "strength": "must",
+            "layer": "packages/agents",
+            "kind": "project",
+            "rank": 3,
+            "path": "packages/agents/AGENTS.md",
+            "line": 7,
+            "text": "Each export maps to a public entry point that users `import` from. These are the boundaries of the public API \u2014 changes here need a changeset."
           }
         ]
       }
@@ -10920,12 +11386,12 @@
         "path": "AGENTS.md"
       },
       "title": "overridden: formatter",
-      "detail": "root [project] (AGENTS.md:67) (\"oxfmt\") overrides chris [personal] (personal/AGENTS.md:4) (\"prettier\").",
+      "detail": "root [project] (AGENTS.md:105) (\"oxfmt\") overrides chris [personal] (personal/AGENTS.md:4) (\"prettier\").",
       "evidence": [
         {
           "repo": "agents-demo-full",
           "path": "AGENTS.md",
-          "line": 67
+          "line": 105
         },
         {
           "repo": "git-next-demo-layers",
@@ -10944,8 +11410,8 @@
             "kind": "project",
             "rank": 3,
             "path": "AGENTS.md",
-            "line": 67,
-            "text": "| `pnpm run check`                   | Full CI check: sherif + export checks + oxfmt + oxlint + typecheck |"
+            "line": 105,
+            "text": "Oxlint does **not** handle formatting \u2014 Oxfmt does."
           },
           {
             "value": "prettier",
@@ -10955,7 +11421,7 @@
             "rank": 5,
             "path": "personal/AGENTS.md",
             "line": 4,
-            "text": "Prefer Prettier for formatting."
+            "text": "- Prefer Prettier for formatting."
           }
         ]
       }
@@ -11004,105 +11470,7 @@
             "rank": 5,
             "path": "personal/AGENTS.md",
             "line": 4,
-            "text": "Prefer Prettier for formatting."
-          }
-        ]
-      }
-    },
-    {
-      "provider": "instruction-stack",
-      "severity": "conflict",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
-        "path": "contract/AGENTS.md"
-      },
-      "title": "conflict: changesetPolicy",
-      "detail": "sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but root [project] (AGENTS.md:144) says \"required\"; both are hard requirements.",
-      "evidence": [
-        {
-          "repo": "git-next-demo-layers",
-          "path": "contract/AGENTS.md",
-          "line": 4
-        },
-        {
-          "repo": "agents-demo-full",
-          "path": "AGENTS.md",
-          "line": 144
-        }
-      ],
-      "metrics": {
-        "kind": "conflict",
-        "topic": "changesetPolicy",
-        "values": [
-          {
-            "value": "not-required",
-            "strength": "must",
-            "layer": "sow-1234",
-            "kind": "contract",
-            "rank": 2,
-            "path": "contract/AGENTS.md",
-            "line": 4,
-            "text": "You must skip changesets for internal fixes billed under this SOW."
-          },
-          {
-            "value": "required",
-            "strength": "must",
-            "layer": "root",
-            "kind": "project",
-            "rank": 3,
-            "path": "AGENTS.md",
-            "line": 144,
-            "text": "Changes to `packages/` that affect the public API or fix bugs need a changeset:"
-          }
-        ]
-      }
-    },
-    {
-      "provider": "instruction-stack",
-      "severity": "conflict",
-      "scope": {
-        "repo": "agents-demo-full",
-        "ref": "main",
-        "path": "contract/AGENTS.md"
-      },
-      "title": "conflict: changesetPolicy",
-      "detail": "sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but packages/agents [project] (packages/agents/AGENTS.md:7) says \"required\"; both are hard requirements.",
-      "evidence": [
-        {
-          "repo": "git-next-demo-layers",
-          "path": "contract/AGENTS.md",
-          "line": 4
-        },
-        {
-          "repo": "agents-demo-full",
-          "path": "packages/agents/AGENTS.md",
-          "line": 7
-        }
-      ],
-      "metrics": {
-        "kind": "conflict",
-        "topic": "changesetPolicy",
-        "values": [
-          {
-            "value": "not-required",
-            "strength": "must",
-            "layer": "sow-1234",
-            "kind": "contract",
-            "rank": 2,
-            "path": "contract/AGENTS.md",
-            "line": 4,
-            "text": "You must skip changesets for internal fixes billed under this SOW."
-          },
-          {
-            "value": "required",
-            "strength": "must",
-            "layer": "packages/agents",
-            "kind": "project",
-            "rank": 3,
-            "path": "packages/agents/AGENTS.md",
-            "line": 7,
-            "text": "These are the boundaries of the public API \u2014 changes here need a changeset."
+            "text": "- Prefer Prettier for formatting."
           }
         ]
       }
@@ -11116,7 +11484,7 @@
         "path": "org/AGENTS.md"
       },
       "title": "policy overridden: allowedModels",
-      "detail": "acme-org [org] (org/AGENTS.md:3) (\"providers:anthropic,workers-ai\") overrides agent-think [project] (agent-think/AGENTS.md:192) (\"gpt-5.6-sol\") (model's provider is not on the approved list).",
+      "detail": "acme-org [org] (org/AGENTS.md:3) (\"providers:anthropic,workers-ai\") overrides agent-think [project] (agent-think/AGENTS.md:192) (\"gpt-5.6-sol,claude-opus-5-5\") (model's provider is not on the approved list).",
       "evidence": [
         {
           "repo": "git-next-demo-layers",
@@ -11142,17 +11510,17 @@
             "rank": 1,
             "path": "org/AGENTS.md",
             "line": 3,
-            "text": "Only use approved model providers: Workers AI and Anthropic (via AI Gateway)."
+            "text": "- Only use approved model providers: Workers AI and Anthropic (via AI Gateway)."
           },
           {
-            "value": "gpt-5.6-sol",
+            "value": "gpt-5.6-sol,claude-opus-5-5",
             "strength": "should",
             "layer": "agent-think",
             "kind": "project",
             "rank": 3,
             "path": "agent-think/AGENTS.md",
             "line": 192,
-            "text": "Model: `gpt-5.6-sol` with max reasoning through the OpenAI Responses API"
+            "text": "- Model: `gpt-5.6-sol` with max reasoning through the OpenAI Responses API"
           }
         ]
       }
@@ -12234,7 +12602,7 @@
         "requests": 4,
         "reason": "outside-jobs",
         "detail": "anthropic/claude-opus-5.5 is approved for planning/review/coding, but ran \"format\" (chores) work: approved model providers; fallback planner",
-        "catalogVersion": "2026.10.4"
+        "catalogVersion": "2026.10.5"
       }
     },
     {
@@ -12246,7 +12614,7 @@
         "agent": "codex"
       },
       "title": "Catalog: codex used openai/gpt-5.6-sol",
-      "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.4 (5 requests).",
+      "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.5 (5 requests).",
       "evidence": [],
       "metrics": {
         "agent": "codex",
@@ -12254,8 +12622,8 @@
         "taskLabel": "feature",
         "requests": 5,
         "reason": "not-in-catalog",
-        "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.4",
-        "catalogVersion": "2026.10.4"
+        "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.5",
+        "catalogVersion": "2026.10.5"
       }
     },
     {
@@ -12267,7 +12635,7 @@
         "agent": "agent-think"
       },
       "title": "Catalog: agent-think used openai/gpt-5.6-sol",
-      "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.4 (14 requests).",
+      "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.5 (14 requests).",
       "evidence": [],
       "metrics": {
         "agent": "agent-think",
@@ -12275,8 +12643,8 @@
         "taskLabel": "triage",
         "requests": 14,
         "reason": "not-in-catalog",
-        "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.4",
-        "catalogVersion": "2026.10.4"
+        "detail": "openai/gpt-5.6-sol is not in catalog 2026.10.5",
+        "catalogVersion": "2026.10.5"
       }
     },
     {
@@ -12297,7 +12665,7 @@
         "requests": 6,
         "reason": "outside-jobs",
         "detail": "anthropic/claude-opus-5.5 is approved for planning/review/coding, but ran \"changelog\" (chores) work: approved model providers; fallback planner",
-        "catalogVersion": "2026.10.4"
+        "catalogVersion": "2026.10.5"
       }
     },
     {
@@ -12397,7 +12765,7 @@
         "source": "none",
         "version": null,
         "repoVersion": null,
-        "baselineVersion": "2026.10.4",
+        "baselineVersion": "2026.10.5",
         "behind": false,
         "scannedFiles": 156,
         "totalFiles": 2377,

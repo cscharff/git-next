@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-07T19:39:35.441Z",
+  "generatedAt": "2026-10-07T22:55:52.021Z",
   "sourceRepo": "agents-demo-full",
   "gateway": "git-next",
   "budgetUsd": 10,
-  "gatewayTotalUsd": 0.11386260000157357,
-  "agentsCostUsd": 0.11370999999999999,
+  "gatewayTotalUsd": 0.8941777738803577,
+  "agentsCostUsd": 0.09654700000000001,
   "agents": [
     {
       "agent": "docs-agent",
@@ -16,13 +16,14 @@
         "docs/agents/mcp-transports.md"
       ],
       "remote": "https://<account>.artifacts.cloudflare.net/git/default/agents-demo-docs.git",
-      "base": "000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "base": "81a7f6c3a4b8b1b5ad2511f609b3772aa0ec3ad7",
       "context": {
         "markdownFiles": 278,
-        "sections": 22,
-        "rulesTokens": 403,
-        "sectionTokens": 2597,
-        "tokensServed": 3000,
+        "sections": 23,
+        "rulesTokens": 536,
+        "pinnedTokens": 130,
+        "sectionTokens": 2462,
+        "tokensServed": 2998,
         "tokensAllMarkdown": 889608,
         "tokensInstructionFilesOnPath": 3108,
         "servedVsAllMarkdown": 0.003,
@@ -31,63 +32,64 @@
         "conflicts": 0
       },
       "usage": {
-        "input_tokens": 8990,
-        "output_tokens": 156
+        "input_tokens": 8846,
+        "output_tokens": 147
       },
-      "promptChars": 23910,
-      "summary": "Fix inconsistent RPC transport Cons wording",
+      "promptChars": 23434,
+      "summary": "Clarify sentence in MCP transports docs",
       "edits": [
         {
           "path": "docs/agents/mcp-transports.md",
           "kind": "edit",
-          "find": "| **RPC**                           | Internal agents                                     | Fastest, simplest setup                    | No auth, Service Bindin",
-          "replace": "| **RPC**                           | Internal agents                                     | Fastest, simplest setup                    | No auth, Durable Object"
+          "find": "The current stateless handler also accepts stateless 2025-era Streamable HTTP requests by default. It does not expose standalone legacy SSE.",
+          "replace": "The current stateless handler accepts Streamable HTTP requests by default. It does not expose standalone legacy SSE."
         }
       ],
       "commit": {
-        "sha": "81a7f6c3a4b8b1b5ad2511f609b3772aa0ec3ad7",
-        "message": "SOW-1042: Fix inconsistent RPC transport Cons wording",
+        "sha": "67dc3de6d41d942b2a39fea3c71fa0e59a8cb01b",
+        "message": "SOW-1042: Clarify sentence in MCP transports docs",
         "diffstat": "1 file changed, 1 insertion(+), 1 deletion(-)"
       },
       "hook": {
         "layers": "fixtures/demo-layers",
         "blocked": false,
-        "output": "To https://<account>.artifacts.cloudflare.net/git/default/agents-demo-docs.git\n   000d076d..81a7f6c3  HEAD -> main"
+        "output": "To https://<account>.artifacts.cloudflare.net/git/default/agents-demo-docs.git\n   81a7f6c3..67dc3de6  HEAD -> main"
       },
       "pushed": true,
-      "head": "81a7f6c3a4b8b1b5ad2511f609b3772aa0ec3ad7",
+      "head": "67dc3de6d41d942b2a39fea3c71fa0e59a8cb01b",
       "log": [
         "reusing agents-demo-docs",
-        "context: 3000 tokens served (22 sections) of 889608 in all markdown",
-        "model anthropic/claude-opus-4.8: {\"input_tokens\":8990,\"output_tokens\":156}",
-        "applied 1 edit(s): Fix inconsistent RPC transport Cons wording",
-        "pushed 81a7f6c3a4 to agents-demo-docs"
+        "context: 2998 tokens served (23 sections) of 889608 in all markdown",
+        "model anthropic/claude-opus-4.8: {\"input_tokens\":8846,\"output_tokens\":147}",
+        "applied 1 edit(s): Clarify sentence in MCP transports docs",
+        "pushed 67dc3de6d4 to agents-demo-docs"
       ],
       "gateway": {
-        "requests": 2,
-        "cost": 0.04885,
-        "tokensIn": 8990,
-        "tokensOut": 156
+        "requests": 1,
+        "cost": 0.047904999999999996,
+        "tokensIn": 8846,
+        "tokensOut": 147
       }
     },
     {
       "agent": "r2-agent",
       "fork": "agents-demo-r2",
-      "model": "anthropic/claude-sonnet-5",
+      "model": "anthropic/claude-sonnet-5.5",
       "task": "Add a small server-only example that stores uploaded files in an R2 bucket",
       "taskId": "feature#r2-uploads-example",
       "paths": [
         "examples/r2-uploads/src/index.ts"
       ],
       "remote": "https://<account>.artifacts.cloudflare.net/git/default/agents-demo-r2.git",
-      "base": "000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "base": "52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "context": {
-        "markdownFiles": 278,
-        "sections": 15,
-        "rulesTokens": 431,
-        "sectionTokens": 2569,
-        "tokensServed": 3000,
-        "tokensAllMarkdown": 889608,
+        "markdownFiles": 279,
+        "sections": 16,
+        "rulesTokens": 564,
+        "pinnedTokens": 130,
+        "sectionTokens": 2435,
+        "tokensServed": 2999,
+        "tokensAllMarkdown": 889754,
         "tokensInstructionFilesOnPath": 5274,
         "servedVsAllMarkdown": 0.003,
         "servedVsInstructionFilesOnPath": 0.569,
@@ -95,132 +97,139 @@
         "conflicts": 0
       },
       "usage": {
-        "input_tokens": 5412,
-        "output_tokens": 1523
+        "input_tokens": 5342,
+        "output_tokens": 2215
       },
-      "promptChars": 14435,
-      "summary": "Add server-only R2 uploads example",
+      "promptChars": 13944,
+      "summary": "Add server-only r2-uploads example",
       "edits": [
         {
           "path": "examples/r2-uploads/package.json",
           "kind": "create",
-          "bytes": 482
+          "bytes": 399
         },
         {
           "path": "examples/r2-uploads/wrangler.jsonc",
           "kind": "create",
-          "bytes": 310
+          "bytes": 265
         },
         {
           "path": "examples/r2-uploads/tsconfig.json",
           "kind": "create",
-          "bytes": 265
+          "bytes": 253
+        },
+        {
+          "path": "examples/r2-uploads/src/index.ts",
+          "kind": "create",
+          "bytes": 935
         },
         {
           "path": "examples/r2-uploads/README.md",
           "kind": "create",
           "bytes": 585
-        },
-        {
-          "path": "examples/r2-uploads/src/index.ts",
-          "kind": "create",
-          "bytes": 868
         }
       ],
       "commit": {
-        "sha": "52a9038f4cc90db1a946ad46869fdc660e6bb993",
-        "message": "SOW-1042: Add server-only R2 uploads example",
-        "diffstat": "5 files changed, 108 insertions(+)"
+        "sha": "0bbd69fd734d6aeeae2f13177058489152cba014",
+        "message": "SOW-1042: Add server-only r2-uploads example",
+        "diffstat": "4 files changed, 16 insertions(+), 25 deletions(-)"
       },
       "hook": {
         "layers": "fixtures/demo-layers",
         "blocked": false,
-        "output": "To https://<account>.artifacts.cloudflare.net/git/default/agents-demo-r2.git\n   000d076d..52a9038f  HEAD -> main"
+        "output": "To https://<account>.artifacts.cloudflare.net/git/default/agents-demo-r2.git\n   52a9038f..0bbd69fd  HEAD -> main"
       },
       "pushed": true,
-      "head": "52a9038f4cc90db1a946ad46869fdc660e6bb993",
+      "head": "0bbd69fd734d6aeeae2f13177058489152cba014",
       "log": [
         "reusing agents-demo-r2",
-        "context: 3000 tokens served (15 sections) of 889608 in all markdown",
-        "model anthropic/claude-sonnet-5: {\"input_tokens\":5412,\"output_tokens\":1523}",
-        "applied 5 edit(s): Add server-only R2 uploads example",
-        "pushed 52a9038f4c to agents-demo-r2"
+        "context: 2999 tokens served (16 sections) of 889754 in all markdown",
+        "model anthropic/claude-sonnet-5.5: {\"input_tokens\":5342,\"output_tokens\":2215}",
+        "applied 5 edit(s): Add server-only r2-uploads example",
+        "pushed 0bbd69fd73 to agents-demo-r2"
       ],
       "gateway": {
-        "requests": 3,
-        "cost": 0.051498,
-        "tokensIn": 10824,
-        "tokensOut": 2985
+        "requests": 1,
+        "cost": 0.032834,
+        "tokensIn": 5342,
+        "tokensOut": 2215
       }
     },
     {
       "agent": "mcp-agent",
       "fork": "agents-demo-mcp",
-      "model": "anthropic/claude-sonnet-5",
+      "model": "anthropic/claude-sonnet-5.5",
       "task": "Improve the doc comments in the MCP abort helpers without changing behavior",
       "taskId": "refactor#mcp-abort-comments",
       "paths": [
         "packages/agents/src/mcp/abort.ts"
       ],
       "remote": "https://<account>.artifacts.cloudflare.net/git/default/agents-demo-mcp.git",
-      "base": "000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "base": "5046aff3ee1788e484de8291b95d822e1178af82",
       "context": {
         "markdownFiles": 278,
-        "sections": 12,
-        "rulesTokens": 538,
-        "sectionTokens": 2460,
-        "tokensServed": 2998,
+        "sections": 9,
+        "rulesTokens": 1179,
+        "pinnedTokens": 130,
+        "sectionTokens": 1821,
+        "tokensServed": 3000,
         "tokensAllMarkdown": 889608,
         "tokensInstructionFilesOnPath": 9882,
         "servedVsAllMarkdown": 0.003,
-        "servedVsInstructionFilesOnPath": 0.303,
-        "rules": 9,
+        "servedVsInstructionFilesOnPath": 0.304,
+        "rules": 18,
         "conflicts": 2
       },
       "usage": {
-        "input_tokens": 4461,
-        "output_tokens": 444
+        "input_tokens": 3994,
+        "output_tokens": 782
       },
-      "promptChars": 12520,
-      "summary": "Add JSDoc comments to MCP abort helpers",
+      "promptChars": 11025,
+      "summary": "Tighten JSDoc on MCP abort helpers",
       "edits": [
         {
           "path": "packages/agents/src/mcp/abort.ts",
           "kind": "edit",
-          "find": "export function abortError(signal: AbortSignal): Error {\n  return signal.reason instanceof Error\n    ? signal.reason\n    : new Error(String(signal.reason ?? \"Ab",
-          "replace": "/**\n * Normalize an aborted signal's reason into an Error. Reuses `signal.reason`\n * when it is already an Error; otherwise wraps it (or a default \"Aborted\"\n * "
+          "find": "/**\n * Normalize an aborted signal's reason into an Error. Reuses `signal.reason`\n * when it is already an Error; otherwise wraps it (or a default \"Aborted\"\n * ",
+          "replace": "/**\n * Convert an aborted signal's reason into an Error.\n *\n * Returns `signal.reason` as-is when it is an Error; otherwise wraps its string\n * form in a new Er"
+        },
+        {
+          "path": "packages/agents/src/mcp/abort.ts",
+          "kind": "edit",
+          "find": "/**\n * Reject as soon as `signal` aborts, otherwise resolve/reject with `promise`.\n * Does not cancel `promise` itself — the underlying operation remains\n * res",
+          "replace": "/**\n * Race `promise` against `signal`: reject with `abortError(signal)` as soon as\n * the signal aborts, otherwise settle with `promise`. Returns `promise`\n * "
         }
       ],
       "commit": {
-        "sha": "5046aff3ee1788e484de8291b95d822e1178af82",
-        "message": "SOW-1042: Add JSDoc comments to MCP abort helpers",
-        "diffstat": "1 file changed, 8 insertions(+), 2 deletions(-)"
+        "sha": "3df75af5dc5dc6a7e1db6e0152d531981a977cf6",
+        "message": "SOW-1042: Tighten JSDoc on MCP abort helpers",
+        "diffstat": "1 file changed, 12 insertions(+), 4 deletions(-)"
       },
       "hook": {
         "layers": "fixtures/demo-layers",
         "blocked": true,
-        "output": "Conflicts (2)\n  ✗ changesetPolicy: sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but root [project] (AGENTS.md:144) says \"required\"; both are hard requirements.\n  ✗ changesetPolicy: sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but packages/agents [project] (packages/agents/AGENTS.md:7) says \"required\"; both are hard requirements.\n\n✗ 2 conflict(s)\ngit-next: instruction conflicts govern files in this push. Run 'git next rules --layers <git-next>/fixtures/demo-layers/.gitnext/stack.json -- <paths>' for details, or push with --no-verify.\nerror: failed to push some refs to 'https://<account>.artifacts.cloudflare.net/git/default/agents-demo-mcp.git'"
+        "output": "Conflicts (2)\n  ✗ changesetPolicy: sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but root [project] (AGENTS.md:144) says \"required\"; both are hard requirements.\n  ✗ changesetPolicy: sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but packages/agents [project] (packages/agents/AGENTS.md:7) says \"required\"; both are hard requirements.\n\n✗ 2 instruction conflict(s)\ngit-next: instruction conflicts or catalog violations in this push (see above). Fix them, or push with --no-verify.\nerror: failed to push some refs to 'https://<account>.artifacts.cloudflare.net/git/default/agents-demo-mcp.git'"
       },
       "resolution": {
         "layers": "fixtures/demo-layers-resolved",
         "pushed": true,
-        "output": "To https://<account>.artifacts.cloudflare.net/git/default/agents-demo-mcp.git\n   000d076d..5046aff3  HEAD -> main"
+        "output": "To https://<account>.artifacts.cloudflare.net/git/default/agents-demo-mcp.git\n   5046aff3..3df75af5  HEAD -> main"
       },
       "pushed": true,
-      "head": "5046aff3ee1788e484de8291b95d822e1178af82",
+      "head": "3df75af5dc5dc6a7e1db6e0152d531981a977cf6",
       "log": [
         "reusing agents-demo-mcp",
-        "context: 2998 tokens served (12 sections) of 889608 in all markdown",
-        "model anthropic/claude-sonnet-5: {\"input_tokens\":4461,\"output_tokens\":444}",
-        "applied 1 edit(s): Add JSDoc comments to MCP abort helpers",
+        "context: 3000 tokens served (9 sections) of 889608 in all markdown",
+        "model anthropic/claude-sonnet-5.5: {\"input_tokens\":3994,\"output_tokens\":782}",
+        "applied 2 edit(s): Tighten JSDoc on MCP abort helpers",
         "pre-push hook blocked the push; retrying with the amended contract layer",
-        "pushed 5046aff3ee to agents-demo-mcp"
+        "pushed 3df75af5dc to agents-demo-mcp"
       ],
       "gateway": {
         "requests": 1,
-        "cost": 0.013361999999999999,
-        "tokensIn": 4461,
-        "tokensOut": 444
+        "cost": 0.015808000000000003,
+        "tokensIn": 3994,
+        "tokensOut": 782
       }
     }
   ]

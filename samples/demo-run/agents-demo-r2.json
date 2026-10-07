@@ -3,26 +3,38 @@
   "generatedBy": "scripts/demo-agents.ts",
   "repo": "agents-demo-r2",
   "ref": "main",
-  "base": "000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
-  "ms": 14751,
+  "base": "52a9038f4cc90db1a946ad46869fdc660e6bb993",
+  "ms": 15277,
   "providers": [
     {
       "id": "resource-map",
       "ok": true,
-      "ms": 14751,
+      "ms": 15277,
       "count": 129
     },
     {
       "id": "instruction-stack",
       "ok": true,
-      "ms": 11034,
-      "count": 8
+      "ms": 10222,
+      "count": 10
     },
     {
       "id": "cost",
       "ok": true,
-      "ms": 363,
+      "ms": 345,
       "count": 2
+    },
+    {
+      "id": "owners",
+      "ok": true,
+      "ms": 7738,
+      "count": 1
+    },
+    {
+      "id": "catalog",
+      "ok": true,
+      "ms": 9051,
+      "count": 1
     }
   ],
   "insights": [
@@ -34,7 +46,7 @@
         "ref": "main",
         "path": "agent-think/test/wrangler.jsonc"
       },
-      "title": "agent-think: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "agent-think: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ThinkAgent, WorkspaceAgent, Sandbox, WarmPool, CommandCenter, AgentThinkPromptTestAgent; r2_buckets: R2_SKILLS; ai: AI",
       "evidence": [
         {
@@ -147,7 +159,7 @@
         "ref": "main",
         "path": "agent-think/tests-e2e/wrangler.jsonc"
       },
-      "title": "agent-think-e2e: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "agent-think-e2e: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ThinkAgent, WorkspaceAgent, Sandbox, WarmPool, CommandCenter; r2_buckets: R2_SKILLS; ai: AI; containers: Sandbox",
       "evidence": [
         {
@@ -262,7 +274,7 @@
         "ref": "main",
         "path": "agent-think/wrangler.jsonc"
       },
-      "title": "agent-think: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "agent-think: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ThinkAgent, WorkspaceAgent, Sandbox, WarmPool, CommandCenter; r2_buckets: R2_SKILLS; ai: AI; services: GITHUB_AUTH; containers: Sandbox",
       "evidence": [
         {
@@ -389,7 +401,7 @@
         "ref": "main",
         "path": "examples/a2a/wrangler.jsonc"
       },
-      "title": "a2a-agent-demo: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "a2a-agent-demo: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyA2A; ai: AI",
       "evidence": [
         {
@@ -440,7 +452,7 @@
         "ref": "main",
         "path": "examples/agent-skills/wrangler.jsonc"
       },
-      "title": "agent-skills-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "agent-skills-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: SkillsAgent; ai: AI",
       "evidence": [
         {
@@ -491,7 +503,7 @@
         "ref": "main",
         "path": "examples/agents-as-tools/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: Assistant, Researcher, Planner",
       "evidence": [
         {
@@ -552,7 +564,7 @@
         "ref": "main",
         "path": "examples/agents-as-tools/wrangler.jsonc"
       },
-      "title": "agents-as-tools-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "agents-as-tools-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: Assistant; ai: AI",
       "evidence": [
         {
@@ -603,7 +615,7 @@
         "ref": "main",
         "path": "examples/ai-chat/wrangler.jsonc"
       },
-      "title": "ai-chat-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "ai-chat-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ChatAgent; ai: AI; browser: BROWSER",
       "evidence": [
         {
@@ -664,7 +676,7 @@
         "ref": "main",
         "path": "examples/assistant/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: AssistantDirectory, MyAssistant",
       "evidence": [
         {
@@ -715,7 +727,7 @@
         "ref": "main",
         "path": "examples/assistant/wrangler.jsonc"
       },
-      "title": "think-assistant: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "think-assistant: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: AssistantDirectory; ai: AI; browser: BROWSER",
       "evidence": [
         {
@@ -776,7 +788,7 @@
         "ref": "main",
         "path": "examples/auth-agent/wrangler.jsonc"
       },
-      "title": "auth-agent: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "auth-agent: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ChatAgent; ai: AI",
       "evidence": [
         {
@@ -827,7 +839,7 @@
         "ref": "main",
         "path": "examples/browser-live-view/wrangler.jsonc"
       },
-      "title": "browser-live-view: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "browser-live-view: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: LiveViewAgent; ai: AI; browser: BROWSER",
       "evidence": [
         {
@@ -888,7 +900,7 @@
         "ref": "main",
         "path": "examples/browser-quick-actions/wrangler.jsonc"
       },
-      "title": "browser-quick-actions: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "browser-quick-actions: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: QuickActionsAgent; ai: AI; browser: BROWSER",
       "evidence": [
         {
@@ -949,7 +961,7 @@
         "ref": "main",
         "path": "examples/chat-sdk-messenger/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: TestHostAgent, ChatIngressAgent, ConversationAgent, ChatSdkStateAgent, TestChatSdkStateAgent",
       "evidence": [
         {
@@ -1030,7 +1042,7 @@
         "ref": "main",
         "path": "examples/chat-sdk-messenger/wrangler.jsonc"
       },
-      "title": "chat-sdk-messenger: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "chat-sdk-messenger: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ChatIngressAgent; ai: AI",
       "evidence": [
         {
@@ -1081,7 +1093,7 @@
         "ref": "main",
         "path": "examples/codemode-browser/wrangler.jsonc"
       },
-      "title": "codemode-browser-demo: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "codemode-browser-demo: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: BrowserCodemode; ai: AI",
       "evidence": [
         {
@@ -1132,7 +1144,7 @@
         "ref": "main",
         "path": "examples/codemode-connectors/wrangler.jsonc"
       },
-      "title": "codemode-connectors-demo: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "codemode-connectors-demo: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: GitHubLikeMCP, Chat; ai: AI; browser: BROWSER",
       "evidence": [
         {
@@ -1203,7 +1215,7 @@
         "ref": "main",
         "path": "examples/codemode-mcp-openapi/wrangler.jsonc"
       },
-      "title": "codemode-mcp-openapi: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "codemode-mcp-openapi: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "No bindings declared.",
       "evidence": [
         {
@@ -1230,7 +1242,7 @@
         "ref": "main",
         "path": "examples/codemode-mcp/wrangler.jsonc"
       },
-      "title": "codemode-mcp: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "codemode-mcp: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "No bindings declared.",
       "evidence": [
         {
@@ -1257,7 +1269,7 @@
         "ref": "main",
         "path": "examples/codemode/wrangler.jsonc"
       },
-      "title": "codemode-demo: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "codemode-demo: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: Codemode; ai: AI",
       "evidence": [
         {
@@ -1308,7 +1320,7 @@
         "ref": "main",
         "path": "examples/context-overflow-recovery/wrangler.jsonc"
       },
-      "title": "context-overflow-recovery-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "context-overflow-recovery-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ContextOverflowAgent; ai: AI",
       "evidence": [
         {
@@ -1359,7 +1371,7 @@
         "ref": "main",
         "path": "examples/cross-domain/wrangler.jsonc"
       },
-      "title": "cross-domain: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "cross-domain: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -1400,7 +1412,7 @@
         "ref": "main",
         "path": "examples/deploy-churn/wrangler.jsonc"
       },
-      "title": "agents-deploy-churn: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "agents-deploy-churn: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: DeployChurnAgent, DeployChurnSubAgentChild; ai: AI",
       "evidence": [
         {
@@ -1461,7 +1473,7 @@
         "ref": "main",
         "path": "examples/dynamic-tools/wrangler.jsonc"
       },
-      "title": "dynamic-tools-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "dynamic-tools-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: DynamicToolsAgent; ai: AI",
       "evidence": [
         {
@@ -1512,7 +1524,7 @@
         "ref": "main",
         "path": "examples/dynamic-workers-playground/wrangler.jsonc"
       },
-      "title": "dynamic-workers-playground: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "dynamic-workers-playground: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: LogSession",
       "evidence": [
         {
@@ -1553,7 +1565,7 @@
         "ref": "main",
         "path": "examples/dynamic-workers/wrangler.jsonc"
       },
-      "title": "dynamic-workers-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "dynamic-workers-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "No bindings declared.",
       "evidence": [
         {
@@ -1580,7 +1592,7 @@
         "ref": "main",
         "path": "examples/elevenlabs-starter/wrangler.jsonc"
       },
-      "title": "elevenlabs-starter: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "elevenlabs-starter: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: VoiceChatAgent, SoundscapeAgent, CharacterAgent, MusicAgent; r2_buckets: AUDIO_BUCKET; ai: AI",
       "evidence": [
         {
@@ -1673,7 +1685,7 @@
         "ref": "main",
         "path": "examples/email-agent/wrangler.jsonc"
       },
-      "title": "agents-email-agent: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "agents-email-agent: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: EmailServiceAgent",
       "evidence": [
         {
@@ -1714,7 +1726,7 @@
         "ref": "main",
         "path": "examples/github-webhook/wrangler.jsonc"
       },
-      "title": "github-webhook: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "github-webhook: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: RepoAgent",
       "evidence": [
         {
@@ -1755,7 +1767,7 @@
         "ref": "main",
         "path": "examples/mcp-client/wrangler.jsonc"
       },
-      "title": "mcp-client: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "mcp-client: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -1796,7 +1808,7 @@
         "ref": "main",
         "path": "examples/mcp-elicitation-mrtr/wrangler.jsonc"
       },
-      "title": "mcp-elicitation-mrtr-demo: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "mcp-elicitation-mrtr-demo: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "No bindings declared.",
       "evidence": [
         {
@@ -1823,7 +1835,7 @@
         "ref": "main",
         "path": "examples/mcp-elicitation/wrangler.jsonc"
       },
-      "title": "mcp-elicitation-legacy-demo: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "mcp-elicitation-legacy-demo: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: LegacyElicitationAgent",
       "evidence": [
         {
@@ -1864,7 +1876,7 @@
         "ref": "main",
         "path": "examples/mcp-rpc-transport/wrangler.jsonc"
       },
-      "title": "mcp-rpc-transport-demo: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "mcp-rpc-transport-demo: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyMCP, Chat; ai: AI",
       "evidence": [
         {
@@ -1925,7 +1937,7 @@
         "ref": "main",
         "path": "examples/mcp-server/wrangler.jsonc"
       },
-      "title": "mcp-server: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "mcp-server: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "No bindings declared.",
       "evidence": [
         {
@@ -1952,7 +1964,7 @@
         "ref": "main",
         "path": "examples/mcp-worker-authenticated/wrangler.jsonc"
       },
-      "title": "mcp-worker-authenticated: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "mcp-worker-authenticated: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "kv_namespaces: OAUTH_KV",
       "evidence": [
         {
@@ -1993,7 +2005,7 @@
         "ref": "main",
         "path": "examples/mcp-worker/wrangler.jsonc"
       },
-      "title": "mcp-worker: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "mcp-worker: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "No bindings declared.",
       "evidence": [
         {
@@ -2020,7 +2032,7 @@
         "ref": "main",
         "path": "examples/mcp/wrangler.jsonc"
       },
-      "title": "mcp-agent-demo: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "mcp-agent-demo: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyMCP",
       "evidence": [
         {
@@ -2061,7 +2073,7 @@
         "ref": "main",
         "path": "examples/multi-ai-chat/wrangler.jsonc"
       },
-      "title": "multi-ai-chat-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "multi-ai-chat-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: Inbox; ai: AI",
       "evidence": [
         {
@@ -2112,7 +2124,7 @@
         "ref": "main",
         "path": "examples/next/channels/wrangler.jsonc"
       },
-      "title": "channels: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "channels: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: AiSdkAgent, PiAgent; ai: AI",
       "evidence": [
         {
@@ -2173,7 +2185,7 @@
         "ref": "main",
         "path": "examples/next/dynamic-agents/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: Supervisor",
       "evidence": [
         {
@@ -2214,7 +2226,7 @@
         "ref": "main",
         "path": "examples/next/dynamic-agents/wrangler.jsonc"
       },
-      "title": "next-dynamic-agents: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "next-dynamic-agents: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: Supervisor",
       "evidence": [
         {
@@ -2255,7 +2267,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/codex/src/stress/wrangler.jsonc"
       },
-      "title": "codex-harness-stress: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "codex-harness-stress: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: STRESS; r2_buckets: WORKSPACE",
       "evidence": [
         {
@@ -2308,7 +2320,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/codex/wrangler.jsonc"
       },
-      "title": "codex-harness-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "codex-harness-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: Coder; r2_buckets: WORKSPACE; ai: AI",
       "evidence": [
         {
@@ -2371,7 +2383,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/container/wrangler.jsonc"
       },
-      "title": "next-container-harness: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "next-container-harness: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ClaudeCodeAgent, CodexAgent; containers: ClaudeCodeAgent, CodexAgent",
       "evidence": [
         {
@@ -2440,7 +2452,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/opencode/wrangler.jsonc"
       },
-      "title": "opencode-harness-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "opencode-harness-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: OpenCodeAgent; ai: AI",
       "evidence": [
         {
@@ -2491,7 +2503,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/pi/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: PI_HARNESS_TEST",
       "evidence": [
         {
@@ -2532,7 +2544,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/pi/wrangler.jsonc"
       },
-      "title": "pi-harness-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "pi-harness-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: PiAgent; ai: AI",
       "evidence": [
         {
@@ -2583,7 +2595,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/self-modifying/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: SELF_MODIFYING_HARNESS_TEST",
       "evidence": [
         {
@@ -2624,7 +2636,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/self-modifying/wrangler.jsonc"
       },
-      "title": "self-modifying-harness-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "self-modifying-harness-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: SELF_MODIFYING_HARNESS; ai: AI",
       "evidence": [
         {
@@ -2675,7 +2687,7 @@
         "ref": "main",
         "path": "examples/next/harnesses/think/wrangler.jsonc"
       },
-      "title": "think-harness-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "think-harness-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ThinkAgent; ai: AI",
       "evidence": [
         {
@@ -2726,7 +2738,7 @@
         "ref": "main",
         "path": "examples/next/lifecycle/wrangler.jsonc"
       },
-      "title": "next-lifecycle: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "next-lifecycle: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: DoAgent",
       "evidence": [
         {
@@ -2767,7 +2779,7 @@
         "ref": "main",
         "path": "examples/next/mcp-client/wrangler.jsonc"
       },
-      "title": "next-mcp-client-capability: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "next-mcp-client-capability: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: McpClientObject",
       "evidence": [
         {
@@ -2808,7 +2820,7 @@
         "ref": "main",
         "path": "examples/next/models/wrangler.jsonc"
       },
-      "title": "next-models: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "next-models: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "ai: AI",
       "evidence": [
         {
@@ -2847,7 +2859,7 @@
         "ref": "main",
         "path": "examples/next/queue/wrangler.jsonc"
       },
-      "title": "next-queue: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "next-queue: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: UploadObject",
       "evidence": [
         {
@@ -2888,7 +2900,7 @@
         "ref": "main",
         "path": "examples/next/routing/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: UserHub, ChatAgent",
       "evidence": [
         {
@@ -2939,7 +2951,7 @@
         "ref": "main",
         "path": "examples/next/routing/wrangler.jsonc"
       },
-      "title": "next-routing: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "next-routing: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: UserHub, ChatAgent",
       "evidence": [
         {
@@ -2990,7 +3002,7 @@
         "ref": "main",
         "path": "examples/next/schedules/wrangler.jsonc"
       },
-      "title": "next-schedules: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "next-schedules: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ReminderObject",
       "evidence": [
         {
@@ -3031,7 +3043,7 @@
         "ref": "main",
         "path": "examples/next/sessions/wrangler.jsonc"
       },
-      "title": "next-sessions: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "next-sessions: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: SessionObject",
       "evidence": [
         {
@@ -3072,7 +3084,7 @@
         "ref": "main",
         "path": "examples/next/streams/wrangler.jsonc"
       },
-      "title": "next-streams: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "next-streams: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: GenerateObject",
       "evidence": [
         {
@@ -3113,7 +3125,7 @@
         "ref": "main",
         "path": "examples/next/tasks/wrangler.jsonc"
       },
-      "title": "next-tasks: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "next-tasks: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ReportObject",
       "evidence": [
         {
@@ -3154,7 +3166,7 @@
         "ref": "main",
         "path": "examples/next/websockets/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: RoomObject",
       "evidence": [
         {
@@ -3195,7 +3207,7 @@
         "ref": "main",
         "path": "examples/next/websockets/wrangler.jsonc"
       },
-      "title": "next-websockets: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "next-websockets: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: RoomObject",
       "evidence": [
         {
@@ -3236,7 +3248,7 @@
         "ref": "main",
         "path": "examples/playground/wrangler.jsonc"
       },
-      "title": "agents-playground: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "agents-playground: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: StateAgent, CallableAgent, StreamingAgent, ScheduleAgent, SqlAgent, ConnectionsAgent, RoutingAgent, ReadonlyAgent, RetryAgent, DurableExecutionAgent, ChatAgent, ToolsAgent, CodemodeAgent, SupervisorAgent, ChildAgent, LobbyAgent, RoomAgent, ManagerAgent, FanoutWorkerAgent, PipelineOrchestratorAgent, ValidatorStageAgent, TransformStageAgent, EnrichStageAgent, PlaygroundMcpServer, McpClientAgent, BasicWorkflowAgent, ApprovalAgent, ReceiveEmailAgent, SecureEmailAgent, PlaygroundVoiceAgent; workflows: ProcessingWorkflow, ApprovalWorkflow; ai: AI",
       "evidence": [
         {
@@ -3599,7 +3611,7 @@
         "ref": "main",
         "path": "examples/plivo-voice-agent/wrangler.jsonc"
       },
-      "title": "plivo-voice-agent: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "plivo-voice-agent: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyVoiceAgent; ai: AI",
       "evidence": [
         {
@@ -3650,7 +3662,7 @@
         "ref": "main",
         "path": "examples/push-notifications/wrangler.jsonc"
       },
-      "title": "push-notifications: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "push-notifications: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ReminderAgent",
       "evidence": [
         {
@@ -3685,13 +3697,13 @@
     },
     {
       "provider": "resource-map",
-      "severity": "warn",
+      "severity": "info",
       "scope": {
         "repo": "agents-demo-r2",
         "ref": "main",
         "path": "examples/r2-uploads/wrangler.jsonc"
       },
-      "title": "r2-uploads: +1 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "r2-uploads: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "r2_buckets: UPLOADS",
       "evidence": [
         {
@@ -3711,17 +3723,17 @@
           ]
         },
         "diff": {
-          "added": [
+          "added": [],
+          "removed": [],
+          "unchanged": [
             {
               "type": "r2_buckets",
               "name": "UPLOADS",
               "resource": "agents-demo-uploads"
             }
-          ],
-          "removed": [],
-          "unchanged": []
+          ]
         },
-        "newConfig": true
+        "newConfig": false
       }
     },
     {
@@ -3732,7 +3744,7 @@
         "ref": "main",
         "path": "examples/resumable-stream-chat/wrangler.jsonc"
       },
-      "title": "resumable-stream-chat: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "resumable-stream-chat: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ResumableStreamingChat; ai: AI",
       "evidence": [
         {
@@ -3783,7 +3795,7 @@
         "ref": "main",
         "path": "examples/sandbox-coding-agent/wrangler.jsonc"
       },
-      "title": "sandbox-coding-agent-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "sandbox-coding-agent-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: CodingOrchestrator, Sandbox; ai: AI; containers: Sandbox",
       "evidence": [
         {
@@ -3856,7 +3868,7 @@
         "ref": "main",
         "path": "examples/structured-input/wrangler.jsonc"
       },
-      "title": "structured-input-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "structured-input-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: StructuredInputAgent; ai: AI",
       "evidence": [
         {
@@ -3907,7 +3919,7 @@
         "ref": "main",
         "path": "examples/telnyx-voice-agent/wrangler.jsonc"
       },
-      "title": "telnyx-voice-agent: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "telnyx-voice-agent: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyVoiceAgent; ai: AI",
       "evidence": [
         {
@@ -3958,7 +3970,7 @@
         "ref": "main",
         "path": "examples/think-chat-sdk/wrangler.jsonc"
       },
-      "title": "think-chat-sdk-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "think-chat-sdk-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: SupportAgent; ai: AI",
       "evidence": [
         {
@@ -4009,7 +4021,7 @@
         "ref": "main",
         "path": "examples/think-submissions/wrangler.jsonc"
       },
-      "title": "think-submissions-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "think-submissions-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: TaskAgent; ai: AI",
       "evidence": [
         {
@@ -4060,7 +4072,7 @@
         "ref": "main",
         "path": "examples/think-workflows/wrangler.jsonc"
       },
-      "title": "think-workflows-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "think-workflows-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ReportAgent; workflows: REPORT_WORKFLOW; ai: AI",
       "evidence": [
         {
@@ -4123,7 +4135,7 @@
         "ref": "main",
         "path": "examples/tictactoe/wrangler.jsonc"
       },
-      "title": "tictactoe: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "tictactoe: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: TicTacToe",
       "evidence": [
         {
@@ -4164,7 +4176,7 @@
         "ref": "main",
         "path": "examples/voice-agent/wrangler.jsonc"
       },
-      "title": "voice-agent: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "voice-agent: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyVoiceAgent; ai: AI",
       "evidence": [
         {
@@ -4215,7 +4227,7 @@
         "ref": "main",
         "path": "examples/voice-input/wrangler.jsonc"
       },
-      "title": "voice-input-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "voice-input-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: VoiceInputAgent; ai: AI",
       "evidence": [
         {
@@ -4266,7 +4278,7 @@
         "ref": "main",
         "path": "examples/vue-chat/wrangler.jsonc"
       },
-      "title": "vue-chat-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "vue-chat-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ChatAgent; ai: AI",
       "evidence": [
         {
@@ -4317,7 +4329,7 @@
         "ref": "main",
         "path": "examples/web-research/wrangler.jsonc"
       },
-      "title": "web-research-example: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "web-research-example: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ResearchAgent; ai: AI",
       "evidence": [
         {
@@ -4368,7 +4380,7 @@
         "ref": "main",
         "path": "examples/webmcp-react/wrangler.jsonc"
       },
-      "title": "webmcp-starter: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "webmcp-starter: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "No bindings declared.",
       "evidence": [
         {
@@ -4395,7 +4407,7 @@
         "ref": "main",
         "path": "examples/webmcp/wrangler.jsonc"
       },
-      "title": "webmcp-demo: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "webmcp-demo: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyMCP",
       "evidence": [
         {
@@ -4436,7 +4448,7 @@
         "ref": "main",
         "path": "examples/worker-bundler-playground/wrangler.jsonc"
       },
-      "title": "worker-bundler-playground: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "worker-bundler-playground: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: WorkerPlayground; ai: AI",
       "evidence": [
         {
@@ -4487,7 +4499,7 @@
         "ref": "main",
         "path": "examples/workflows/wrangler.jsonc"
       },
-      "title": "workflows-demo: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "workflows-demo: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: TaskAgent; workflows: TASK_WORKFLOW",
       "evidence": [
         {
@@ -4540,7 +4552,7 @@
         "ref": "main",
         "path": "examples/workspace-chat/wrangler.jsonc"
       },
-      "title": "workspace-chat: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "workspace-chat: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: WorkspaceChatAgent; ai: AI",
       "evidence": [
         {
@@ -4591,7 +4603,7 @@
         "ref": "main",
         "path": "examples/x402-mcp/wrangler.jsonc"
       },
-      "title": "x402-demo: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "x402-demo: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: PayMCP, PAY_AGENT",
       "evidence": [
         {
@@ -4642,7 +4654,7 @@
         "ref": "main",
         "path": "examples/x402/wrangler.jsonc"
       },
-      "title": "x402-http-demo: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "x402-http-demo: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: PAY_AGENT",
       "evidence": [
         {
@@ -4683,7 +4695,7 @@
         "ref": "main",
         "path": "experimental/chat-recovery-probe/wrangler.jsonc"
       },
-      "title": "chat-recovery-probe: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "chat-recovery-probe: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ProbeAgent",
       "evidence": [
         {
@@ -4724,7 +4736,7 @@
         "ref": "main",
         "path": "experimental/forever-chat/wrangler.jsonc"
       },
-      "title": "forever-chat: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "forever-chat: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ForeverChatAgent; ai: AI; services: INFERENCE_BUFFER",
       "evidence": [
         {
@@ -4787,7 +4799,7 @@
         "ref": "main",
         "path": "experimental/forever-fibers/wrangler.jsonc"
       },
-      "title": "forever-fibers: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "forever-fibers: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ResearchAgent",
       "evidence": [
         {
@@ -4828,7 +4840,7 @@
         "ref": "main",
         "path": "experimental/gadgets-chat/wrangler.jsonc"
       },
-      "title": "gadgets-chat: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "gadgets-chat: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: OverseerAgent; ai: AI",
       "evidence": [
         {
@@ -4879,7 +4891,7 @@
         "ref": "main",
         "path": "experimental/gadgets-gatekeeper/wrangler.jsonc"
       },
-      "title": "gadgets-gatekeeper: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "gadgets-gatekeeper: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: GatekeeperAgent; ai: AI",
       "evidence": [
         {
@@ -4930,7 +4942,7 @@
         "ref": "main",
         "path": "experimental/gadgets-sandbox/wrangler.jsonc"
       },
-      "title": "gadgets-sandbox: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "gadgets-sandbox: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: SandboxAgent; ai: AI",
       "evidence": [
         {
@@ -4981,7 +4993,7 @@
         "ref": "main",
         "path": "experimental/gadgets-subagents/wrangler.jsonc"
       },
-      "title": "gadgets-subagents: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "gadgets-subagents: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: CoordinatorAgent; ai: AI",
       "evidence": [
         {
@@ -5032,7 +5044,7 @@
         "ref": "main",
         "path": "experimental/gateway-resume-think/wrangler.jsonc"
       },
-      "title": "gateway-resume-think: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "gateway-resume-think: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: GatewayResumeAgent; ai: AI",
       "evidence": [
         {
@@ -5083,7 +5095,7 @@
         "ref": "main",
         "path": "experimental/gateway-resume/wrangler.jsonc"
       },
-      "title": "gateway-resume: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "gateway-resume: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "ai: AI",
       "evidence": [
         {
@@ -5122,7 +5134,7 @@
         "ref": "main",
         "path": "experimental/inference-buffer/wrangler.jsonc"
       },
-      "title": "inference-buffer: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "inference-buffer: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: INFERENCE_BUFFER; ai: AI",
       "evidence": [
         {
@@ -5173,7 +5185,7 @@
         "ref": "main",
         "path": "experimental/ops-approval-agent/wrangler.jsonc"
       },
-      "title": "ops-approval-agent: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "ops-approval-agent: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: OpsApprovalAgent; ai: AI",
       "evidence": [
         {
@@ -5224,7 +5236,7 @@
         "ref": "main",
         "path": "experimental/pi-recovery/wrangler.jsonc"
       },
-      "title": "pi-recovery: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "pi-recovery: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: PiAgent",
       "evidence": [
         {
@@ -5265,7 +5277,7 @@
         "ref": "main",
         "path": "experimental/tanstack-recovery/wrangler.jsonc"
       },
-      "title": "tanstack-recovery: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "tanstack-recovery: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: TanStackAgent; ai: AI",
       "evidence": [
         {
@@ -5316,7 +5328,7 @@
         "ref": "main",
         "path": "guides/anthropic-patterns/wrangler.json"
       },
-      "title": "anthropic-agent-patterns: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "anthropic-agent-patterns: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: sequential, routing, parallel, orchestrator, evaluator",
       "evidence": [
         {
@@ -5397,7 +5409,7 @@
         "ref": "main",
         "path": "guides/human-in-the-loop/wrangler.toml"
       },
-      "title": "human-in-the-loop: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "human-in-the-loop: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: HumanInTheLoop; ai: AI",
       "evidence": [
         {
@@ -5448,7 +5460,7 @@
         "ref": "main",
         "path": "openai-sdk/basic/wrangler.jsonc"
       },
-      "title": "basic-openai-cloudflare-agent: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "basic-openai-cloudflare-agent: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyAgent; ai: AI",
       "evidence": [
         {
@@ -5499,7 +5511,7 @@
         "ref": "main",
         "path": "openai-sdk/call-my-agent/wrangler.jsonc"
       },
-      "title": "call-my-agent: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "call-my-agent: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -5540,7 +5552,7 @@
         "ref": "main",
         "path": "openai-sdk/chess-app/wrangler.jsonc"
       },
-      "title": "chess-app: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "chess-app: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: CHESS",
       "evidence": [
         {
@@ -5581,7 +5593,7 @@
         "ref": "main",
         "path": "openai-sdk/handoffs/wrangler.jsonc"
       },
-      "title": "handoffs-openai-cloudflare-agent: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "handoffs-openai-cloudflare-agent: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -5622,7 +5634,7 @@
         "ref": "main",
         "path": "openai-sdk/human-in-the-loop/wrangler.jsonc"
       },
-      "title": "human-in-the-loop-openai-cloudflare-agent: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "human-in-the-loop-openai-cloudflare-agent: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -5663,7 +5675,7 @@
         "ref": "main",
         "path": "openai-sdk/llm-as-a-judge/wrangler.jsonc"
       },
-      "title": "llm-as-a-judge-openai-cloudflare-agent: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "llm-as-a-judge-openai-cloudflare-agent: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -5704,7 +5716,7 @@
         "ref": "main",
         "path": "openai-sdk/pizzaz/wrangler.jsonc"
       },
-      "title": "pizzaz-mcp: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "pizzaz-mcp: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MCP_OBJECT",
       "evidence": [
         {
@@ -5745,7 +5757,7 @@
         "ref": "main",
         "path": "openai-sdk/streaming-chat/wrangler.jsonc"
       },
-      "title": "streaming-chat-openai-cloudflare-agent: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "streaming-chat-openai-cloudflare-agent: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: MyAgent",
       "evidence": [
         {
@@ -5786,7 +5798,7 @@
         "ref": "main",
         "path": "packages/agents/conformance/wrangler.jsonc"
       },
-      "title": "agents-mcp-conformance-host: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "agents-mcp-conformance-host: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ConformanceHost, EverythingMcpAgent, EverythingHandlerAgent",
       "evidence": [
         {
@@ -5847,7 +5859,7 @@
         "ref": "main",
         "path": "packages/agents/src/browser-tests/wrangler.jsonc"
       },
-      "title": "browser-e2e-test: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "browser-e2e-test: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: BrowserTestAgent; browser: BROWSER",
       "evidence": [
         {
@@ -5898,7 +5910,7 @@
         "ref": "main",
         "path": "packages/agents/src/e2e-tests/wrangler.jsonc"
       },
-      "title": "fiber-e2e-test: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "fiber-e2e-test: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: RunFiberTestAgent, SubAgentFiberParent, SubAgentFiberChild, PoisonRowAgent, ScanDeadlineAgent, ConcurrentFiberAgent, PoisonBackoffAgent, FacetRecoveryParent, FacetRecoveryChild, TaskKillTestAgent, StreamKillTestAgent, CutoverKillAgent",
       "evidence": [
         {
@@ -6049,7 +6061,7 @@
         "ref": "main",
         "path": "packages/agents/src/harness/container/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: CONTAINER_HARNESS_TEST, CONTAINER_RETRY_TEST, CONTAINER_MANAGED_TEST, HARNESS_STORE_TEST",
       "evidence": [
         {
@@ -6120,7 +6132,7 @@
         "ref": "main",
         "path": "packages/agents/src/harness/opencode/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: OPENCODE_HARNESS_TEST, TABLE_PREFIX_TEST",
       "evidence": [
         {
@@ -6171,7 +6183,7 @@
         "ref": "main",
         "path": "packages/agents/src/harness/pi/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: PI_HARNESS_TEST, PI_STORE_TEST, PI_NO_DEFAULTS_TEST, PI_FACTORY_TEST, PI_FLAKY_FACTORY_TEST",
       "evidence": [
         {
@@ -6252,7 +6264,7 @@
         "ref": "main",
         "path": "packages/agents/src/harness/think/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: THINK_HARNESS_TEST, THINK_WITH_STREAMS",
       "evidence": [
         {
@@ -6303,7 +6315,7 @@
         "ref": "main",
         "path": "packages/agents/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: CapabilityHarnessObject, PlainLifecycleObject, StatefulPlainObject, RetryableStartObject, ConcurrentStartObject, ScheduledLifecycleObject, SchedulerHarnessObject, SchedulerStartupWarnObject, QueueHarnessObject, BrowserHarnessObject, TestBrowserAgent, TaskHarnessObject, TaskSchedulerCoexistObject, StreamHarnessObject, ChannelsHarnessObject, AiSdkHarnessObject, CutoverHarnessObject, SqliteStrategiesBench, TaskStreamComposeObject, StreamBenchObject, SessionHarnessObject, SessionSearchHarnessObject, SessionBenchObject, PlainMcpClientObject, MCP_OBJECT, TestCodemodeMcpAgent, EmailAgent, CaseSensitiveAgent, UserNotificationAgent, TAG_AGENT, TestOAuthAgent, TestCustomOAuthAgent, TEST_MCP_JURISDICTION, TestAlarmInitAgent, TestDestroyScheduleAgent, TestReadonlyAgent, TestProtocolMessagesAgent, TestScheduleAgent, TestTaskAgent, TestOnStartScheduleWarnAgent, TestOnStartScheduleNoWarnAgent, TestOnStartScheduleExplicitFalseAgent, TestWorkflowAgent, TestAgentToolReplayAgent, TestAgentToolStubChild, TestAddMcpServerAgent, TestRpcMcpClientAgent, TestHttpMcpDedupAgent, TestStateAgent, TestStateAgentNoInitial, TestThrowingStateAgent, TestPersistedStateAgent, TestBothHooksAgent, TestNoIdentityAgent, TestCallableAgent, TestChildAgent, TestQueueAgent, TestChatSdkStateHostAgent, ChatSdkStateAgent, TestRetryAgent, TestRetryDefaultsAgent, TestRunFiberAgent, TestKeepAliveAgent, TestSessionAgent, TestWaitConnectionsAgent, TestNativeRpcAgent, RoutingOwnerAgent, RoutedChatAgent, TestSubAgentParent, CUSTOM_BOUND_SUB_AGENT_PARENT, CodemodeRuntime, CounterSubAgent, OuterSubAgent, DenyingSubAgent, InnerSubAgent, LeafSubAgent, CallbackSubAgent, BroadcastSubAgent, BodyProbeSubAgent, BodyProbeRootAgent, SlowReplySubAgent, TestMigrationAgent, TestConnectionUriAgent, SpikeSubParent, SpikeSubChild, HookingSubAgentParent, Sub, SUB, Sub_, ReservedClassParent, TestUnboundParentAgent, TestMinifiedNameParentAgent; workflows: TEST_WORKFLOW, SIMPLE_WORKFLOW, FACET_ORIGIN_WORKFLOW, FACET_APPROVAL_WORKFLOW, FACET_EVENT_STATE_WORKFLOW, THROW_IN_RUN_WORKFLOW, REPORT_ERROR_THEN_THROW_WORKFLOW, REPORT_ERROR_ONLY_WORKFLOW, THROW_NON_ERROR_WORKFLOW",
       "evidence": [
         {
@@ -7346,7 +7358,7 @@
         "ref": "main",
         "path": "packages/agents/src/voice/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: TestVoiceAgent, TestDiagnosticVoiceAgent, TestEmptyResponseVoiceAgent, TestContextVoiceAgent, TestAiSdkFullStreamVoiceAgent, TestAiSdkTextStreamVoiceAgent, TestPcm24kVoiceAgent, TestVoiceInputAgent, TestDiagnosticVoiceInputAgent, TestRejectCallVoiceInputAgent",
       "evidence": [
         {
@@ -7477,7 +7489,7 @@
         "ref": "main",
         "path": "packages/ai-chat/e2e/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ChatAgent, LlmChatAgent, ClientToolAgent, ClientToolApprovalAgent, SlowAgent, BadKeyAgent, SanitizeAgent, MaxPersistedAgent, DataPartsAgent, ResponseLlmAgent, ResponseChainAgent; ai: AI",
       "evidence": [
         {
@@ -7628,7 +7640,7 @@
         "ref": "main",
         "path": "packages/ai-chat/src/e2e-tests/wrangler.jsonc"
       },
-      "title": "chat-recovery-e2e-test: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "chat-recovery-e2e-test: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ChatRecoveryTestAgent, ChatNoProgressExhaustAgent, ChatAbortedExhaustAgent, ChatWorkBudgetExhaustAgent, ChatNoContinueAgent, ChatNoPersistNoContinueAgent, ChatBufferCleanupAgent, ChatHangingRecoveryAgent, ChatRecoveryHelperChild, ChatRecoveryHelperParent",
       "evidence": [
         {
@@ -7759,7 +7771,7 @@
         "ref": "main",
         "path": "packages/ai-chat/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: TestChatAgent, CustomSanitizeAgent, AgentWithSuperCall, AgentWithoutSuperCall, SlowStreamAgent, ResponseAgent, ResponseContinuationAgent, ResponseThrowingAgent, ResponseSaveMessagesAgent, LatestMessageConcurrencyAgent, MergeMessageConcurrencyAgent, DropMessageConcurrencyAgent, DebounceMessageConcurrencyAgent, InvalidDebounceMessageConcurrencyAgent, MissingDebounceMessageConcurrencyAgent, WaitMcpTrueAgent, WaitMcpTimeoutAgent, WaitMcpFalseAgent, ChatRecoveryTestAgent, NonChatRecoveryTestAgent, RecoveryThrowingAgent, RecoverySlowStreamAgent, AIChatAgentToolParent, AIChatAgentToolChild, StuckAgentToolChild, OverridingPersistAgent",
       "evidence": [
         {
@@ -8050,7 +8062,7 @@
         "ref": "main",
         "path": "packages/codemode/e2e/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: CodemodeAgent; ai: AI",
       "evidence": [
         {
@@ -8101,7 +8113,7 @@
         "ref": "main",
         "path": "packages/codemode/src/runtime-tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: CodemodeTestHost, CodemodeRuntime",
       "evidence": [
         {
@@ -8152,7 +8164,7 @@
         "ref": "main",
         "path": "packages/codemode/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "No bindings declared.",
       "evidence": [
         {
@@ -8179,7 +8191,7 @@
         "ref": "main",
         "path": "packages/hono-agents/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: TestHonoAgent",
       "evidence": [
         {
@@ -8220,7 +8232,7 @@
         "ref": "main",
         "path": "packages/shell/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: TestWorkspaceAgent, TestGitAgent",
       "evidence": [
         {
@@ -8271,7 +8283,7 @@
         "ref": "main",
         "path": "packages/think/src/e2e-tests/wrangler.jsonc"
       },
-      "title": "think-e2e-test: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "think-e2e-test: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: TestAssistant, ThinkRecoveryE2EAgent, ThinkRecoveryHelperParent, ThinkRecoveryHelperAgent, ThinkToolRollbackE2EAgent, ThinkPersistFalseE2EAgent, ThinkStallRecoveryE2EAgent, ThinkTaskParentE2EAgent, ThinkAgentToolNaturalParentE2EAgent, ThinkSlowChildE2EAgent, ThinkSlowChildParentE2EAgent, TestStructuredAgent, ThinkContextOverflowE2EAgent, ThinkSubmissionRecoveryE2EAgent, ThinkMessengerRecoveryE2EAgent, ThinkWorkflowRecoveryE2EAgent, ThinkActionPauseRecoveryE2EAgent, ThinkActionLedgerRecoveryE2EAgent; r2_buckets: R2; workflows: STEP_PROMPT_WORKFLOW; ai: AI",
       "evidence": [
         {
@@ -8516,7 +8528,7 @@
         "ref": "main",
         "path": "packages/think/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: ConnectionStateParent, ConnectionStateThink, TestAssistantToolsAgent, TestAssistantAgentAgent, BareAssistantAgent, LoopTestAgent, LoopToolTestAgent, OverflowRecoveryTestAgent, ThinkTestAgent, ThinkContinueOverrideTestAgent, ThinkPropsTestAgent, ThinkToolsTestAgent, ThinkFiberTestAgent, ThinkClientToolsAgent, ThinkSessionTestAgent, ThinkSystemPromptSkillsWarningAgent, ThinkDefaultSystemPromptSkillsAgent, ThinkInheritedSystemPromptSkillsAgent, ThinkSystemPromptFieldSkillsAgent, ThinkMissingClassifierWarningAgent, ThinkClassifierMethodAgent, ThinkInheritedClassifierAgent, ThinkClassifierFieldAgent, ThinkAsyncConfigSessionAgent, ThinkConfigTestAgent, ThinkLegacyConfigMigrationAgent, ThinkConfigInSessionAgent, ThinkProgrammaticTestAgent, ThinkScheduledTasksTestAgent, ThinkAsyncHookTestAgent, ThinkRecoveryTestAgent, ThinkNonRecoveryTestAgent, ThinkAgentToolParent, ThinkNestedMiddleAgent, StuckThinkAgentToolChild, ThinkExtensionHookAgent, ThinkExtensionBeforeTurnModelAgent, ThinkMessengerDeliveryTestAgent, ThinkMessengerRouteTestAgent, ThinkMcpToolMaterializationAgent, ThinkExecuteToolAgent, ThinkExecuteHitlAgent, ThinkFetchToolsTestAgent, ThinkOnStartReconcileFailureAgent, ThinkOnStartHydrationFailureAgent, ThinkWindowedHydrationAgent, ThinkMediaEvictionAgent, ThinkPromptCacheTestAgent, ThinkMediaEvictionAutoAgent, ThinkPointerHydrationAgent, ThinkLegacySessionApiAgent, BrowserToolsHost, CodemodeRuntime, ThinkMessengerStateAgent",
       "evidence": [
         {
@@ -9087,7 +9099,7 @@
         "ref": "main",
         "path": "packages/worker-bundler/src/tests/wrangler.jsonc"
       },
-      "title": "(unnamed): +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "(unnamed): +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "durable_objects: FS_TEST",
       "evidence": [
         {
@@ -9128,7 +9140,7 @@
         "ref": "main",
         "path": "site/agents/wrangler.jsonc"
       },
-      "title": "agents-site: +0 −0 bindings vs 000d076d535b8bf53ac66b2c86c4c83c5a95d8c7",
+      "title": "agents-site: +0 −0 bindings vs 52a9038f4cc90db1a946ad46869fdc660e6bb993",
       "detail": "kv_namespaces: DOCS_KV",
       "evidence": [
         {
@@ -9168,8 +9180,8 @@
         "repo": "agents-demo-r2",
         "ref": "main"
       },
-      "title": "Instruction stack: 13 layers, 27 rules",
-      "detail": "Extractor keyword-v1; 7 findings.",
+      "title": "Instruction stack: 13 layers, 47 rules",
+      "detail": "Extractor llm:@cf/zai-org/glm-5.3-flash; 9 findings.",
       "evidence": [
         {
           "repo": "agents-demo-r2",
@@ -9225,7 +9237,7 @@
         }
       ],
       "metrics": {
-        "extractor": "keyword-v1",
+        "extractor": "llm:@cf/zai-org/glm-5.3-flash",
         "layers": [
           {
             "name": "root",
@@ -9345,28 +9357,119 @@
             "origin": "stack"
           }
         ],
+        "precedence": {
+          "order": [
+            "org",
+            "contract",
+            "project",
+            "tool",
+            "personal",
+            "memory"
+          ],
+          "overridden": false,
+          "audit": []
+        },
+        "extraction": {
+          "agents-demo-r2:AGENTS.md": {
+            "source": "cache",
+            "rules": 12
+          },
+          "agents-demo-r2:agent-think/AGENTS.md": {
+            "source": "cache",
+            "rules": 6
+          },
+          "agents-demo-r2:design/AGENTS.md": {
+            "source": "cache",
+            "rules": 0
+          },
+          "agents-demo-r2:docs/AGENTS.md": {
+            "source": "cache",
+            "rules": 0
+          },
+          "agents-demo-r2:examples/AGENTS.md": {
+            "source": "cache",
+            "rules": 4
+          },
+          "agents-demo-r2:examples/webmcp-react/AGENTS.md": {
+            "source": "cache",
+            "rules": 0
+          },
+          "agents-demo-r2:guides/AGENTS.md": {
+            "source": "cache",
+            "rules": 1
+          },
+          "agents-demo-r2:packages/agents/AGENTS.md": {
+            "source": "cache",
+            "rules": 17
+          },
+          "agents-demo-r2:packages/agents/src/tests/capabilities/AGENTS.md": {
+            "source": "cache",
+            "rules": 0
+          },
+          "git-next-demo-layers:org/AGENTS.md": {
+            "source": "cache",
+            "rules": 2
+          },
+          "git-next-demo-layers:contract/AGENTS.md": {
+            "source": "cache",
+            "rules": 2
+          },
+          "git-next-demo-layers:tool/AGENTS.md": {
+            "source": "cache",
+            "rules": 1
+          },
+          "git-next-demo-layers:personal/AGENTS.md": {
+            "source": "cache",
+            "rules": 2
+          }
+        },
+        "rulesPerLayer": {
+          "agents-demo-r2:AGENTS.md": 12,
+          "agents-demo-r2:agent-think/AGENTS.md": 6,
+          "agents-demo-r2:examples/AGENTS.md": 4,
+          "agents-demo-r2:guides/AGENTS.md": 1,
+          "agents-demo-r2:packages/agents/AGENTS.md": 17,
+          "git-next-demo-layers:org/AGENTS.md": 2,
+          "git-next-demo-layers:contract/AGENTS.md": 2,
+          "git-next-demo-layers:tool/AGENTS.md": 1,
+          "git-next-demo-layers:personal/AGENTS.md": 2
+        },
         "rulesByTopic": {
           "packageManager": [
             "pnpm",
             "npm"
           ],
-          "formatter": [
-            "oxfmt",
-            "prettier"
-          ],
-          "testCommand": [
-            "pnpm run test",
-            "pnpm run test:react"
-          ],
-          "secrets": [
-            "never-in-source"
-          ],
           "changesetPolicy": [
             "required",
             "not-required"
           ],
+          "testCommand": [
+            "pnpm run test",
+            "pnpm exec nx affected -t test",
+            "pnpm test",
+            "pnpm test:e2e",
+            "pnpm run test:workers",
+            "pnpm run test:react",
+            "pnpm run test:voice:workers",
+            "pnpm run test:voice:react",
+            "pnpm run test:channels",
+            "pnpm run test:node",
+            "pnpm run test:webmcp",
+            "pnpm run test:x402",
+            "pnpm run test:browser",
+            "pnpm exec vitest --project chat",
+            "pnpm run test:e2e"
+          ],
+          "formatter": [
+            "oxfmt",
+            "prettier"
+          ],
+          "secrets": [
+            "never-in-source"
+          ],
           "allowedModels": [
-            "gpt-5.6-sol",
+            "providers:workers-ai",
+            "gpt-5.6-sol,claude-opus-5-5",
             "providers:anthropic,workers-ai"
           ],
           "commitFormat": [
@@ -9385,16 +9488,16 @@
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 58
+              "line": 55
             },
             {
-              "topic": "formatter",
-              "value": "oxfmt",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 67
+              "topic": "changesetPolicy",
+              "value": "not-required",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 4
             },
             {
               "topic": "testCommand",
@@ -9407,12 +9510,21 @@
             },
             {
               "topic": "testCommand",
-              "value": "pnpm run test:react",
+              "value": "pnpm exec nx affected -t test",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 156
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
               "strength": "should",
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -9421,15 +9533,6 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
-            },
-            {
-              "topic": "changesetPolicy",
-              "value": "not-required",
-              "strength": "must",
-              "layer": "sow-1234",
-              "kind": "contract",
-              "path": "contract/AGENTS.md",
               "line": 4
             },
             {
@@ -9465,10 +9568,28 @@
               "topic": "packageManager",
               "value": "pnpm",
               "strength": "should",
-              "layer": "root",
+              "layer": "agent-think",
               "kind": "project",
-              "path": "AGENTS.md",
-              "line": 58
+              "path": "agent-think/AGENTS.md",
+              "line": 175
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm test",
+              "strength": "should",
+              "layer": "agent-think",
+              "kind": "project",
+              "path": "agent-think/AGENTS.md",
+              "line": 175
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm test:e2e",
+              "strength": "should",
+              "layer": "agent-think",
+              "kind": "project",
+              "path": "agent-think/AGENTS.md",
+              "line": 176
             },
             {
               "topic": "formatter",
@@ -9477,25 +9598,7 @@
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 67
-            },
-            {
-              "topic": "testCommand",
-              "value": "pnpm run test",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 68
-            },
-            {
-              "topic": "testCommand",
-              "value": "pnpm run test:react",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -9504,15 +9607,6 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
-            },
-            {
-              "topic": "changesetPolicy",
-              "value": "not-required",
-              "strength": "must",
-              "layer": "sow-1234",
-              "kind": "contract",
-              "path": "contract/AGENTS.md",
               "line": 4
             },
             {
@@ -9532,6 +9626,15 @@
               "kind": "contract",
               "path": "contract/AGENTS.md",
               "line": 3
+            },
+            {
+              "topic": "changesetPolicy",
+              "value": "not-required",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 4
             },
             {
               "topic": "securityScan",
@@ -9551,16 +9654,7 @@
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 58
-            },
-            {
-              "topic": "formatter",
-              "value": "oxfmt",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 67
+              "line": 55
             },
             {
               "topic": "testCommand",
@@ -9573,12 +9667,21 @@
             },
             {
               "topic": "testCommand",
-              "value": "pnpm run test:react",
+              "value": "pnpm exec nx affected -t test",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 156
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
               "strength": "should",
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -9587,15 +9690,6 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
-            },
-            {
-              "topic": "changesetPolicy",
-              "value": "not-required",
-              "strength": "must",
-              "layer": "sow-1234",
-              "kind": "contract",
-              "path": "contract/AGENTS.md",
               "line": 4
             },
             {
@@ -9615,6 +9709,15 @@
               "kind": "contract",
               "path": "contract/AGENTS.md",
               "line": 3
+            },
+            {
+              "topic": "changesetPolicy",
+              "value": "not-required",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 4
             },
             {
               "topic": "securityScan",
@@ -9634,16 +9737,7 @@
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 58
-            },
-            {
-              "topic": "formatter",
-              "value": "oxfmt",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 67
+              "line": 55
             },
             {
               "topic": "testCommand",
@@ -9656,12 +9750,21 @@
             },
             {
               "topic": "testCommand",
-              "value": "pnpm run test:react",
+              "value": "pnpm exec nx affected -t test",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 156
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
               "strength": "should",
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -9670,15 +9773,6 @@
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
-            },
-            {
-              "topic": "changesetPolicy",
-              "value": "not-required",
-              "strength": "must",
-              "layer": "sow-1234",
-              "kind": "contract",
-              "path": "contract/AGENTS.md",
               "line": 4
             },
             {
@@ -9700,6 +9794,15 @@
               "line": 3
             },
             {
+              "topic": "changesetPolicy",
+              "value": "not-required",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 4
+            },
+            {
               "topic": "securityScan",
               "value": "before-pr",
               "strength": "should",
@@ -9713,20 +9816,11 @@
             {
               "topic": "packageManager",
               "value": "pnpm",
-              "strength": "must",
+              "strength": "should",
               "layer": "examples",
               "kind": "project",
               "path": "examples/AGENTS.md",
-              "line": 297
-            },
-            {
-              "topic": "formatter",
-              "value": "oxfmt",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 67
+              "line": 9
             },
             {
               "topic": "testCommand",
@@ -9739,12 +9833,21 @@
             },
             {
               "topic": "testCommand",
-              "value": "pnpm run test:react",
+              "value": "pnpm exec nx affected -t test",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 156
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
               "strength": "should",
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -9796,20 +9899,11 @@
             {
               "topic": "packageManager",
               "value": "pnpm",
-              "strength": "must",
+              "strength": "should",
               "layer": "examples",
               "kind": "project",
               "path": "examples/AGENTS.md",
-              "line": 297
-            },
-            {
-              "topic": "formatter",
-              "value": "oxfmt",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 67
+              "line": 9
             },
             {
               "topic": "testCommand",
@@ -9822,12 +9916,21 @@
             },
             {
               "topic": "testCommand",
-              "value": "pnpm run test:react",
+              "value": "pnpm exec nx affected -t test",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 156
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
               "strength": "should",
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -9883,16 +9986,7 @@
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 58
-            },
-            {
-              "topic": "formatter",
-              "value": "oxfmt",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 67
+              "line": 55
             },
             {
               "topic": "testCommand",
@@ -9905,12 +9999,21 @@
             },
             {
               "topic": "testCommand",
-              "value": "pnpm run test:react",
+              "value": "pnpm exec nx affected -t test",
+              "strength": "must",
+              "layer": "root",
+              "kind": "project",
+              "path": "AGENTS.md",
+              "line": 156
+            },
+            {
+              "topic": "formatter",
+              "value": "oxfmt",
               "strength": "should",
               "layer": "root",
               "kind": "project",
               "path": "AGENTS.md",
-              "line": 69
+              "line": 105
             },
             {
               "topic": "secrets",
@@ -9963,10 +10066,118 @@
               "topic": "packageManager",
               "value": "pnpm",
               "strength": "should",
-              "layer": "root",
+              "layer": "packages/agents",
               "kind": "project",
-              "path": "AGENTS.md",
-              "line": 58
+              "path": "packages/agents/AGENTS.md",
+              "line": 211
+            },
+            {
+              "topic": "changesetPolicy",
+              "value": "not-required",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 4
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:workers",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 230
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:react",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 250
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:voice:workers",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 258
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:voice:react",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 259
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:channels",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 268
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:node",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 277
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:webmcp",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 286
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:x402",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 294
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:browser",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 302
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm exec vitest --project chat",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 315
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:e2e",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 329
             },
             {
               "topic": "formatter",
@@ -9978,39 +10189,12 @@
               "line": 216
             },
             {
-              "topic": "testCommand",
-              "value": "pnpm run test",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 68
-            },
-            {
-              "topic": "testCommand",
-              "value": "pnpm run test:react",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 69
-            },
-            {
               "topic": "secrets",
               "value": "never-in-source",
               "strength": "must",
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
-            },
-            {
-              "topic": "changesetPolicy",
-              "value": "not-required",
-              "strength": "must",
-              "layer": "sow-1234",
-              "kind": "contract",
-              "path": "contract/AGENTS.md",
               "line": 4
             },
             {
@@ -10046,10 +10230,118 @@
               "topic": "packageManager",
               "value": "pnpm",
               "strength": "should",
-              "layer": "root",
+              "layer": "packages/agents",
               "kind": "project",
-              "path": "AGENTS.md",
-              "line": 58
+              "path": "packages/agents/AGENTS.md",
+              "line": 211
+            },
+            {
+              "topic": "changesetPolicy",
+              "value": "not-required",
+              "strength": "must",
+              "layer": "sow-1234",
+              "kind": "contract",
+              "path": "contract/AGENTS.md",
+              "line": 4
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:workers",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 230
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:react",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 250
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:voice:workers",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 258
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:voice:react",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 259
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:channels",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 268
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:node",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 277
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:webmcp",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 286
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:x402",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 294
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:browser",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 302
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm exec vitest --project chat",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 315
+            },
+            {
+              "topic": "testCommand",
+              "value": "pnpm run test:e2e",
+              "strength": "should",
+              "layer": "packages/agents",
+              "kind": "project",
+              "path": "packages/agents/AGENTS.md",
+              "line": 329
             },
             {
               "topic": "formatter",
@@ -10061,39 +10353,12 @@
               "line": 216
             },
             {
-              "topic": "testCommand",
-              "value": "pnpm run test",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 68
-            },
-            {
-              "topic": "testCommand",
-              "value": "pnpm run test:react",
-              "strength": "should",
-              "layer": "root",
-              "kind": "project",
-              "path": "AGENTS.md",
-              "line": 69
-            },
-            {
               "topic": "secrets",
               "value": "never-in-source",
               "strength": "must",
               "layer": "acme-org",
               "kind": "org",
               "path": "org/AGENTS.md",
-              "line": 4
-            },
-            {
-              "topic": "changesetPolicy",
-              "value": "not-required",
-              "strength": "must",
-              "layer": "sow-1234",
-              "kind": "contract",
-              "path": "contract/AGENTS.md",
               "line": 4
             },
             {
@@ -10126,7 +10391,7 @@
           ]
         },
         "counts": {
-          "overridden": 5,
+          "overridden": 7,
           "conflict": 2
         }
       }
@@ -10140,12 +10405,12 @@
         "path": "AGENTS.md"
       },
       "title": "overridden: packageManager",
-      "detail": "root [project] (AGENTS.md:58) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
+      "detail": "root [project] (AGENTS.md:55) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
       "evidence": [
         {
           "repo": "agents-demo-r2",
           "path": "AGENTS.md",
-          "line": 58
+          "line": 55
         },
         {
           "repo": "git-next-demo-layers",
@@ -10164,8 +10429,8 @@
             "kind": "project",
             "rank": 3,
             "path": "AGENTS.md",
-            "line": 58,
-            "text": "Uses pnpm workspaces with [Nx](https://nx.dev) for task orchestration, caching, and affected detection."
+            "line": 55,
+            "text": "pnpm install       # installs all workspaces"
           },
           {
             "value": "npm",
@@ -10175,7 +10440,7 @@
             "rank": 5,
             "path": "personal/AGENTS.md",
             "line": 3,
-            "text": "I prefer to use npm for installs."
+            "text": "- I prefer to use npm for installs."
           }
         ]
       }
@@ -10186,15 +10451,15 @@
       "scope": {
         "repo": "agents-demo-r2",
         "ref": "main",
-        "path": "examples/AGENTS.md"
+        "path": "agent-think/AGENTS.md"
       },
       "title": "overridden: packageManager",
-      "detail": "examples [project] (examples/AGENTS.md:297) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
+      "detail": "agent-think [project] (agent-think/AGENTS.md:175) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
       "evidence": [
         {
           "repo": "agents-demo-r2",
-          "path": "examples/AGENTS.md",
-          "line": 297
+          "path": "agent-think/AGENTS.md",
+          "line": 175
         },
         {
           "repo": "git-next-demo-layers",
@@ -10208,13 +10473,13 @@
         "values": [
           {
             "value": "pnpm",
-            "strength": "must",
-            "layer": "examples",
+            "strength": "should",
+            "layer": "agent-think",
             "kind": "project",
             "rank": 3,
-            "path": "examples/AGENTS.md",
-            "line": 297,
-            "text": "How to run it (`pnpm install && pnpm run start` for full-stack examples, `pnpm install && pnpm run dev` for server-only examples)"
+            "path": "agent-think/AGENTS.md",
+            "line": 175,
+            "text": "pnpm test        # fast unit suite: workers pool + MSW, no container"
           },
           {
             "value": "npm",
@@ -10224,7 +10489,203 @@
             "rank": 5,
             "path": "personal/AGENTS.md",
             "line": 3,
-            "text": "I prefer to use npm for installs."
+            "text": "- I prefer to use npm for installs."
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-r2",
+        "ref": "main",
+        "path": "examples/AGENTS.md"
+      },
+      "title": "overridden: packageManager",
+      "detail": "examples [project] (examples/AGENTS.md:9) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
+      "evidence": [
+        {
+          "repo": "agents-demo-r2",
+          "path": "examples/AGENTS.md",
+          "line": 9
+        },
+        {
+          "repo": "git-next-demo-layers",
+          "path": "personal/AGENTS.md",
+          "line": 3
+        }
+      ],
+      "metrics": {
+        "kind": "overridden",
+        "topic": "packageManager",
+        "values": [
+          {
+            "value": "pnpm",
+            "strength": "should",
+            "layer": "examples",
+            "kind": "project",
+            "rank": 3,
+            "path": "examples/AGENTS.md",
+            "line": 9,
+            "text": "Most examples have both a frontend and a backend. This makes them immediately runnable and visually demonstrable — users can `pnpm run start` and see the feature in action, not just read server logs."
+          },
+          {
+            "value": "npm",
+            "strength": "should",
+            "layer": "chris",
+            "kind": "personal",
+            "rank": 5,
+            "path": "personal/AGENTS.md",
+            "line": 3,
+            "text": "- I prefer to use npm for installs."
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-r2",
+        "ref": "main",
+        "path": "packages/agents/AGENTS.md"
+      },
+      "title": "overridden: packageManager",
+      "detail": "packages/agents [project] (packages/agents/AGENTS.md:211) (\"pnpm\") overrides chris [personal] (personal/AGENTS.md:3) (\"npm\").",
+      "evidence": [
+        {
+          "repo": "agents-demo-r2",
+          "path": "packages/agents/AGENTS.md",
+          "line": 211
+        },
+        {
+          "repo": "git-next-demo-layers",
+          "path": "personal/AGENTS.md",
+          "line": 3
+        }
+      ],
+      "metrics": {
+        "kind": "overridden",
+        "topic": "packageManager",
+        "values": [
+          {
+            "value": "pnpm",
+            "strength": "should",
+            "layer": "packages/agents",
+            "kind": "project",
+            "rank": 3,
+            "path": "packages/agents/AGENTS.md",
+            "line": 211,
+            "text": "pnpm run build          # runs tsx scripts/build.ts"
+          },
+          {
+            "value": "npm",
+            "strength": "should",
+            "layer": "chris",
+            "kind": "personal",
+            "rank": 5,
+            "path": "personal/AGENTS.md",
+            "line": 3,
+            "text": "- I prefer to use npm for installs."
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "conflict",
+      "scope": {
+        "repo": "agents-demo-r2",
+        "ref": "main",
+        "path": "contract/AGENTS.md"
+      },
+      "title": "conflict: changesetPolicy",
+      "detail": "sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but root [project] (AGENTS.md:10) says \"required\"; both are hard requirements.",
+      "evidence": [
+        {
+          "repo": "git-next-demo-layers",
+          "path": "contract/AGENTS.md",
+          "line": 4
+        },
+        {
+          "repo": "agents-demo-r2",
+          "path": "AGENTS.md",
+          "line": 10
+        }
+      ],
+      "metrics": {
+        "kind": "conflict",
+        "topic": "changesetPolicy",
+        "values": [
+          {
+            "value": "not-required",
+            "strength": "must",
+            "layer": "sow-1234",
+            "kind": "contract",
+            "rank": 2,
+            "path": "contract/AGENTS.md",
+            "line": 4,
+            "text": "- You must skip changesets for internal fixes billed under this SOW."
+          },
+          {
+            "value": "required",
+            "strength": "must",
+            "layer": "root",
+            "kind": "project",
+            "rank": 3,
+            "path": "AGENTS.md",
+            "line": 10,
+            "text": "packages/          # Published npm packages (need changesets for changes)"
+          }
+        ]
+      }
+    },
+    {
+      "provider": "instruction-stack",
+      "severity": "conflict",
+      "scope": {
+        "repo": "agents-demo-r2",
+        "ref": "main",
+        "path": "contract/AGENTS.md"
+      },
+      "title": "conflict: changesetPolicy",
+      "detail": "sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but packages/agents [project] (packages/agents/AGENTS.md:7) says \"required\"; both are hard requirements.",
+      "evidence": [
+        {
+          "repo": "git-next-demo-layers",
+          "path": "contract/AGENTS.md",
+          "line": 4
+        },
+        {
+          "repo": "agents-demo-r2",
+          "path": "packages/agents/AGENTS.md",
+          "line": 7
+        }
+      ],
+      "metrics": {
+        "kind": "conflict",
+        "topic": "changesetPolicy",
+        "values": [
+          {
+            "value": "not-required",
+            "strength": "must",
+            "layer": "sow-1234",
+            "kind": "contract",
+            "rank": 2,
+            "path": "contract/AGENTS.md",
+            "line": 4,
+            "text": "- You must skip changesets for internal fixes billed under this SOW."
+          },
+          {
+            "value": "required",
+            "strength": "must",
+            "layer": "packages/agents",
+            "kind": "project",
+            "rank": 3,
+            "path": "packages/agents/AGENTS.md",
+            "line": 7,
+            "text": "Each export maps to a public entry point that users `import` from. These are the boundaries of the public API — changes here need a changeset."
           }
         ]
       }
@@ -10238,12 +10699,12 @@
         "path": "AGENTS.md"
       },
       "title": "overridden: formatter",
-      "detail": "root [project] (AGENTS.md:67) (\"oxfmt\") overrides chris [personal] (personal/AGENTS.md:4) (\"prettier\").",
+      "detail": "root [project] (AGENTS.md:105) (\"oxfmt\") overrides chris [personal] (personal/AGENTS.md:4) (\"prettier\").",
       "evidence": [
         {
           "repo": "agents-demo-r2",
           "path": "AGENTS.md",
-          "line": 67
+          "line": 105
         },
         {
           "repo": "git-next-demo-layers",
@@ -10262,8 +10723,8 @@
             "kind": "project",
             "rank": 3,
             "path": "AGENTS.md",
-            "line": 67,
-            "text": "| `pnpm run check`                   | Full CI check: sherif + export checks + oxfmt + oxlint + typecheck |"
+            "line": 105,
+            "text": "Oxlint does **not** handle formatting — Oxfmt does."
           },
           {
             "value": "prettier",
@@ -10273,7 +10734,7 @@
             "rank": 5,
             "path": "personal/AGENTS.md",
             "line": 4,
-            "text": "Prefer Prettier for formatting."
+            "text": "- Prefer Prettier for formatting."
           }
         ]
       }
@@ -10322,105 +10783,7 @@
             "rank": 5,
             "path": "personal/AGENTS.md",
             "line": 4,
-            "text": "Prefer Prettier for formatting."
-          }
-        ]
-      }
-    },
-    {
-      "provider": "instruction-stack",
-      "severity": "conflict",
-      "scope": {
-        "repo": "agents-demo-r2",
-        "ref": "main",
-        "path": "contract/AGENTS.md"
-      },
-      "title": "conflict: changesetPolicy",
-      "detail": "sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but root [project] (AGENTS.md:144) says \"required\"; both are hard requirements.",
-      "evidence": [
-        {
-          "repo": "git-next-demo-layers",
-          "path": "contract/AGENTS.md",
-          "line": 4
-        },
-        {
-          "repo": "agents-demo-r2",
-          "path": "AGENTS.md",
-          "line": 144
-        }
-      ],
-      "metrics": {
-        "kind": "conflict",
-        "topic": "changesetPolicy",
-        "values": [
-          {
-            "value": "not-required",
-            "strength": "must",
-            "layer": "sow-1234",
-            "kind": "contract",
-            "rank": 2,
-            "path": "contract/AGENTS.md",
-            "line": 4,
-            "text": "You must skip changesets for internal fixes billed under this SOW."
-          },
-          {
-            "value": "required",
-            "strength": "must",
-            "layer": "root",
-            "kind": "project",
-            "rank": 3,
-            "path": "AGENTS.md",
-            "line": 144,
-            "text": "Changes to `packages/` that affect the public API or fix bugs need a changeset:"
-          }
-        ]
-      }
-    },
-    {
-      "provider": "instruction-stack",
-      "severity": "conflict",
-      "scope": {
-        "repo": "agents-demo-r2",
-        "ref": "main",
-        "path": "contract/AGENTS.md"
-      },
-      "title": "conflict: changesetPolicy",
-      "detail": "sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but packages/agents [project] (packages/agents/AGENTS.md:7) says \"required\"; both are hard requirements.",
-      "evidence": [
-        {
-          "repo": "git-next-demo-layers",
-          "path": "contract/AGENTS.md",
-          "line": 4
-        },
-        {
-          "repo": "agents-demo-r2",
-          "path": "packages/agents/AGENTS.md",
-          "line": 7
-        }
-      ],
-      "metrics": {
-        "kind": "conflict",
-        "topic": "changesetPolicy",
-        "values": [
-          {
-            "value": "not-required",
-            "strength": "must",
-            "layer": "sow-1234",
-            "kind": "contract",
-            "rank": 2,
-            "path": "contract/AGENTS.md",
-            "line": 4,
-            "text": "You must skip changesets for internal fixes billed under this SOW."
-          },
-          {
-            "value": "required",
-            "strength": "must",
-            "layer": "packages/agents",
-            "kind": "project",
-            "rank": 3,
-            "path": "packages/agents/AGENTS.md",
-            "line": 7,
-            "text": "These are the boundaries of the public API — changes here need a changeset."
+            "text": "- Prefer Prettier for formatting."
           }
         ]
       }
@@ -10434,7 +10797,7 @@
         "path": "org/AGENTS.md"
       },
       "title": "policy overridden: allowedModels",
-      "detail": "acme-org [org] (org/AGENTS.md:3) (\"providers:anthropic,workers-ai\") overrides agent-think [project] (agent-think/AGENTS.md:192) (\"gpt-5.6-sol\") (model's provider is not on the approved list).",
+      "detail": "acme-org [org] (org/AGENTS.md:3) (\"providers:anthropic,workers-ai\") overrides agent-think [project] (agent-think/AGENTS.md:192) (\"gpt-5.6-sol,claude-opus-5-5\") (model's provider is not on the approved list).",
       "evidence": [
         {
           "repo": "git-next-demo-layers",
@@ -10460,17 +10823,17 @@
             "rank": 1,
             "path": "org/AGENTS.md",
             "line": 3,
-            "text": "Only use approved model providers: Workers AI and Anthropic (via AI Gateway)."
+            "text": "- Only use approved model providers: Workers AI and Anthropic (via AI Gateway)."
           },
           {
-            "value": "gpt-5.6-sol",
+            "value": "gpt-5.6-sol,claude-opus-5-5",
             "strength": "should",
             "layer": "agent-think",
             "kind": "project",
             "rank": 3,
             "path": "agent-think/AGENTS.md",
             "line": 192,
-            "text": "Model: `gpt-5.6-sol` with max reasoning through the OpenAI Responses API"
+            "text": "- Model: `gpt-5.6-sol` with max reasoning through the OpenAI Responses API"
           }
         ]
       }
@@ -10482,63 +10845,74 @@
         "repo": "agents-demo-r2",
         "ref": "main"
       },
-      "title": "AI spend $0.05 across 3 requests",
+      "title": "AI spend $0.17 across 6 requests",
       "detail": "1 agents; 0 requests have no developer metadata (identity coverage 100%). Source: ai-gateway:git-next.",
       "evidence": [],
       "metrics": {
         "source": "ai-gateway:git-next",
-        "total": 0.051498,
-        "requests": 3,
+        "total": 0.16841,
+        "requests": 6,
         "rollup": [
           {
             "level": "project",
             "key": "agents-demo-full",
-            "cost": 0.051498,
-            "requests": 3,
-            "tokensIn": 10824,
-            "tokensOut": 2985,
+            "cost": 0.16841,
+            "requests": 6,
+            "tokensIn": 30260,
+            "tokensOut": 10789,
             "cachedRequests": 0,
             "failedRequests": 1,
             "children": [
               {
                 "level": "developer",
                 "key": "chris",
-                "cost": 0.051498,
-                "requests": 3,
-                "tokensIn": 10824,
-                "tokensOut": 2985,
+                "cost": 0.16841,
+                "requests": 6,
+                "tokensIn": 30260,
+                "tokensOut": 10789,
                 "cachedRequests": 0,
                 "failedRequests": 1,
                 "children": [
                   {
                     "level": "fork",
                     "key": "agents-demo-r2",
-                    "cost": 0.051498,
-                    "requests": 3,
-                    "tokensIn": 10824,
-                    "tokensOut": 2985,
+                    "cost": 0.16841,
+                    "requests": 6,
+                    "tokensIn": 30260,
+                    "tokensOut": 10789,
                     "cachedRequests": 0,
                     "failedRequests": 1,
                     "children": [
                       {
                         "level": "agent",
                         "key": "r2-agent",
-                        "cost": 0.051498,
-                        "requests": 3,
-                        "tokensIn": 10824,
-                        "tokensOut": 2985,
+                        "cost": 0.16841,
+                        "requests": 6,
+                        "tokensIn": 30260,
+                        "tokensOut": 10789,
                         "cachedRequests": 0,
                         "failedRequests": 1,
                         "children": [
                           {
                             "level": "task",
                             "key": "feature#r2-uploads-example",
-                            "cost": 0.051498,
-                            "requests": 3,
-                            "tokensIn": 10824,
-                            "tokensOut": 2985,
+                            "cost": 0.084332,
+                            "requests": 4,
+                            "tokensIn": 16166,
+                            "tokensOut": 5200,
                             "cachedRequests": 0,
                             "failedRequests": 1,
+                            "children": []
+                          },
+                          {
+                            "level": "task",
+                            "key": "feature#planner-r2",
+                            "cost": 0.084078,
+                            "requests": 2,
+                            "tokensIn": 14094,
+                            "tokensOut": 5589,
+                            "cachedRequests": 0,
+                            "failedRequests": 0,
                             "children": []
                           }
                         ]
@@ -10553,9 +10927,10 @@
         "agents": [
           {
             "agent": "r2-agent",
-            "cost": 0.051498,
-            "requests": 3,
+            "cost": 0.16841,
+            "requests": 6,
             "models": [
+              "anthropic/claude-sonnet-5.5",
               "anthropic/claude-sonnet-5"
             ]
           }
@@ -10570,16 +10945,49 @@
         "ref": "main",
         "agent": "r2-agent"
       },
-      "title": "r2-agent: $0.05 over 3 requests",
-      "detail": "Models: anthropic/claude-sonnet-5.",
+      "title": "r2-agent: $0.17 over 6 requests",
+      "detail": "Models: anthropic/claude-sonnet-5.5, anthropic/claude-sonnet-5.",
       "evidence": [],
       "metrics": {
         "agent": "r2-agent",
-        "cost": 0.051498,
-        "requests": 3,
+        "cost": 0.16841,
+        "requests": 6,
         "models": [
+          "anthropic/claude-sonnet-5.5",
           "anthropic/claude-sonnet-5"
         ]
+      }
+    },
+    {
+      "provider": "owners",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-r2",
+        "ref": "main"
+      },
+      "title": "No CODEOWNERS file",
+      "detail": "9 instruction files have no declared owner.",
+      "evidence": []
+    },
+    {
+      "provider": "catalog",
+      "severity": "info",
+      "scope": {
+        "repo": "agents-demo-r2",
+        "ref": "main"
+      },
+      "title": "No catalog (secrets scan only)",
+      "detail": "0 violation(s); scanned 157 of 2381 code/config files.",
+      "evidence": [],
+      "metrics": {
+        "source": "none",
+        "version": null,
+        "repoVersion": null,
+        "baselineVersion": "2026.10.5",
+        "behind": false,
+        "scannedFiles": 157,
+        "totalFiles": 2381,
+        "byKind": {}
       }
     }
   ]

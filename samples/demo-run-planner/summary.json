@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-07T20:40:29.905Z",
+  "generatedAt": "2026-10-07T23:00:54.838Z",
   "goal": "Improve agents-demo-full in three independent, reviewable changes: make one confusing passage in the MCP docs clearer, add a minimal server-only example that stores uploads in R2, and tighten the doc comments in the MCP abort helpers without changing behaviour.",
   "local": "Forks cloned read-only; pushes went to local bare remotes (nothing pushed to Cloudflare).",
   "planner": {
@@ -7,15 +7,15 @@
     "requested": "anthropic/claude-fable-5.1",
     "fallback": null,
     "usage": {
-      "input_tokens": 1910,
-      "output_tokens": 2486
+      "input_tokens": 2054,
+      "output_tokens": 2817
     },
-    "cost": 0.1434,
+    "cost": 0.16139,
     "requests": 1,
     "models": [
       "anthropic/claude-fable-5.1"
     ],
-    "notes": "Three independent PRs with non-overlapping paths (docs/, examples/r2-uploads/, packages/agents/src/mcp/), so no merge coordination is needed. r2-agent's suggested files pointed at examples/mcp-server/, which is outside its slot — the plan redirects everything to examples/r2-uploads/. No AI calls are needed in any task; if a worker uses AI tooling it must go through gateway git-next with the required metadata. mcp-agent's changeset conflict (sow-1234 vs project) is a hard-vs-hard conflict that cannot be resolved by the worker and is flagged for human review in the PR."
+    "notes": "Slots are disjoint (docs/, examples/r2-uploads/, packages/agents/src/mcp/) so no merge conflicts are expected. r2-agent's suggested files pointed at examples/mcp-server/, which is outside its slot — the plan keeps all r2 paths under examples/r2-uploads/. The only rule conflict is the changeset policy for mcp-agent; the worker cannot write a .changeset outside its slot, so it should surface the conflict in the PR for a maintainer decision rather than guess. No AI gateway usage is needed by any task; if a worker does call a model it must go through gateway 'git-next' with an approved anthropic/workers-ai model. Secrets must never be inlined in any fork."
   },
   "workers": [
     {
@@ -26,59 +26,54 @@
       "plan": {
         "agent": "docs-agent",
         "taskLabel": "docs",
-        "task": "Clarify the 'Choosing a transport' passage in docs/agents/mcp-transports.md so readers can quickly tell when to use RPC vs. the HTTP/SSE/Streamable transports.",
+        "task": "Clarify the 'Choosing a transport' passage in the MCP transports doc so a reader can pick between the transports without ambiguity.",
         "paths": [
           "docs/agents/mcp-transports.md"
         ],
-        "instructions": "Edit only the 'Choosing a transport' section (around line 300) and, if needed for cross-reference, a one-line pointer in 'Connecting an Agent to an McpAgent via RPC' (around line 94). Rewrite the confusing passage into a short decision list or 2–3 column comparison: same-Worker/same-account → RPC (service binding); external clients or cross-origin → Streamable HTTP; legacy clients → SSE. Keep existing headings and anchors unchanged so the 'Examples' section (line 310) links still resolve. Do not add new sections, do not touch other docs. Format with oxfmt. No code changes, no changeset needed (contract: not-required). Commit with the ticket-id prefix.",
-        "acceptance": "Diff is confined to docs/agents/mcp-transports.md; 'Choosing a transport' now states explicit criteria for each transport; no headings/anchors renamed; existing links to #examples and #connecting-an-agent-to-an-mcpagent-via-rpc still work; oxfmt clean; pnpm run test still passes (docs-only change); security-scan clean."
+        "instructions": "Work only in docs/agents/mcp-transports.md. Read the whole file first (sections at lines ~1, ~94, ~300, ~310). Focus on the 'Choosing a transport' section (~line 300): rewrite the confusing passage into plain, direct guidance — one short decision list or table that states, per transport (including the RPC path described at ~line 94), when to use it and when not to, and link back to the relevant section headings above. Do not change code samples' behaviour, do not rename headings that other docs may link to, and do not add new sections beyond this clarification. Keep the change to roughly one section so the diff is reviewable in a few minutes. Format with oxfmt. Prefix the commit message with the ticket id (ticket-id-prefix rule). Run `pnpm exec nx affected -t test` before opening the PR and run the security-scan tool before PR. No secrets or model names need to appear in this change.",
+        "acceptance": "Only docs/agents/mcp-transports.md is modified; the 'Choosing a transport' section now gives explicit, non-contradictory guidance for each transport (including RPC) with links to the earlier sections; no code samples change behaviour; existing headings are preserved; oxfmt reports clean; `pnpm exec nx affected -t test` and security-scan pass; commit uses the ticket-id prefix."
       },
       "context": {
         "markdownFiles": 278,
-        "sections": 16,
-        "rulesTokens": 533,
+        "sections": 14,
+        "rulesTokens": 536,
         "pinnedTokens": 130,
-        "sectionTokens": 2466,
-        "tokensServed": 2999,
-        "tokensAllMarkdown": 889608,
+        "sectionTokens": 2464,
+        "tokensServed": 3000,
+        "tokensAllMarkdown": 889602,
         "tokensInstructionFilesOnPath": 3108,
         "servedVsAllMarkdown": 0.003,
         "servedVsInstructionFilesOnPath": 0.965,
         "conflicts": 0
       },
       "usage": {
-        "input_tokens": 9027,
-        "output_tokens": 1347
+        "input_tokens": 8774,
+        "output_tokens": 2263
       },
       "commit": {
-        "sha": "95667dc26f9e148427d68b9372bf198e48e0d69b",
-        "message": "SOW-1042: Clarify transport choice criteria in MCP transports doc",
-        "diffstat": "1 file changed, 9 insertions(+), 1 deletion(-)"
+        "sha": "ebaffec6be07ecfeec45e99d79933c72daa3d696",
+        "message": "SOW-1042: Clarify 'Choosing a transport' guidance in MCP docs",
+        "diffstat": "1 file changed, 17 insertions(+), 7 deletions(-)"
       },
       "edits": [
         {
           "path": "docs/agents/mcp-transports.md",
           "kind": "edit",
-          "bytes": 818
-        },
-        {
-          "path": "docs/agents/mcp-transports.md",
-          "kind": "edit",
-          "bytes": 215
+          "bytes": 1750
         }
       ],
       "hook": {
         "layers": "fixtures/demo-layers",
         "blocked": false,
-        "output": "To <workdir>/agents-demo-docs-local.git\n   81a7f6c3..95667dc2  HEAD -> main"
+        "output": "To <workdir>/agents-demo-docs-local.git\n   67dc3de6..ebaffec6  HEAD -> main"
       },
       "resolution": null,
       "pushed": true,
       "resourcesAdded": 0,
-      "base": "81a7f6c3a4b8b1b5ad2511f609b3772aa0ec3ad7",
+      "base": "67dc3de6d41d942b2a39fea3c71fa0e59a8cb01b",
       "gateway": {
-        "cost": 0.061577999999999994,
-        "requests": 2,
+        "cost": 0.040178000000000005,
+        "requests": 1,
         "models": [
           "anthropic/claude-sonnet-5.5"
         ]
@@ -92,7 +87,7 @@
       "plan": {
         "agent": "r2-agent",
         "taskLabel": "feature",
-        "task": "Add a minimal server-only Worker example at examples/r2-uploads/ that accepts an upload via PUT and stores it in the shared R2 bucket, with GET to read it back.",
+        "task": "Add a minimal server-only Worker example at examples/r2-uploads/ that stores uploads in the shared R2 bucket and serves them back.",
         "paths": [
           "examples/r2-uploads/package.json",
           "examples/r2-uploads/wrangler.jsonc",
@@ -100,15 +95,15 @@
           "examples/r2-uploads/src/index.ts",
           "examples/r2-uploads/README.md"
         ],
-        "instructions": "IMPORTANT: the suggested files under examples/mcp-server/ are OUTSIDE your slot — do not touch them. Create the example only under examples/r2-uploads/. wrangler.jsonc: name 'r2-uploads', compatibility_date, main 'src/index.ts', r2_buckets: [{ binding: 'UPLOADS', bucket_name: 'acme-shared-uploads' }] (only acme-* buckets are approved). src/index.ts: a plain fetch handler (no UI, no AI, no framework): PUT /uploads/:key → env.UPLOADS.put(key, request.body, { httpMetadata: { contentType } }) with a size cap check; GET /uploads/:key → env.UPLOADS.get, return 404 if missing, stream body with content-type; everything else 405/404. Add an Env interface typing UPLOADS as R2Bucket. package.json: pnpm scripts dev/deploy/test (test may be a small vitest or a no-op 'echo' if no test infra is appropriate), devDeps wrangler and @cloudflare/workers-types. tsconfig minimal. Update README.md 'Deploy' and 'Usage' sections with curl PUT/GET examples; keep headings at lines 1/7/22. No secrets or account IDs in source — if any are needed, document `wrangler secret put` / .dev.vars instead. Format with oxfmt, commit with ticket-id prefix, run security-scan before PR.",
-        "acceptance": "All new/changed files live under examples/r2-uploads/; wrangler.jsonc binds UPLOADS to acme-shared-uploads and declares no other binding types; src/index.ts compiles with pnpm tsc/wrangler types and handles PUT/GET/404/405 as described; README Deploy and Usage match the code; no secrets or inline credentials; pnpm run test passes from repo root and from the example; oxfmt clean; security-scan clean."
+        "instructions": "IMPORTANT: your slot is examples/r2-uploads/ only — ignore the suggested examples/mcp-server/* files; you may read them (and other examples) for conventions but must not edit them. Create a tiny, server-only Worker (no client, no UI, no AI calls): `PUT /uploads/:key` reads the request body and stores it with `env.UPLOADS.put(key, request.body, { httpMetadata: { contentType } })`; `GET /uploads/:key` returns the object (404 if missing); `GET /` returns a short usage text. In wrangler.jsonc declare the binding `r2_buckets: [{ binding: \"UPLOADS\", bucket_name: \"acme-shared-uploads\" }]` (the org's shared UPLOADS resource; bucket names must match the acme-* pattern). Keep package.json minimal (name, private, scripts: dev/deploy via wrangler, devDependencies wrangler + typescript), use pnpm. Update or create README.md so its existing sections (R2 uploads / Deploy / Usage) describe the binding, deploy steps and example curl commands. Never put secrets or account IDs in source; if anything sensitive is needed, reference `wrangler secret put` / `.dev.vars` in the README only. Format with oxfmt, prefix the commit with the ticket id, run `pnpm exec nx affected -t test` and security-scan before opening the PR.",
+        "acceptance": "All new/changed files live under examples/r2-uploads/; wrangler.jsonc binds UPLOADS to acme-shared-uploads via r2_buckets; src/index.ts implements PUT and GET for /uploads/:key plus a root usage response, with no client code and no AI usage; README documents deploy and usage; no secrets in source; `pnpm install` and typecheck succeed in the example; oxfmt clean; `pnpm exec nx affected -t test` and security-scan pass; commit uses the ticket-id prefix."
       },
       "context": {
         "markdownFiles": 279,
         "sections": 17,
-        "rulesTokens": 611,
+        "rulesTokens": 613,
         "pinnedTokens": 130,
-        "sectionTokens": 2389,
+        "sectionTokens": 2387,
         "tokensServed": 3000,
         "tokensAllMarkdown": 889754,
         "tokensInstructionFilesOnPath": 5274,
@@ -117,83 +112,53 @@
         "conflicts": 0
       },
       "usage": {
-        "input_tokens": 7047,
-        "output_tokens": 3006
+        "input_tokens": 7096,
+        "output_tokens": 1476
       },
       "commit": {
-        "sha": "936a4335ad016d9bf2f1ed3867efa0020e626f9e",
-        "message": "SOW-1042: Align r2-uploads with /uploads routes and shared bucket",
-        "diffstat": "4 files changed, 37 insertions(+), 9 deletions(-)"
+        "sha": "31946451467fd787960111590af7acbe30a3c0ef",
+        "message": "SOW-1042: Serve r2-uploads from /uploads on shared bucket",
+        "diffstat": "3 files changed, 20 insertions(+), 7 deletions(-)"
       },
       "edits": [
         {
           "path": "examples/r2-uploads/src/index.ts",
           "kind": "edit",
-          "bytes": 97
-        },
-        {
-          "path": "examples/r2-uploads/src/index.ts",
-          "kind": "edit",
-          "bytes": 19
-        },
-        {
-          "path": "examples/r2-uploads/src/index.ts",
-          "kind": "edit",
-          "bytes": 151
-        },
-        {
-          "path": "examples/r2-uploads/src/index.ts",
-          "kind": "edit",
-          "bytes": 615
-        },
-        {
-          "path": "examples/r2-uploads/src/index.ts",
-          "kind": "edit",
-          "bytes": 111
+          "bytes": 286
         },
         {
           "path": "examples/r2-uploads/wrangler.jsonc",
           "kind": "edit",
-          "bytes": 81
-        },
-        {
-          "path": "examples/r2-uploads/wrangler.jsonc",
-          "kind": "edit",
-          "bytes": 36
-        },
-        {
-          "path": "examples/r2-uploads/package.json",
-          "kind": "edit",
-          "bytes": 82
+          "bytes": 21
         },
         {
           "path": "examples/r2-uploads/README.md",
           "kind": "edit",
-          "bytes": 152
+          "bytes": 321
         },
         {
           "path": "examples/r2-uploads/README.md",
           "kind": "edit",
-          "bytes": 45
+          "bytes": 296
         },
         {
           "path": "examples/r2-uploads/README.md",
           "kind": "edit",
-          "bytes": 180
+          "bytes": 215
         }
       ],
       "hook": {
         "layers": "fixtures/demo-layers",
         "blocked": false,
-        "output": "To <workdir>/agents-demo-r2-local.git\n   52a9038f..936a4335  HEAD -> main"
+        "output": "To <workdir>/agents-demo-r2-local.git\n   0bbd69fd..31946451  HEAD -> main"
       },
       "resolution": null,
       "pushed": true,
       "resourcesAdded": 1,
-      "base": "52a9038f4cc90db1a946ad46869fdc660e6bb993",
+      "base": "0bbd69fd734d6aeeae2f13177058489152cba014",
       "gateway": {
-        "cost": 0.084078,
-        "requests": 2,
+        "cost": 0.028952,
+        "requests": 1,
         "models": [
           "anthropic/claude-sonnet-5.5"
         ]
@@ -207,19 +172,19 @@
       "plan": {
         "agent": "mcp-agent",
         "taskLabel": "refactor",
-        "task": "Tighten and correct the JSDoc/doc comments in packages/agents/src/mcp/abort.ts without changing any runtime behaviour or public signatures.",
+        "task": "Tighten the doc comments in the MCP abort helpers (packages/agents/src/mcp/abort.ts) without changing any runtime behaviour.",
         "paths": [
           "packages/agents/src/mcp/abort.ts"
         ],
-        "instructions": "Comment-only change. For each exported helper in abort.ts: ensure a concise one-sentence summary, accurate @param/@returns, and a note on when the signal aborts / who owns cleanup. Remove stale or duplicated prose, fix tense/terminology to match the rest of packages/agents/src/mcp (e.g. 'McpAgent', 'transport'). Do not rename, reorder, or re-type anything; do not touch other files in the slot. Verify no diff in emitted JS by eye (only comment lines change). CONFLICT HANDLING: the contract (contract/AGENTS.md:4) says changesets are not required, but root AGENTS.md:144 and packages/agents/AGENTS.md:7 say required. You cannot resolve this yourself and .changeset/ is outside your slot, so do NOT add a changeset file. State the conflict explicitly in the PR description ('doc-comment-only change; changeset policy conflict between contract sow-1234 and project rules — reviewer to decide/add a patch changeset if required') and request a human decision. Format with oxfmt, commit with ticket-id prefix, run security-scan before PR.",
-        "acceptance": "Diff touches only comment lines in packages/agents/src/mcp/abort.ts; no exported names, signatures, or logic change; pnpm run test and pnpm run test:react pass; oxfmt clean; security-scan clean; PR description documents the changeset-policy conflict and defers the decision to the reviewer."
+        "instructions": "Edit only packages/agents/src/mcp/abort.ts and only comments/JSDoc: make each exported helper's summary one clear sentence, document parameters, return values and the abort/cancellation semantics (when the signal fires, who owns the controller, cleanup expectations) consistently with how they are used from the MCP client (see docs/agents/mcp-client.md:383 'Using MCP Capabilities' for the public contract). Remove stale or duplicated comments. Do NOT change signatures, logic, imports, exports or formatting of code lines — the diff must be comments-only; if the only way to fix a comment is to change code, leave the code and note it in the PR description instead. Changeset conflict: the contract (sow-1234, contract/AGENTS.md:4) says changesets are not required while root AGENTS.md:10 and packages/agents/AGENTS.md:7 say required. Since this is a comments-only change with no behavioural impact and you cannot write outside packages/agents/src/mcp/, do not create a .changeset file; instead state the conflict explicitly in the PR description, note the change is non-behavioural, and ask the maintainer to add a changeset if they decide the project rule prevails. Format with oxfmt, prefix the commit with the ticket id, run the relevant package tests (at minimum `pnpm run test:workers` and `pnpm run test:node`, plus `pnpm exec vitest --project chat`) and security-scan before opening the PR.",
+        "acceptance": "Only packages/agents/src/mcp/abort.ts changes and the diff touches only comment/JSDoc lines (no code, signature, import or export changes); every exported helper has accurate JSDoc covering purpose, params, return and abort semantics; the relevant test suites pass unchanged; oxfmt clean; security-scan passes; PR description documents the changeset policy conflict and the non-behavioural nature of the change; commit uses the ticket-id prefix."
       },
       "context": {
         "markdownFiles": 278,
-        "sections": 10,
-        "rulesTokens": 668,
+        "sections": 12,
+        "rulesTokens": 1179,
         "pinnedTokens": 130,
-        "sectionTokens": 2332,
+        "sectionTokens": 1821,
         "tokensServed": 3000,
         "tokensAllMarkdown": 889608,
         "tokensInstructionFilesOnPath": 9882,
@@ -228,24 +193,24 @@
         "conflicts": 2
       },
       "usage": {
-        "input_tokens": 5285,
-        "output_tokens": 1131
+        "input_tokens": 5365,
+        "output_tokens": 1643
       },
       "commit": {
-        "sha": "73ffcd411a7dcbc8ae8f5c904aa143ace9f88556",
-        "message": "SOW-1042: Tighten JSDoc in mcp/abort.ts",
-        "diffstat": "1 file changed, 20 insertions(+), 6 deletions(-)"
+        "sha": "e0f19fc6cf8f6b22c686ddf5728ed33f01319784",
+        "message": "SOW-1042: sow-1234: Tighten MCP abort helper doc comments",
+        "diffstat": "1 file changed, 24 insertions(+), 11 deletions(-)"
       },
       "edits": [
         {
           "path": "packages/agents/src/mcp/abort.ts",
           "kind": "edit",
-          "bytes": 477
+          "bytes": 531
         },
         {
           "path": "packages/agents/src/mcp/abort.ts",
           "kind": "edit",
-          "bytes": 681
+          "bytes": 1097
         }
       ],
       "hook": {
@@ -256,14 +221,14 @@
       "resolution": {
         "layers": "fixtures/demo-layers-resolved",
         "pushed": true,
-        "output": "To <workdir>/agents-demo-mcp-local.git\n   5046aff3..73ffcd41  HEAD -> main"
+        "output": "To <workdir>/agents-demo-mcp-local.git\n   3df75af5..e0f19fc6  HEAD -> main"
       },
       "pushed": true,
       "resourcesAdded": 0,
-      "base": "5046aff3ee1788e484de8291b95d822e1178af82",
+      "base": "3df75af5dc5dc6a7e1db6e0152d531981a977cf6",
       "gateway": {
-        "cost": 0.04445,
-        "requests": 2,
+        "cost": 0.02716,
+        "requests": 1,
         "models": [
           "anthropic/claude-sonnet-5.5"
         ]
@@ -273,7 +238,6 @@
   "attempts": "gateway costs include every call tagged with this demo, including retries after a worker ran out of output tokens",
   "catalogPolicy": [],
   "modelFit": [],
-  "runCostUsd": 0.33350599999999997,
-  "gatewayTotalUsd": 0.6646746000015734,
-  "pushesRechecked": "2026-10-07T20:40:46.805Z"
+  "runCostUsd": 0.25768,
+  "gatewayTotalUsd": 1.1518577738803581
 }

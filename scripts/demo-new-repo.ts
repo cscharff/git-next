@@ -61,7 +61,7 @@ const SYSTEM =
 
 async function runAgent(name: "bare-agent" | "smart-agent", dir: string, context: string, budget: { remaining: number }) {
 	const prompt = `Task: ${TASK}\n\n${context ? `${context}\n\n` : ""}Repository files:\n${repoFiles(dir)}`;
-	const maxTokens = 4000;
+	const maxTokens = 8000;
 	const estimate = estimateUsd(MODEL, SYSTEM.length + prompt.length, maxTokens);
 	if (estimate > budget.remaining) throw new Error(`budget: estimated $${estimate.toFixed(3)} > remaining $${budget.remaining.toFixed(3)}`);
 	budget.remaining -= estimate;

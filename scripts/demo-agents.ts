@@ -136,7 +136,7 @@ async function runAgent(spec: AgentSpec, binDir: string, budget: { remaining: nu
 	note(`applied ${result.edits.length} edit(s): ${plan.summary}`);
 
 	git(dir, "add", "-A");
-	const message = `SOW-1042: ${plan.summary.replace(/^SOW-\d+:\s*/, "")}`;
+	const message = `SOW-1042: ${plan.summary.replace(/^sow-\d+:\s*/i, "")}`;
 	execFileSync("git", ["-c", `user.name=${spec.name}`, "-c", `user.email=${spec.name}@git-next.local`, "commit", "-q", "-m", message, "-m", `Agent: ${spec.name} (${spec.model}) via git.next\nAgent-Task: ${spec.taskId}`], { cwd: dir });
 	result.commit = { sha: git(dir, "rev-parse", "HEAD"), message, diffstat: git(dir, "diff", "--shortstat", "HEAD~1", "HEAD") };
 
@@ -173,6 +173,7 @@ const binDir = join(WORKDIR, "bin");
 mkdirSync(binDir);
 symlinkSync(join(ROOT, "bin/git-next.ts"), join(binDir, "git-next"));
 
+const runStart = new Date(Date.now() - 5_000).toISOString();
 const spentBefore = await gatewaySpend();
 console.log(`gateway spend before: $${spentBefore.toFixed(6)} (budget $${BUDGET_USD})`);
 const budget = { remaining: BUDGET_USD - spentBefore };
@@ -197,7 +198,9 @@ for (let i = 0; i < 30 && agents.some((a) => !records.some((r) => r.agent === a.
 	records = await gatewaySource().records({ repo: SOURCE_REPO });
 }
 for (const r of results as any[]) {
-	const mine = records.filter((x) => x.agent === r.agent && x.fork === r.fork);
+	// This run's calls only (an --insights-only refresh keeps the previous run's numbers).
+	if (INSIGHTS_ONLY && r.gateway) continue;
+	const mine = records.filter((x) => x.agent === r.agent && x.fork === r.fork && x.at >= runStart);
 	r.gateway = { requests: mine.length, cost: mine.reduce((n, x) => n + x.cost, 0), tokensIn: mine.reduce((n, x) => n + x.tokensIn, 0), tokensOut: mine.reduce((n, x) => n + x.tokensOut, 0) };
 }
 const spentAfter = await gatewaySpend();

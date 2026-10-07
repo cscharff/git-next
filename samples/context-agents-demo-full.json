@@ -1,6 +1,6 @@
 {
   "live": true,
-  "note": "Live POST /context against agents-demo-full@main via the Artifacts binding, demo layers overlaid (layers=demo).",
+  "note": "Live POST /context against agents-demo-full@main (hybrid BM25 + EmbeddingGemma retrieval), demo layers overlaid.",
   "results": [
     {
       "repo": "agents-demo-full",
@@ -10,15 +10,177 @@
         "packages/agents/src/mcp/client.ts"
       ],
       "budgetTokens": 4000,
-      "retriever": "bm25",
+      "retriever": "hybrid(bm25+vectorize:@cf/google/embeddinggemma-300m)",
+      "pinned": {
+        "musts": [
+          {
+            "topic": "changesetPolicy",
+            "value": "not-required",
+            "kind": "contract",
+            "source": "git-next-demo-layers/contract/AGENTS.md:4"
+          },
+          {
+            "topic": "secrets",
+            "value": "never-in-source",
+            "kind": "org",
+            "source": "git-next-demo-layers/org/AGENTS.md:4"
+          },
+          {
+            "topic": "allowedModels",
+            "value": "providers:anthropic,workers-ai",
+            "kind": "org",
+            "source": "git-next-demo-layers/org/AGENTS.md:3"
+          },
+          {
+            "topic": "commitFormat",
+            "value": "ticket-id-prefix",
+            "kind": "contract",
+            "source": "git-next-demo-layers/contract/AGENTS.md:3"
+          }
+        ],
+        "catalog": null,
+        "relevant": []
+      },
       "rules": [
         {
           "topic": "packageManager",
           "value": "pnpm",
           "strength": "should",
-          "layer": "root",
+          "layer": "packages/agents",
           "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:58",
+          "source": "agents-demo-full/packages/agents/AGENTS.md:211",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "changesetPolicy",
+          "value": "not-required",
+          "strength": "must",
+          "layer": "sow-1234",
+          "kind": "contract",
+          "source": "git-next-demo-layers/contract/AGENTS.md:4",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "testCommand",
+          "value": "pnpm run test:workers",
+          "strength": "should",
+          "layer": "packages/agents",
+          "kind": "project",
+          "source": "agents-demo-full/packages/agents/AGENTS.md:230",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "testCommand",
+          "value": "pnpm run test:react",
+          "strength": "should",
+          "layer": "packages/agents",
+          "kind": "project",
+          "source": "agents-demo-full/packages/agents/AGENTS.md:250",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "testCommand",
+          "value": "pnpm run test:voice:workers",
+          "strength": "should",
+          "layer": "packages/agents",
+          "kind": "project",
+          "source": "agents-demo-full/packages/agents/AGENTS.md:258",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "testCommand",
+          "value": "pnpm run test:voice:react",
+          "strength": "should",
+          "layer": "packages/agents",
+          "kind": "project",
+          "source": "agents-demo-full/packages/agents/AGENTS.md:259",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "testCommand",
+          "value": "pnpm run test:channels",
+          "strength": "should",
+          "layer": "packages/agents",
+          "kind": "project",
+          "source": "agents-demo-full/packages/agents/AGENTS.md:268",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "testCommand",
+          "value": "pnpm run test:node",
+          "strength": "should",
+          "layer": "packages/agents",
+          "kind": "project",
+          "source": "agents-demo-full/packages/agents/AGENTS.md:277",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "testCommand",
+          "value": "pnpm run test:webmcp",
+          "strength": "should",
+          "layer": "packages/agents",
+          "kind": "project",
+          "source": "agents-demo-full/packages/agents/AGENTS.md:286",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "testCommand",
+          "value": "pnpm run test:x402",
+          "strength": "should",
+          "layer": "packages/agents",
+          "kind": "project",
+          "source": "agents-demo-full/packages/agents/AGENTS.md:294",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "testCommand",
+          "value": "pnpm run test:browser",
+          "strength": "should",
+          "layer": "packages/agents",
+          "kind": "project",
+          "source": "agents-demo-full/packages/agents/AGENTS.md:302",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "testCommand",
+          "value": "pnpm exec vitest --project chat",
+          "strength": "should",
+          "layer": "packages/agents",
+          "kind": "project",
+          "source": "agents-demo-full/packages/agents/AGENTS.md:315",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "testCommand",
+          "value": "pnpm run test:e2e",
+          "strength": "should",
+          "layer": "packages/agents",
+          "kind": "project",
+          "source": "agents-demo-full/packages/agents/AGENTS.md:329",
           "appliesTo": [
             "packages/agents/src/mcp"
           ]
@@ -35,45 +197,12 @@
           ]
         },
         {
-          "topic": "testCommand",
-          "value": "pnpm run test",
-          "strength": "should",
-          "layer": "root",
-          "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:68",
-          "appliesTo": [
-            "packages/agents/src/mcp"
-          ]
-        },
-        {
-          "topic": "testCommand",
-          "value": "pnpm run test:react",
-          "strength": "should",
-          "layer": "root",
-          "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:69",
-          "appliesTo": [
-            "packages/agents/src/mcp"
-          ]
-        },
-        {
           "topic": "secrets",
           "value": "never-in-source",
           "strength": "must",
           "layer": "acme-org",
           "kind": "org",
           "source": "git-next-demo-layers/org/AGENTS.md:4",
-          "appliesTo": [
-            "packages/agents/src/mcp"
-          ]
-        },
-        {
-          "topic": "changesetPolicy",
-          "value": "not-required",
-          "strength": "must",
-          "layer": "sow-1234",
-          "kind": "contract",
-          "source": "git-next-demo-layers/contract/AGENTS.md:4",
           "appliesTo": [
             "packages/agents/src/mcp"
           ]
@@ -115,7 +244,7 @@
       "conflicts": [
         {
           "topic": "changesetPolicy",
-          "explanation": "sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but root [project] (AGENTS.md:144) says \"required\"; both are hard requirements."
+          "explanation": "sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but root [project] (AGENTS.md:10) says \"required\"; both are hard requirements."
         },
         {
           "topic": "changesetPolicy",
@@ -123,31 +252,6 @@
         }
       ],
       "sections": [
-        {
-          "id": "design/voice.md#voice-pipeline-design-experimental-hibernation-withvoice-only-client-reconnect-recovery",
-          "path": "design/voice.md",
-          "headings": [
-            "Voice Pipeline \u2014 Design (Experimental)",
-            "Hibernation (withVoice only)",
-            "Client reconnect recovery"
-          ],
-          "startLine": 171,
-          "tokens": 154,
-          "score": 17.798,
-          "text": "### Client reconnect recovery\n\nIf the WebSocket drops (network change, tab sleep, etc.), PartySocket reconnects with a **new** connection. The old connection's `onClose` cleans up server-side state.\n\n`VoiceClient` tracks `#inCall`. On `transport.onopen`, if `#inCall` is true, it re-sends `start_call`. The mic is still running, so audio resumes immediately:\n\n```\nNetwork drop \u2192 PartySocket reconnects \u2192 onopen fires\n  \u2192 VoiceClient sees #inCall=true \u2192 sends start_call\n  \u2192 Server processes start_call \u2192 listening\n  \u2192 Audio resumes \u2192 call continues\n```\n\nConversation history is preserved in SQLite across reconnects."
-        },
-        {
-          "id": "docs/agents/mcp-transports.md#mcp-transports-examples",
-          "path": "docs/agents/mcp-transports.md",
-          "headings": [
-            "MCP Transports",
-            "Examples"
-          ],
-          "startLine": 310,
-          "tokens": 91,
-          "score": 13.796,
-          "text": "## Examples\n\n- **Streamable HTTP**: See [`examples/mcp`](https://github.com/cloudflare/agents/tree/main/examples/mcp)\n- **RPC Transport**: See [`examples/mcp-rpc-transport`](https://github.com/cloudflare/agents/tree/main/examples/mcp-rpc-transport)\n- **MCP Client**: See [`examples/mcp-client`](https://github.com/cloudflare/agents/tree/main/examples/mcp-client)"
-        },
         {
           "id": "examples/mcp-rpc-transport/README.md#mcp-rpc-transport-related",
           "path": "examples/mcp-rpc-transport/README.md",
@@ -157,21 +261,8 @@
           ],
           "startLine": 49,
           "tokens": 44,
-          "score": 13.779,
+          "score": 10,
           "text": "## Related\n\n- [MCP Client](../mcp-client) -- connecting to remote MCP servers with OAuth\n- [MCP Transports docs](../../docs/agents/mcp-transports.md) -- all transport options"
-        },
-        {
-          "id": "docs/agents/mcp-transports.md#mcp-transports-streamable-http-transport-recommended-connection-from-clients",
-          "path": "docs/agents/mcp-transports.md",
-          "headings": [
-            "MCP Transports",
-            "Streamable HTTP Transport (Recommended)",
-            "Connection from clients"
-          ],
-          "startLine": 50,
-          "tokens": 76,
-          "score": 13.559,
-          "text": "### Connection from clients\n\nThe Agents MCP client uses `\"auto\"` by default. It tries Streamable HTTP first and falls back to legacy SSE only when the endpoint reports that Streamable HTTP is unsupported:\n\n```typescript\nawait agent.addMcpServer(\"my-server\", \"https://your-worker.workers.dev/mcp\");\n```"
         },
         {
           "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-connecting-an-agent-to-an-mcpagent-via-rpc",
@@ -183,33 +274,33 @@
           ],
           "startLine": 94,
           "tokens": 44,
-          "score": 13.117,
+          "score": 9.632,
           "text": "### Connecting an Agent to an McpAgent via RPC\n\nThe RPC transport uses Durable Object bindings to connect your `Agent` (MCP client) directly to your `McpAgent` (MCP server)."
         },
         {
-          "id": "docs/agents/mcp-transports.md#mcp-transports-legacy-mcpagent-server-auto-transport",
+          "id": "docs/agents/mcp-transports.md#mcp-transports-examples",
           "path": "docs/agents/mcp-transports.md",
           "headings": [
             "MCP Transports",
-            "Legacy `McpAgent` Server Auto Transport"
+            "Examples"
           ],
-          "startLine": 58,
-          "tokens": 137,
-          "score": 13.072,
-          "text": "## Legacy `McpAgent` Server Auto Transport\n\nThe **auto** transport serves both Streamable HTTP and legacy SSE on the same endpoint. Capable clients use Streamable HTTP automatically, while older SSE-only clients continue to work.\n\n```typescript\nexport default MyMCP.serve(\"/mcp\", { transport: \"auto\" });\n```\n\nThe handler distinguishes between the two protocols based on the request shape \u2014 no configuration or content negotiation is required from clients. This is useful when migrating from SSE to Streamable HTTP without breaking existing clients."
+          "startLine": 310,
+          "tokens": 91,
+          "score": 9.621,
+          "text": "## Examples\n\n- **Streamable HTTP**: See [`examples/mcp`](https://github.com/cloudflare/agents/tree/main/examples/mcp)\n- **RPC Transport**: See [`examples/mcp-rpc-transport`](https://github.com/cloudflare/agents/tree/main/examples/mcp-rpc-transport)\n- **MCP Client**: See [`examples/mcp-client`](https://github.com/cloudflare/agents/tree/main/examples/mcp-client)"
         },
         {
-          "id": "design/rfc-chat-recovery-foundation.md#rfc-shared-chat-recovery-foundation-edge-case-invariants-terminal-replay-retention",
-          "path": "design/rfc-chat-recovery-foundation.md",
+          "id": "docs/agents/mcp-transports.md#mcp-transports-streamable-http-transport-recommended-connection-from-clients",
+          "path": "docs/agents/mcp-transports.md",
           "headings": [
-            "RFC: Shared chat recovery foundation",
-            "Edge-case invariants",
-            "Terminal replay retention"
+            "MCP Transports",
+            "Streamable HTTP Transport (Recommended)",
+            "Connection from clients"
           ],
-          "startLine": 1444,
-          "tokens": 50,
-          "score": 12.808,
-          "text": "### Terminal replay retention\n\nTerminal records should survive connection drops during replay. If a client\ndrops mid-terminal replay, a later reconnect should still be able to receive the\nterminal."
+          "startLine": 50,
+          "tokens": 76,
+          "score": 9.539,
+          "text": "### Connection from clients\n\nThe Agents MCP client uses `\"auto\"` by default. It tries Streamable HTTP first and falls back to legacy SSE only when the endpoint reports that Streamable HTTP is unsupported:\n\n```typescript\nawait agent.addMcpServer(\"my-server\", \"https://your-worker.workers.dev/mcp\");\n```"
         },
         {
           "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-adding-mcp-servers-transport-options",
@@ -221,33 +312,8 @@
           ],
           "startLine": 124,
           "tokens": 167,
-          "score": 12.728,
+          "score": 9.198,
           "text": "### Transport Options\n\nMCP supports multiple transport types:\n\n```typescript\nawait this.addMcpServer(\"server\", \"https://mcp.example.com/mcp\", {\n  transport: {\n    // Transport type: \"streamable-http\" (default), \"sse\", or \"auto\"\n    type: \"streamable-http\"\n  }\n});\n```\n\n| Transport           | Description                                           |\n| ------------------- | ----------------------------------------------------- |\n| `\"streamable-http\"` | HTTP with streaming - recommended default             |\n| `\"sse\"`             | Server-Sent Events - legacy / compatibility transport |\n| `\"auto\"`            | Auto-detect based on server response                  |"
-        },
-        {
-          "id": "docs/agents/mcp-transports.md#mcp-transports-legacy-mcpagent-sse-transport-deprecated",
-          "path": "docs/agents/mcp-transports.md",
-          "headings": [
-            "MCP Transports",
-            "Legacy `McpAgent` SSE Transport (Deprecated)"
-          ],
-          "startLine": 68,
-          "tokens": 84,
-          "score": 12.537,
-          "text": "## Legacy `McpAgent` SSE Transport (Deprecated)\n\nWe also support the legacy **SSE (Server-Sent Events)** transport, but it is deprecated in favor of Streamable HTTP.\n\nIf you need SSE transport for compatibility:\n\n```typescript\n// Server\nexport default MyMCP.serveSSE(\"/sse\");\n\n// Client\nawait agent.addMcpServer(\"my-server\", url);\n```"
-        },
-        {
-          "id": "docs/agents/observability.md#observability-event-reference-mcp-events",
-          "path": "docs/agents/observability.md",
-          "headings": [
-            "Observability",
-            "Event reference",
-            "MCP events"
-          ],
-          "startLine": 246,
-          "tokens": 284,
-          "score": 12.511,
-          "text": "### MCP events\n\n| Type                    | Payload                                      | When                                                                               |\n| ----------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------- |\n| `mcp:client:preconnect` | `{ serverId }`                               | Before connecting to an MCP server                                                 |\n| `mcp:client:connect`    | `{ url, transport, state, error? }`          | An MCP connection attempt completes or fails                                       |\n| `mcp:client:authorize`  | `{ serverId, authUrl, clientId? }`           | An MCP OAuth flow begins                                                           |\n| `mcp:client:discover`   | `{ url?, state?, error?, capability? }`      | MCP capability discovery succeeds or fails                                         |\n| `mcp:client:close`      | `{ url, transport?, state, error?, phase? }` | An MCP connection is closed (`phase` is `\"terminate-session\"` or `\"client-close\"`) |"
         },
         {
           "id": "docs/agents/index.md#agents-documentation-mcp-model-context-protocol",
@@ -258,21 +324,19 @@
           ],
           "startLine": 106,
           "tokens": 97,
-          "score": 12.465,
+          "score": 9.034,
           "text": "## MCP (Model Context Protocol)\n\n- [Creating MCP Servers](./mcp-servers.md) - Build MCP servers with `McpAgent`\n- [Securing MCP Servers](./securing-mcp-servers.md) - OAuth and authentication for MCP\n- [Connecting to MCP Servers](./mcp-client.md) - `addMcpServer()` and consuming external MCP tools\n- [MCP Transports](./mcp-transports.md) - Transport options: Streamable HTTP, SSE, and RPC"
         },
         {
-          "id": "docs/agents/mcp-transports.md#mcp-transports-streamable-http-transport-recommended-legacy-mcpagent-architecture",
+          "id": "docs/agents/mcp-transports.md#mcp-transports",
           "path": "docs/agents/mcp-transports.md",
           "headings": [
-            "MCP Transports",
-            "Streamable HTTP Transport (Recommended)",
-            "Legacy `McpAgent` architecture"
+            "MCP Transports"
           ],
-          "startLine": 16,
-          "tokens": 268,
-          "score": 12.366,
-          "text": "### Legacy `McpAgent` architecture\n\nWhen a client connects to your MCP server:\n\n1. The client makes an HTTP request to your Worker with a JSON-RPC message in the body\n2. Your Worker upgrades the connection to a WebSocket\n3. The WebSocket connects to your `McpAgent` Durable Object which manages connection state\n4. JSON-RPC messages flow bidirectionally over the WebSocket\n5. Your Worker streams responses back to the client using Server-Sent Events (SSE)\n\nThis is all handled automatically by the `McpAgent.serve()` method:\n\n```typescript\nimport { McpAgent } from \"agents/mcp\";\nimport { McpServer } from \"@modelcontextprotocol/sdk/server/mcp.js\";\n\nexport class MyMCP extends McpAgent {\n  server = new McpServer({ name: \"Demo\", version: \"1.0.0\" });\n\n  async init() {\n    // Define your tools, resources, prompts\n  }\n}\n\n// Serve with Streamable HTTP transport\nexport default MyMCP.serve(\"/mcp\");\n```\n\nThe `serve()` method returns a Worker with a `fetch` handler that:\n\n- Handles CORS preflight requests\n- Manages WebSocket upgrades\n- Routes messages to your Durable Object"
+          "startLine": 1,
+          "tokens": 49,
+          "score": 8.592,
+          "text": "# MCP Transports\n\nThis guide explains the different transport options for connecting to MCP servers with the Agents SDK.\n\nFor a primer on MCP servers, see [Creating MCP Servers](./mcp-servers.md)."
         },
         {
           "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-connecting-an-agent-to-an-mcpagent-via-rpc-step-2-connect-your-agent-to-the-mcp-server",
@@ -285,7 +349,7 @@
           ],
           "startLine": 134,
           "tokens": 322,
-          "score": 12.244,
+          "score": 8.265,
           "text": "#### Step 2: Connect your Agent to the MCP server\n\nIn your `Agent`, call `addMcpServer()` with the Durable Object binding in `onStart()`:\n\n```typescript\nimport { AIChatAgent } from \"agents/ai-chat-agent\";\n\nexport class Chat extends AIChatAgent<Env> {\n  async onStart(): Promise<void> {\n    // Pass the DO namespace binding directly\n    await this.addMcpServer(\"my-mcp\", this.env.MyMCP);\n  }\n\n  async onChatMessage(onFinish) {\n    const allTools = this.mcp.getAITools();\n\n    const result = streamText({\n      model,\n      tools: allTools\n      // ...\n    });\n\n    return createUIMessageStreamResponse({ stream: result });\n  }\n}\n```\n\nRPC connections are automatically restored after Durable Object hibernation, just like HTTP connections. The binding name and props are persisted to storage so the connection can be re-established without any extra code.\n\n**Deduplication:** For RPC transport, if `addMcpServer` is called with a name that already has an active connection, the existing connection is returned instead of creating a duplicate. For HTTP transport, deduplication matches on both server name and URL (see [MCP Client API](./mcp-client.md) for details). This makes it safe to call `addMcpServer` in `onStart()` without worrying about creating multiple connections on restart."
         },
         {
@@ -297,84 +361,69 @@
           ],
           "startLine": 300,
           "tokens": 318,
-          "score": 12.135,
+          "score": 8.123,
           "text": "## Choosing a transport\n\n| Transport                         | Use when                                            | Pros                                       | Cons                                   |\n| --------------------------------- | --------------------------------------------------- | ------------------------------------------ | -------------------------------------- |\n| **Streamable HTTP**               | New servers and external MCP connections            | Current standard transport; supports OAuth | Slight network overhead                |\n| **Client `auto`**                 | The remote server's HTTP transport is not known     | Tries Streamable HTTP, then legacy SSE     | May make a fallback connection attempt |\n| **Legacy `McpAgent` server auto** | An existing server must accept both HTTP transports | Serves both protocols on one endpoint      | Uses the deprecated server path        |\n| **RPC**                           | Internal agents                                     | Fastest, simplest setup                    | No auth, Service Bindings only         |\n| **SSE**                           | Legacy compatibility                                | Backwards compatible                       | Deprecated, use Streamable HTTP        |"
         },
         {
-          "id": "design/chat-api.md#chat-api-analysis-aichatagent-useagentchat-summary-prioritized-improvements-tier-1-high-impact-fix-the-pain",
-          "path": "design/chat-api.md",
+          "id": "docs/agents/observability.md#observability-event-reference-mcp-events",
+          "path": "docs/agents/observability.md",
           "headings": [
-            "Chat API Analysis: AIChatAgent + useAgentChat",
-            "Summary: Prioritized Improvements",
-            "Tier 1: High impact, fix the pain"
+            "Observability",
+            "Event reference",
+            "MCP events"
           ],
-          "startLine": 745,
-          "tokens": 229,
-          "score": 12.014,
-          "text": "### Tier 1: High impact, fix the pain\n\n| #   | Issue                                                   | Impact                                                       | Effort         |\n| --- | ------------------------------------------------------- | ------------------------------------------------------------ | -------------- |\n| C1  | Non-suspending hook + exported fetch + fallbackMessages | Unblocks framework integration, fixes conversation switching | Medium         |\n| S1  | Drop `onFinish` from `onChatMessage` signature          | Cleaner API, less confusion                                  | Low (breaking) |\n| C3  | Tool UI components / utilities                          | Eliminates most repeated code across apps                    | Medium         |\n| C2  | Combined `useAgentChat` with built-in connection        | Removes boilerplate for 90% of apps                          | Medium         |"
+          "startLine": 246,
+          "tokens": 284,
+          "score": 8.122,
+          "text": "### MCP events\n\n| Type                    | Payload                                      | When                                                                               |\n| ----------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------- |\n| `mcp:client:preconnect` | `{ serverId }`                               | Before connecting to an MCP server                                                 |\n| `mcp:client:connect`    | `{ url, transport, state, error? }`          | An MCP connection attempt completes or fails                                       |\n| `mcp:client:authorize`  | `{ serverId, authUrl, clientId? }`           | An MCP OAuth flow begins                                                           |\n| `mcp:client:discover`   | `{ url?, state?, error?, capability? }`      | MCP capability discovery succeeds or fails                                         |\n| `mcp:client:close`      | `{ url, transport?, state, error?, phase? }` | An MCP connection is closed (`phase` is `\"terminate-session\"` or `\"client-close\"`) |"
         },
         {
-          "id": "examples/x402-mcp/README.md#x402-mcp-paid-tools-how-it-works-x402-mcp-transport-spec",
-          "path": "examples/x402-mcp/README.md",
-          "headings": [
-            "x402 MCP \u2014 Paid Tools",
-            "How it works",
-            "x402 MCP transport spec"
-          ],
-          "startLine": 95,
-          "tokens": 101,
-          "score": 11.983,
-          "text": "### x402 MCP transport spec\n\nThis follows the [x402 MCP transport specification](https://github.com/coinbase/x402/blob/main/specs/transports/mcp.md):\n\n1. **402 error** \u2014 server returns JSON-RPC error with `code: 402` and `PaymentRequirementsResponse`\n2. **Payment payload** \u2014 client retries with payment in `_meta[\"x402/payment\"]`\n3. **Settlement** \u2014 server confirms in `_meta[\"x402/payment-response\"]`"
-        },
-        {
-          "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-passing-props-from-client-to-server",
+          "id": "docs/agents/mcp-transports.md#mcp-transports-legacy-mcpagent-server-auto-transport",
           "path": "docs/agents/mcp-transports.md",
           "headings": [
             "MCP Transports",
-            "RPC Transport (Experimental)",
-            "Passing props from client to server"
+            "Legacy `McpAgent` Server Auto Transport"
           ],
-          "startLine": 210,
-          "tokens": 283,
-          "score": 11.544,
-          "text": "### Passing props from client to server\n\nSince RPC transport does not have an OAuth flow, you can pass user context (like userId, role, etc.) directly as props:\n\n```typescript\nawait this.addMcpServer(\"my-mcp\", this.env.MyMCP, {\n  props: { userId: \"user-123\", role: \"admin\" }\n});\n```\n\nYour `McpAgent` can then access these props:\n\n```typescript\nexport class MyMCP extends McpAgent<\n  Env,\n  State,\n  { userId?: string; role?: string }\n> {\n  async init() {\n    this.server.tool(\"whoami\", \"Get current user info\", {}, async () => {\n      const userId = this.props?.userId || \"anonymous\";\n      const role = this.props?.role || \"guest\";\n\n      return {\n        content: [{ type: \"text\", text: `User ID: ${userId}, Role: ${role}` }]\n      };\n    });\n  }\n}\n```\n\nThe props are:\n\n- **Type-safe**: TypeScript extracts the Props type from your McpAgent generic\n- **Persistent**: Stored in Durable Object storage via `updateProps()`\n- **Available immediately**: Set before any tool calls are made\n\nThis is useful for:\n\n- User authentication context\n- Tenant/organization IDs\n- Feature flags or permissions\n- Any per-connection configuration"
+          "startLine": 58,
+          "tokens": 137,
+          "score": 7.792,
+          "text": "## Legacy `McpAgent` Server Auto Transport\n\nThe **auto** transport serves both Streamable HTTP and legacy SSE on the same endpoint. Capable clients use Streamable HTTP automatically, while older SSE-only clients continue to work.\n\n```typescript\nexport default MyMCP.serve(\"/mcp\", { transport: \"auto\" });\n```\n\nThe handler distinguishes between the two protocols based on the request shape \u2014 no configuration or content negotiation is required from clients. This is useful when migrating from SSE to Streamable HTTP without breaking existing clients."
         },
         {
-          "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-adding-mcp-servers-custom-headers",
-          "path": "docs/agents/mcp-client.md",
+          "id": "examples/mcp-rpc-transport/README.md#mcp-rpc-transport",
+          "path": "examples/mcp-rpc-transport/README.md",
           "headings": [
-            "Connecting to MCP Servers",
-            "Adding MCP Servers",
-            "Custom Headers"
-          ],
-          "startLine": 143,
-          "tokens": 90,
-          "score": 11.441,
-          "text": "### Custom Headers\n\nFor servers behind authentication (like Cloudflare Access) or using bearer tokens:\n\n```typescript\nawait this.addMcpServer(\"internal\", \"https://internal-mcp.example.com/mcp\", {\n  transport: {\n    headers: {\n      Authorization: \"Bearer my-token\",\n      \"CF-Access-Client-Id\": \"...\",\n      \"CF-Access-Client-Secret\": \"...\"\n    }\n  }\n});\n```"
-        },
-        {
-          "id": "docs/agents/mcp-transports.md#mcp-transports",
-          "path": "docs/agents/mcp-transports.md",
-          "headings": [
-            "MCP Transports"
+            "MCP RPC Transport"
           ],
           "startLine": 1,
-          "tokens": 49,
-          "score": 11.385,
-          "text": "# MCP Transports\n\nThis guide explains the different transport options for connecting to MCP servers with the Agents SDK.\n\nFor a primer on MCP servers, see [Creating MCP Servers](./mcp-servers.md)."
+          "tokens": 42,
+          "score": 7.675,
+          "text": "# MCP RPC Transport\n\nAn Agent calling an McpAgent within the same Worker using RPC transport -- no HTTP, no network overhead. Uses Workers AI so no API keys are needed."
         },
         {
-          "id": "packages/agents/README.md#agents-mcp-model-context-protocol-using-mcp-tools",
-          "path": "packages/agents/README.md",
+          "id": "docs/agents/mcp-transports.md#mcp-transports-streamable-http-transport-recommended-legacy-mcpagent-architecture",
+          "path": "docs/agents/mcp-transports.md",
           "headings": [
-            "agents",
-            "MCP (Model Context Protocol)",
-            "Using MCP Tools"
+            "MCP Transports",
+            "Streamable HTTP Transport (Recommended)",
+            "Legacy `McpAgent` architecture"
           ],
-          "startLine": 515,
-          "tokens": 95,
-          "score": 11.015,
-          "text": "### Using MCP Tools\n\n```typescript\n// Connect to external MCP servers\nawait this.addMcpServer(\n  \"weather-service\",\n  \"https://weather-mcp.example.com/mcp\",\n  {\n    transport: { type: \"streamable-http\" }\n  }\n);\n\n// Use with AI SDK\nconst result = await generateText({\n  model: openai(\"gpt-4o\"),\n  tools: this.mcp.getAITools(),\n  prompt: \"What's the weather in Tokyo?\"\n});\n```\n\n---"
+          "startLine": 16,
+          "tokens": 268,
+          "score": 7.65,
+          "text": "### Legacy `McpAgent` architecture\n\nWhen a client connects to your MCP server:\n\n1. The client makes an HTTP request to your Worker with a JSON-RPC message in the body\n2. Your Worker upgrades the connection to a WebSocket\n3. The WebSocket connects to your `McpAgent` Durable Object which manages connection state\n4. JSON-RPC messages flow bidirectionally over the WebSocket\n5. Your Worker streams responses back to the client using Server-Sent Events (SSE)\n\nThis is all handled automatically by the `McpAgent.serve()` method:\n\n```typescript\nimport { McpAgent } from \"agents/mcp\";\nimport { McpServer } from \"@modelcontextprotocol/sdk/server/mcp.js\";\n\nexport class MyMCP extends McpAgent {\n  server = new McpServer({ name: \"Demo\", version: \"1.0.0\" });\n\n  async init() {\n    // Define your tools, resources, prompts\n  }\n}\n\n// Serve with Streamable HTTP transport\nexport default MyMCP.serve(\"/mcp\");\n```\n\nThe `serve()` method returns a Worker with a `fetch` handler that:\n\n- Handles CORS preflight requests\n- Manages WebSocket upgrades\n- Routes messages to your Durable Object"
+        },
+        {
+          "id": "docs/agents/mcp-transports.md#mcp-transports-legacy-mcpagent-sse-transport-deprecated",
+          "path": "docs/agents/mcp-transports.md",
+          "headings": [
+            "MCP Transports",
+            "Legacy `McpAgent` SSE Transport (Deprecated)"
+          ],
+          "startLine": 68,
+          "tokens": 84,
+          "score": 7.482,
+          "text": "## Legacy `McpAgent` SSE Transport (Deprecated)\n\nWe also support the legacy **SSE (Server-Sent Events)** transport, but it is deprecated in favor of Streamable HTTP.\n\nIf you need SSE transport for compatibility:\n\n```typescript\n// Server\nexport default MyMCP.serveSSE(\"/sse\");\n\n// Client\nawait agent.addMcpServer(\"my-server\", url);\n```"
         },
         {
           "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental",
@@ -385,21 +434,33 @@
           ],
           "startLine": 82,
           "tokens": 80,
-          "score": 11.014,
+          "score": 7.396,
           "text": "## RPC Transport (Experimental)\n\nThe **RPC transport** is a custom transport designed for internal applications where your MCP server and agent are both running on Cloudflare. They can even run in the same Worker! It sends JSON-RPC messages directly over Cloudflare's RPC bindings without going over the public internet."
         },
         {
-          "id": "examples/playground/README.md#agents-sdk-playground-features-mcp-model-context-protocol",
-          "path": "examples/playground/README.md",
+          "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-api-reference-addmcpserver",
+          "path": "docs/agents/mcp-client.md",
           "headings": [
-            "Agents SDK Playground",
-            "Features",
-            "MCP (Model Context Protocol)"
+            "Connecting to MCP Servers",
+            "API Reference",
+            "addMcpServer()"
           ],
-          "startLine": 60,
-          "tokens": 127,
-          "score": 11.004,
-          "text": "### MCP (Model Context Protocol)\n\n| Demo             | Description                                             |\n| ---------------- | ------------------------------------------------------- |\n| **Server**       | Creating MCP servers with tools, resources, and prompts |\n| **Client**       | Connecting to external MCP servers                      |\n| **OAuth**        | OAuth authentication for MCP connections                |\n| **Advanced MCP** | Transports, elicitation, codemode, and x402 patterns    |"
+          "startLine": 646,
+          "tokens": 609,
+          "score": 7.243,
+          "text": "### addMcpServer()\n\n```typescript\n// HTTP transport (Streamable HTTP, SSE)\nasync addMcpServer(\n  name: string,\n  url: string,\n  options?: {\n    callbackHost?: string;  // auto-derived from request or WebSocket connection URI; only set to override\n    callbackPath?: string;  // custom callback URL path (bypasses default /agents/{class}/{name}/callback)\n    agentsPrefix?: string;\n    client?: ClientOptions;\n    transport?: {\n      headers?: HeadersInit;\n      type?: \"sse\" | \"streamable-http\" | \"auto\"; // default: \"auto\"\n    };\n    retry?: RetryOptions; // retry options for connection/reconnection\n  }\n): Promise<\n  | { id: string; state: \"ready\" }\n  | { id: string; state: \"authenticating\"; authUrl: string }\n>\n\n// RPC transport (Durable Object binding \u2014 no HTTP overhead)\nasync addMcpServer(\n  name: string,\n  binding: DurableObjectNamespace,\n  options?: {\n    props?: Record<string, unknown>; // passed to the McpAgent's onStart(props)\n    client?: ClientOptions;\n    retry?: RetryOptions;\n  }\n): Promise<{ id: string; state: \"ready\" }>\n\n// Legacy signature (still supported)\nasync addMcpServer(\n  name: string,\n  url: string,\n  callbackHost?: string,\n  agentsPrefix?: string,\n  options?: { ... }\n): Promise<...>\n```\n\nAdd and connect to an MCP server. Throws if connection or discovery fails.\n\n`callbackHost` is automatically derived from the incoming HTTP request or WebSocket connection URI \u2014 you almost never need to set it explicitly. It is only needed when the auto-detected host does not match your desired OAuth callback origin (for example, behind a reverse proxy). For RPC transport, pass a `DurableObjectNamespace` binding instead of a URL. See [MCP Transports](./mcp-transports.md) for details.\n\nCalling `addMcpServer` is idempotent when both the server name **and** URL match an existing active connection \u2014 the existing connection is returned without creating a duplicate. This makes it safe to call in `onStart()` without worrying about duplicate connections on restart.\n\nIf you call `addMcpServer` with the same name but a **different** URL, a new connection is created. Both connections remain active and their tools are merged in `getAITools()`. To replace a server, call `removeMcpServer(oldId)` first.\n\n> **Note:** URLs are normalized before comparison (trailing slashes, default ports, and hostname case are handled), so `https://MCP.Example.com` and `https://mcp.example.com/` are treated as the same URL."
+        },
+        {
+          "id": "examples/mcp-rpc-transport/README.md#mcp-rpc-transport-how-to-run",
+          "path": "examples/mcp-rpc-transport/README.md",
+          "headings": [
+            "MCP RPC Transport",
+            "How to run"
+          ],
+          "startLine": 5,
+          "tokens": 13,
+          "score": 7.05,
+          "text": "## How to run\n\n```bash\nnpm install && npm start\n```"
         },
         {
           "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-why-use-rpc-transport",
@@ -411,119 +472,175 @@
           ],
           "startLine": 86,
           "tokens": 86,
-          "score": 10.923,
+          "score": 6.888,
           "text": "### Why use RPC transport?\n\n- **Faster**: No network overhead - direct function calls\n- **Simpler**: No HTTP endpoints, no connection management\n- **Internal only**: Perfect for agents calling MCP servers within the same Worker\n\n**Note**: RPC transport does not support authentication. Use HTTP/SSE for external connections that require OAuth."
         },
         {
-          "id": "examples/mcp-rpc-transport/README.md#mcp-rpc-transport",
-          "path": "examples/mcp-rpc-transport/README.md",
+          "id": "README.md#cloudflare-agents-license",
+          "path": "README.md",
           "headings": [
-            "MCP RPC Transport"
+            "Cloudflare Agents",
+            "License"
           ],
-          "startLine": 1,
-          "tokens": 42,
-          "score": 10.873,
-          "text": "# MCP RPC Transport\n\nAn Agent calling an McpAgent within the same Worker using RPC transport -- no HTTP, no network overhead. Uses Workers AI so no API keys are needed."
+          "startLine": 221,
+          "tokens": 7,
+          "score": 0.244,
+          "text": "## License\n\n[MIT](LICENSE)"
+        }
+      ],
+      "manifest": [
+        {
+          "id": "pinned:changesetPolicy",
+          "pinned": true,
+          "source": "git-next-demo-layers/contract/AGENTS.md:4"
         },
         {
-          "id": "design/mcp.md#mcp-architecture-lifecycles-stateless-server",
-          "path": "design/mcp.md",
-          "headings": [
-            "MCP architecture",
-            "Lifecycles",
-            "Stateless server"
-          ],
-          "startLine": 62,
-          "tokens": 115,
-          "score": 10.718,
-          "text": "### Stateless server\n\n1. The client sends `server/discover`.\n2. Each catalog or operation request constructs a fresh `McpServer`/`Server` from the factory.\n3. The handler connects it to a single-exchange transport and returns JSON or SSE.\n4. The server and transport close when the response completes, is cancelled, or aborts.\n5. Stateless Elicitation returns `input_required`; each retry carries the latest `requestState` and that round's `inputResponses`."
+          "id": "pinned:secrets",
+          "pinned": true,
+          "source": "git-next-demo-layers/org/AGENTS.md:4"
+        },
+        {
+          "id": "pinned:allowedModels",
+          "pinned": true,
+          "source": "git-next-demo-layers/org/AGENTS.md:3"
+        },
+        {
+          "id": "pinned:commitFormat",
+          "pinned": true,
+          "source": "git-next-demo-layers/contract/AGENTS.md:3"
+        },
+        {
+          "id": "examples/mcp-rpc-transport/README.md#mcp-rpc-transport-related",
+          "pinned": false,
+          "source": "examples/mcp-rpc-transport/README.md:49"
+        },
+        {
+          "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-connecting-an-agent-to-an-mcpagent-via-rpc",
+          "pinned": false,
+          "source": "docs/agents/mcp-transports.md:94"
+        },
+        {
+          "id": "docs/agents/mcp-transports.md#mcp-transports-examples",
+          "pinned": false,
+          "source": "docs/agents/mcp-transports.md:310"
+        },
+        {
+          "id": "docs/agents/mcp-transports.md#mcp-transports-streamable-http-transport-recommended-connection-from-clients",
+          "pinned": false,
+          "source": "docs/agents/mcp-transports.md:50"
+        },
+        {
+          "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-adding-mcp-servers-transport-options",
+          "pinned": false,
+          "source": "docs/agents/mcp-client.md:124"
+        },
+        {
+          "id": "docs/agents/index.md#agents-documentation-mcp-model-context-protocol",
+          "pinned": false,
+          "source": "docs/agents/index.md:106"
+        },
+        {
+          "id": "docs/agents/mcp-transports.md#mcp-transports",
+          "pinned": false,
+          "source": "docs/agents/mcp-transports.md:1"
+        },
+        {
+          "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-connecting-an-agent-to-an-mcpagent-via-rpc-step-2-connect-your-agent-to-the-mcp-server",
+          "pinned": false,
+          "source": "docs/agents/mcp-transports.md:134"
+        },
+        {
+          "id": "docs/agents/mcp-transports.md#mcp-transports-choosing-a-transport",
+          "pinned": false,
+          "source": "docs/agents/mcp-transports.md:300"
+        },
+        {
+          "id": "docs/agents/observability.md#observability-event-reference-mcp-events",
+          "pinned": false,
+          "source": "docs/agents/observability.md:246"
+        },
+        {
+          "id": "docs/agents/mcp-transports.md#mcp-transports-legacy-mcpagent-server-auto-transport",
+          "pinned": false,
+          "source": "docs/agents/mcp-transports.md:58"
+        },
+        {
+          "id": "examples/mcp-rpc-transport/README.md#mcp-rpc-transport",
+          "pinned": false,
+          "source": "examples/mcp-rpc-transport/README.md:1"
+        },
+        {
+          "id": "docs/agents/mcp-transports.md#mcp-transports-streamable-http-transport-recommended-legacy-mcpagent-architecture",
+          "pinned": false,
+          "source": "docs/agents/mcp-transports.md:16"
+        },
+        {
+          "id": "docs/agents/mcp-transports.md#mcp-transports-legacy-mcpagent-sse-transport-deprecated",
+          "pinned": false,
+          "source": "docs/agents/mcp-transports.md:68"
+        },
+        {
+          "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental",
+          "pinned": false,
+          "source": "docs/agents/mcp-transports.md:82"
+        },
+        {
+          "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-api-reference-addmcpserver",
+          "pinned": false,
+          "source": "docs/agents/mcp-client.md:646"
         },
         {
           "id": "examples/mcp-rpc-transport/README.md#mcp-rpc-transport-how-to-run",
-          "path": "examples/mcp-rpc-transport/README.md",
-          "headings": [
-            "MCP RPC Transport",
-            "How to run"
-          ],
-          "startLine": 5,
-          "tokens": 13,
-          "score": 10.16,
-          "text": "## How to run\n\n```bash\nnpm install && npm start\n```"
+          "pinned": false,
+          "source": "examples/mcp-rpc-transport/README.md:5"
         },
         {
-          "id": "examples/mcp-elicitation/README.md#legacy-elicitation-run",
-          "path": "examples/mcp-elicitation/README.md",
-          "headings": [
-            "Legacy Elicitation",
-            "Run"
-          ],
-          "startLine": 14,
-          "tokens": 11,
-          "score": 3.603,
-          "text": "## Run\n\n```sh\npnpm install\npnpm run dev\n```"
+          "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-why-use-rpc-transport",
+          "pinned": false,
+          "source": "docs/agents/mcp-transports.md:86"
         },
         {
-          "id": "design/rfc-coding-agent.md#intro",
-          "path": "design/rfc-coding-agent.md",
-          "headings": [],
-          "startLine": 1,
-          "tokens": 4,
-          "score": 0.602,
-          "text": "Status: proposed"
+          "id": "README.md#cloudflare-agents-license",
+          "pinned": false,
+          "source": "README.md:221"
         }
       ],
       "omitted": {
-        "count": 2837,
+        "count": 2846,
         "oversized": 26,
-        "tokens": 747825,
+        "tokens": 748468,
         "unmatchedSections": 856,
         "top": [
-          {
-            "id": "packages/agents/AGENTS.md#agents-md-packages-agents-source-layout",
-            "path": "packages/agents/AGENTS.md",
-            "title": "Source layout",
-            "tokens": 2021,
-            "score": 13.976,
-            "reason": "oversized"
-          },
-          {
-            "id": "packages/agents/AGENTS.md#agents-md-packages-agents-package-exports",
-            "path": "packages/agents/AGENTS.md",
-            "title": "Package exports",
-            "tokens": 3364,
-            "score": 12.105,
-            "reason": "oversized"
-          },
-          {
-            "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-adding-mcp-servers-url-security",
-            "path": "docs/agents/mcp-client.md",
-            "title": "URL Security",
-            "tokens": 160,
-            "score": 10.761,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-api-reference-addmcpserver",
-            "path": "docs/agents/mcp-client.md",
-            "title": "addMcpServer()",
-            "tokens": 609,
-            "score": 10.75,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-connecting-an-agent-to-an-mcpagent-via-rpc-step-1-define-your-mcp-server",
-            "path": "docs/agents/mcp-transports.md",
-            "title": "Step 1: Define your MCP server",
-            "tokens": 214,
-            "score": 10.49,
-            "reason": "budget"
-          },
           {
             "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-advanced-mcpclientmanager-step-by-step-connection",
             "path": "docs/agents/mcp-client.md",
             "title": "Step-by-Step Connection",
             "tokens": 249,
-            "score": 10.471,
+            "score": 6.945,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-passing-props-from-client-to-server",
+            "path": "docs/agents/mcp-transports.md",
+            "title": "Passing props from client to server",
+            "tokens": 283,
+            "score": 6.904,
+            "reason": "budget"
+          },
+          {
+            "id": "design/voice.md#voice-pipeline-design-experimental-hibernation-withvoice-only-client-reconnect-recovery",
+            "path": "design/voice.md",
+            "title": "Client reconnect recovery",
+            "tokens": 154,
+            "score": 6.813,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/playground/README.md#agents-sdk-playground-features-mcp-model-context-protocol",
+            "path": "examples/playground/README.md",
+            "title": "MCP (Model Context Protocol)",
+            "tokens": 127,
+            "score": 6.813,
             "reason": "budget"
           },
           {
@@ -531,15 +648,23 @@
             "path": "docs/agents/mcp-transports.md",
             "title": "How RPC transport works under the hood",
             "tokens": 193,
-            "score": 10.396,
+            "score": 6.797,
             "reason": "budget"
           },
           {
-            "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-connecting-an-agent-to-an-mcpagent-via-rpc-step-4-set-up-your-worker-fetch-handler",
+            "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-connecting-an-agent-to-an-mcpagent-via-rpc-step-1-define-your-mcp-server",
             "path": "docs/agents/mcp-transports.md",
-            "title": "Step 4: Set up your Worker fetch handler",
-            "tokens": 148,
-            "score": 10.362,
+            "title": "Step 1: Define your MCP server",
+            "tokens": 214,
+            "score": 6.757,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-adding-mcp-servers-url-security",
+            "path": "docs/agents/mcp-client.md",
+            "title": "URL Security",
+            "tokens": 160,
+            "score": 6.643,
             "reason": "budget"
           },
           {
@@ -547,79 +672,23 @@
             "path": "docs/agents/mcp-transports.md",
             "title": "Streamable HTTP Transport (Recommended)",
             "tokens": 131,
-            "score": 10.31,
+            "score": 6.628,
             "reason": "budget"
           },
           {
-            "id": "AGENTS.md#agents-md-contributing-changesets",
-            "path": "AGENTS.md",
-            "title": "Changesets",
-            "tokens": 83,
-            "score": 10.229,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-connecting-an-agent-to-an-mcpagent-via-rpc-step-3-configure-durable-object-bindings",
+            "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-connecting-an-agent-to-an-mcpagent-via-rpc-step-4-set-up-your-worker-fetch-handler",
             "path": "docs/agents/mcp-transports.md",
-            "title": "Step 3: Configure Durable Object bindings",
-            "tokens": 96,
-            "score": 10.226,
+            "title": "Step 4: Set up your Worker fetch handler",
+            "tokens": 148,
+            "score": 6.255,
             "reason": "budget"
           },
           {
-            "id": "design/mcp.md#mcp-architecture-source-boundaries-legacy",
-            "path": "design/mcp.md",
-            "title": "Legacy",
-            "tokens": 112,
-            "score": 10.222,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-adding-mcp-servers-legacy-oauth-metadata-compatibility",
-            "path": "docs/agents/mcp-client.md",
-            "title": "Legacy OAuth metadata compatibility",
-            "tokens": 112,
-            "score": 10.151,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/lifecycle.md#durable-object-lifecycle-websockets-are-an-opt-in-capability-two-wires",
-            "path": "docs/agents/lifecycle.md",
-            "title": "Two wires",
-            "tokens": 238,
-            "score": 10.123,
-            "reason": "budget"
-          },
-          {
-            "id": "packages/agents/AGENTS.md#agents-md-packages-agents-key-architecture-notes",
-            "path": "packages/agents/AGENTS.md",
-            "title": "Key architecture notes",
-            "tokens": 602,
-            "score": 10.068,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/mcp-servers.md#creating-mcp-servers-stateless-mcp-server-with-createmcphandler-2025-compatibility-and-elicitation",
-            "path": "docs/agents/mcp-servers.md",
-            "title": "2025 compatibility and elicitation",
-            "tokens": 326,
-            "score": 10.066,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-configuring-rpc-transport-server-timeout",
-            "path": "docs/agents/mcp-transports.md",
-            "title": "Configuring RPC Transport Server Timeout",
-            "tokens": 205,
-            "score": 10.064,
-            "reason": "budget"
-          },
-          {
-            "id": "README.md#cloudflare-agents-examples",
-            "path": "README.md",
-            "title": "Examples",
-            "tokens": 670,
-            "score": 9.978,
+            "id": "design/rfc-chat-recovery-foundation.md#rfc-shared-chat-recovery-foundation-edge-case-invariants-terminal-replay-retention",
+            "path": "design/rfc-chat-recovery-foundation.md",
+            "title": "Terminal replay retention",
+            "tokens": 50,
+            "score": 6.194,
             "reason": "budget"
           },
           {
@@ -627,7 +696,23 @@
             "path": "examples/mcp/README.md",
             "title": "What it demonstrates",
             "tokens": 97,
-            "score": 9.941,
+            "score": 6.173,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/mcp-transports.md#mcp-transports-rpc-transport-experimental-connecting-an-agent-to-an-mcpagent-via-rpc-step-3-configure-durable-object-bindings",
+            "path": "docs/agents/mcp-transports.md",
+            "title": "Step 3: Configure Durable Object bindings",
+            "tokens": 96,
+            "score": 6.141,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/mcp-client/README.md#mcp-client",
+            "path": "examples/mcp-client/README.md",
+            "title": "MCP Client",
+            "tokens": 51,
+            "score": 5.97,
             "reason": "budget"
           },
           {
@@ -635,7 +720,71 @@
             "path": "docs/agents/mcp-servers.md",
             "title": "WorkerTransport",
             "tokens": 344,
-            "score": 9.925,
+            "score": 5.963,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/mcp-worker/README.md#mcp-server-createmcphandler-related-examples",
+            "path": "examples/mcp-worker/README.md",
+            "title": "Related examples",
+            "tokens": 66,
+            "score": 5.834,
+            "reason": "budget"
+          },
+          {
+            "id": "design/mcp.md#mcp-architecture-source-boundaries-legacy",
+            "path": "design/mcp.md",
+            "title": "Legacy",
+            "tokens": 112,
+            "score": 5.797,
+            "reason": "budget"
+          },
+          {
+            "id": "packages/agents/AGENTS.md#agents-md-packages-agents-source-layout",
+            "path": "packages/agents/AGENTS.md",
+            "title": "Source layout",
+            "tokens": 2021,
+            "score": 5.785,
+            "reason": "oversized"
+          },
+          {
+            "id": "examples/mcp-client/README.md#mcp-client-how-it-works-client-side",
+            "path": "examples/mcp-client/README.md",
+            "title": "Client side",
+            "tokens": 71,
+            "score": 5.72,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-advanced-mcpclientmanager",
+            "path": "docs/agents/mcp-client.md",
+            "title": "Advanced: MCPClientManager",
+            "tokens": 21,
+            "score": 5.716,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-using-mcp-capabilities",
+            "path": "docs/agents/mcp-client.md",
+            "title": "Using MCP Capabilities",
+            "tokens": 19,
+            "score": 5.6,
+            "reason": "budget"
+          },
+          {
+            "id": "design/chat-api.md#chat-api-analysis-aichatagent-useagentchat-summary-prioritized-improvements-tier-1-high-impact-fix-the-pain",
+            "path": "design/chat-api.md",
+            "title": "Tier 1: High impact, fix the pain",
+            "tokens": 229,
+            "score": 5.524,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/client-sdk.md#client-sdk-best-practices-2-reconnection-is-automatic",
+            "path": "docs/agents/client-sdk.md",
+            "title": "2. Reconnection is Automatic",
+            "tokens": 50,
+            "score": 5.498,
             "reason": "budget"
           },
           {
@@ -643,119 +792,31 @@
             "path": "design/mcp.md",
             "title": "Tradeoffs",
             "tokens": 178,
-            "score": 9.886,
+            "score": 5.497,
             "reason": "budget"
           },
           {
-            "id": "design/mcp.md#mcp-architecture-lifecycles-legacy-compatibility",
-            "path": "design/mcp.md",
-            "title": "Legacy compatibility",
-            "tokens": 102,
-            "score": 9.595,
+            "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-adding-mcp-servers",
+            "path": "docs/agents/mcp-client.md",
+            "title": "Adding MCP Servers",
+            "tokens": 38,
+            "score": 5.468,
             "reason": "budget"
           },
           {
-            "id": "examples/mcp-rpc-transport/README.md#mcp-rpc-transport-what-this-demonstrates",
-            "path": "examples/mcp-rpc-transport/README.md",
-            "title": "What this demonstrates",
-            "tokens": 248,
-            "score": 9.593,
+            "id": "examples/x402-mcp/README.md#x402-mcp-paid-tools-how-it-works-x402-mcp-transport-spec",
+            "path": "examples/x402-mcp/README.md",
+            "title": "x402 MCP transport spec",
+            "tokens": 101,
+            "score": 5.451,
             "reason": "budget"
           },
           {
-            "id": "docs/agents/mcp-servers.md#creating-mcp-servers-stateful-mcp-server-with-mcpagent-legacy-what-is-going-on-here",
-            "path": "docs/agents/mcp-servers.md",
-            "title": "What is going on here?",
-            "tokens": 188,
-            "score": 9.565,
-            "reason": "budget"
-          },
-          {
-            "id": "AGENTS.md#agents-md-repository-structure",
-            "path": "AGENTS.md",
-            "title": "Repository structure",
-            "tokens": 347,
-            "score": 9.332,
-            "reason": "budget"
-          },
-          {
-            "id": "design/mcp.md#mcp-architecture-source-boundaries-stateless",
-            "path": "design/mcp.md",
-            "title": "Stateless",
-            "tokens": 110,
-            "score": 9.326,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/chat-agents.md#chat-agents-client-api-settle-sends-when-a-turn-ends",
-            "path": "docs/agents/chat-agents.md",
-            "title": "Settle sends when a turn ends",
-            "tokens": 407,
-            "score": 9.277,
-            "reason": "budget"
-          },
-          {
-            "id": "design/mcp.md#mcp-architecture-lifecycles-legacy-sessionful-server",
-            "path": "design/mcp.md",
-            "title": "Legacy sessionful server",
-            "tokens": 92,
-            "score": 9.261,
-            "reason": "budget"
-          },
-          {
-            "id": "packages/ai-chat/README.md#cloudflare-ai-chat-resumable-streaming",
-            "path": "packages/ai-chat/README.md",
-            "title": "Resumable Streaming",
-            "tokens": 119,
-            "score": 9.248,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/mcp-servers.md#creating-mcp-servers-stateless-mcp-server-with-createmcphandler",
-            "path": "docs/agents/mcp-servers.md",
-            "title": "Stateless MCP Server with `createMcpHandler()`",
-            "tokens": 292,
-            "score": 9.223,
-            "reason": "budget"
-          },
-          {
-            "id": "design/mcp.md#mcp-architecture-terminology",
-            "path": "design/mcp.md",
-            "title": "Terminology",
-            "tokens": 210,
-            "score": 9.222,
-            "reason": "budget"
-          },
-          {
-            "id": "agent-think/skills/open-pr/SKILL.md#4-make-the-fix",
-            "path": "agent-think/skills/open-pr/SKILL.md",
-            "title": "4. Make the fix",
-            "tokens": 136,
-            "score": 9.218,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/human-in-the-loop.md#human-in-the-loop-client-side-tool-execution-with-ontoolcall-mcp-elicitation",
-            "path": "docs/agents/human-in-the-loop.md",
-            "title": "MCP Elicitation",
-            "tokens": 523,
-            "score": 9.049,
-            "reason": "budget"
-          },
-          {
-            "id": "packages/agents/conformance/vendor/README.md#mcp-sdk-v2-conformance-fixture",
-            "path": "packages/agents/conformance/vendor/README.md",
-            "title": "MCP SDK v2 conformance fixture",
-            "tokens": 229,
-            "score": 8.973,
-            "reason": "budget"
-          },
-          {
-            "id": "design/rfc-workers-ai-gateway-merge.md#rfc-merge-ai-gateway-provider-into-workers-ai-provider-the-proposal-4-fallback-client-resumable-or-server-gateway",
-            "path": "design/rfc-workers-ai-gateway-merge.md",
-            "title": "4. Fallback: client (resumable) or server (gateway)",
-            "tokens": 193,
-            "score": 8.847,
+            "id": "examples/playground/testing.md#playground-testing-guide-mcp-demos-mcp-client-mcp-client",
+            "path": "examples/playground/testing.md",
+            "title": "MCP Client (`/mcp/client`)",
+            "tokens": 19,
+            "score": 5.434,
             "reason": "budget"
           },
           {
@@ -763,7 +824,63 @@
             "path": "packages/agents/README.md",
             "title": "MCP (Model Context Protocol)",
             "tokens": 40,
-            "score": 8.827,
+            "score": 5.364,
+            "reason": "budget"
+          },
+          {
+            "id": "site/agents/README.md#agents-mcp-server-usage",
+            "path": "site/agents/README.md",
+            "title": "Usage",
+            "tokens": 34,
+            "score": 5.364,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/mcp-client/README.md#mcp-client-what-it-demonstrates",
+            "path": "examples/mcp-client/README.md",
+            "title": "What it demonstrates",
+            "tokens": 173,
+            "score": 5.355,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-adding-mcp-servers-custom-headers",
+            "path": "docs/agents/mcp-client.md",
+            "title": "Custom Headers",
+            "tokens": 90,
+            "score": 5.309,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-client-side-integration",
+            "path": "docs/agents/mcp-client.md",
+            "title": "Client-Side Integration",
+            "tokens": 203,
+            "score": 5.269,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-oauth-authentication-how-it-works",
+            "path": "docs/agents/mcp-client.md",
+            "title": "How It Works",
+            "tokens": 113,
+            "score": 5.208,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/mcp/README.md#stateful-mcp-server-related-examples",
+            "path": "examples/mcp/README.md",
+            "title": "Related examples",
+            "tokens": 69,
+            "score": 5.141,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/x402-mcp/README.md#x402-mcp-paid-tools-related-examples",
+            "path": "examples/x402-mcp/README.md",
+            "title": "Related examples",
+            "tokens": 37,
+            "score": 5.022,
             "reason": "budget"
           },
           {
@@ -771,40 +888,57 @@
             "path": "docs/agents/mcp-servers.md",
             "title": "Choosing an Approach",
             "tokens": 368,
-            "score": 8.811,
+            "score": 5.015,
             "reason": "budget"
           },
           {
-            "id": "examples/TODO.md#examples-cleanup-todo-vite-plugin-fix",
-            "path": "examples/TODO.md",
-            "title": "Vite plugin fix",
-            "tokens": 37,
-            "score": 8.624,
+            "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-adding-mcp-servers-protocol-negotiation-and-elicitation",
+            "path": "docs/agents/mcp-client.md",
+            "title": "Protocol negotiation and elicitation",
+            "tokens": 782,
+            "score": 4.995,
             "reason": "budget"
           },
           {
-            "id": "design/rfc-chat-recovery-foundation.md#rfc-shared-chat-recovery-foundation-testing-strategy-layer-4-local-e2e-crash-and-reconnect-tests",
-            "path": "design/rfc-chat-recovery-foundation.md",
-            "title": "Layer 4: local e2e crash and reconnect tests",
-            "tokens": 985,
-            "score": 8.577,
+            "id": "docs/agents/agent-class.md#what-is-the-agent-layer-2-agent-this-mcp-and-friends",
+            "path": "docs/agents/agent-class.md",
+            "title": "`this.mcp` and friends",
+            "tokens": 113,
+            "score": 4.929,
             "reason": "budget"
           },
           {
-            "id": "examples/mcp/README.md#stateful-mcp-server-running",
-            "path": "examples/mcp/README.md",
-            "title": "Running",
-            "tokens": 69,
-            "score": 8.574,
+            "id": "docs/agents/client-sdk.md#client-sdk-mcp-server-integration",
+            "path": "docs/agents/client-sdk.md",
+            "title": "MCP Server Integration",
+            "tokens": 130,
+            "score": 4.91,
             "reason": "budget"
+          },
+          {
+            "id": "design/mcp.md#mcp-architecture-lifecycles-stateless-server",
+            "path": "design/mcp.md",
+            "title": "Stateless server",
+            "tokens": 115,
+            "score": 4.809,
+            "reason": "budget"
+          },
+          {
+            "id": "packages/agents/AGENTS.md#agents-md-packages-agents-package-exports",
+            "path": "packages/agents/AGENTS.md",
+            "title": "Package exports",
+            "tokens": 3364,
+            "score": 4.753,
+            "reason": "oversized"
           }
         ]
       },
       "stats": {
         "markdownFiles": 278,
         "sections": 3721,
-        "rulesTokens": 539,
-        "sectionTokens": 3461,
+        "rulesTokens": 1182,
+        "pinnedTokens": 130,
+        "sectionTokens": 2818,
         "tokensServed": 4000,
         "tokensAllMarkdown": 889608,
         "tokensInstructionFilesOnPath": 9882,
@@ -821,26 +955,45 @@
         "examples/workflows/src/server.ts"
       ],
       "budgetTokens": 3000,
-      "retriever": "bm25",
+      "retriever": "hybrid(bm25+vectorize:@cf/google/embeddinggemma-300m)",
+      "pinned": {
+        "musts": [
+          {
+            "topic": "secrets",
+            "value": "never-in-source",
+            "kind": "org",
+            "source": "git-next-demo-layers/org/AGENTS.md:4"
+          },
+          {
+            "topic": "changesetPolicy",
+            "value": "not-required",
+            "kind": "contract",
+            "source": "git-next-demo-layers/contract/AGENTS.md:4"
+          },
+          {
+            "topic": "allowedModels",
+            "value": "providers:anthropic,workers-ai",
+            "kind": "org",
+            "source": "git-next-demo-layers/org/AGENTS.md:3"
+          },
+          {
+            "topic": "commitFormat",
+            "value": "ticket-id-prefix",
+            "kind": "contract",
+            "source": "git-next-demo-layers/contract/AGENTS.md:3"
+          }
+        ],
+        "catalog": null,
+        "relevant": []
+      },
       "rules": [
         {
           "topic": "packageManager",
           "value": "pnpm",
-          "strength": "must",
+          "strength": "should",
           "layer": "examples",
           "kind": "project",
-          "source": "agents-demo-full/examples/AGENTS.md:297",
-          "appliesTo": [
-            "examples/workflows/src"
-          ]
-        },
-        {
-          "topic": "formatter",
-          "value": "oxfmt",
-          "strength": "should",
-          "layer": "root",
-          "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:67",
+          "source": "agents-demo-full/examples/AGENTS.md:9",
           "appliesTo": [
             "examples/workflows/src"
           ]
@@ -858,11 +1011,22 @@
         },
         {
           "topic": "testCommand",
-          "value": "pnpm run test:react",
+          "value": "pnpm exec nx affected -t test",
+          "strength": "must",
+          "layer": "root",
+          "kind": "project",
+          "source": "agents-demo-full/AGENTS.md:156",
+          "appliesTo": [
+            "examples/workflows/src"
+          ]
+        },
+        {
+          "topic": "formatter",
+          "value": "oxfmt",
           "strength": "should",
           "layer": "root",
           "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:69",
+          "source": "agents-demo-full/AGENTS.md:105",
           "appliesTo": [
             "examples/workflows/src"
           ]
@@ -926,29 +1090,6 @@
       "conflicts": [],
       "sections": [
         {
-          "id": "docs/agents/workflows.md#workflows-integration-best-practices",
-          "path": "docs/agents/workflows.md",
-          "headings": [
-            "Workflows Integration",
-            "Best Practices"
-          ],
-          "startLine": 842,
-          "tokens": 386,
-          "score": 15.687,
-          "text": "## Best Practices\n\n1. **Keep workflows focused** - One workflow per logical task\n2. **Use meaningful step names** - Helps with debugging and observability\n3. **Report progress regularly** - Keeps users informed\n4. **Handle errors gracefully** - Use `reportError()` before throwing\n5. **Clean up completed workflows** - The `cf_agents_workflows` table can grow unbounded, so implement a retention policy:\n\n```typescript\n// Option 1: Cleanup immediately on completion\nasync onWorkflowComplete(workflowName, instanceId, result) {\n  // Process result first, then delete\n  this.deleteWorkflow(instanceId);\n}\n\n// Option 2: Scheduled cleanup (keep recent history)\n// Call this periodically via a scheduled task or cron\nthis.deleteWorkflows({\n  status: [\"complete\", \"errored\"],\n  createdBefore: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 7 days\n});\n\n// Option 3: Keep all history for compliance/auditing\n// Don't call deleteWorkflows() - query historical data as needed\n```\n\n6. **Handle workflow binding renames carefully** - If you rename a workflow binding in `wrangler.jsonc`, existing tracked workflows will reference the old name. The agent will warn on startup if it detects this. Use `migrateWorkflowBinding()` to update them:\n\n```typescript\n// After renaming OLD_WORKFLOW to NEW_WORKFLOW in wrangler.toml\nasync onStart() {\n  // Migrate any existing tracked workflows to the new binding name\n  const migrated = this.migrateWorkflowBinding('OLD_WORKFLOW', 'NEW_WORKFLOW');\n  // You can remove this code after all agents have migrated\n}\n```"
-        },
-        {
-          "id": "examples/next/tasks/README.md#next-tasks",
-          "path": "examples/next/tasks/README.md",
-          "headings": [
-            "Next: tasks"
-          ],
-          "startLine": 1,
-          "tokens": 410,
-          "score": 14.547,
-          "text": "# Next: tasks\n\nAn early-access, server-only example showing `Tasks` from `agents/tasks`\ninstalled on a plain Cloudflare `DurableObject`. It does not extend `Agent` or\nanother SDK base class.\n\n```ts\nexport class ReportObject extends DurableObject<Env> {\n  readonly tasks = new Tasks({\n    definitions: {\n      \"publish-report@v1\": async (input: ReportInput, step: TaskStep) => {\n        const summary = await step.do(\"draft\", () =>\n          this.draftSummary(input.topic)\n        );\n        await step.sleep(\"editorial-hold\", input.holdSeconds * 1000);\n        await step.do(\"publish\", () => {\n          // Runs on whichever instance the shared alarm wakes; the draft\n          // step above replays from the journal instead of executing again.\n        });\n        return { topic: input.topic, summary };\n      }\n    }\n  });\n  readonly lifecycle = Lifecycle.install(this).use(this.tasks);\n}\n```\n\nThe constructor map is the registry, exactly like `Scheduler` callbacks: it\nis rebuilt on every wake, so in-flight runs always resolve their persisted\ndefinition names \u2014 recovery is correct by construction. Runs start with\n`this.tasks.run(\"publish-report@v1\", input, options)`, and\n`this.tasks.handle(name)` gives a typed lens scoped to one definition.\n\nThe Tasks capability takes no wiring: storage, alarm coordination, the host\ninvocation boundary, and events all come from the Lifecycle it is installed\non. It owns its own `cf_agents_task_runs` and `cf_agents_task_steps` tables and\ncontributes its earliest run deadline to Lifecycle's shared physical alarm,\nso it composes with the Scheduler and other capabilities that also need\nwake-ups."
-        },
-        {
           "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval-how-it-works",
           "path": "examples/workflows/README.md",
           "headings": [
@@ -957,8 +1098,31 @@
           ],
           "startLine": 43,
           "tokens": 111,
-          "score": 14.309,
+          "score": 11.261,
           "text": "## How It Works\n\n1. **Submit tasks** - Enter a task name and click \"Start Task\" (you can start multiple)\n2. **Watch progress** - Each workflow runs through validation, processing steps\n3. **Approve or reject** - When a workflow reaches the approval step, buttons appear on that card\n4. **See results** - After approval, the workflow completes and shows the result\n5. **Manage list** - Dismiss completed workflows or clear all completed at once"
+        },
+        {
+          "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval",
+          "path": "examples/workflows/README.md",
+          "headings": [
+            "Workflow Demo - Multiple Concurrent Workflows with Approval"
+          ],
+          "startLine": 1,
+          "tokens": 112,
+          "score": 10.443,
+          "text": "# Workflow Demo - Multiple Concurrent Workflows with Approval\n\nThis example demonstrates the workflow integration features of Cloudflare Agents:\n\n- **Multiple concurrent workflows** - Start and track many tasks simultaneously\n- **Real-time progress** updates via WebSocket\n- **Human-in-the-loop approval** gate per workflow\n- **Paginated workflow list** with status tracking via `getWorkflows()`\n- **Per-workflow approve/reject** controls in the UI"
+        },
+        {
+          "id": "docs/agents/scheduling.md#scheduling-scheduling-vs-queue-vs-workflows",
+          "path": "docs/agents/scheduling.md",
+          "headings": [
+            "Scheduling",
+            "Scheduling vs Queue vs Workflows"
+          ],
+          "startLine": 806,
+          "tokens": 320,
+          "score": 10,
+          "text": "## Scheduling vs Queue vs Workflows\n\n| Feature            | Queue              | Scheduling        | Workflows           |\n| ------------------ | ------------------ | ----------------- | ------------------- |\n| **When**           | Immediately (FIFO) | Future time       | Future time         |\n| **Execution**      | Sequential         | At scheduled time | Multi-step          |\n| **Retries**        | Automatic          | Automatic         | Automatic           |\n| **Persistence**    | SQLite             | SQLite            | Workflow engine     |\n| **Recurring**      | No                 | Yes (cron)        | No (use scheduling) |\n| **Complex logic**  | No                 | No                | Yes                 |\n| **Human approval** | No                 | No                | Yes                 |\n\n**Use Queue when:**\n\n- You need background processing without blocking the response\n- Tasks should run ASAP but don't need to block\n- Order matters (FIFO)\n\n**Use Scheduling when:**\n\n- Tasks need to run at a specific time\n- You need recurring jobs (cron)\n- Delayed execution (debouncing, retries)\n\n**Use Workflows when:**\n\n- Multi-step processes with dependencies\n- Automatic retries with backoff\n- Human-in-the-loop approvals\n- Long-running tasks (minutes to hours)"
         },
         {
           "id": "docs/agents/workflows.md#workflows-integration-introduction-when-to-use-what",
@@ -970,69 +1134,8 @@
           ],
           "startLine": 35,
           "tokens": 173,
-          "score": 14.293,
+          "score": 9.912,
           "text": "### When to Use What\n\n| Use Case                      | Recommendation                 |\n| ----------------------------- | ------------------------------ |\n| Chat/messaging                | Agent only                     |\n| Quick API calls               | Agent only                     |\n| Background processing (< 30s) | Agent `queue()`                |\n| One durable Think chat turn   | Think `submitMessages()`       |\n| Long-running tasks (> 30s)    | Agent + Workflow               |\n| Multi-step pipelines          | Workflow                       |\n| Human approval flows          | Agent + Workflow               |\n| Scheduled tasks               | Agent `schedule()` or Workflow |"
-        },
-        {
-          "id": "examples/AGENTS.md#agents-md-examples-conventions-env-example",
-          "path": "examples/AGENTS.md",
-          "headings": [
-            "AGENTS.md \u2014 examples/",
-            "Conventions",
-            ".env.example"
-          ],
-          "startLine": 157,
-          "tokens": 54,
-          "score": 14.172,
-          "text": "### .env.example\n\nIf the example needs secrets (API keys, etc.), include a `.env.example` showing what keys are needed:\n\n```\nOPENAI_API_KEY=your-key-here\n```\n\nNever commit actual secrets. Use `.env` / `.env.example`."
-        },
-        {
-          "id": "AGENTS.md#agents-md-boundaries",
-          "path": "AGENTS.md",
-          "headings": [
-            "AGENTS.md",
-            "Boundaries"
-          ],
-          "startLine": 173,
-          "tokens": 211,
-          "score": 13.67,
-          "text": "## Boundaries\n\n**Always:**\n\n- Run `pnpm run check` before considering work done\n- Use `import type` for type-only imports (enforced by `verbatimModuleSyntax`)\n- Keep examples simple and self-contained \u2014 they're user-facing learning material\n- Use Cloudflare Workers APIs (KV, D1, R2, Durable Objects, etc.) over third-party equivalents\n- Use Workers AI for LLM calls in examples \u2014 not third-party APIs like OpenAI or Anthropic\n\n**Ask first:**\n\n- Adding new dependencies to `packages/` (these ship to users)\n- Changing `wrangler.jsonc` compatibility dates across the repo\n- Modifying CI workflows\n\n**Never:**\n\n- Hardcode secrets or API keys\n- Add native/FFI/C-binding dependencies\n- Use `any` \u2014 Oxlint will reject it\n- Use CommonJS or Service Worker format \u2014 ES modules only\n- Modify `node_modules/` or `dist/` directories\n- Force push to main"
-        },
-        {
-          "id": "docs/agents/index.md#agents-documentation-background-processing",
-          "path": "docs/agents/index.md",
-          "headings": [
-            "Agents Documentation",
-            "Background Processing"
-          ],
-          "startLine": 63,
-          "tokens": 135,
-          "score": 13.51,
-          "text": "## Background Processing\n\n- [Queue](./queue.md) - Durable background task execution\n- [Scheduling](./scheduling.md) - Delayed, scheduled, and cron-based tasks\n- [Retries](./retries.md) - Automatic retries with exponential backoff and jitter\n- [Durable Execution](./durable-execution.md) - `runFiber()`, `startFiber()`, `stash()`, and crash recovery for long tasks\n- [Workflows](./workflows.md) - Durable multi-step processing with Cloudflare Workflows\n- [Human in the Loop](./human-in-the-loop.md) - Approval flows and manual intervention"
-        },
-        {
-          "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval",
-          "path": "examples/workflows/README.md",
-          "headings": [
-            "Workflow Demo - Multiple Concurrent Workflows with Approval"
-          ],
-          "startLine": 1,
-          "tokens": 112,
-          "score": 13.404,
-          "text": "# Workflow Demo - Multiple Concurrent Workflows with Approval\n\nThis example demonstrates the workflow integration features of Cloudflare Agents:\n\n- **Multiple concurrent workflows** - Start and track many tasks simultaneously\n- **Real-time progress** updates via WebSocket\n- **Human-in-the-loop approval** gate per workflow\n- **Paginated workflow list** with status tracking via `getWorkflows()`\n- **Per-workflow approve/reject** controls in the UI"
-        },
-        {
-          "id": "examples/AGENTS.md#agents-md-examples-conventions-readme-md",
-          "path": "examples/AGENTS.md",
-          "headings": [
-            "AGENTS.md \u2014 examples/",
-            "Conventions",
-            "README.md"
-          ],
-          "startLine": 292,
-          "tokens": 83,
-          "score": 13.368,
-          "text": "### README.md\n\nEvery example needs one. Keep it short:\n\n1. One sentence: what this example demonstrates\n2. How to run it (`pnpm install && pnpm run start` for full-stack examples, `pnpm install && pnpm run dev` for server-only examples)\n3. Any required env vars\n4. Code snippets showing the key pattern\n5. Links to related examples"
         },
         {
           "id": "examples/codemode-browser/README.md#browser-codemode-example-try-it",
@@ -1043,31 +1146,8 @@
           ],
           "startLine": 41,
           "tokens": 52,
-          "score": 13.106,
+          "score": 9.9,
           "text": "## Try it\n\n- \"Create a project called Alpha, add two tasks, then list all projects and tasks\"\n- \"What is the current page title?\"\n- \"Use codemode to create a project and then update the first task to done\""
-        },
-        {
-          "id": "docs/think/workflows.md#think-workflows",
-          "path": "docs/think/workflows.md",
-          "headings": [
-            "Think Workflows"
-          ],
-          "startLine": 1,
-          "tokens": 124,
-          "score": 13.088,
-          "text": "# Think Workflows\n\n`ThinkWorkflow` connects Think to Cloudflare Workflows when a durable job\nneeds one model-driven reasoning step.\n\nUse it when the Workflow owns the process:\n\n- durable multi-step orchestration\n- approval gates or long waits\n- retryable deterministic side effects\n- a Think turn that should produce typed structured output\n\nKeep recurring prompts as scheduled tasks, and keep simple one-off background\nturns on `submitMessages()`. Workflows are for jobs where the steps matter."
-        },
-        {
-          "id": "docs/agents/scheduling.md#scheduling-scheduling-vs-queue-vs-workflows",
-          "path": "docs/agents/scheduling.md",
-          "headings": [
-            "Scheduling",
-            "Scheduling vs Queue vs Workflows"
-          ],
-          "startLine": 806,
-          "tokens": 320,
-          "score": 12.831,
-          "text": "## Scheduling vs Queue vs Workflows\n\n| Feature            | Queue              | Scheduling        | Workflows           |\n| ------------------ | ------------------ | ----------------- | ------------------- |\n| **When**           | Immediately (FIFO) | Future time       | Future time         |\n| **Execution**      | Sequential         | At scheduled time | Multi-step          |\n| **Retries**        | Automatic          | Automatic         | Automatic           |\n| **Persistence**    | SQLite             | SQLite            | Workflow engine     |\n| **Recurring**      | No                 | Yes (cron)        | No (use scheduling) |\n| **Complex logic**  | No                 | No                | Yes                 |\n| **Human approval** | No                 | No                | Yes                 |\n\n**Use Queue when:**\n\n- You need background processing without blocking the response\n- Tasks should run ASAP but don't need to block\n- Order matters (FIFO)\n\n**Use Scheduling when:**\n\n- Tasks need to run at a specific time\n- You need recurring jobs (cron)\n- Delayed execution (debouncing, retries)\n\n**Use Workflows when:**\n\n- Multi-step processes with dependencies\n- Automatic retries with backoff\n- Human-in-the-loop approvals\n- Long-running tasks (minutes to hours)"
         },
         {
           "id": "docs/agents/scheduling.md#scheduling-managing-schedules-list-schedules",
@@ -1079,20 +1159,19 @@
           ],
           "startLine": 443,
           "tokens": 172,
-          "score": 12.655,
+          "score": 9.585,
           "text": "### List Schedules\n\nQuery scheduled tasks with optional filters:\n\n```typescript\n// Get all scheduled tasks\nconst allSchedules = await this.listSchedules();\n\n// Get only cron jobs\nconst cronJobs = await this.listSchedules({ type: \"cron\" });\n\n// Get tasks in the next hour\nconst upcoming = await this.listSchedules({\n  timeRange: {\n    start: new Date(),\n    end: new Date(Date.now() + 60 * 60 * 1000)\n  }\n});\n\n// Get a specific task by ID\nconst specific = await this.listSchedules({ id: \"abc123\" });\n\n// Combine filters\nconst upcomingCronJobs = await this.listSchedules({\n  type: \"cron\",\n  timeRange: {\n    start: new Date(),\n    end: new Date(Date.now() + 24 * 60 * 60 * 1000)\n  }\n});\n```"
         },
         {
-          "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval-code-structure",
-          "path": "examples/workflows/README.md",
+          "id": "examples/next/tasks/README.md#next-tasks",
+          "path": "examples/next/tasks/README.md",
           "headings": [
-            "Workflow Demo - Multiple Concurrent Workflows with Approval",
-            "Code Structure"
+            "Next: tasks"
           ],
-          "startLine": 51,
-          "tokens": 123,
-          "score": 12.534,
-          "text": "## Code Structure\n\n- `src/server.ts` - Agent and Workflow implementation\n  - `TaskAgent` - Manages multiple task workflows with `WorkflowItem[]` state\n  - `TaskProcessingWorkflow` - Multi-step workflow with approval gate\n- `src/app.tsx` - React UI with workflow cards (Kumo components)\n  - `WorkflowCard` - Displays individual workflow with progress and actions\n  - `StatusBadge` - Shows workflow status (queued, running, waiting, complete, error)\n- `src/styles.css` - Tailwind + Kumo imports"
+          "startLine": 1,
+          "tokens": 410,
+          "score": 9.437,
+          "text": "# Next: tasks\n\nAn early-access, server-only example showing `Tasks` from `agents/tasks`\ninstalled on a plain Cloudflare `DurableObject`. It does not extend `Agent` or\nanother SDK base class.\n\n```ts\nexport class ReportObject extends DurableObject<Env> {\n  readonly tasks = new Tasks({\n    definitions: {\n      \"publish-report@v1\": async (input: ReportInput, step: TaskStep) => {\n        const summary = await step.do(\"draft\", () =>\n          this.draftSummary(input.topic)\n        );\n        await step.sleep(\"editorial-hold\", input.holdSeconds * 1000);\n        await step.do(\"publish\", () => {\n          // Runs on whichever instance the shared alarm wakes; the draft\n          // step above replays from the journal instead of executing again.\n        });\n        return { topic: input.topic, summary };\n      }\n    }\n  });\n  readonly lifecycle = Lifecycle.install(this).use(this.tasks);\n}\n```\n\nThe constructor map is the registry, exactly like `Scheduler` callbacks: it\nis rebuilt on every wake, so in-flight runs always resolve their persisted\ndefinition names \u2014 recovery is correct by construction. Runs start with\n`this.tasks.run(\"publish-report@v1\", input, options)`, and\n`this.tasks.handle(name)` gives a typed lens scoped to one definition.\n\nThe Tasks capability takes no wiring: storage, alarm coordination, the host\ninvocation boundary, and events all come from the Lifecycle it is installed\non. It owns its own `cf_agents_task_runs` and `cf_agents_task_steps` tables and\ncontributes its earliest run deadline to Lifecycle's shared physical alarm,\nso it composes with the Scheduler and other capabilities that also need\nwake-ups."
         },
         {
           "id": "examples/codemode/README.md#codemode-example-try-it",
@@ -1103,43 +1182,204 @@
           ],
           "startLine": 37,
           "tokens": 85,
-          "score": 12.036,
+          "score": 9.188,
           "text": "## Try it\n\n- \"Create a project called Alpha\" -- LLM writes code that calls `codemode.createProject()`\n- \"Add 3 tasks to Alpha\" -- LLM chains multiple tool calls in a single code block\n- \"List all projects and their tasks\" -- LLM composes results from multiple tools\n- Open Settings to switch between Dynamic Worker and Node Server executors"
         },
         {
-          "id": "docs/agents/workflows.md#workflows-integration-api-reference-agent-workflow-methods",
-          "path": "docs/agents/workflows.md",
+          "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval-code-structure",
+          "path": "examples/workflows/README.md",
           "headings": [
-            "Workflows Integration",
-            "API Reference",
-            "Agent Workflow Methods"
+            "Workflow Demo - Multiple Concurrent Workflows with Approval",
+            "Code Structure"
           ],
-          "startLine": 234,
-          "tokens": 16,
-          "score": 5.779,
-          "text": "### Agent Workflow Methods\n\nMethods added to the `Agent` class:"
+          "startLine": 51,
+          "tokens": 123,
+          "score": 9.055,
+          "text": "## Code Structure\n\n- `src/server.ts` - Agent and Workflow implementation\n  - `TaskAgent` - Manages multiple task workflows with `WorkflowItem[]` state\n  - `TaskProcessingWorkflow` - Multi-step workflow with approval gate\n- `src/app.tsx` - React UI with workflow cards (Kumo components)\n  - `WorkflowCard` - Displays individual workflow with progress and actions\n  - `StatusBadge` - Shows workflow status (queued, running, waiting, complete, error)\n- `src/styles.css` - Tailwind + Kumo imports"
+        },
+        {
+          "id": "examples/next/schedules/README.md#next-schedules",
+          "path": "examples/next/schedules/README.md",
+          "headings": [
+            "Next: schedules"
+          ],
+          "startLine": 1,
+          "tokens": 378,
+          "score": 8.397,
+          "text": "# Next: schedules\n\nAn early-access, server-only example showing `Scheduler` from `agents/schedules`\ninstalled on a plain Cloudflare `DurableObject`. It does not extend `Agent` or\nanother SDK base class.\n\n```ts\nexport class ReminderObject extends DurableObject<Env> {\n  readonly scheduler = new Scheduler({\n    callbacks: {\n      deliverReminder: (\n        payload: { message: string },\n        schedule: Schedule<{ message: string }>\n      ) => {\n        // Runs when the schedule is due, even when the alarm wakes a fresh\n        // instance. Typed where it is declared and where it is scheduled.\n      }\n    }\n  });\n  readonly lifecycle = Lifecycle.install(this).use(this.scheduler);\n\n  async onRequest() {\n    const schedule = await this.scheduler.set(5, \"deliverReminder\", {\n      message: \"ping\"\n    });\n    return Response.json({ created: schedule });\n  }\n}\n```\n\nThe Scheduler takes no wiring: storage, alarm coordination, the host\ninvocation boundary, and events all come from the Lifecycle it is installed\non. It owns its\nown `cf_agents_schedules` table and contributes its earliest pending row to\nLifecycle's shared physical alarm, so it composes with other capabilities that\nalso need wake-ups.\n\n`set()` and `every()` type both the callback name and the payload against the\nregistered callbacks map. `get()`, `list()`, and `cancel()` manage pending\nschedules. Delivered reminders\nare recorded in the host's own SQL table, so both pending and completed work\nsurvive the Durable Object leaving memory."
+        },
+        {
+          "id": "docs/think/workflows.md#think-workflows",
+          "path": "docs/think/workflows.md",
+          "headings": [
+            "Think Workflows"
+          ],
+          "startLine": 1,
+          "tokens": 124,
+          "score": 8.364,
+          "text": "# Think Workflows\n\n`ThinkWorkflow` connects Think to Cloudflare Workflows when a durable job\nneeds one model-driven reasoning step.\n\nUse it when the Workflow owns the process:\n\n- durable multi-step orchestration\n- approval gates or long waits\n- retryable deterministic side effects\n- a Think turn that should produce typed structured output\n\nKeep recurring prompts as scheduled tasks, and keep simple one-off background\nturns on `submitMessages()`. Workflows are for jobs where the steps matter."
+        },
+        {
+          "id": "docs/agents/scheduling.md#scheduling-scheduling-modes-scheduled-execution",
+          "path": "docs/agents/scheduling.md",
+          "headings": [
+            "Scheduling",
+            "Scheduling Modes",
+            "Scheduled Execution"
+          ],
+          "startLine": 166,
+          "tokens": 180,
+          "score": 8.196,
+          "text": "### Scheduled Execution\n\nPass a `Date` object to schedule a task at a specific time:\n\n```typescript\n// Run tomorrow at noon\nconst tomorrow = new Date();\ntomorrow.setDate(tomorrow.getDate() + 1);\ntomorrow.setHours(12, 0, 0, 0);\nawait this.schedule(tomorrow, \"sendReminder\", { message: \"Meeting time!\" });\n\n// Run at a specific timestamp\nawait this.schedule(new Date(\"2025-06-15T14:30:00Z\"), \"triggerEvent\", {\n  eventId: \"conference-2025\"\n});\n\n// Run in 2 hours using Date math\nconst twoHoursFromNow = new Date(Date.now() + 2 * 60 * 60 * 1000);\nawait this.schedule(twoHoursFromNow, \"checkIn\", {});\n```\n\n**Use cases:**\n\n- Appointment reminders\n- Deadline notifications\n- Scheduled content publishing\n- Time-based triggers"
+        },
+        {
+          "id": "docs/agents/scheduling.md#scheduling-managing-schedules-get-a-schedule",
+          "path": "docs/agents/scheduling.md",
+          "headings": [
+            "Scheduling",
+            "Managing Schedules",
+            "Get a Schedule"
+          ],
+          "startLine": 425,
+          "tokens": 107,
+          "score": 7.885,
+          "text": "### Get a Schedule\n\nRetrieve a scheduled task by its ID:\n\n```typescript\nconst schedule = await this.getScheduleById(scheduleId);\n\nif (schedule) {\n  console.log(\n    `Task ${schedule.id} will run at ${new Date(schedule.time * 1000)}`\n  );\n  console.log(`Callback: ${schedule.callback}`);\n  console.log(`Type: ${schedule.type}`); // \"scheduled\" | \"delayed\" | \"cron\" | \"interval\"\n} else {\n  console.log(\"Schedule not found\");\n}\n```"
+        },
+        {
+          "id": "docs/agents/retries.md#retries-related",
+          "path": "docs/agents/retries.md",
+          "headings": [
+            "Retries",
+            "Related"
+          ],
+          "startLine": 440,
+          "tokens": 53,
+          "score": 7.378,
+          "text": "## Related\n\n- [Scheduling](./scheduling.md) \u2014 schedule tasks for future execution\n- [Queue](./queue.md) \u2014 background task queue\n- [Workflows](./workflows.md) \u2014 durable multi-step processing with automatic retries"
+        },
+        {
+          "id": "examples/playground/testing.md#playground-testing-guide-workflow-demos-workflow-simulation-workflow-basic",
+          "path": "examples/playground/testing.md",
+          "headings": [
+            "Playground Testing Guide",
+            "Workflow Demos",
+            "Workflow Simulation (`/workflow/basic`)"
+          ],
+          "startLine": 443,
+          "tokens": 35,
+          "score": 6.039,
+          "text": "### Workflow Simulation (`/workflow/basic`)\n\nInteractive demo that simulates multi-step workflow execution with automatic step progression."
+        }
+      ],
+      "manifest": [
+        {
+          "id": "pinned:secrets",
+          "pinned": true,
+          "source": "git-next-demo-layers/org/AGENTS.md:4"
+        },
+        {
+          "id": "pinned:changesetPolicy",
+          "pinned": true,
+          "source": "git-next-demo-layers/contract/AGENTS.md:4"
+        },
+        {
+          "id": "pinned:allowedModels",
+          "pinned": true,
+          "source": "git-next-demo-layers/org/AGENTS.md:3"
+        },
+        {
+          "id": "pinned:commitFormat",
+          "pinned": true,
+          "source": "git-next-demo-layers/contract/AGENTS.md:3"
+        },
+        {
+          "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval-how-it-works",
+          "pinned": false,
+          "source": "examples/workflows/README.md:43"
+        },
+        {
+          "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval",
+          "pinned": false,
+          "source": "examples/workflows/README.md:1"
+        },
+        {
+          "id": "docs/agents/scheduling.md#scheduling-scheduling-vs-queue-vs-workflows",
+          "pinned": false,
+          "source": "docs/agents/scheduling.md:806"
+        },
+        {
+          "id": "docs/agents/workflows.md#workflows-integration-introduction-when-to-use-what",
+          "pinned": false,
+          "source": "docs/agents/workflows.md:35"
+        },
+        {
+          "id": "examples/codemode-browser/README.md#browser-codemode-example-try-it",
+          "pinned": false,
+          "source": "examples/codemode-browser/README.md:41"
+        },
+        {
+          "id": "docs/agents/scheduling.md#scheduling-managing-schedules-list-schedules",
+          "pinned": false,
+          "source": "docs/agents/scheduling.md:443"
+        },
+        {
+          "id": "examples/next/tasks/README.md#next-tasks",
+          "pinned": false,
+          "source": "examples/next/tasks/README.md:1"
+        },
+        {
+          "id": "examples/codemode/README.md#codemode-example-try-it",
+          "pinned": false,
+          "source": "examples/codemode/README.md:37"
+        },
+        {
+          "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval-code-structure",
+          "pinned": false,
+          "source": "examples/workflows/README.md:51"
+        },
+        {
+          "id": "examples/next/schedules/README.md#next-schedules",
+          "pinned": false,
+          "source": "examples/next/schedules/README.md:1"
+        },
+        {
+          "id": "docs/think/workflows.md#think-workflows",
+          "pinned": false,
+          "source": "docs/think/workflows.md:1"
+        },
+        {
+          "id": "docs/agents/scheduling.md#scheduling-scheduling-modes-scheduled-execution",
+          "pinned": false,
+          "source": "docs/agents/scheduling.md:166"
+        },
+        {
+          "id": "docs/agents/scheduling.md#scheduling-managing-schedules-get-a-schedule",
+          "pinned": false,
+          "source": "docs/agents/scheduling.md:425"
+        },
+        {
+          "id": "docs/agents/retries.md#retries-related",
+          "pinned": false,
+          "source": "docs/agents/retries.md:440"
+        },
+        {
+          "id": "examples/playground/testing.md#playground-testing-guide-workflow-demos-workflow-simulation-workflow-basic",
+          "pinned": false,
+          "source": "examples/playground/testing.md:443"
         }
       ],
       "omitted": {
-        "count": 1819,
+        "count": 1825,
         "oversized": 49,
-        "tokens": 534271,
-        "unmatchedSections": 1886,
+        "tokens": 535451,
+        "unmatchedSections": 1881,
         "top": [
           {
             "id": "packages/think/README.md#cloudflare-think-think-scheduled-tasks",
             "path": "packages/think/README.md",
             "title": "Scheduled tasks",
             "tokens": 901,
-            "score": 12.713,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/workflows.md#workflows-integration-patterns-durable-task-queue-with-retries",
-            "path": "docs/agents/workflows.md",
-            "title": "Durable Task Queue with Retries",
-            "tokens": 223,
-            "score": 12.483,
+            "score": 8.966,
             "reason": "budget"
           },
           {
@@ -1147,71 +1387,15 @@
             "path": "docs/think/index.md",
             "title": "Scheduled Tasks",
             "tokens": 908,
-            "score": 12.459,
+            "score": 8.921,
             "reason": "budget"
           },
           {
-            "id": "examples/next/schedules/README.md#next-schedules",
-            "path": "examples/next/schedules/README.md",
-            "title": "Next: schedules",
-            "tokens": 378,
-            "score": 12.44,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/AGENTS.md#agents-md-examples-conventions-ui-kumo-required-ui-patterns",
-            "path": "examples/AGENTS.md",
-            "title": "Required UI patterns",
-            "tokens": 133,
-            "score": 12.396,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/think-submissions/README.md#think-durable-submissions",
-            "path": "examples/think-submissions/README.md",
-            "title": "Think Durable Submissions",
-            "tokens": 69,
-            "score": 11.882,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/scheduling.md#scheduling-managing-schedules-get-a-schedule",
-            "path": "docs/agents/scheduling.md",
-            "title": "Get a Schedule",
-            "tokens": 107,
-            "score": 11.865,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/scheduling.md#scheduling-scheduling-modes-scheduled-execution",
-            "path": "docs/agents/scheduling.md",
-            "title": "Scheduled Execution",
-            "tokens": 180,
-            "score": 11.751,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/codemode/README.md#codemode-example-what-it-demonstrates",
-            "path": "examples/codemode/README.md",
-            "title": "What it demonstrates",
-            "tokens": 230,
-            "score": 11.735,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/think/multi-chat.md#multi-chat-applications-run-cross-chat-scheduled-work",
-            "path": "docs/think/multi-chat.md",
-            "title": "Run cross-chat scheduled work",
-            "tokens": 334,
-            "score": 11.673,
-            "reason": "budget"
-          },
-          {
-            "id": "design/think.md#think-testing",
-            "path": "design/think.md",
-            "title": "Testing",
-            "tokens": 134,
-            "score": 11.662,
+            "id": "docs/agents/workflows.md#workflows-integration-best-practices",
+            "path": "docs/agents/workflows.md",
+            "title": "Best Practices",
+            "tokens": 386,
+            "score": 8.339,
             "reason": "budget"
           },
           {
@@ -1219,207 +1403,15 @@
             "path": "docs/agents/getting-started.md",
             "title": "Common Patterns",
             "tokens": 133,
-            "score": 11.575,
+            "score": 7.762,
             "reason": "budget"
           },
           {
-            "id": "design/think.md#think-current-distinctions-from-aichatagent",
-            "path": "design/think.md",
-            "title": "Current distinctions from AIChatAgent",
-            "tokens": 223,
-            "score": 11.102,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/next/harnesses/self-modifying/README.md#next-self-modifying-harness",
-            "path": "examples/next/harnesses/self-modifying/README.md",
-            "title": "Next: self-modifying harness",
-            "tokens": 405,
-            "score": 11.074,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/workflows.md#workflows-integration-api-reference-agent-workflow-methods-getworkflows-criteria",
-            "path": "docs/agents/workflows.md",
-            "title": "`getWorkflows(criteria?)`",
-            "tokens": 392,
-            "score": 10.84,
-            "reason": "budget"
-          },
-          {
-            "id": "design/think.md#think-how-it-works-entry-paths",
-            "path": "design/think.md",
-            "title": "Entry paths",
-            "tokens": 454,
-            "score": 10.793,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/playground/testing.md#playground-testing-guide-core-demos-state-management-core-state-test-6-add-item",
-            "path": "examples/playground/testing.md",
-            "title": "Test 6: Add Item",
-            "tokens": 42,
-            "score": 10.734,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/think/sub-agents.md#sub-agents-and-programmatic-turns-programmatic-turns-with-savemessages-scheduled-responses",
-            "path": "docs/think/sub-agents.md",
-            "title": "Scheduled responses",
-            "tokens": 410,
-            "score": 10.732,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/tictactoe/README.md#tic-tac-toe",
-            "path": "examples/tictactoe/README.md",
-            "title": "Tic Tac Toe",
-            "tokens": 35,
-            "score": 10.695,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/playground/testing.md#playground-testing-guide-core-demos-scheduling-core-schedule-test-1-one-time-task",
-            "path": "examples/playground/testing.md",
-            "title": "Test 1: One-Time Task",
-            "tokens": 60,
-            "score": 10.594,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/next/streams/README.md#next-streams",
-            "path": "examples/next/streams/README.md",
-            "title": "Next: streams",
-            "tokens": 377,
-            "score": 10.533,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/think-submissions/README.md#think-durable-submissions-run",
-            "path": "examples/think-submissions/README.md",
-            "title": "Run",
-            "tokens": 132,
-            "score": 10.505,
-            "reason": "budget"
-          },
-          {
-            "id": "design/rfc-pi-harness-example.md#pi-durable-as-a-lifecycle-capability-the-proposal",
-            "path": "design/rfc-pi-harness-example.md",
-            "title": "The proposal",
-            "tokens": 499,
-            "score": 10.456,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/codemode/runtime.md#runtime-retention",
-            "path": "docs/codemode/runtime.md",
-            "title": "Retention",
-            "tokens": 308,
-            "score": 10.449,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/long-running-agents.md#long-running-agents-handling-long-async-operations-pattern-workflow-delegation",
-            "path": "docs/agents/long-running-agents.md",
-            "title": "Pattern: workflow delegation",
-            "tokens": 227,
-            "score": 10.347,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/think-submissions/README.md#think-durable-submissions-what-it-demonstrates",
-            "path": "examples/think-submissions/README.md",
-            "title": "What It Demonstrates",
-            "tokens": 296,
-            "score": 10.303,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/cross-domain/README.md#cross-domain-communication-demo",
-            "path": "examples/cross-domain/README.md",
-            "title": "Cross-Domain Communication Demo",
-            "tokens": 60,
-            "score": 10.26,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/next/routing/README.md#next-routing",
-            "path": "examples/next/routing/README.md",
-            "title": "Next: routing",
-            "tokens": 461,
-            "score": 10.163,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/observability.md#observability-channels",
-            "path": "docs/agents/observability.md",
-            "title": "Channels",
-            "tokens": 956,
-            "score": 9.99,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/deploy-churn/README.md#deploy-churn-durable-chat-recovery-under-real-deploys-what-s-in-here",
-            "path": "examples/deploy-churn/README.md",
-            "title": "What's in here",
-            "tokens": 311,
-            "score": 9.945,
-            "reason": "budget"
-          },
-          {
-            "id": "design/think-vs-aichat.md#think-vs-aichatagent-what-think-adds-beyond-storage",
-            "path": "design/think-vs-aichat.md",
-            "title": "What Think adds beyond storage",
-            "tokens": 279,
-            "score": 9.937,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/workflows.md#workflows-integration-introduction-what-are-cloudflare-workflows",
-            "path": "docs/agents/workflows.md",
-            "title": "What are Cloudflare Workflows?",
-            "tokens": 98,
-            "score": 9.9,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval-running-the-example",
-            "path": "examples/workflows/README.md",
-            "title": "Running the Example",
-            "tokens": 60,
-            "score": 9.783,
-            "reason": "budget"
-          },
-          {
-            "id": "design/retries.md#retries-key-decisions-why-this-retry-retries-all-errors-by-default",
-            "path": "design/retries.md",
-            "title": "Why `this.retry()` retries all errors by default?",
-            "tokens": 265,
-            "score": 9.78,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/tasks.md#tasks-choosing-an-api",
-            "path": "docs/agents/tasks.md",
-            "title": "Choosing an API",
-            "tokens": 170,
-            "score": 9.647,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/playground/TODO.md#playground-improvements-missing-sdk-features",
-            "path": "examples/playground/TODO.md",
-            "title": "Missing SDK Features",
-            "tokens": 253,
-            "score": 9.639,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/agents/human-in-the-loop.md#human-in-the-loop-complete-examples",
-            "path": "docs/agents/human-in-the-loop.md",
-            "title": "Complete Examples",
-            "tokens": 418,
-            "score": 9.637,
+            "id": "docs/think/multi-chat.md#multi-chat-applications-run-cross-chat-scheduled-work",
+            "path": "docs/think/multi-chat.md",
+            "title": "Run cross-chat scheduled work",
+            "tokens": 334,
+            "score": 7.428,
             "reason": "budget"
           },
           {
@@ -1427,23 +1419,279 @@
             "path": "docs/agents/scheduling.md",
             "title": "Scheduling",
             "tokens": 53,
-            "score": 9.606,
+            "score": 7.168,
             "reason": "budget"
           },
           {
-            "id": "examples/a2a/README.md#a2a-agent-key-pattern",
-            "path": "examples/a2a/README.md",
-            "title": "Key pattern",
-            "tokens": 191,
-            "score": 9.524,
+            "id": "docs/agents/workflows.md#workflows-integration-api-reference-agent-workflow-methods-getworkflows-criteria",
+            "path": "docs/agents/workflows.md",
+            "title": "`getWorkflows(criteria?)`",
+            "tokens": 392,
+            "score": 7.164,
             "reason": "budget"
           },
           {
-            "id": "docs/agents/retries.md#retries",
-            "path": "docs/agents/retries.md",
-            "title": "Retries",
+            "id": "examples/playground/testing.md#playground-testing-guide-core-demos-scheduling-core-schedule-test-1-one-time-task",
+            "path": "examples/playground/testing.md",
+            "title": "Test 1: One-Time Task",
+            "tokens": 60,
+            "score": 7.095,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval-running-the-example",
+            "path": "examples/workflows/README.md",
+            "title": "Running the Example",
+            "tokens": 60,
+            "score": 6.951,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/index.md#agents-documentation-background-processing",
+            "path": "docs/agents/index.md",
+            "title": "Background Processing",
+            "tokens": 135,
+            "score": 6.732,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/playground/README.md#agents-sdk-playground-features-workflows",
+            "path": "examples/playground/README.md",
+            "title": "Workflows",
+            "tokens": 80,
+            "score": 6.719,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/think/sub-agents.md#sub-agents-and-programmatic-turns-programmatic-turns-with-savemessages-scheduled-responses",
+            "path": "docs/think/sub-agents.md",
+            "title": "Scheduled responses",
+            "tokens": 410,
+            "score": 6.654,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/think-workflows/README.md#think-workflows",
+            "path": "examples/think-workflows/README.md",
+            "title": "Think Workflows",
+            "tokens": 44,
+            "score": 6.509,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval-features-demonstrated",
+            "path": "examples/workflows/README.md",
+            "title": "Features Demonstrated",
+            "tokens": 251,
+            "score": 6.491,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval-key-concepts-tracking-table-integration",
+            "path": "examples/workflows/README.md",
+            "title": "Tracking Table Integration",
+            "tokens": 95,
+            "score": 6.412,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/tasks.md#tasks-choosing-an-api",
+            "path": "docs/agents/tasks.md",
+            "title": "Choosing an API",
+            "tokens": 170,
+            "score": 6.338,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/workflows.md#workflows-integration-introduction-what-are-cloudflare-workflows",
+            "path": "docs/agents/workflows.md",
+            "title": "What are Cloudflare Workflows?",
+            "tokens": 98,
+            "score": 6.283,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/AGENTS.md#agents-md-examples-conventions-env-example",
+            "path": "examples/AGENTS.md",
+            "title": ".env.example",
             "tokens": 54,
-            "score": 9.522,
+            "score": 6.261,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/long-running-agents.md#long-running-agents-handling-long-async-operations-pattern-workflow-delegation",
+            "path": "docs/agents/long-running-agents.md",
+            "title": "Pattern: workflow delegation",
+            "tokens": 227,
+            "score": 6.245,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/workflows.md#workflows-integration-patterns-durable-task-queue-with-retries",
+            "path": "docs/agents/workflows.md",
+            "title": "Durable Task Queue with Retries",
+            "tokens": 223,
+            "score": 6.23,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/workflows.md#workflows-integration-introduction-why-integrate-with-agents",
+            "path": "docs/agents/workflows.md",
+            "title": "Why Integrate with Agents?",
+            "tokens": 158,
+            "score": 6.166,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/playground/testing.md#playground-testing-guide-workflow-demos-workflow-simulation-workflow-basic-test-4-start-multiple-workflows",
+            "path": "examples/playground/testing.md",
+            "title": "Test 4: Start Multiple Workflows",
+            "tokens": 59,
+            "score": 6.148,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval-key-concepts-multi-workflow-state",
+            "path": "examples/workflows/README.md",
+            "title": "Multi-Workflow State",
+            "tokens": 91,
+            "score": 6.077,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/scheduling.md#scheduling-api-reference-agent-methods-listschedules",
+            "path": "docs/agents/scheduling.md",
+            "title": "listSchedules()",
+            "tokens": 81,
+            "score": 6.039,
+            "reason": "budget"
+          },
+          {
+            "id": "AGENTS.md#agents-md-boundaries",
+            "path": "AGENTS.md",
+            "title": "Boundaries",
+            "tokens": 211,
+            "score": 5.906,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/think/workflows.md#think-workflows-boundary-with-other-primitives",
+            "path": "docs/think/workflows.md",
+            "title": "Boundary With Other Primitives",
+            "tokens": 274,
+            "score": 5.876,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/workflows/README.md#workflow-demo-multiple-concurrent-workflows-with-approval-key-concepts-per-workflow-approval",
+            "path": "examples/workflows/README.md",
+            "title": "Per-Workflow Approval",
+            "tokens": 76,
+            "score": 5.844,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/playground/testing.md#playground-testing-guide-core-demos-scheduling-core-schedule",
+            "path": "examples/playground/testing.md",
+            "title": "Scheduling (`/core/schedule`)",
+            "tokens": 20,
+            "score": 5.749,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/long-running-agents.md#long-running-agents-managing-state-over-time-housekeeping",
+            "path": "docs/agents/long-running-agents.md",
+            "title": "Housekeeping",
+            "tokens": 257,
+            "score": 5.729,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/think-submissions/README.md#think-durable-submissions-what-it-demonstrates",
+            "path": "examples/think-submissions/README.md",
+            "title": "What It Demonstrates",
+            "tokens": 296,
+            "score": 5.657,
+            "reason": "budget"
+          },
+          {
+            "id": "design/think.md#think-testing",
+            "path": "design/think.md",
+            "title": "Testing",
+            "tokens": 134,
+            "score": 5.64,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/think-submissions/README.md#think-durable-submissions",
+            "path": "examples/think-submissions/README.md",
+            "title": "Think Durable Submissions",
+            "tokens": 69,
+            "score": 5.565,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/AGENTS.md#agents-md-examples-conventions-readme-md",
+            "path": "examples/AGENTS.md",
+            "title": "README.md",
+            "tokens": 83,
+            "score": 5.541,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/AGENTS.md#agents-md-examples",
+            "path": "examples/AGENTS.md",
+            "title": "AGENTS.md \u2014 examples/",
+            "tokens": 100,
+            "score": 5.54,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/playground/testing.md#playground-testing-guide-core-demos-scheduling-core-schedule-test-2-recurring-task",
+            "path": "examples/playground/testing.md",
+            "title": "Test 2: Recurring Task",
+            "tokens": 57,
+            "score": 5.469,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/playground/testing.md#playground-testing-guide-workflow-demos-workflow-simulation-workflow-basic-test-2-start-workflow",
+            "path": "examples/playground/testing.md",
+            "title": "Test 2: Start Workflow",
+            "tokens": 80,
+            "score": 5.467,
+            "reason": "budget"
+          },
+          {
+            "id": "design/think.md#think-current-distinctions-from-aichatagent",
+            "path": "design/think.md",
+            "title": "Current distinctions from AIChatAgent",
+            "tokens": 223,
+            "score": 5.421,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/codemode/README.md#codemode-example-what-it-demonstrates",
+            "path": "examples/codemode/README.md",
+            "title": "What it demonstrates",
+            "tokens": 230,
+            "score": 5.386,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/playground/testing.md#playground-testing-guide-workflow-demos-approval-workflow-workflow-approval",
+            "path": "examples/playground/testing.md",
+            "title": "Approval Workflow (`/workflow/approval`)",
+            "tokens": 29,
+            "score": 5.311,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/observability.md#observability-event-reference-schedule-and-queue-events",
+            "path": "docs/agents/observability.md",
+            "title": "Schedule and queue events",
+            "tokens": 346,
+            "score": 5.27,
             "reason": "budget"
           }
         ]
@@ -1451,8 +1699,9 @@
       "stats": {
         "markdownFiles": 278,
         "sections": 3721,
-        "rulesTokens": 431,
-        "sectionTokens": 2567,
+        "rulesTokens": 563,
+        "pinnedTokens": 130,
+        "sectionTokens": 2435,
         "tokensServed": 2998,
         "tokensAllMarkdown": 889608,
         "tokensInstructionFilesOnPath": 5274,
@@ -1469,15 +1718,67 @@
         "agent-think/src/index.ts"
       ],
       "budgetTokens": 3000,
-      "retriever": "bm25",
+      "retriever": "hybrid(bm25+vectorize:@cf/google/embeddinggemma-300m)",
+      "pinned": {
+        "musts": [
+          {
+            "topic": "secrets",
+            "value": "never-in-source",
+            "kind": "org",
+            "source": "git-next-demo-layers/org/AGENTS.md:4"
+          },
+          {
+            "topic": "allowedModels",
+            "value": "providers:anthropic,workers-ai",
+            "kind": "org",
+            "source": "git-next-demo-layers/org/AGENTS.md:3"
+          },
+          {
+            "topic": "commitFormat",
+            "value": "ticket-id-prefix",
+            "kind": "contract",
+            "source": "git-next-demo-layers/contract/AGENTS.md:3"
+          },
+          {
+            "topic": "changesetPolicy",
+            "value": "not-required",
+            "kind": "contract",
+            "source": "git-next-demo-layers/contract/AGENTS.md:4"
+          }
+        ],
+        "catalog": null,
+        "relevant": []
+      },
       "rules": [
         {
           "topic": "packageManager",
           "value": "pnpm",
           "strength": "should",
-          "layer": "root",
+          "layer": "agent-think",
           "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:58",
+          "source": "agents-demo-full/agent-think/AGENTS.md:175",
+          "appliesTo": [
+            "agent-think/src"
+          ]
+        },
+        {
+          "topic": "testCommand",
+          "value": "pnpm test",
+          "strength": "should",
+          "layer": "agent-think",
+          "kind": "project",
+          "source": "agents-demo-full/agent-think/AGENTS.md:175",
+          "appliesTo": [
+            "agent-think/src"
+          ]
+        },
+        {
+          "topic": "testCommand",
+          "value": "pnpm test:e2e",
+          "strength": "should",
+          "layer": "agent-think",
+          "kind": "project",
+          "source": "agents-demo-full/agent-think/AGENTS.md:176",
           "appliesTo": [
             "agent-think/src"
           ]
@@ -1488,29 +1789,7 @@
           "strength": "should",
           "layer": "root",
           "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:67",
-          "appliesTo": [
-            "agent-think/src"
-          ]
-        },
-        {
-          "topic": "testCommand",
-          "value": "pnpm run test",
-          "strength": "should",
-          "layer": "root",
-          "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:68",
-          "appliesTo": [
-            "agent-think/src"
-          ]
-        },
-        {
-          "topic": "testCommand",
-          "value": "pnpm run test:react",
-          "strength": "should",
-          "layer": "root",
-          "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:69",
+          "source": "agents-demo-full/AGENTS.md:105",
           "appliesTo": [
             "agent-think/src"
           ]
@@ -1522,17 +1801,6 @@
           "layer": "acme-org",
           "kind": "org",
           "source": "git-next-demo-layers/org/AGENTS.md:4",
-          "appliesTo": [
-            "agent-think/src"
-          ]
-        },
-        {
-          "topic": "changesetPolicy",
-          "value": "not-required",
-          "strength": "must",
-          "layer": "sow-1234",
-          "kind": "contract",
-          "source": "git-next-demo-layers/contract/AGENTS.md:4",
           "appliesTo": [
             "agent-think/src"
           ]
@@ -1560,6 +1828,17 @@
           ]
         },
         {
+          "topic": "changesetPolicy",
+          "value": "not-required",
+          "strength": "must",
+          "layer": "sow-1234",
+          "kind": "contract",
+          "source": "git-next-demo-layers/contract/AGENTS.md:4",
+          "appliesTo": [
+            "agent-think/src"
+          ]
+        },
+        {
           "topic": "securityScan",
           "value": "before-pr",
           "strength": "should",
@@ -1574,17 +1853,6 @@
       "conflicts": [],
       "sections": [
         {
-          "id": "agent-think/skills/reproduce/SKILL.md#6-push-the-repro-to-a-branch",
-          "path": "agent-think/skills/reproduce/SKILL.md",
-          "headings": [
-            "6. Push the repro to a branch"
-          ],
-          "startLine": 285,
-          "tokens": 326,
-          "score": 30.823,
-          "text": "## 6. Push the repro to a branch\n\nPublish the repro project as an **orphan branch on the target repo** so anyone\n(human or agent) can pull exactly what you built and run it:\n\nNever do this inside `$REPO_DIR` \u2014 the clone must stay intact for the\nroot-cause hypothesis and any follow-up PR work. Publish from a scratch dir:\n\n```bash\nPUBLISH_DIR=\"/workspace/repro-publish-<issueNumber>\"\nmkdir -p \"$PUBLISH_DIR\" && cd \"$PUBLISH_DIR\"\ngit init -q -b repro/issue-<issueNumber>\ntar -C \"$REPRO_DIR\" --exclude node_modules --exclude dist \\\n  --exclude .wrangler --exclude .env -cf - . | tar -xf -\ngit add -A\ngit commit -q -m \"repro for #<issueNumber>: <one-line issue title>\"\ngit push -f https://github.com/<repo>.git HEAD:repro/issue-<issueNumber>\ncd /workspace && rm -rf \"$PUBLISH_DIR\"\n```\n\n- The scratch `git init` publishes an orphan branch with no base-repo\n  history; the checkout IS the runnable repro\n  (`git clone -b repro/issue-<issueNumber> ... && npm install && npm run deploy`).\n- One canonical branch per issue: re-runs force-push the same\n  `repro/issue-<issueNumber>` branch.\n- Capture `https://github.com/<repo>/tree/repro/issue-<issueNumber>` as\n  `reproBranchUrl`. If the push is rejected (branch protection), say so in the\n  report and continue \u2014 the branch is best-effort, the report is not."
-        },
-        {
           "id": "agent-think/AGENTS.md#agent-think",
           "path": "agent-think/AGENTS.md",
           "headings": [
@@ -1592,19 +1860,8 @@
           ],
           "startLine": 1,
           "tokens": 132,
-          "score": 27.378,
+          "score": 14.84,
           "text": "# agent-think\n\nA Think agent (`@cloudflare/think`) that reproduces and fixes `cloudflare/agents`\nGitHub issues inside a container-backed `@cloudflare/workspace` VFS. Anyone\ntrusted on the repo triggers it from an issue comment:\n\n```\n@agent-think <instruction>\n```\n\ne.g. `@agent-think reproduce this issue` or `@agent-think open a PR fixing this`.\nIt runs the matching skill (reproduce / open-pr) in a real Linux container and\nreports back on the issue as the **agent-think GitHub App** \u2014 never\nimpersonating the triggering user."
-        },
-        {
-          "id": "agent-think/skills/reproduce/SKILL.md#7-report-back-on-the-issue",
-          "path": "agent-think/skills/reproduce/SKILL.md",
-          "headings": [
-            "7. Report back on the issue"
-          ],
-          "startLine": 314,
-          "tokens": 306,
-          "score": 26.363,
-          "text": "## 7. Report back on the issue\n\nPost a comment with `gh`. Build the body in a file to keep formatting clean:\n\n```bash\ngh issue comment <issueNumber> --repo <repo> --body-file comment.md\n```\n\nThe comment should contain:\n\n- `Requested by @<requestedBy>` near the top, using the exact sanitized\n  `requested-by` mention from the run envelope (omit only when it is `unknown`).\n- **Verdict**: reproduced / could not reproduce / skipped, with one-line reason.\n- **Live URL** plus one line of click instructions (\"open it, press _Trigger\n  bug_, watch the log\") \u2014 the page is the demo. Phrase it exactly like:\n  \"Repro URL (expires after 60 mins): <liveUrl>\".\n- **Repro branch**: the `reproBranchUrl` link \u2014 \"pull this branch to run the\n  repro yourself\". This is what other agents check out to build on your work.\n- **Minimal repro**: the key files (`wrangler.jsonc` + the agent/worker source) in fenced code blocks, or a short `git`-style listing.\n- **What you observed** vs. **expected**, including relevant curl output / errors.\n- **Root-cause hypothesis** if you have one (point at the suspect file/line in `packages/`).\n- A short \"\ud83e\udd16 generated by the repro-agent\" footer.\n\nCapture the returned comment URL for `commentUrl`."
         },
         {
           "id": "agent-think/AGENTS.md#agent-think-aims",
@@ -1615,17 +1872,8 @@
           ],
           "startLine": 16,
           "tokens": 168,
-          "score": 24.125,
+          "score": 14.313,
           "text": "## Aims\n\n- Replace CI-runner automations (the `/repro` + `/pr` Actions shape from\n  PR #1844) with **one persistent Worker + pre-warmed container**: webhook to\n  running agent in seconds, durable turns that survive eviction, one shared\n  workspace/thread per issue.\n- **Reproductions a human can see.** Every repro deploys with a minimal Vite\n  frontend \u2014 click the `workers.dev` link, press _Trigger bug_, watch\n  expected-vs-actual in the page (deployed via `wrangler deploy --temporary`\n  with a claimable preview account).\n- Multiplayer for the team: sessions are per-issue, not per-user, and the live\n  thread UI (behind Cloudflare Access) shows any run in flight."
-        },
-        {
-          "id": "agent-think/skills/open-pr/SKILL.md#intro",
-          "path": "agent-think/skills/open-pr/SKILL.md",
-          "headings": [],
-          "startLine": 1,
-          "tokens": 396,
-          "score": 24.008,
-          "text": "---\nname: open-pr\ndescription: Take a cloudflare/agents GitHub issue plus any repro findings and one-shot a fix PR \u2014 branch, change, test, push, and open the PR linked to the issue.\n---\n\nThe current user message contains an `<agent-think-run>` envelope with\n`repository`, `issue`, `instruction`, `requested-by`, and (when available)\n`trigger-comment-id`.\nUse those values exactly. Never infer or substitute another target from examples,\nworkspace contents, GitHub searches, or concurrent issues. If the envelope or a\nrequired field is absent, stop without cloning/editing/pushing/posting and return a\nstructured skipped result. When `trigger-comment-id` is present, your first\ncontainer action is the liveness reaction:\n\n```bash\ngh api repos/<repository>/issues/comments/<trigger-comment-id>/reactions \\\n  -f content=rocket\n```\n\nProduce a focused fix PR, authored as **yourself** \u2014 the agent-think GitHub App.\nDo not impersonate any user.\n\nThe instruction is the free-form text the user typed after `@agent-think` (it\nmay be empty). Treat it as a direct instruction \u2014 e.g. constraints\non the fix, a preferred approach, or a pointer to the suspect area \u2014 and weight\nit highly, but stay within the scope of the issue.\n\nAll `gh`, `git`, `npm`, `curl`, and `wrangler` commands must run on the\n`container` backend (`bash({ command, backend: \"container\" })`) \u2014 the `shell`\nbackend has no real binaries or network. `gh` is already authenticated as the\napp; use it directly (no token handling). Work under `/workspace`; put long\nlogs and disposable scratch files in container-local `/temp`."
         },
         {
           "id": "agent-think/AGENTS.md#agent-think-how-it-works",
@@ -1636,8 +1884,39 @@
           ],
           "startLine": 29,
           "tokens": 710,
-          "score": 20.263,
+          "score": 12.979,
           "text": "## How it works\n\n```\n@agent-think <instruction>            (GitHub issue comment)\n   \u2502  issue_comment webhook\n   \u25bc\ngh-app  (GitLab: cloudflare/ai-agents/team-apps, apps/gh-app \u2014 PRIVATE)\n   \u2502  verify sig \u00b7 member-gate \u00b7 mint installation token \u00b7 react \ud83d\udc40 \u00b7 dedup(KV)\n   \u2502  RPC: env.AGENT_THINK.dispatch({repo, issueNumber, instruction, installationToken})\n   \u25bc\nagent-think  (this dir \u2014 PUBLIC-safe, holds no App creds)\n   \u251c\u2500 AgentThink WorkerEntrypoint  (src/index.ts)\n   \u2502     dispatch: getAgentByName(env.ThinkAgent, session) \u2192 setContext \u2192 start()\n   \u2502     getSubmissionStatus: read one durable submission's state over private RPC\n   \u2502     start() ONLY submits the durable turn \u2014 returns in ~1s\n   \u2502     failed-run continuation refreshes GitHub auth through gh-app's private\n   \u2502     AgentThinkTokenBroker binding before submitting into the same session\n   \u251c\u2500 ThinkAgent DO  (src/agent.ts) \u2014 owns durable turn/transcript state only\n   \u251c\u2500 WorkspaceAgent DO (src/workspace-agent.ts) \u2014 same stable per-issue name;\n   \u2502     exclusively owns Workspace VFS + backend connection. File tools and\n   \u2502     both bash backends share its RPC stub; the container backend claims\n   \u2502     from the warm pool per turn:\n   \u2502        resolveContainerId(env, id) \u2192 env.Sandbox.get(idFromName(uuid))\n   \u251c\u2500 Sandbox DO  (src/sandbox.ts)   \u2014 container host (wsd); handed out by pool\n   \u251c\u2500 WarmPool DO (src/warm-pool.ts) \u2014 keeps exactly one unassigned container warm\n   \u251c\u2500 CommandCenterAgent DO (src/command-center.ts) \u2014 singleton (\"main\")\n   \u2502     registry of every thread + per-thread counters; ThinkAgent reports\n   \u2502     lifecycle events fire-and-forget; failed runs are claimed atomically\n   \u2502     before an operator continuation\n   \u2514\u2500 UI (React SPA, src/client.tsx): `/` command center (metrics, failed-run\n      continuation, and ChatGPT-style thread sidebar, live via agents state\n      sync); /thread/:session live thread view\n```\n\nReactions are the liveness protocol (an \"on it\" comment was tried and removed\nas noise): \ud83d\udc40 from gh-app = webhook seen and dispatched; \ud83d\ude80 from the agent =\nthe MODEL's own first action (the system prompt tells it to `gh api` the\nreaction from the container), so it proves the whole chain \u2014 turn awake,\ncontainer attached, gh authed, model responding. \ud83d\udc40 without \ud83d\ude80 within a couple\nof minutes = the run is dead, not slow. Results arrive as an issue comment\nwhen the run finishes; gh-app posts \u274c if dispatch itself fails.\n\nSession name = `<repo-slug>-<issue>` (e.g. `cloudflare-agents-1859`). Both\nverbs on one issue reuse the same DO/workspace/thread, and `submitMessages`\nuses idempotency key `repo#issue`, so webhook redeliveries and repeat mentions\njoin the existing turn instead of forking a second one.\n\nSkills use Think's native R2 SkillSource and activation tools, independent of\nthe container's coding filesystem."
+        },
+        {
+          "id": "agent-think/skills/reproduce/SKILL.md#7-report-back-on-the-issue",
+          "path": "agent-think/skills/reproduce/SKILL.md",
+          "headings": [
+            "7. Report back on the issue"
+          ],
+          "startLine": 314,
+          "tokens": 306,
+          "score": 12,
+          "text": "## 7. Report back on the issue\n\nPost a comment with `gh`. Build the body in a file to keep formatting clean:\n\n```bash\ngh issue comment <issueNumber> --repo <repo> --body-file comment.md\n```\n\nThe comment should contain:\n\n- `Requested by @<requestedBy>` near the top, using the exact sanitized\n  `requested-by` mention from the run envelope (omit only when it is `unknown`).\n- **Verdict**: reproduced / could not reproduce / skipped, with one-line reason.\n- **Live URL** plus one line of click instructions (\"open it, press _Trigger\n  bug_, watch the log\") \u2014 the page is the demo. Phrase it exactly like:\n  \"Repro URL (expires after 60 mins): <liveUrl>\".\n- **Repro branch**: the `reproBranchUrl` link \u2014 \"pull this branch to run the\n  repro yourself\". This is what other agents check out to build on your work.\n- **Minimal repro**: the key files (`wrangler.jsonc` + the agent/worker source) in fenced code blocks, or a short `git`-style listing.\n- **What you observed** vs. **expected**, including relevant curl output / errors.\n- **Root-cause hypothesis** if you have one (point at the suspect file/line in `packages/`).\n- A short \"\ud83e\udd16 generated by the repro-agent\" footer.\n\nCapture the returned comment URL for `commentUrl`."
+        },
+        {
+          "id": "agent-think/skills/open-pr/SKILL.md#intro",
+          "path": "agent-think/skills/open-pr/SKILL.md",
+          "headings": [],
+          "startLine": 1,
+          "tokens": 396,
+          "score": 11.636,
+          "text": "---\nname: open-pr\ndescription: Take a cloudflare/agents GitHub issue plus any repro findings and one-shot a fix PR \u2014 branch, change, test, push, and open the PR linked to the issue.\n---\n\nThe current user message contains an `<agent-think-run>` envelope with\n`repository`, `issue`, `instruction`, `requested-by`, and (when available)\n`trigger-comment-id`.\nUse those values exactly. Never infer or substitute another target from examples,\nworkspace contents, GitHub searches, or concurrent issues. If the envelope or a\nrequired field is absent, stop without cloning/editing/pushing/posting and return a\nstructured skipped result. When `trigger-comment-id` is present, your first\ncontainer action is the liveness reaction:\n\n```bash\ngh api repos/<repository>/issues/comments/<trigger-comment-id>/reactions \\\n  -f content=rocket\n```\n\nProduce a focused fix PR, authored as **yourself** \u2014 the agent-think GitHub App.\nDo not impersonate any user.\n\nThe instruction is the free-form text the user typed after `@agent-think` (it\nmay be empty). Treat it as a direct instruction \u2014 e.g. constraints\non the fix, a preferred approach, or a pointer to the suspect area \u2014 and weight\nit highly, but stay within the scope of the issue.\n\nAll `gh`, `git`, `npm`, `curl`, and `wrangler` commands must run on the\n`container` backend (`bash({ command, backend: \"container\" })`) \u2014 the `shell`\nbackend has no real binaries or network. `gh` is already authenticated as the\napp; use it directly (no token handling). Work under `/workspace`; put long\nlogs and disposable scratch files in container-local `/temp`."
+        },
+        {
+          "id": "agent-think/skills/reproduce/SKILL.md#6-push-the-repro-to-a-branch",
+          "path": "agent-think/skills/reproduce/SKILL.md",
+          "headings": [
+            "6. Push the repro to a branch"
+          ],
+          "startLine": 285,
+          "tokens": 326,
+          "score": 11.553,
+          "text": "## 6. Push the repro to a branch\n\nPublish the repro project as an **orphan branch on the target repo** so anyone\n(human or agent) can pull exactly what you built and run it:\n\nNever do this inside `$REPO_DIR` \u2014 the clone must stay intact for the\nroot-cause hypothesis and any follow-up PR work. Publish from a scratch dir:\n\n```bash\nPUBLISH_DIR=\"/workspace/repro-publish-<issueNumber>\"\nmkdir -p \"$PUBLISH_DIR\" && cd \"$PUBLISH_DIR\"\ngit init -q -b repro/issue-<issueNumber>\ntar -C \"$REPRO_DIR\" --exclude node_modules --exclude dist \\\n  --exclude .wrangler --exclude .env -cf - . | tar -xf -\ngit add -A\ngit commit -q -m \"repro for #<issueNumber>: <one-line issue title>\"\ngit push -f https://github.com/<repo>.git HEAD:repro/issue-<issueNumber>\ncd /workspace && rm -rf \"$PUBLISH_DIR\"\n```\n\n- The scratch `git init` publishes an orphan branch with no base-repo\n  history; the checkout IS the runnable repro\n  (`git clone -b repro/issue-<issueNumber> ... && npm install && npm run deploy`).\n- One canonical branch per issue: re-runs force-push the same\n  `repro/issue-<issueNumber>` branch.\n- Capture `https://github.com/<repo>/tree/repro/issue-<issueNumber>` as\n  `reproBranchUrl`. If the push is rejected (branch protection), say so in the\n  report and continue \u2014 the branch is best-effort, the report is not."
         },
         {
           "id": "agent-think/skills/reproduce/SKILL.md#intro",
@@ -1645,81 +1924,121 @@
           "headings": [],
           "startLine": 1,
           "tokens": 379,
-          "score": 19.756,
+          "score": 11.443,
           "text": "---\nname: reproduce\ndescription: Reproduce a cloudflare/agents GitHub issue by scaffolding a minimal Agents/Worker project and deploying it to a temporary Cloudflare account, then report findings back on the issue.\n---\n\nThe current user message contains an `<agent-think-run>` envelope with\n`repository`, `issue`, `instruction`, `requested-by`, and (when available)\n`trigger-comment-id`.\nUse those values exactly. Never infer or substitute another target from examples,\nworkspace contents, GitHub searches, or concurrent issues. If the envelope or a\nrequired field is absent, stop without cloning/editing/posting and return a\nstructured skipped result. When `trigger-comment-id` is present, your first\ncontainer action is the liveness reaction:\n\n```bash\ngh api repos/<repository>/issues/comments/<trigger-comment-id>/reactions \\\n  -f content=rocket\n```\n\nReproduce the bug end-to-end and post your findings as an issue comment.\n\nThe instruction is the free-form text the user typed after `@agent-think` (it\nmay be empty). Treat it as an extra hint from the triggering user\n\u2014 e.g. additional reproduction steps, a specific version, or a pointer to the\nsuspect area. Let it guide your reproduction, but the issue itself remains the\nsource of truth.\n\nAll `gh`, `git`, `npm`, `curl`, and `wrangler` commands must run on the\n`container` backend (`bash({ command, backend: \"container\" })`) \u2014 the `shell`\nbackend has no real binaries or network. `gh` is already authenticated as the\napp; use it directly (no token handling)."
         },
         {
-          "id": "agent-think/skills/reproduce/SKILL.md#1-understand-the-issue",
-          "path": "agent-think/skills/reproduce/SKILL.md",
+          "id": "examples/next/harnesses/think/README.md#think-harness-learn-more",
+          "path": "examples/next/harnesses/think/README.md",
           "headings": [
-            "1. Understand the issue"
+            "Think harness",
+            "Learn more"
           ],
-          "startLine": 45,
-          "tokens": 169,
-          "score": 17.698,
-          "text": "## 1. Understand the issue\n\n```bash\ngh issue view <issueNumber> --repo <repo> --json title,body,labels,comments\n```\n\nRead it carefully. Extract:\n\n- the **observed behavior** (the bug),\n- the **expected behavior**,\n- any **\"To Reproduce\" steps**, code snippets, versions, or stack traces.\n\n**Decide if it is reproducible at all.** If it is a feature request, a question,\na pure-docs issue, or has no concrete runnable behavior, stop here: return\n`skipped: true`, `reproduced: false`, and a `summary` explaining why. Still post\na short, polite comment saying the repro-agent skipped it and why; begin it with\n`Requested by @<requestedBy>` when the run envelope has a requester."
+          "startLine": 63,
+          "tokens": 21,
+          "score": 2.723,
+          "text": "## Learn more\n\n- [Think harness docs](../../../../docs/agents/harnesses/think.md)"
+        },
+        {
+          "id": "README.md#cloudflare-agents-license",
+          "path": "README.md",
+          "headings": [
+            "Cloudflare Agents",
+            "License"
+          ],
+          "startLine": 221,
+          "tokens": 7,
+          "score": 0.194,
+          "text": "## License\n\n[MIT](LICENSE)"
+        }
+      ],
+      "manifest": [
+        {
+          "id": "pinned:secrets",
+          "pinned": true,
+          "source": "git-next-demo-layers/org/AGENTS.md:4"
+        },
+        {
+          "id": "pinned:allowedModels",
+          "pinned": true,
+          "source": "git-next-demo-layers/org/AGENTS.md:3"
+        },
+        {
+          "id": "pinned:commitFormat",
+          "pinned": true,
+          "source": "git-next-demo-layers/contract/AGENTS.md:3"
+        },
+        {
+          "id": "pinned:changesetPolicy",
+          "pinned": true,
+          "source": "git-next-demo-layers/contract/AGENTS.md:4"
+        },
+        {
+          "id": "agent-think/AGENTS.md#agent-think",
+          "pinned": false,
+          "source": "agent-think/AGENTS.md:1"
+        },
+        {
+          "id": "agent-think/AGENTS.md#agent-think-aims",
+          "pinned": false,
+          "source": "agent-think/AGENTS.md:16"
+        },
+        {
+          "id": "agent-think/AGENTS.md#agent-think-how-it-works",
+          "pinned": false,
+          "source": "agent-think/AGENTS.md:29"
+        },
+        {
+          "id": "agent-think/skills/reproduce/SKILL.md#7-report-back-on-the-issue",
+          "pinned": false,
+          "source": "agent-think/skills/reproduce/SKILL.md:314"
+        },
+        {
+          "id": "agent-think/skills/open-pr/SKILL.md#intro",
+          "pinned": false,
+          "source": "agent-think/skills/open-pr/SKILL.md:1"
+        },
+        {
+          "id": "agent-think/skills/reproduce/SKILL.md#6-push-the-repro-to-a-branch",
+          "pinned": false,
+          "source": "agent-think/skills/reproduce/SKILL.md:285"
+        },
+        {
+          "id": "agent-think/skills/reproduce/SKILL.md#intro",
+          "pinned": false,
+          "source": "agent-think/skills/reproduce/SKILL.md:1"
+        },
+        {
+          "id": "examples/next/harnesses/think/README.md#think-harness-learn-more",
+          "pinned": false,
+          "source": "examples/next/harnesses/think/README.md:63"
+        },
+        {
+          "id": "README.md#cloudflare-agents-license",
+          "pinned": false,
+          "source": "README.md:221"
         }
       ],
       "omitted": {
-        "count": 3091,
+        "count": 3090,
         "oversized": 58,
-        "tokens": 810439,
+        "tokens": 810580,
         "unmatchedSections": 622,
         "top": [
-          {
-            "id": "agent-think/skills/reproduce/SKILL.md#3-scaffold-a-minimal-reproduction",
-            "path": "agent-think/skills/reproduce/SKILL.md",
-            "title": "3. Scaffold a minimal reproduction",
-            "tokens": 301,
-            "score": 19.327,
-            "reason": "budget"
-          },
-          {
-            "id": "agent-think/skills/open-pr/SKILL.md#7-commit-push-open-the-pr",
-            "path": "agent-think/skills/open-pr/SKILL.md",
-            "title": "7. Commit, push, open the PR",
-            "tokens": 362,
-            "score": 18.008,
-            "reason": "budget"
-          },
-          {
-            "id": "agent-think/skills/open-pr/SKILL.md#1-gather-everything-known",
-            "path": "agent-think/skills/open-pr/SKILL.md",
-            "title": "1. Gather everything known",
-            "tokens": 225,
-            "score": 17.781,
-            "reason": "budget"
-          },
-          {
-            "id": "agent-think/skills/open-pr/SKILL.md#6-deploy-a-live-demo-of-the-pr",
-            "path": "agent-think/skills/open-pr/SKILL.md",
-            "title": "6. Deploy a live demo of the PR",
-            "tokens": 346,
-            "score": 16.397,
-            "reason": "budget"
-          },
-          {
-            "id": "README.md#cloudflare-agents-contributing",
-            "path": "README.md",
-            "title": "Contributing",
-            "tokens": 98,
-            "score": 15.155,
-            "reason": "budget"
-          },
-          {
-            "id": ".github/ISSUE_TEMPLATE/bug_report.md#intro",
-            "path": ".github/ISSUE_TEMPLATE/bug_report.md",
-            "title": "bug_report.md",
-            "tokens": 154,
-            "score": 15.069,
-            "reason": "budget"
-          },
           {
             "id": "agent-think/AGENTS.md#agent-think-rules-we-hold-ourselves-to",
             "path": "agent-think/AGENTS.md",
             "title": "Rules we hold ourselves to",
             "tokens": 643,
-            "score": 14.587,
+            "score": 11.318,
+            "reason": "budget"
+          },
+          {
+            "id": "agent-think/skills/reproduce/SKILL.md#1-understand-the-issue",
+            "path": "agent-think/skills/reproduce/SKILL.md",
+            "title": "1. Understand the issue",
+            "tokens": 169,
+            "score": 11.057,
             "reason": "budget"
           },
           {
@@ -1727,15 +2046,39 @@
             "path": "agent-think/AGENTS.md",
             "title": "Edge cases you will hit",
             "tokens": 912,
-            "score": 14.531,
+            "score": 10.998,
             "reason": "budget"
           },
           {
-            "id": "design/rfc-helper-sub-agent-orchestration.md#rfc-agent-tool-orchestration",
-            "path": "design/rfc-helper-sub-agent-orchestration.md",
-            "title": "RFC: Agent tool orchestration",
-            "tokens": 172,
-            "score": 13.397,
+            "id": "agent-think/skills/open-pr/SKILL.md#1-gather-everything-known",
+            "path": "agent-think/skills/open-pr/SKILL.md",
+            "title": "1. Gather everything known",
+            "tokens": 225,
+            "score": 10.899,
+            "reason": "budget"
+          },
+          {
+            "id": "agent-think/skills/reproduce/SKILL.md#3-scaffold-a-minimal-reproduction",
+            "path": "agent-think/skills/reproduce/SKILL.md",
+            "title": "3. Scaffold a minimal reproduction",
+            "tokens": 301,
+            "score": 10.791,
+            "reason": "budget"
+          },
+          {
+            "id": "agent-think/skills/open-pr/SKILL.md#7-commit-push-open-the-pr",
+            "path": "agent-think/skills/open-pr/SKILL.md",
+            "title": "7. Commit, push, open the PR",
+            "tokens": 362,
+            "score": 10.621,
+            "reason": "budget"
+          },
+          {
+            "id": "agent-think/skills/open-pr/SKILL.md#6-deploy-a-live-demo-of-the-pr",
+            "path": "agent-think/skills/open-pr/SKILL.md",
+            "title": "6. Deploy a live demo of the PR",
+            "tokens": 346,
+            "score": 10.095,
             "reason": "budget"
           },
           {
@@ -1743,7 +2086,23 @@
             "path": "agent-think/skills/open-pr/SKILL.md",
             "title": "3. Branch and set commit identity",
             "tokens": 67,
-            "score": 13.335,
+            "score": 9.137,
+            "reason": "budget"
+          },
+          {
+            "id": ".github/ISSUE_TEMPLATE/bug_report.md#intro",
+            "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+            "title": "bug_report.md",
+            "tokens": 154,
+            "score": 8.98,
+            "reason": "budget"
+          },
+          {
+            "id": "README.md#cloudflare-agents-contributing",
+            "path": "README.md",
+            "title": "Contributing",
+            "tokens": 98,
+            "score": 8.444,
             "reason": "budget"
           },
           {
@@ -1751,95 +2110,15 @@
             "path": "agent-think/skills/reproduce/SKILL.md",
             "title": "Minimal frontend (required)",
             "tokens": 1503,
-            "score": 13.241,
+            "score": 8.384,
             "reason": "oversized"
           },
           {
-            "id": "design/rfc-cold-rpc-initialization.md#cold-native-rpc-initialization-problem",
-            "path": "design/rfc-cold-rpc-initialization.md",
-            "title": "Problem",
-            "tokens": 328,
-            "score": 12.538,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/codemode/approvals.md#approvals-flow",
-            "path": "docs/codemode/approvals.md",
-            "title": "Flow",
-            "tokens": 161,
-            "score": 12.204,
-            "reason": "budget"
-          },
-          {
-            "id": "design/think-roadmap.md#think-roadmap-client-side-improvements-high-priority",
-            "path": "design/think-roadmap.md",
-            "title": "High priority",
-            "tokens": 502,
-            "score": 12.161,
-            "reason": "budget"
-          },
-          {
-            "id": "design/rfc-detached-agent-tools.md#rfc-detached-background-agent-tool-runs-with-a-durable-completion-hook",
-            "path": "design/rfc-detached-agent-tools.md",
-            "title": "RFC: Detached (\"background\") agent-tool runs with a durable completion hook",
-            "tokens": 241,
-            "score": 11.864,
-            "reason": "budget"
-          },
-          {
-            "id": "design/skills.md#think-skills-deploy-to-deploy-changes",
-            "path": "design/skills.md",
-            "title": "Deploy-To-Deploy Changes",
-            "tokens": 117,
-            "score": 11.433,
-            "reason": "budget"
-          },
-          {
-            "id": "packages/codemode/README.md#cloudflare-codemode-connectors",
-            "path": "packages/codemode/README.md",
-            "title": "Connectors",
-            "tokens": 366,
-            "score": 11.355,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/codemode/connectors.md#connectors-mcpconnector",
-            "path": "docs/codemode/connectors.md",
-            "title": "McpConnector",
-            "tokens": 380,
-            "score": 11.272,
-            "reason": "budget"
-          },
-          {
-            "id": "docs/codemode/approvals.md#approvals-rollback",
-            "path": "docs/codemode/approvals.md",
-            "title": "Rollback",
-            "tokens": 194,
-            "score": 10.958,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/github-webhook/README.md#github-webhook-dashboard-supported-events",
-            "path": "examples/github-webhook/README.md",
-            "title": "Supported Events",
-            "tokens": 150,
-            "score": 10.937,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/deploy-churn/README.md#deploy-churn-durable-chat-recovery-under-real-deploys-run-the-scripted-repro",
-            "path": "examples/deploy-churn/README.md",
-            "title": "Run the scripted repro",
-            "tokens": 418,
-            "score": 10.213,
-            "reason": "budget"
-          },
-          {
-            "id": "design/think.md#think-how-it-works-streaming-and-persistence",
-            "path": "design/think.md",
-            "title": "Streaming and persistence",
-            "tokens": 495,
-            "score": 10.167,
+            "id": "agent-think/skills/reproduce/SKILL.md#2-understand-the-relevant-code",
+            "path": "agent-think/skills/reproduce/SKILL.md",
+            "title": "2. Understand the relevant code",
+            "tokens": 68,
+            "score": 7.475,
             "reason": "budget"
           },
           {
@@ -1847,39 +2126,23 @@
             "path": "agent-think/AGENTS.md",
             "title": "Where the pieces live",
             "tokens": 83,
-            "score": 10.11,
+            "score": 7.317,
             "reason": "budget"
           },
           {
-            "id": "design/rfc-cold-rpc-initialization.md#cold-native-rpc-initialization-alternatives",
-            "path": "design/rfc-cold-rpc-initialization.md",
-            "title": "Alternatives",
-            "tokens": 250,
-            "score": 9.901,
-            "reason": "budget"
-          },
-          {
-            "id": "agent-think/skills/reproduce/SKILL.md#4-deploy-to-a-temporary-cloudflare-account",
-            "path": "agent-think/skills/reproduce/SKILL.md",
-            "title": "4. Deploy to a temporary Cloudflare account",
-            "tokens": 196,
-            "score": 9.853,
-            "reason": "budget"
-          },
-          {
-            "id": "examples/think-workflows/README.md#think-workflows-key-pattern",
-            "path": "examples/think-workflows/README.md",
-            "title": "Key Pattern",
-            "tokens": 350,
-            "score": 9.785,
-            "reason": "budget"
-          },
-          {
-            "id": "design/skills.md#think-skills-proposal",
+            "id": "design/skills.md#think-skills-deploy-to-deploy-changes",
             "path": "design/skills.md",
-            "title": "Proposal",
-            "tokens": 210,
-            "score": 9.608,
+            "title": "Deploy-To-Deploy Changes",
+            "tokens": 117,
+            "score": 7.16,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/codemode/approvals.md#approvals-flow",
+            "path": "docs/codemode/approvals.md",
+            "title": "Flow",
+            "tokens": 161,
+            "score": 7.135,
             "reason": "budget"
           },
           {
@@ -1887,103 +2150,199 @@
             "path": "docs/agents/webhooks.md",
             "title": "Developer Tools",
             "tokens": 138,
-            "score": 9.477,
+            "score": 6.926,
             "reason": "budget"
           },
           {
-            "id": "docs/codemode/index.md#codemode-how-the-code-actually-runs",
-            "path": "docs/codemode/index.md",
-            "title": "How the code actually runs",
-            "tokens": 168,
-            "score": 9.41,
+            "id": "packages/agents/README.md#agents-contributing",
+            "path": "packages/agents/README.md",
+            "title": "Contributing",
+            "tokens": 94,
+            "score": 6.149,
             "reason": "budget"
           },
           {
-            "id": "agent-think/skills/reproduce/SKILL.md#2-understand-the-relevant-code",
+            "id": "agent-think/skills/open-pr/SKILL.md#2-locate-the-root-cause",
+            "path": "agent-think/skills/open-pr/SKILL.md",
+            "title": "2. Locate the root cause",
+            "tokens": 69,
+            "score": 5.916,
+            "reason": "budget"
+          },
+          {
+            "id": "design/rfc-helper-sub-agent-orchestration.md#rfc-agent-tool-orchestration",
+            "path": "design/rfc-helper-sub-agent-orchestration.md",
+            "title": "RFC: Agent tool orchestration",
+            "tokens": 172,
+            "score": 5.554,
+            "reason": "budget"
+          },
+          {
+            "id": "design/rfc-cold-rpc-initialization.md#cold-native-rpc-initialization-problem",
+            "path": "design/rfc-cold-rpc-initialization.md",
+            "title": "Problem",
+            "tokens": 328,
+            "score": 5.48,
+            "reason": "budget"
+          },
+          {
+            "id": "agent-think/skills/open-pr/SKILL.md#4-make-the-fix",
+            "path": "agent-think/skills/open-pr/SKILL.md",
+            "title": "4. Make the fix",
+            "tokens": 136,
+            "score": 5.451,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/agents/index.md#agents-documentation-think-experimental",
+            "path": "docs/agents/index.md",
+            "title": "Think (Experimental)",
+            "tokens": 386,
+            "score": 5.416,
+            "reason": "budget"
+          },
+          {
+            "id": "design/think-roadmap.md#think-roadmap-client-side-improvements-high-priority",
+            "path": "design/think-roadmap.md",
+            "title": "High priority",
+            "tokens": 502,
+            "score": 5.338,
+            "reason": "budget"
+          },
+          {
+            "id": "agent-think/skills/reproduce/SKILL.md#0-clone-the-repo",
             "path": "agent-think/skills/reproduce/SKILL.md",
-            "title": "2. Understand the relevant code",
-            "tokens": 68,
-            "score": 9.304,
+            "title": "0. Clone the repo",
+            "tokens": 75,
+            "score": 5.297,
             "reason": "budget"
           },
           {
-            "id": "design/chat-api.md#chat-api-analysis-aichatagent-useagentchat-client-side-issues-issue-c8-ts-expect-error-coupling-to-partysocket-internals",
-            "path": "design/chat-api.md",
-            "title": "Issue C8: `@ts-expect-error` coupling to PartySocket internals",
-            "tokens": 167,
-            "score": 9.265,
+            "id": "design/rfc-detached-agent-tools.md#rfc-detached-background-agent-tool-runs-with-a-durable-completion-hook",
+            "path": "design/rfc-detached-agent-tools.md",
+            "title": "RFC: Detached (\"background\") agent-tool runs with a durable completion hook",
+            "tokens": 241,
+            "score": 5.269,
             "reason": "budget"
           },
           {
-            "id": "examples/codemode-connectors/README.md#codemode-connectors-example",
-            "path": "examples/codemode-connectors/README.md",
-            "title": "Codemode Connectors Example",
-            "tokens": 247,
-            "score": 9.119,
+            "id": "agent-think/skills/reproduce/SKILL.md#8-return-the-structured-result",
+            "path": "agent-think/skills/reproduce/SKILL.md",
+            "title": "8. Return the structured result",
+            "tokens": 73,
+            "score": 5.14,
             "reason": "budget"
           },
           {
-            "id": "design/chat-api.md#chat-api-analysis-aichatagent-useagentchat-client-side-issues-issue-c1-suspense-only-initial-message-fetch",
-            "path": "design/chat-api.md",
-            "title": "Issue C1: Suspense-only initial message fetch",
-            "tokens": 733,
-            "score": 9.073,
-            "reason": "budget"
-          },
-          {
-            "id": "design/chat-api.md#chat-api-analysis-aichatagent-useagentchat-table-of-contents",
-            "path": "design/chat-api.md",
-            "title": "Table of Contents",
-            "tokens": 95,
-            "score": 9.042,
-            "reason": "budget"
-          },
-          {
-            "id": "design/chat-api.md#chat-api-analysis-aichatagent-useagentchat-client-side-issues-issue-c6-addtooloutput-vs-addtoolresult-naming-confusion",
-            "path": "design/chat-api.md",
-            "title": "Issue C6: `addToolOutput` vs `addToolResult` naming confusion",
-            "tokens": 255,
-            "score": 8.886,
-            "reason": "budget"
-          },
-          {
-            "id": "packages/codemode/README.md#cloudflare-codemode-connectors-mcpconnector",
+            "id": "packages/codemode/README.md#cloudflare-codemode-connectors",
             "path": "packages/codemode/README.md",
-            "title": "`McpConnector`",
-            "tokens": 323,
-            "score": 8.788,
+            "title": "Connectors",
+            "tokens": 366,
+            "score": 5.138,
             "reason": "budget"
           },
           {
-            "id": "docs/agents/tasks.md#tasks-starting-runs",
-            "path": "docs/agents/tasks.md",
-            "title": "Starting runs",
-            "tokens": 257,
-            "score": 8.773,
+            "id": "agent-think/skills/open-pr/SKILL.md#0-clone-the-repo",
+            "path": "agent-think/skills/open-pr/SKILL.md",
+            "title": "0. Clone the repo",
+            "tokens": 76,
+            "score": 5.083,
             "reason": "budget"
           },
           {
-            "id": "docs/think/sub-agents.md#sub-agents-and-programmatic-turns-programmatic-turns-with-savemessages-external-cancellation-with-options-signal-hibernation-and-recovery",
-            "path": "docs/think/sub-agents.md",
-            "title": "Hibernation and recovery",
-            "tokens": 447,
-            "score": 8.703,
+            "id": "design/think-roadmap.md#think-roadmap-client-side-improvements-low-priority",
+            "path": "design/think-roadmap.md",
+            "title": "Low priority",
+            "tokens": 356,
+            "score": 5.077,
             "reason": "budget"
           },
           {
-            "id": "examples/think-workflows/README.md#think-workflows-run",
+            "id": "docs/codemode/connectors.md#connectors-mcpconnector",
+            "path": "docs/codemode/connectors.md",
+            "title": "McpConnector",
+            "tokens": 380,
+            "score": 5.074,
+            "reason": "budget"
+          },
+          {
+            "id": "docs/codemode/approvals.md#approvals-rollback",
+            "path": "docs/codemode/approvals.md",
+            "title": "Rollback",
+            "tokens": 194,
+            "score": 4.893,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/github-webhook/README.md#github-webhook-dashboard-supported-events",
+            "path": "examples/github-webhook/README.md",
+            "title": "Supported Events",
+            "tokens": 150,
+            "score": 4.835,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/deploy-churn/README.md#deploy-churn-durable-chat-recovery-under-real-deploys-run-the-scripted-repro",
+            "path": "examples/deploy-churn/README.md",
+            "title": "Run the scripted repro",
+            "tokens": 418,
+            "score": 4.779,
+            "reason": "budget"
+          },
+          {
+            "id": "agent-think/skills/reproduce/SKILL.md#5-verify-the-reproduction",
+            "path": "agent-think/skills/reproduce/SKILL.md",
+            "title": "5. Verify the reproduction",
+            "tokens": 175,
+            "score": 4.776,
+            "reason": "budget"
+          },
+          {
+            "id": "agent-think/skills/open-pr/SKILL.md#8-return-the-structured-result",
+            "path": "agent-think/skills/open-pr/SKILL.md",
+            "title": "8. Return the structured result",
+            "tokens": 67,
+            "score": 4.743,
+            "reason": "budget"
+          },
+          {
+            "id": "design/think.md#think-how-it-works-streaming-and-persistence",
+            "path": "design/think.md",
+            "title": "Streaming and persistence",
+            "tokens": 495,
+            "score": 4.724,
+            "reason": "budget"
+          },
+          {
+            "id": "design/rfc-cold-rpc-initialization.md#cold-native-rpc-initialization-alternatives",
+            "path": "design/rfc-cold-rpc-initialization.md",
+            "title": "Alternatives",
+            "tokens": 250,
+            "score": 4.671,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/think-workflows/README.md#think-workflows-key-pattern",
             "path": "examples/think-workflows/README.md",
-            "title": "Run",
-            "tokens": 209,
-            "score": 8.633,
+            "title": "Key Pattern",
+            "tokens": 350,
+            "score": 4.618,
             "reason": "budget"
           },
           {
-            "id": "docs/codemode/index.md#codemode-why-we-think-this-is-a-good-idea",
-            "path": "docs/codemode/index.md",
-            "title": "Why we think this is a good idea",
-            "tokens": 324,
-            "score": 8.633,
+            "id": "design/skills.md#think-skills-proposal",
+            "path": "design/skills.md",
+            "title": "Proposal",
+            "tokens": 210,
+            "score": 4.468,
+            "reason": "budget"
+          },
+          {
+            "id": "design/think-ops-demo-findings.md#think-ops-agent-demo-findings-qw-demo",
+            "path": "design/think-ops-demo-findings.md",
+            "title": "Think ops-agent demo findings (qw-demo)",
+            "tokens": 159,
+            "score": 4.438,
             "reason": "budget"
           }
         ]
@@ -1991,9 +2350,10 @@
       "stats": {
         "markdownFiles": 278,
         "sections": 3721,
-        "rulesTokens": 412,
-        "sectionTokens": 2586,
-        "tokensServed": 2998,
+        "rulesTokens": 555,
+        "pinnedTokens": 130,
+        "sectionTokens": 2445,
+        "tokensServed": 3000,
         "tokensAllMarkdown": 889608,
         "tokensInstructionFilesOnPath": 5391,
         "servedVsAllMarkdown": 0.003,

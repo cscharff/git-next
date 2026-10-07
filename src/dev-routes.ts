@@ -11,7 +11,7 @@ export const AGENT_MODELS = [
 	"anthropic/claude-haiku-4.5",
 	"@cf/zai-org/glm-5.3-flash",
 ];
-const MAX_OUTPUT_TOKENS = 4000;
+const MAX_OUTPUT_TOKENS = 8000;
 const SOURCE_REPO = "agents-demo-full";
 const FORK_NAME = /^agents-demo-[a-z0-9-]{1,40}$/;
 
