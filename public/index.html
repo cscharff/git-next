@@ -122,6 +122,7 @@
 		<a href="#more">More</a>
 	</nav>
 	<select id="fork" aria-label="Fork" hidden><option value="">agents-demo-full</option></select>
+	<select id="reposel" aria-label="Demo repository"><option value="agents-demo-full">cloudflare/agents</option><option value="emdash-demo">emdash-cms/emdash</option></select>
 	<div class="meta"><span class="live-dot" id="livedot"></span><span id="meta">Loading…</span></div>
 	<details class="data"><summary class="chip">Data source</summary>
 		<form id="live">
@@ -154,7 +155,12 @@ const num = (n) => Number(n).toLocaleString();
 const sev = (s) => `<span class="chip sev-${esc(s)}">${esc(s)}</span>`;
 const kind = (k) => `<span class="chip k-${esc(k)}">${esc(k)}</span>`;
 const short = (m) => String(m ?? "").replace(/^anthropic\//, "");
-const state = { repo: "agents-demo-full", insights: null, context: null, source: "", costView: "live", costLive: null, costTeam: null, newRepo: null, index: [], events: [], followLive: true, shownUpdatedAt: null };
+// Demo repos the picker switches between: their recorded samples and the live form's defaults.
+const REPOS = {
+	"agents-demo-full": { insights: "/samples/insights-demo.json", context: "/samples/context-agents-demo-full.json", base: "d1ce3cbd765cada8edfaedaf5ea1041095ece79c", layers: true },
+	"emdash-demo": { insights: "/samples/insights-emdash-demo-main.json", context: "/samples/context-emdash-demo.json", base: "", layers: false },
+};
+const state = { sampleRepo: "agents-demo-full", repo: "agents-demo-full", insights: null, context: null, source: "", costView: "live", costLive: null, costTeam: null, newRepo: null, index: [], events: [], followLive: true, shownUpdatedAt: null };
 
 async function getJson(url, init) {
 	const res = await fetch(url, init);
@@ -165,7 +171,8 @@ async function getJson(url, init) {
 const tryJson = (url) => getJson(url).catch(() => null);
 
 async function loadSamples() {
-	const [insights, context, newRepo, costLive] = await Promise.all([getJson("/samples/insights-demo.json"), getJson("/samples/context-agents-demo-full.json"), tryJson("/samples/new-repo-demo/summary.json"), tryJson("/samples/cost-live.json")]);
+	const r = REPOS[state.sampleRepo];
+	const [insights, context, newRepo, costLive] = await Promise.all([getJson(r.insights), getJson(r.context), tryJson("/samples/new-repo-demo/summary.json"), tryJson("/samples/cost-live.json")]);
 	state.insights = insights;
 	state.context = context.results;
 	state.newRepo = newRepo;
@@ -288,6 +295,7 @@ function renderStack(items, catalogItems = []) {
 			<div>
 				<h3 class="sub" style="margin:0 0 6px">The stack</h3>
 				<div class="legend">Lower rank wins: org 1 › contract 2 › project 3 (deeper folders win) › tool 4 › personal 5${m.precedence?.overridden ? ` · <b style="color:var(--warn)">precedence overridden by admin: ${esc(m.precedence.note)}</b>` : ""}</div>
+				${(m.skippedLayers || []).length ? `<div class="legend">Not counted: ${m.skippedLayers.map((x) => `<code>${esc(x.path)}</code> (${esc(x.reason)} of <code>${esc(x.of)}</code>)`).join(", ")}</div>` : ""}
 				${layers.map((l) => `<div class="layer ${esc(l.kind)}"><div class="rank">${l.rank}${l.kind === "project" ? `.${l.depth}` : ""}</div><div class="who">${kind(l.kind)} <b style="display:inline">${esc(l.name)}</b><code style="display:block">${esc(l.repo && l.repo !== state.repo ? l.repo + ":" : "")}${esc(l.path)}</code></div><div class="counts">${ruleCount(l)} rule${ruleCount(l) === 1 ? "" : "s"}${rootWins(l) ? `<br><b style="color:var(--text)">wins ${rootWins(l)}</b> at root` : ""}</div></div>`).join("")}
 			</div>
 			<div>
@@ -417,7 +425,8 @@ function renderResources(items) {
 		$("#rtable").innerHTML = `<tr><th style="width:42%">Worker</th><th>Bindings</th><th style="width:64px">Δ base</th></tr>` + rows.map((i) => {
 			const m = i.metrics || {};
 			const diff = m.diff ? (i.title.includes("config removed") ? `<span class="chip sev-warn">removed</span>` : m.newConfig ? `<span class="chip sev-info">new</span>` : m.diff.added.length || m.diff.removed.length ? `<span class="plus">+${m.diff.added.length}</span> <span class="minus">−${m.diff.removed.length}</span>` : `<span class="chip">same</span>`) : "";
-			const bindings = Object.entries(m.bindings || {}).map(([t, bs]) => `<span class="chip" title="${esc(bs.map((b) => b.name + (b.resource ? " → " + b.resource : "")).join("\n"))}">${esc(t)}: ${bs.length}</span>`).join(" ");
+			const consumers = (bs) => bs.filter((b) => b.name.startsWith("consumer:")).length;
+			const bindings = Object.entries(m.bindings || {}).map(([t, bs]) => `<span class="chip" title="${esc(bs.map((b) => b.name + (b.resource ? " → " + b.resource : "")).join("\n"))}">${esc(t)}: ${t === "queues" && consumers(bs) ? `${bs.length - consumers(bs)} producer, ${consumers(bs)} consumer` : bs.length}</span>`).join(" ");
 			return `<tr><td><b>${esc(m.worker || i.title)}</b><br><code>${esc(i.scope.path)}</code></td><td>${bindings || `<span class="empty">none</span>`}</td><td>${diff}</td></tr>`;
 		}).join("");
 	};
@@ -490,6 +499,7 @@ async function loadDemoRun() {
 
 async function selectFork(fork) {
 	$("#fork").value = fork;
+	state.sampleRepo = $("#reposel").value = "agents-demo-full"; // forks are of agents-demo-full
 	state.repo = fork || "agents-demo-full";
 	const live = state.index.find((e) => e.repo === state.repo && e.ref === "main");
 	if (live) return loadStored(live.repo, live.ref, false);
@@ -525,7 +535,7 @@ function renderContext() {
 			<table><tr><th style="width:28%">Rule</th><th style="width:34%">Value</th><th>From</th></tr>${r.rules.map((x) => `<tr><td>${esc(x.topic)}</td><td><code>${esc(x.value)}</code></td><td>${kind(x.kind)} <code>${esc(x.source.replace(state.repo + "/", ""))}</code></td></tr>`).join("")}</table>
 			${r.conflicts.length ? r.conflicts.map((c) => `<div class="finding">${sev("conflict")} ${esc(c.explanation)}</div>`).join("") : ""}
 			<h3 class="sub" style="margin-top:14px">Sections served (${r.sections.length})</h3>
-			<div class="scroll">${r.sections.map((x) => `<div class="finding"><code>${esc(x.path)}:${x.startLine}</code> <b>${esc(x.headings.slice(-1)[0] || x.path)}</b> <span class="chip">${x.tokens} tok</span> <span class="chip">score ${x.score}</span></div>`).join("")}</div>
+			<div class="scroll">${r.sections.map((x) => `<div class="finding"><code>${esc(x.path)}:${x.startLine}</code> <b>${esc(x.headings.slice(-1)[0] || x.path)}</b> <span class="chip">${x.tokens} tok</span> <span class="chip">score ${x.score}</span>${x.duplicates ? ` <span class="chip" title="${esc((x.duplicatePaths || []).join("\n"))}">+${x.duplicates} identical copies, served once</span>` : ""}</div>`).join("")}</div>
 			<p class="sub">Omitted: ${num(r.omitted.count)} matching sections (${num(r.omitted.tokens)} tokens, ${r.omitted.oversized ?? 0} oversized) + ${num(r.omitted.unmatchedSections)} unmatched.</p>`;
 	};
 	$("#ctask").addEventListener("change", (e) => show(results[e.target.value]));
@@ -542,6 +552,18 @@ function renderContext() {
 }
 
 $("#live").addEventListener("submit", loadLive);
+// Repo picker: recorded samples for that repo in sample mode; in live mode, point the live form at it and run.
+$("#reposel").addEventListener("change", () => {
+	const repo = $("#reposel").value, r = REPOS[repo];
+	state.sampleRepo = repo;
+	$("#repo").value = repo;
+	$("#base").value = r.base;
+	$("#demo").checked = r.layers;
+	if (repo !== "agents-demo-full") $("#fork").value = "";
+	if (state.source.startsWith("live")) return loadLive();
+	hideBanner();
+	loadSamples().catch((err) => showBanner(`Could not load samples: ${err.message}`));
+});
 $("#sample").addEventListener("click", () => { hideBanner(); state.followLive = false; $("#livedot").classList.remove("on"); loadSamples(); });
 loadSamples()
 	.then(loadDemoRun)
