@@ -114,6 +114,14 @@ describe("catalog", () => {
 		expect(out.slice(1).map((i) => `${i.severity}:${(i.metrics as any).kind}`).sort()).toEqual(["conflict:binding", "conflict:gateway", "conflict:model", "conflict:secret"]);
 	});
 
+	it("reports a queue once when a Worker both produces and consumes it", async () => {
+		const files = new RepoContext(async () =>
+			memorySource({ main: { "wrangler.jsonc": '{ "name": "q", "queues": { "producers": [{ "binding": "JOBS", "queue": "jobs" }], "consumers": [{ "queue": "jobs" }, { "queue": "jobs-dlq" }] } }' } }),
+		);
+		const out = await catalogProvider({ baseline: catalog, enforceBaseline: true }).analyze({ repo: "r", ref: "main", files });
+		expect(out.slice(1).map((i) => i.title)).toEqual(["Unapproved binding: queues JOBS → jobs", "Unapproved binding: queues consumer:jobs-dlq → jobs-dlq"]);
+	});
+
 	it("enforces the org baseline on repos without a catalog only when asked", async () => {
 		const files = new RepoContext(async () => memorySource({ main: { "wrangler.jsonc": '{ "name": "x", "browser": { "binding": "B" } }' } }));
 		expect((await catalogProvider({ baseline: catalog }).analyze({ repo: "r", ref: "main", files })).map((i) => i.title)).toEqual(["No catalog (secrets scan only)"]);

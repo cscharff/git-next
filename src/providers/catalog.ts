@@ -252,7 +252,13 @@ export async function checkCatalog(files: RepoContext, repo: string, ref: string
 		for (const f of configs) {
 			const text = texts.find((t) => t.path === f.path)?.text ?? "";
 			const worker = parseWranglerConfig(f.path, text);
+			// A queue's producer and consumer name one resource: report it once.
+			const seenResource = new Set<string>();
 			for (const b of worker.bindings) {
+				if (b.resource && b.type === "queues") {
+					if (seenResource.has(b.resource)) continue;
+					seenResource.add(b.resource);
+				}
 				const a = bindingApproval(catalog, b.type, b.resource);
 				if (!a.approved) findings.push({ kind: "binding", title: `Unapproved binding: ${b.type} ${b.name}${b.resource ? ` → ${b.resource}` : ""}`, detail: `${worker.worker} (${f.path}): ${a.reason}.${a.alternative ? ` ${a.alternative[0].toUpperCase()}${a.alternative.slice(1)}.` : ""}`, evidence: [{ path: f.path }] });
 			}
