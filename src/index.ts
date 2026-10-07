@@ -100,7 +100,8 @@ export default {
 		// Deployed: only requests that passed Cloudflare Access (verified JWT for this app) get anything, assets included.
 		let identity = { email: "local-admin", local: true };
 		if (!isLocal(url)) {
-			const aud = env.ACCESS_AUD === "unset" ? "" : env.ACCESS_AUD;
+			const configuredAud: string = env.ACCESS_AUD;
+			const aud = configuredAud === "unset" ? "" : configuredAud;
 			if (!aud) return new Response("git.next: Cloudflare Access is not configured for this deployment yet.", { status: 401 });
 			const user = await verifyAccess(accessToken(request), { teamDomain: env.ACCESS_TEAM_DOMAIN, aud }).catch(() => null);
 			if (!user) return new Response("Unauthorized", { status: 401 });

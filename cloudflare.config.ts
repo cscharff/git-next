@@ -14,7 +14,7 @@ export default defineConfig({
 			// Cloudflare Access: the team domain and this application's audience tag. "unset" refuses every non-local
 			// request (fail closed) until the Access application exists.
 			ACCESS_TEAM_DOMAIN: bindings.text("circus.cloudflareaccess.com"),
-			ACCESS_AUD: bindings.text("unset"),
+			ACCESS_AUD: bindings.text("732681b3f2ea5f1b4e424ad65f8978f0ff46ef22cd80303045a5dc7ed442df22"),
 			// Read-only use: providers read trees, blobs and commits from repos in this namespace.
 			// `remote: true` makes local dev read the real Artifacts repos.
 			ARTIFACTS: bindings.artifacts({ namespace: "default", dev: { remote: true } }),
