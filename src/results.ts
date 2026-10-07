@@ -24,9 +24,15 @@ export interface IndexEntry {
 	ms: number;
 }
 
-const INDEX_KEY = "index";
-const EVENTS_KEY = "events";
 const MAX_EVENTS = 50;
+// One key per index entry and per event, with the data in key metadata: a single prefix list returns them all, and
+// pushes analysed concurrently can't overwrite each other (a shared read-modify-write key lost entries).
+const INDEX_PREFIX = "idx/";
+const EVENTS_PREFIX = "evt/";
+// Event keys sort newest first: zero-padded (max - now), then the commit so two events in one millisecond both stay.
+const eventKey = (at: number, after: string) => `${EVENTS_PREFIX}${String(9_999_999_999_999 - at).padStart(13, "0")}-${after.slice(0, 12)}`;
+// Key metadata is capped at 1 KiB: keep commit messages short and the commit list small.
+const clip = (t: PushTrigger): PushTrigger => ({ ...t, commits: t.commits.slice(0, 3).map((c) => ({ ...c, message: c.message.slice(0, 120), author: c.author.slice(0, 40) })) });
 
 export const resultKey = (repo: string, ref: string) => `insights/${repo}/${ref}`;
 
@@ -45,20 +51,21 @@ export async function putResult(kv: KVNamespace, repo: string, ref: string, resu
 		insights: insights.length,
 		ms: result.ms ?? 0,
 	};
-	// Read-modify-write; a lost update under concurrent pushes only delays an index entry until the next push.
-	const index = ((await kv.get(INDEX_KEY, "json")) as IndexEntry[] | null) ?? [];
-	await kv.put(INDEX_KEY, JSON.stringify([entry, ...index.filter((e) => !(e.repo === repo && e.ref === ref))].slice(0, 200)));
+	await kv.put(`${INDEX_PREFIX}${repo}/${ref}`, "", { metadata: entry });
 	if (trigger) {
-		const events = ((await kv.get(EVENTS_KEY, "json")) as unknown[] | null) ?? [];
-		await kv.put(EVENTS_KEY, JSON.stringify([{ repo, ref, ...trigger, conflicts: entry.conflicts, catalogViolations: entry.catalogViolations }, ...events].slice(0, MAX_EVENTS)));
+		const event = { repo, ref, ...clip(trigger), conflicts: entry.conflicts, catalogViolations: entry.catalogViolations };
+		await kv.put(eventKey(Date.parse(trigger.receivedAt) || Date.now(), trigger.after), "", { metadata: event, expirationTtl: 60 * 60 * 24 * 30 });
 	}
 	return entry;
 }
 
 export const getResult = (kv: KVNamespace, repo: string, ref: string) => kv.get(resultKey(repo, ref), "json");
 export async function getIndex(kv: KVNamespace) {
-	const [index, events] = await Promise.all([kv.get(INDEX_KEY, "json"), kv.get(EVENTS_KEY, "json")]);
-	return { index: (index as IndexEntry[] | null) ?? [], events: (events as unknown[] | null) ?? [] };
+	const [index, events] = await Promise.all([kv.list<IndexEntry>({ prefix: INDEX_PREFIX }), kv.list({ prefix: EVENTS_PREFIX, limit: MAX_EVENTS })]);
+	return {
+		index: index.keys.flatMap((k) => (k.metadata ? [k.metadata] : [])).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+		events: events.keys.flatMap((k) => (k.metadata ? [k.metadata] : [])),
+	};
 }
 
 /** Rule-extraction cache in KV, keyed by content hash (rules are stored without their layer, which is rebound). */
