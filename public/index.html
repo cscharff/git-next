@@ -681,6 +681,7 @@ $("#reposel").addEventListener("change", () => {
 	$("#base").value = r.base;
 	$("#demo").checked = r.layers;
 	if (repo !== "agents-demo-full") $("#fork").value = "";
+	$("#fork").style.display = repo === "agents-demo-full" ? "" : "none"; // its forks are of agents-demo-full
 	if (state.source.startsWith("live")) return loadLive();
 	hideBanner();
 	loadSamples().catch((err) => showBanner(`Could not load samples: ${err.message}`));
