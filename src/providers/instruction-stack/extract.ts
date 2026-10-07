@@ -38,6 +38,8 @@ const MATCHERS: Record<Topic, Matcher> = {
 	},
 	changesetPolicy: (line) => {
 		if (!/\bchangesets?\b/i.test(line)) return null;
+		// "Defer to the project's changeset rules" hands the decision to the project layer: no rule of its own.
+		if (/\bdefers? to\b|\bfollow (the )?project/i.test(line)) return null;
 		return NEGATED.test(line) && !/\bnever (forget|skip|omit)\b/i.test(line) ? "not-required" : "required";
 	},
 	lintStrictness: (line) => {

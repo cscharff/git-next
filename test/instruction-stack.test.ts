@@ -68,6 +68,10 @@ describe("keyword extractor", () => {
 		expect(rules.slice(0, 3).every((r) => r.strength === "must")).toBe(true);
 	});
 
+	it("treats deferring to the project as no rule", async () => {
+		expect(await extract("- For changesets, defer to the project's own changeset rules.")).toEqual([]);
+	});
+
 	it("scores strength per sentence", async () => {
 		const [rule] = await extract("Node 24+ required. Uses pnpm workspaces with Nx.");
 		expect(rule).toMatchObject({ topic: "packageManager", value: "pnpm", strength: "should", text: "Uses pnpm workspaces with Nx." });

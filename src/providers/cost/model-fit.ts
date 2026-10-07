@@ -12,6 +12,13 @@ export const MODELS: Record<string, { tier: Tier; in: number; out: number }> = {
 	"claude-haiku-4-5": { tier: "small", in: 1, out: 5 },
 	"@cf/zai-org/glm-5.3-flash": { tier: "small", in: 0.15, out: 0.5 },
 	"@cf/openai/gpt-oss-20b": { tier: "small", in: 0.2, out: 0.3 },
+	// Unified-billing ids as the gateway logs them.
+	"anthropic/claude-opus-4.8": { tier: "frontier", in: 15, out: 75 },
+	"anthropic/claude-opus-5.5": { tier: "frontier", in: 15, out: 75 },
+	"anthropic/claude-sonnet-5": { tier: "mid", in: 3, out: 15 },
+	"anthropic/claude-sonnet-5.5": { tier: "mid", in: 3, out: 15 },
+	"anthropic/claude-haiku-4.5": { tier: "small", in: 1, out: 5 },
+	"openai/gpt-5.6-sol": { tier: "frontier", in: 10, out: 40 },
 };
 
 export interface FitRule {

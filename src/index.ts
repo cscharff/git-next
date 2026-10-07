@@ -4,6 +4,7 @@ import sampleInsights from "../samples/insights-demo.json" with { type: "json" }
 import { artifactsSource } from "./core/artifacts-source.ts";
 import { RepoContext } from "./core/repo-context.ts";
 import { withDemoLayers } from "./demo-layers.ts";
+import { handleDevRoute } from "./dev-routes.ts";
 import { buildContext } from "./providers/context/index.ts";
 import { gatewayLogsSource } from "./providers/cost/logs.ts";
 import { createRegistry } from "./registry.ts";
@@ -13,8 +14,11 @@ import { createRegistry } from "./registry.ts";
 /** The AI Gateway git.next routes model calls through and reads cost logs from. */
 const GATEWAY_ID = "git-next";
 
-// Offline samples the dashboard falls back to when there is no live run.
-const SAMPLES: Record<string, unknown> = { "insights-demo.json": sampleInsights, "context-agents-demo-full.json": sampleContext };
+// Samples the dashboard falls back to when there is no live run, plus the last demo-agents run (one file per fork).
+const DEMO_RUN = Object.fromEntries(
+	Object.entries(import.meta.glob<unknown>("../samples/demo-run/*.json", { eager: true, import: "default" })).map(([path, json]) => [`demo-run/${path.split("/").pop()}`, json]),
+);
+const SAMPLES: Record<string, unknown> = { "insights-demo.json": sampleInsights, "context-agents-demo-full.json": sampleContext, ...DEMO_RUN };
 
 // Real AI Gateway logs when the account id and a read token are configured (.dev.vars / Worker secrets),
 // otherwise the cost provider uses the bundled fixture.
@@ -74,8 +78,18 @@ export default {
 			}
 		}
 
-		const sample = url.pathname.match(/^\/samples\/([a-z0-9.-]+\.json)$/);
+		const sample = url.pathname.match(/^\/samples\/((?:demo-run\/)?[a-z0-9.-]+\.json)$/);
 		if (request.method === "GET" && sample && SAMPLES[sample[1]]) return Response.json(SAMPLES[sample[1]]);
+
+		if (url.pathname.startsWith("/dev/") && url.pathname !== "/dev/gateway-smoke") {
+			if (!isLocal(url)) return Response.json({ error: "not found" }, { status: 404 });
+			try {
+				const res = await handleDevRoute(request, url, env, GATEWAY_ID);
+				if (res) return res;
+			} catch (err) {
+				return Response.json({ error: String(err).slice(0, 500) }, { status: 500 });
+			}
+		}
 
 		// POST /dev/gateway-smoke (localhost only) -> one tiny Claude call and one Workers AI call through the gateway.
 		if (request.method === "POST" && url.pathname === "/dev/gateway-smoke" && isLocal(url)) {

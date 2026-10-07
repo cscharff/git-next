@@ -37,6 +37,19 @@ local git objects. `--layers <stack.json>` adds layers whose `path`s are resolve
 (the folder holding `.gitnext/`). Exit codes: 0 clean, 1 blocking findings, 2 usage or runtime error.
 `examples/hooks/pre-push` runs `git next rules --quiet` before every push (and optionally `resources --strict`).
 
+## Demo agents
+
+`node scripts/demo-agents.ts` (with `npm run dev` running and `.dev.vars` set) forks `agents-demo-full` into
+`agents-demo-docs`, `agents-demo-r2` and `agents-demo-mcp` (reusing them if they exist) and runs three agents in
+parallel. Each one asks `/context` for a token-budgeted slice, makes one Claude call through the `git-next` AI Gateway
+tagged `developer/repo/fork/agent/task`, applies the returned edits to a clone of its fork, commits `SOW-1042: …`,
+and pushes through `examples/hooks/pre-push` with the demo layers, using a short-lived write token passed only in
+`GIT_CONFIG_*` env vars. The mcp-agent's push is blocked by the contract-vs-project changeset conflict, then
+retried with `fixtures/demo-layers-resolved`. Results go to `samples/demo-run/` (one `/insights` file per fork, plus
+`summary.json`), which the dashboard's fork selector and Demo agents panel read. It stops before going over
+`--budget-usd` (default 10, counted from the gateway logs). `--only <agent>` re-runs one agent, and `--insights-only`
+refreshes the samples without making model calls. The `/dev/*` routes it uses are localhost-only.
+
 ## Layout
 
 - `src/core`: `Insight`/`InsightProvider` types, `RepoContext` (per-ref tree cache plus blob-hash content cache),

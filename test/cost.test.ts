@@ -91,6 +91,13 @@ describe("costProvider", () => {
 		expect([usd(0.000153), usd(0), usd(12.104)]).toEqual(["$0.000153", "$0.00", "$12.10"]);
 	});
 
+	it("scopes a fork's insights to records tagged with that fork", async () => {
+		const files = new RepoContext(async () => memorySource({}));
+		const out = await costProvider(fixtureCostSource()).analyze({ repo: "devon/think-repro", ref: "main", files });
+		expect(out[0].title).toMatch(/across 20 requests$/);
+		expect(out.filter((i) => i.scope.agent).map((i) => i.scope.agent)).toContain("agent-think");
+	});
+
 	it("says so when a repo has no usage", async () => {
 		const files = new RepoContext(async () => memorySource({}));
 		const [i] = await costProvider(staticCostSource("empty", [])).analyze({ repo: "x", ref: "main", files });

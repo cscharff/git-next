@@ -5,6 +5,6 @@
 		"types": ["node"],
 		"lib": ["es2024"]
 	},
-	"include": ["src/cli", "bin", "src/raw.d.ts"],
+	"include": ["src/cli", "bin", "scripts", "src/raw.d.ts"],
 	"exclude": []
 }

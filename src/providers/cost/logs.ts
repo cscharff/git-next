@@ -72,8 +72,11 @@ export interface CostSource {
 	records(filter: { repo?: string }): Promise<CostRecord[]>;
 }
 
+/** A repo matches its own records and, for a fork, the records tagged with that fork name. */
+export const matchesRepo = (r: CostRecord, repo?: string) => !repo || r.repo === repo || r.fork === repo;
+
 export function staticCostSource(id: string, records: CostRecord[]): CostSource {
-	return { id, records: async ({ repo }) => records.filter((r) => !repo || r.repo === repo) };
+	return { id, records: async ({ repo }) => records.filter((r) => matchesRepo(r, repo)) };
 }
 
 export interface GatewayLogsConfig {
@@ -88,7 +91,8 @@ export interface GatewayLogsConfig {
 
 /**
  * Reads AI Gateway logs: GET /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/logs, newest first.
- * Narrows server-side with the free-text metadata search on the repo name, then filters exactly on metadata.repo.
+ * Narrows server-side with the free-text metadata search on the repo name, then filters exactly on
+ * metadata.repo (or metadata.fork, when the repo is a fork).
  */
 export function gatewayLogsSource(cfg: GatewayLogsConfig): CostSource {
 	const fetcher = cfg.fetcher ?? fetch;
@@ -105,7 +109,7 @@ export function gatewayLogsSource(cfg: GatewayLogsConfig): CostSource {
 				const body = (await res.json().catch(() => null)) as { success?: boolean; result?: unknown[]; errors?: { message?: string }[]; result_info?: { total_count?: number } } | null;
 				if (!res.ok || !body?.success) throw new Error(`AI Gateway logs: HTTP ${res.status} ${body?.errors?.map((e) => e.message).join("; ") ?? ""}`.trim());
 				const rows = body.result ?? [];
-				out.push(...parseGatewayLogs(rows).filter((r) => !repo || r.repo === repo));
+				out.push(...parseGatewayLogs(rows).filter((r) => matchesRepo(r, repo)));
 				if (rows.length < 50) break;
 			}
 			return out;

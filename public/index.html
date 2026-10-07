@@ -53,12 +53,15 @@
 	.plus { color: var(--ok); } .minus { color: var(--conflict); }
 	.empty { color: var(--muted); font-style: italic; }
 	details summary { cursor: pointer; color: var(--muted); font-size: 12px; margin: 8px 0; }
+	#agents { grid-column: 1 / -1; }
+	a { color: var(--info); }
 	.banner { margin: 12px 24px 0; padding: 8px 12px; border-radius: 8px; background: var(--chip); color: var(--muted); font-size: 12px; }
 </style>
 </head>
 <body>
 <header>
 	<h1>git<span>.next</span> insights</h1>
+	<select id="fork" aria-label="Fork" hidden><option value="">agents-demo-full (sample)</option></select>
 	<div class="meta" id="meta">Loading…</div>
 	<form id="live">
 		<input id="repo" value="agents-demo-full" size="16" aria-label="Repository">
@@ -74,6 +77,7 @@
 	<section class="panel" id="stack"><h2>Instruction stack</h2><div class="sub">Layers, winning rules and conflicts with file:line</div><div class="body"></div></section>
 	<section class="panel" id="resources"><h2>Resource map</h2><div class="sub">Workers and bindings per wrangler config, diffed against the base ref</div><div class="body"></div></section>
 	<section class="panel" id="cost"><h2>Cost per agent</h2><div class="sub">AI Gateway spend rolled up by agent, with spend flags and model-fit suggestions</div><div class="body"></div></section>
+	<section class="panel" id="agents" hidden><h2>Demo agents</h2><div class="sub">Last run of scripts/demo-agents.ts: one agent per fork, each with sliced context, a gateway-tagged model call and the pre-push check</div><div class="body"></div></section>
 	<section class="panel" id="context"><h2>Sliced context</h2><div class="sub">What an agent gets for a task: resolved rules and the best sections within a token budget</div><div class="body"></div></section>
 </main>
 <script>
@@ -214,9 +218,71 @@ function renderCost(items) {
 		<table><tr><th style="width:38%">Agent</th><th></th><th style="width:64px">Spend</th><th style="width:40px">Req</th></tr>
 		${agents.map((a) => `<tr><td><b>${esc(a.agent)}</b><br><span class="sub">${esc(a.models.join(", "))}</span></td><td><div class="bar"><div style="width:${(a.cost / max) * 100}%"></div></div></td><td>${usd(a.cost)}</td><td>${a.requests}</td></tr>`).join("")}
 		</table>
+		${byFork(summary.metrics.rollup)}
 		${flags.length ? `<h3 class="sub" style="margin-top:14px">Spend flags</h3>${flags.map((f) => `<div class="finding">${sev("warn")} <b>${esc(f.title)}</b><div>${esc(f.detail)}</div></div>`).join("")}` : ""}
 		${fits.length ? `<h3 class="sub" style="margin-top:14px">Model fit</h3>${fits.map((f) => `<div class="finding"><b>${esc(f.metrics.agent)}</b> · ${esc(f.metrics.taskLabel)}: <code>${esc(f.metrics.model)}</code> → <code>${esc(f.metrics.suggest)}</code> <span class="plus">save ${usd(f.metrics.estimatedSaving)}</span><div class="ev">${esc(f.metrics.why)}; ${f.metrics.requests} requests, ${usd(f.metrics.actualCost)} now vs ${usd(f.metrics.estimatedCost)}</div></div>`).join("")}` : ""}
 		<p class="sub" style="margin-top:10px">Source: ${esc(summary.metrics.source)}</p>`;
+}
+
+/** Spend per fork from the project → developer → fork rollup. */
+function byFork(rollup) {
+	const forks = {};
+	for (const project of rollup || []) for (const dev of project.children) for (const fork of dev.children) forks[fork.key] = (forks[fork.key] || 0) + fork.cost;
+	const rows = Object.entries(forks).sort((a, b) => b[1] - a[1]);
+	return rows.length > 1 ? `<h3 class="sub" style="margin-top:14px">By fork</h3><div class="row">${rows.map(([k, v]) => `<span class="chip">${esc(k)} ${usd(v)}</span>`).join(" ")}</div>` : "";
+}
+
+function renderAgents() {
+	const panel = $("#agents");
+	const run = state.demoRun;
+	if (!run) return (panel.hidden = true);
+	panel.hidden = false;
+	const rows = run.agents.map((a) => {
+		const c = a.context || {};
+		const hook = a.error ? `<span class="chip sev-conflict">failed</span>` : a.hook?.blocked ? `<span class="chip sev-conflict">blocked</span> → <span class="chip sev-info">resolved</span>` : `<span class="chip">passed</span>`;
+		return `<tr>
+			<td><b>${esc(a.agent)}</b><br><a href="#" data-fork="${esc(a.fork)}"><code>${esc(a.fork)}</code></a></td>
+			<td><code>${esc(a.model.replace("anthropic/", ""))}</code></td>
+			<td>${c.tokensServed ? `${num(c.tokensServed)} tok<br><span class="sub">${num(c.tokensInstructionFilesOnPath)} on path · ${num(c.tokensAllMarkdown)} all</span>` : ""}</td>
+			<td>${usd(a.gateway?.cost ?? 0)}<br><span class="sub">${a.gateway?.requests ?? 0} req</span></td>
+			<td>${hook}</td>
+			<td>${a.commit ? `<code>${esc(a.head.slice(0, 8))}</code> ${esc(a.commit.message)}<br><span class="sub">${esc(a.commit.diffstat)}</span>` : esc(a.error || "")}</td>
+		</tr>`;
+	}).join("");
+	const blocked = run.agents.find((a) => a.hook?.blocked);
+	$("#agents .body").innerHTML = `
+		<div class="stats">
+			<div class="stat"><b>${run.agents.filter((a) => a.pushed).length}/${run.agents.length}</b><span>pushed</span></div>
+			<div class="stat"><b>${usd(run.agentsCostUsd)}</b><span>agent spend (gateway)</span></div>
+			<div class="stat"><b>${usd(run.budgetUsd)}</b><span>budget</span></div>
+		</div>
+		<table><tr><th style="width:18%">Agent / fork</th><th style="width:14%">Model</th><th style="width:15%">Context</th><th style="width:10%">Cost</th><th style="width:14%">Pre-push</th><th>Commit</th></tr>${rows}</table>
+		${blocked ? `<details><summary>Why ${esc(blocked.agent)} was blocked, and how it was resolved</summary><pre class="mono" style="white-space:pre-wrap">${esc(blocked.hook.output.split("\nerror:")[0])}</pre><p class="sub">Resolved by amending the contract layer (${esc(blocked.resolution?.layers || "")}) so its changeset rule defers to the project; the re-run check passed and the push went through.</p></details>` : ""}`;
+	panel.querySelectorAll("a[data-fork]").forEach((el) => el.addEventListener("click", (e) => { e.preventDefault(); selectFork(el.dataset.fork); }));
+}
+
+async function loadDemoRun() {
+	try {
+		state.demoRun = await getJson("/samples/demo-run/summary.json");
+	} catch {
+		return;
+	}
+	const sel = $("#fork");
+	for (const a of state.demoRun.agents) if (a.base) sel.insertAdjacentHTML("beforeend", `<option value="${esc(a.fork)}">${esc(a.fork)} (${esc(a.agent)})</option>`);
+	sel.hidden = false;
+	sel.addEventListener("change", () => selectFork(sel.value));
+	renderAgents();
+}
+
+async function selectFork(fork) {
+	$("#fork").value = fork;
+	if (!fork) return loadSamples();
+	const agent = state.demoRun.agents.find((a) => a.fork === fork);
+	state.insights = await getJson(`/samples/demo-run/${encodeURIComponent(fork)}.json`);
+	state.source = `demo run (${agent?.agent ?? fork})`;
+	$("#repo").value = fork;
+	$("#base").value = agent?.base ?? "";
+	render();
 }
 
 function renderContext() {
@@ -260,7 +326,7 @@ function renderContext() {
 
 $("#live").addEventListener("submit", loadLive);
 $("#sample").addEventListener("click", () => { hideBanner(); loadSamples(); });
-loadSamples().catch((err) => showBanner(`Could not load samples: ${err.message}`));
+loadSamples().then(loadDemoRun).catch((err) => showBanner(`Could not load samples: ${err.message}`));
 </script>
 </body>
 </html>

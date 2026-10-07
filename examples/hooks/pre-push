@@ -1,5 +1,5 @@
 #!/bin/sh
-# git.next pre-push hook: block pushes that leave AI instruction conflicts behind.
+# git.next pre-push hook: block pushes whose changed files are governed by conflicting AI instructions.
 #
 # Install:  cp examples/hooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
 # Needs `git-next` on PATH (npm link in the git-next checkout). Skip once with: git push --no-verify
@@ -12,21 +12,24 @@ command -v git-next >/dev/null 2>&1 || { echo "git-next not on PATH; skipping in
 layers=""
 [ -n "$GIT_NEXT_LAYERS" ] && layers="--layers $GIT_NEXT_LAYERS"
 
-# shellcheck disable=SC2086
-if ! git next rules --quiet $layers; then
-	echo "git-next: instruction conflicts found. Run 'git next rules' for details, or push with --no-verify." >&2
-	exit 1
-fi
-
-if [ "$GIT_NEXT_STRICT_RESOURCES" = "1" ]; then
-	# stdin lines: <local ref> <local sha> <remote ref> <remote sha>
-	while read -r _local_ref local_sha _remote_ref remote_sha; do
-		[ "$remote_sha" = "0000000000000000000000000000000000000000" ] && continue
-		[ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue
+zero=0000000000000000000000000000000000000000
+status=0
+# stdin lines: <local ref> <local sha> <remote ref> <remote sha>
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+	[ "$local_sha" = "$zero" ] && continue # branch deletion
+	# Check the rules that govern the files this push changes (all files for a new branch).
+	paths=""
+	[ "$remote_sha" != "$zero" ] && paths=$(git diff --name-only "$remote_sha" "$local_sha")
+	# shellcheck disable=SC2086
+	if ! git next rules --quiet $layers -- $paths; then
+		echo "git-next: instruction conflicts govern files in this push. Run 'git next rules $layers -- <paths>' for details, or push with --no-verify." >&2
+		status=1
+	fi
+	if [ "$GIT_NEXT_STRICT_RESOURCES" = "1" ] && [ "$remote_sha" != "$zero" ]; then
 		if ! git next resources --base "$remote_sha" --ref "$local_sha" --strict --quiet; then
 			echo "git-next: this push adds Cloudflare bindings (run 'git next resources --base $remote_sha --ref $local_sha --verbose')." >&2
-			exit 1
+			status=1
 		fi
-	done
-fi
-exit 0
+	fi
+done
+exit $status

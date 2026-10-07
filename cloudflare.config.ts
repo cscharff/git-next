@@ -7,7 +7,7 @@ export default defineConfig({
 		compatibilityDate: "2026-10-06",
 		entrypoint,
 		// public/index.html is the dashboard; API routes go to the Worker first.
-		assets: { notFoundHandling: "none", runWorkerFirst: ["/insights", "/context", "/providers", "/samples/*"] },
+		assets: { notFoundHandling: "none", runWorkerFirst: ["/insights", "/context", "/providers", "/samples/*", "/dev/*"] },
 		env: {
 			// Read-only use: providers read trees, blobs and commits from repos in this namespace.
 			// `remote: true` makes local dev read the real Artifacts repos.

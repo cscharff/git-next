@@ -15,7 +15,9 @@ export function costProvider(source: CostSource = fixtureCostSource()): InsightP
 		title: "Agent cost",
 		needs: [],
 		async analyze({ repo, ref }) {
-			const records = await source.records({ repo });
+			// For a fork, show only that fork's requests (the source also returns them for the parent repo name).
+			const all = await source.records({ repo });
+			const records = all.some((r) => r.fork === repo) ? all.filter((r) => r.fork === repo) : all;
 			if (!records.length) return [{ provider: "cost", severity: "info", scope: { repo, ref }, title: "No AI Gateway usage for this repo", detail: `Source ${source.id} has no records tagged repo=${repo}.`, evidence: [] }];
 			const tree = rollup(records);
 			const total = tree.reduce((n, p) => n + p.cost, 0);
