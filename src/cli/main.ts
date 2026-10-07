@@ -14,6 +14,7 @@ import type { Rule } from "../providers/instruction-stack/types.ts";
 import { checkCatalog, parseCatalog, type Catalog } from "../providers/catalog.ts";
 import { parseJsonc } from "../parse/jsonc.ts";
 import { initCommand, type InitDeps } from "./init.ts";
+import { doctorCommand } from "./doctor.ts";
 import { resourceMapProvider } from "../providers/resource-map.ts";
 import { USAGE, UsageError, parseArgs, type ParsedArgs } from "./args.ts";
 import { WORKTREE, localSource } from "./git-source.ts";
@@ -61,6 +62,8 @@ export async function runCli(argv: string[], io: CliIo): Promise<number> {
 			case "init":
 			case "new":
 				return await initCommand(args, io, initDeps(io));
+			case "doctor":
+				return await doctorCommand(args, io, { packageRoot: PACKAGE_ROOT, gitTopLevel });
 			case "resources":
 				return await resourcesCommand(args, io);
 			case "context":

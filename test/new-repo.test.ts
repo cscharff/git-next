@@ -318,3 +318,42 @@ describe("layer text is data, never code", () => {
 		rmSync(work, { recursive: true, force: true });
 	});
 });
+
+describe("git next doctor", () => {
+	it("reports a repo current, then shows what a baseline change would introduce, then updates", async () => {
+		const work = mkdtempSync(join(tmpdir(), "gn-doctor-"));
+		const baseline = join(work, "baseline");
+		cpSync(BASELINE, baseline, { recursive: true });
+		expect((await run(work, ["new", "svc", "--org", baseline])).code).toBe(0);
+		const dir = join(work, "svc");
+		const fresh = await run(dir, ["doctor", "--org", baseline]);
+		expect(fresh.code).toBe(0);
+		expect(fresh.out).toContain("✓ Up to date with the baseline.");
+		expect(fresh.out).toContain("hook      installed (fail-closed)");
+
+		// The org adds a hard rule the project contradicts, and bumps the catalog.
+		writeFileSync(join(baseline, "org/AGENTS.md"), readFileSync(join(baseline, "org/AGENTS.md"), "utf8") + "- You must use npm for installs.\n");
+		writeFileSync(join(baseline, "catalog.json"), readFileSync(join(baseline, "catalog.json"), "utf8").replace(`"${catalog.version}"`, '"2099.1.0"'));
+		const softer = JSON.parse((await run(dir, ["doctor", "--org", baseline, "--json"])).out);
+		// The project only says "Use pnpm" (should), so the org must wins: no conflict, but the winner changes.
+		expect(softer.winnerChanges).toContain("packageManager: pnpm (project) → npm (org)");
+		expect(softer.exitCode).toBe(0);
+		// With a hard project rule it becomes a conflict, which blocks.
+		writeFileSync(join(dir, "AGENTS.md"), readFileSync(join(dir, "AGENTS.md"), "utf8").replace("- Use pnpm for installs.", "- You must use pnpm for installs."));
+		const behind = JSON.parse((await run(dir, ["doctor", "--org", baseline, "--json"])).out);
+		expect(behind.exitCode).toBe(1);
+		expect(behind.catalog).toMatchObject({ behind: true, baseline: "2099.1.0" });
+		expect(behind.layers.find((l: any) => l.kind === "org").status).toBe("changed in baseline");
+		expect(behind.introduced.join("\n")).toContain("conflict: packageManager");
+
+		const updated = await run(dir, ["doctor", "--org", baseline, "--update"]);
+		expect(updated.code).toBe(1); // updated, but the project's must still conflicts with the new org must
+		expect((await run(dir, ["rules", "-q"])).code).toBe(1);
+		expect(updated.out).toContain("Updated: layers and catalog re-vendored");
+		expect(readFileSync(join(dir, ".gitnext/layers/org-acme-org.md"), "utf8")).toContain("You must use npm");
+		const after = JSON.parse((await run(dir, ["doctor", "--org", baseline, "--json"])).out);
+		expect(after.catalog.behind).toBe(false);
+		expect(after.layers.every((l: any) => l.status === "up to date")).toBe(true);
+		rmSync(work, { recursive: true, force: true });
+	});
+});

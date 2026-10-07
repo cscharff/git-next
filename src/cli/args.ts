@@ -1,4 +1,4 @@
-export const COMMANDS = ["rules", "check", "resources", "context", "cost", "init", "new", "help"] as const;
+export const COMMANDS = ["rules", "check", "resources", "context", "cost", "init", "new", "doctor", "help"] as const;
 export type Command = (typeof COMMANDS)[number];
 
 export interface ParsedArgs {
@@ -33,6 +33,8 @@ export interface ParsedArgs {
 	/** init/new --remote: show the Artifacts repo that would be created (dry run; not implemented yet). */
 	initRemote: boolean;
 	keep: boolean;
+	/** doctor: re-vendor layers and catalog from the baseline and rewrite the pins. */
+	update: boolean;
 }
 
 export class UsageError extends Error {}
@@ -58,7 +60,8 @@ const FLAGS: Record<string, FlagSpec> = {
 	"--allow-on-error": { key: "allowOnError", type: "bool", commands: ["rules", "check"] },
 	"--paths-from-stdin": { key: "pathsFromStdin", type: "bool", commands: ["rules", "check"] },
 	"--hook-json": { key: "hookJson", type: "bool", commands: ["check"] },
-	"--org": { key: "org", type: "string", commands: ["init", "new"] },
+	"--org": { key: "org", type: "string", commands: ["init", "new", "doctor"] },
+	"--update": { key: "update", type: "bool", commands: ["doctor"] },
 	"--template": { key: "template", type: "string", commands: ["init", "new"] },
 	"--name": { key: "name", type: "string", commands: ["init", "new"] },
 	"--owner": { key: "owner", type: "string", commands: ["init", "new"] },
@@ -86,6 +89,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
 		template: "worker-api",
 		initRemote: false,
 		keep: false,
+		update: false,
 	};
 	for (let i = 0; i < rest.length; i++) {
 		const arg = rest[i];
@@ -135,6 +139,7 @@ export const USAGE = `git next <command> [options]
 Commands
   new <name> [--template worker-api] [--org <baseline>]   Create a repo that inherits org layers, catalog and hook
   init <dir> [--org <baseline>]   Same as new, for a directory path (--remote: dry run of the Artifacts repo)
+  doctor [--update]            How far this repo is behind its org baseline, and what updating would change
   rules [paths...]             Instruction layers, winning rules, conflicts, drift and catalog violations (exit 1 on any)
   check [paths...] --hook-json  {"action":"allow"|"block","reason"} for agent tool hooks
   resources [--base <ref>]     Workers and bindings from wrangler configs; --strict exits 1 if bindings were added

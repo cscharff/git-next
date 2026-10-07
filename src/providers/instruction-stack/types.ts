@@ -17,10 +17,13 @@ export type Topic = (typeof TOPICS)[number];
 
 export type Strength = "must" | "should";
 
-/** Layer kinds in precedence order: org beats contract beats project beats tool beats personal. */
-export const LAYER_KINDS = ["org", "contract", "project", "tool", "personal"] as const;
+/**
+ * Layer kinds in precedence order: org beats contract beats project beats tool beats personal; agent-written memory
+ * ranks last, so anything an agent "remembers" yields to every human-authored layer.
+ */
+export const LAYER_KINDS = ["org", "contract", "project", "tool", "personal", "memory"] as const;
 export type LayerKind = (typeof LAYER_KINDS)[number];
-export const KIND_RANK: Record<LayerKind, number> = { org: 1, contract: 2, project: 3, tool: 4, personal: 5 };
+export const KIND_RANK: Record<LayerKind, number> = { org: 1, contract: 2, project: 3, tool: 4, personal: 5, memory: 6 };
 
 export interface Layer {
 	name: string;
@@ -33,7 +36,7 @@ export interface Layer {
 	path: string;
 	/** Directory the layer governs ("" = whole repo). Stack-file layers govern the whole repo. */
 	scopeDir: string;
-	origin: "project" | "stack";
+	origin: "project" | "stack" | "agent" | "memory";
 	/** Stack layers only: the layer applies in this cloud's environments only (e.g. an on-prem platform layer). */
 	env?: Cloud;
 }
@@ -77,7 +80,7 @@ export interface PrecedenceOverride {
 	reason: string;
 }
 
-export const DEFAULT_ORDER: LayerKind[] = ["org", "contract", "project", "tool", "personal"];
+export const DEFAULT_ORDER: LayerKind[] = ["org", "contract", "project", "tool", "personal", "memory"];
 
 /** Validates an order: every layer kind exactly once. */
 export function validOrder(order: unknown): order is LayerKind[] {
