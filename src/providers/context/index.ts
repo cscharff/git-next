@@ -42,9 +42,10 @@ export async function buildContext(files: RepoContext, req: ContextRequest, make
 			ruleRows.set(key, row);
 		}
 	}
-	const touches = (r: Rule) => (paths.length ? paths.some((p) => governs(r.layer.scopeDir, p)) : true);
+	// A conflict matters for this task when both of its rules reach one of the touched paths.
+	const reaches = (r: Rule, p: string) => governs(r.layer.scopeDir, p) && (!r.areas || r.areas.includes(p.split("/")[0]));
 	const conflicts = resolve(stack.rules)
-		.filter((f) => f.kind === "conflict" && f.rules.some(touches))
+		.filter((f) => f.kind === "conflict" && (!paths.length || paths.some((p) => f.rules.every((r) => reaches(r, p)))))
 		.map((f) => ({ topic: f.topic, explanation: f.explanation }));
 	const rulesBlock = { rules: [...ruleRows.values()], conflicts };
 	const rulesTokens = estimateTokens(JSON.stringify(rulesBlock));

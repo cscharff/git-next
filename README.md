@@ -11,8 +11,10 @@ npm test        # vitest: parsers, extractor, resolver, providers
 npm run dev     # cf dev on localhost:5173, reads real repos (remote binding, namespace "default")
 ```
 
+- `GET /` — dashboard (instruction stack, resource map, cost per agent, sliced context); falls back to `samples/`
 - `GET /insights?repo=<name>&ref=<branch|sha>[&base=<ref>][&providers=a,b]`
-- `GET /providers`
+- `POST /context {"repo","ref","task","paths":[],"budgetTokens"}` — rules for those paths + best sections within budget
+- `GET /providers`, `GET /samples/<name>.json`
 
 The Worker has no caller authentication yet, so keep it to local dev.
 
@@ -30,9 +32,21 @@ The Worker has no caller authentication yet, so keep it to local dev.
   overridden / conflict / drift findings. Drift compares instructions against config files (`package.json`
   `packageManager`, lockfiles, `.oxfmtrc.json`, `.prettierrc`, `biome.json`, `.editorconfig`).
 
+- `src/providers/context`: splits markdown into heading sections and ranks them with BM25 behind a `Retriever`
+  interface (`Embedder` + `VectorRetriever` ready for Workers AI EmbeddingGemma / Vectorize). Packs the best sections
+  into the budget after the resolved rules, caps any one section at 35% of the budget, and returns a manifest of what
+  was omitted plus `tokensServed` vs `tokensAllMarkdown` and vs the instruction files on the path.
+- `src/providers/cost`: parses AI Gateway log records (metadata keys `developer`, `repo`, `fork`, `agent`, `task`), rolls
+  spend up project → developer → fork → agent → task, flags developers/agents above 2× the median, and prices
+  mechanical tasks on cheaper tiers (`FIT_RULES`). Reads `fixtures/ai-gateway-logs.json` for now; the logs API call is a TODO.
+- `public/index.html`: the dashboard, served as a static asset by the same Worker.
+
 ## Samples
 
 - `samples/insights-agents-demo-full-main.json`: live run against `agents-demo-full@main`.
 - `samples/resource-map-diff-agents-demo-full.json`: `main` diffed against a commit 300 first-parent commits back.
+- `samples/insights-demo.json`: every provider offline (`node scripts/demo-insights.ts <checkout> <base-sha>`), with the
+  demo layers and the cost fixture. The dashboard's default data.
+- `samples/context-agents-demo-full.json`: `/context` for three example tasks (`node scripts/demo-context.ts <checkout>`).
 - `samples/instruction-stack-demo-layers.json`: offline run over the repo's real instruction and config files plus the
   hypothetical layers in `fixtures/demo-layers` (`node scripts/demo-stack.ts <checkout>`).

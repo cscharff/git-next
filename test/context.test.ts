@@ -84,5 +84,6 @@ describe("buildContext", () => {
 		const ctx = await buildContext(files, { repo, ref: "main", task: "Add an example", paths: ["examples/chat/src/index.ts"], budgetTokens: 2000 });
 		const byTopic = Object.fromEntries(ctx.rules.map((r) => [r.topic, r.value]));
 		expect(byTopic).toMatchObject({ packageManager: "npm", changesetPolicy: "not-required" });
+		expect(ctx.conflicts).toEqual([]);
 	});
 });

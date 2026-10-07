@@ -1,13 +1,16 @@
 import { env } from "cloudflare:workers";
 import { artifactsSource } from "./core/artifacts-source.ts";
-import { ProviderRegistry } from "./core/registry.ts";
 import { RepoContext } from "./core/repo-context.ts";
 import { buildContext } from "./providers/context/index.ts";
-import { instructionStackProvider } from "./providers/instruction-stack/index.ts";
-import { resourceMapProvider } from "./providers/resource-map.ts";
+import { createRegistry } from "./registry.ts";
+import sampleContext from "../samples/context-agents-demo-full.json" with { type: "json" };
+import sampleInsights from "../samples/insights-demo.json" with { type: "json" };
+
+// Offline samples the dashboard falls back to when there is no live run.
+const SAMPLES: Record<string, unknown> = { "insights-demo.json": sampleInsights, "context-agents-demo-full.json": sampleContext };
 
 // Read-only analysis over Artifacts repos. No caller authentication yet, so local dev only.
-export const registry = new ProviderRegistry().register(resourceMapProvider).register(instructionStackProvider());
+const registry = createRegistry();
 
 const REPO_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 
@@ -51,6 +54,9 @@ export default {
 				return Response.json({ error: String(err) }, { status: 500 });
 			}
 		}
+
+		const sample = url.pathname.match(/^\/samples\/([a-z0-9.-]+\.json)$/);
+		if (request.method === "GET" && sample && SAMPLES[sample[1]]) return Response.json(SAMPLES[sample[1]]);
 
 		if (request.method === "GET" && url.pathname === "/providers") {
 			return Response.json(registry.list().map(({ id, title, needs }) => ({ id, title, needs })));

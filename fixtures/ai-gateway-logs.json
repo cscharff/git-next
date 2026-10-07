@@ -1,0 +1,1171 @@
+{
+ "_note": "Hand-made fixture shaped like AI Gateway log records (GET .../ai-gateway/gateways/{id}/logs). Workers AI prices from the 2026-10-07 catalog; Anthropic/OpenAI prices illustrative.",
+ "result": [
+  {
+   "id": "log_0001",
+   "created_at": "2026-10-02T09:07:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 61222,
+   "tokens_out": 5882,
+   "cost": 1.35948,
+   "cached": false,
+   "success": true,
+   "duration": 3173,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "debug#101"
+   }
+  },
+  {
+   "id": "log_0002",
+   "created_at": "2026-10-03T10:14:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 75119,
+   "tokens_out": 2385,
+   "cost": 1.30566,
+   "cached": false,
+   "success": true,
+   "duration": 17427,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "debug#102"
+   }
+  },
+  {
+   "id": "log_0003",
+   "created_at": "2026-10-04T11:21:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 54070,
+   "tokens_out": 2153,
+   "cost": 0,
+   "cached": true,
+   "success": true,
+   "duration": 8686,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "debug#103"
+   }
+  },
+  {
+   "id": "log_0004",
+   "created_at": "2026-10-05T12:28:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 45944,
+   "tokens_out": 4257,
+   "cost": 1.008435,
+   "cached": false,
+   "success": true,
+   "duration": 4856,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "debug#104"
+   }
+  },
+  {
+   "id": "log_0005",
+   "created_at": "2026-10-06T13:35:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 54630,
+   "tokens_out": 4583,
+   "cost": 1.163175,
+   "cached": false,
+   "success": true,
+   "duration": 19710,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "debug#105"
+   }
+  },
+  {
+   "id": "log_0006",
+   "created_at": "2026-10-07T14:42:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 78374,
+   "tokens_out": 3624,
+   "cost": 0,
+   "cached": true,
+   "success": true,
+   "duration": 19040,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "debug#106"
+   }
+  },
+  {
+   "id": "log_0007",
+   "created_at": "2026-10-01T15:49:00Z",
+   "provider": "anthropic",
+   "model": "claude-sonnet-5-5",
+   "tokens_in": 38727,
+   "tokens_out": 5372,
+   "cost": 0.196761,
+   "cached": false,
+   "success": true,
+   "duration": 19507,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "feature#107"
+   }
+  },
+  {
+   "id": "log_0008",
+   "created_at": "2026-10-02T16:56:00Z",
+   "provider": "anthropic",
+   "model": "claude-sonnet-5-5",
+   "tokens_in": 50216,
+   "tokens_out": 7589,
+   "cost": 0.264483,
+   "cached": false,
+   "success": true,
+   "duration": 19857,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "feature#108"
+   }
+  },
+  {
+   "id": "log_0009",
+   "created_at": "2026-10-03T17:03:00Z",
+   "provider": "anthropic",
+   "model": "claude-sonnet-5-5",
+   "tokens_in": 67434,
+   "tokens_out": 4539,
+   "cost": 0.270387,
+   "cached": false,
+   "success": true,
+   "duration": 2857,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "feature#109"
+   }
+  },
+  {
+   "id": "log_0010",
+   "created_at": "2026-10-04T08:10:00Z",
+   "provider": "anthropic",
+   "model": "claude-sonnet-5-5",
+   "tokens_in": 66986,
+   "tokens_out": 3488,
+   "cost": 0.253278,
+   "cached": false,
+   "success": true,
+   "duration": 18223,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "feature#110"
+   }
+  },
+  {
+   "id": "log_0011",
+   "created_at": "2026-10-05T09:17:00Z",
+   "provider": "anthropic",
+   "model": "claude-sonnet-5-5",
+   "tokens_in": 58022,
+   "tokens_out": 5573,
+   "cost": 0.257661,
+   "cached": false,
+   "success": true,
+   "duration": 12648,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "feature#111"
+   }
+  },
+  {
+   "id": "log_0012",
+   "created_at": "2026-10-06T10:24:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 29822,
+   "tokens_out": 754,
+   "cost": 0.50388,
+   "cached": false,
+   "success": true,
+   "duration": 8798,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "format#112"
+   }
+  },
+  {
+   "id": "log_0013",
+   "created_at": "2026-10-07T11:31:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 22682,
+   "tokens_out": 1088,
+   "cost": 0.42183,
+   "cached": false,
+   "success": true,
+   "duration": 12055,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "format#113"
+   }
+  },
+  {
+   "id": "log_0014",
+   "created_at": "2026-10-01T12:38:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 34707,
+   "tokens_out": 794,
+   "cost": 0.580155,
+   "cached": false,
+   "success": true,
+   "duration": 17575,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "format#114"
+   }
+  },
+  {
+   "id": "log_0015",
+   "created_at": "2026-10-02T13:45:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 33701,
+   "tokens_out": 668,
+   "cost": 0.555615,
+   "cached": false,
+   "success": true,
+   "duration": 16822,
+   "metadata": {
+    "developer": "chris",
+    "repo": "agents-demo-full",
+    "fork": "chris/mcp-reconnect",
+    "agent": "claude-code",
+    "task": "format#115"
+   }
+  },
+  {
+   "id": "log_0016",
+   "created_at": "2026-10-03T14:52:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 43818,
+   "tokens_out": 3160,
+   "cost": 0.56458,
+   "cached": false,
+   "success": true,
+   "duration": 19087,
+   "metadata": {
+    "developer": "maya",
+    "repo": "agents-demo-full",
+    "fork": "maya/workflows-example",
+    "agent": "codex",
+    "task": "feature#116"
+   }
+  },
+  {
+   "id": "log_0017",
+   "created_at": "2026-10-04T15:59:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 48776,
+   "tokens_out": 6232,
+   "cost": 0.73704,
+   "cached": false,
+   "success": true,
+   "duration": 23583,
+   "metadata": {
+    "developer": "maya",
+    "repo": "agents-demo-full",
+    "fork": "maya/workflows-example",
+    "agent": "codex",
+    "task": "feature#117"
+   }
+  },
+  {
+   "id": "log_0018",
+   "created_at": "2026-10-05T16:06:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 41474,
+   "tokens_out": 5434,
+   "cost": 0.6321,
+   "cached": false,
+   "success": true,
+   "duration": 3053,
+   "metadata": {
+    "developer": "maya",
+    "repo": "agents-demo-full",
+    "fork": "maya/workflows-example",
+    "agent": "codex",
+    "task": "feature#118"
+   }
+  },
+  {
+   "id": "log_0019",
+   "created_at": "2026-10-06T17:13:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 57524,
+   "tokens_out": 3383,
+   "cost": 0.71056,
+   "cached": false,
+   "success": true,
+   "duration": 22562,
+   "metadata": {
+    "developer": "maya",
+    "repo": "agents-demo-full",
+    "fork": "maya/workflows-example",
+    "agent": "codex",
+    "task": "feature#119"
+   }
+  },
+  {
+   "id": "log_0020",
+   "created_at": "2026-10-07T08:20:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 32129,
+   "tokens_out": 3248,
+   "cost": 0.45121,
+   "cached": false,
+   "success": true,
+   "duration": 19738,
+   "metadata": {
+    "developer": "maya",
+    "repo": "agents-demo-full",
+    "fork": "maya/workflows-example",
+    "agent": "codex",
+    "task": "feature#120"
+   }
+  },
+  {
+   "id": "log_0021",
+   "created_at": "2026-10-01T09:27:00Z",
+   "provider": "workers-ai",
+   "model": "@cf/moonshotai/kimi-k2.7-code",
+   "tokens_in": 34602,
+   "tokens_out": 3165,
+   "cost": 0.045532,
+   "cached": false,
+   "success": true,
+   "duration": 12170,
+   "metadata": {
+    "developer": "maya",
+    "repo": "agents-demo-full",
+    "fork": "maya/workflows-example",
+    "agent": "codex",
+    "task": "test#121"
+   }
+  },
+  {
+   "id": "log_0022",
+   "created_at": "2026-10-02T10:34:00Z",
+   "provider": "workers-ai",
+   "model": "@cf/moonshotai/kimi-k2.7-code",
+   "tokens_in": 20739,
+   "tokens_out": 3891,
+   "cost": 0.035266,
+   "cached": false,
+   "success": true,
+   "duration": 16977,
+   "metadata": {
+    "developer": "maya",
+    "repo": "agents-demo-full",
+    "fork": "maya/workflows-example",
+    "agent": "codex",
+    "task": "test#122"
+   }
+  },
+  {
+   "id": "log_0023",
+   "created_at": "2026-10-03T11:41:00Z",
+   "provider": "workers-ai",
+   "model": "@cf/moonshotai/kimi-k2.7-code",
+   "tokens_in": 21931,
+   "tokens_out": 2893,
+   "cost": 0.032406,
+   "cached": false,
+   "success": true,
+   "duration": 8913,
+   "metadata": {
+    "developer": "maya",
+    "repo": "agents-demo-full",
+    "fork": "maya/workflows-example",
+    "agent": "codex",
+    "task": "test#123"
+   }
+  },
+  {
+   "id": "log_0024",
+   "created_at": "2026-10-04T12:48:00Z",
+   "provider": "workers-ai",
+   "model": "@cf/moonshotai/kimi-k2.7-code",
+   "tokens_in": 33038,
+   "tokens_out": 3601,
+   "cost": 0.04579,
+   "cached": false,
+   "success": true,
+   "duration": 6251,
+   "metadata": {
+    "developer": "maya",
+    "repo": "agents-demo-full",
+    "fork": "maya/workflows-example",
+    "agent": "codex",
+    "task": "test#124"
+   }
+  },
+  {
+   "id": "log_0025",
+   "created_at": "2026-10-05T13:55:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 89437,
+   "tokens_out": 6290,
+   "cost": 1.14597,
+   "cached": false,
+   "success": true,
+   "duration": 27646,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#125"
+   }
+  },
+  {
+   "id": "log_0026",
+   "created_at": "2026-10-06T14:02:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 88214,
+   "tokens_out": 7507,
+   "cost": 1.18242,
+   "cached": false,
+   "success": true,
+   "duration": 12556,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#126"
+   }
+  },
+  {
+   "id": "log_0027",
+   "created_at": "2026-10-07T15:09:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 104742,
+   "tokens_out": 6116,
+   "cost": 1.29206,
+   "cached": false,
+   "success": true,
+   "duration": 6574,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#127"
+   }
+  },
+  {
+   "id": "log_0028",
+   "created_at": "2026-10-01T16:16:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 69915,
+   "tokens_out": 4900,
+   "cost": 0.89515,
+   "cached": false,
+   "success": false,
+   "duration": 28033,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#128"
+   }
+  },
+  {
+   "id": "log_0029",
+   "created_at": "2026-10-02T17:23:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 98608,
+   "tokens_out": 4493,
+   "cost": 1.1658,
+   "cached": false,
+   "success": false,
+   "duration": 14528,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#129"
+   }
+  },
+  {
+   "id": "log_0030",
+   "created_at": "2026-10-03T08:30:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 95034,
+   "tokens_out": 6024,
+   "cost": 1.1913,
+   "cached": false,
+   "success": true,
+   "duration": 4912,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#130"
+   }
+  },
+  {
+   "id": "log_0031",
+   "created_at": "2026-10-04T09:37:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 105252,
+   "tokens_out": 7222,
+   "cost": 1.3414,
+   "cached": false,
+   "success": true,
+   "duration": 25041,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#131"
+   }
+  },
+  {
+   "id": "log_0032",
+   "created_at": "2026-10-05T10:44:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 63538,
+   "tokens_out": 6740,
+   "cost": 0.90498,
+   "cached": false,
+   "success": true,
+   "duration": 29456,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#132"
+   }
+  },
+  {
+   "id": "log_0033",
+   "created_at": "2026-10-06T11:51:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 104602,
+   "tokens_out": 7581,
+   "cost": 1.34926,
+   "cached": false,
+   "success": true,
+   "duration": 4192,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#133"
+   }
+  },
+  {
+   "id": "log_0034",
+   "created_at": "2026-10-07T12:58:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 91557,
+   "tokens_out": 6280,
+   "cost": 0,
+   "cached": true,
+   "success": true,
+   "duration": 7640,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#134"
+   }
+  },
+  {
+   "id": "log_0035",
+   "created_at": "2026-10-01T13:05:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 88876,
+   "tokens_out": 4329,
+   "cost": 0,
+   "cached": true,
+   "success": true,
+   "duration": 4154,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#135"
+   }
+  },
+  {
+   "id": "log_0036",
+   "created_at": "2026-10-02T14:12:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 60015,
+   "tokens_out": 7643,
+   "cost": 0.90587,
+   "cached": false,
+   "success": true,
+   "duration": 12714,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#136"
+   }
+  },
+  {
+   "id": "log_0037",
+   "created_at": "2026-10-03T15:19:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 100221,
+   "tokens_out": 3208,
+   "cost": 0,
+   "cached": true,
+   "success": true,
+   "duration": 13128,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#137"
+   }
+  },
+  {
+   "id": "log_0038",
+   "created_at": "2026-10-04T16:26:00Z",
+   "provider": "openai",
+   "model": "gpt-5.6-sol",
+   "tokens_in": 69735,
+   "tokens_out": 5066,
+   "cost": 0.89999,
+   "cached": false,
+   "success": true,
+   "duration": 16336,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "triage#138"
+   }
+  },
+  {
+   "id": "log_0039",
+   "created_at": "2026-10-05T17:33:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 96101,
+   "tokens_out": 4944,
+   "cost": 1.812315,
+   "cached": false,
+   "success": true,
+   "duration": 16069,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "debug#139"
+   }
+  },
+  {
+   "id": "log_0040",
+   "created_at": "2026-10-06T08:40:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 142966,
+   "tokens_out": 7963,
+   "cost": 2.741715,
+   "cached": false,
+   "success": true,
+   "duration": 25365,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "debug#140"
+   }
+  },
+  {
+   "id": "log_0041",
+   "created_at": "2026-10-07T09:47:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 124909,
+   "tokens_out": 6168,
+   "cost": 2.336235,
+   "cached": false,
+   "success": true,
+   "duration": 17719,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "debug#141"
+   }
+  },
+  {
+   "id": "log_0042",
+   "created_at": "2026-10-01T10:54:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 83027,
+   "tokens_out": 5681,
+   "cost": 1.67148,
+   "cached": false,
+   "success": true,
+   "duration": 5603,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "debug#142"
+   }
+  },
+  {
+   "id": "log_0043",
+   "created_at": "2026-10-02T11:01:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 83544,
+   "tokens_out": 8326,
+   "cost": 1.87761,
+   "cached": false,
+   "success": true,
+   "duration": 3782,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "debug#143"
+   }
+  },
+  {
+   "id": "log_0044",
+   "created_at": "2026-10-03T12:08:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 114224,
+   "tokens_out": 8246,
+   "cost": 2.33181,
+   "cached": false,
+   "success": true,
+   "duration": 26094,
+   "metadata": {
+    "developer": "devon",
+    "repo": "agents-demo-full",
+    "fork": "devon/think-repro",
+    "agent": "agent-think",
+    "task": "debug#144"
+   }
+  },
+  {
+   "id": "log_0045",
+   "created_at": "2026-10-04T13:15:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 18650,
+   "tokens_out": 2090,
+   "cost": 0.4365,
+   "cached": false,
+   "success": true,
+   "duration": 21654,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "changelog#145"
+   }
+  },
+  {
+   "id": "log_0046",
+   "created_at": "2026-10-05T14:22:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 18654,
+   "tokens_out": 2255,
+   "cost": 0.448935,
+   "cached": false,
+   "success": true,
+   "duration": 28738,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "changelog#146"
+   }
+  },
+  {
+   "id": "log_0047",
+   "created_at": "2026-10-06T15:29:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 18197,
+   "tokens_out": 2650,
+   "cost": 0.471705,
+   "cached": false,
+   "success": true,
+   "duration": 27123,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "changelog#147"
+   }
+  },
+  {
+   "id": "log_0048",
+   "created_at": "2026-10-07T16:36:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 18714,
+   "tokens_out": 1409,
+   "cost": 0.386385,
+   "cached": false,
+   "success": true,
+   "duration": 1749,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "changelog#148"
+   }
+  },
+  {
+   "id": "log_0049",
+   "created_at": "2026-10-01T17:43:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 15457,
+   "tokens_out": 2618,
+   "cost": 0.428205,
+   "cached": false,
+   "success": true,
+   "duration": 23492,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "changelog#149"
+   }
+  },
+  {
+   "id": "log_0050",
+   "created_at": "2026-10-02T08:50:00Z",
+   "provider": "anthropic",
+   "model": "claude-opus-5-5",
+   "tokens_in": 24914,
+   "tokens_out": 2958,
+   "cost": 0.59556,
+   "cached": false,
+   "success": true,
+   "duration": 24495,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "changelog#150"
+   }
+  },
+  {
+   "id": "log_0051",
+   "created_at": "2026-10-03T09:57:00Z",
+   "provider": "anthropic",
+   "model": "claude-sonnet-5-5",
+   "tokens_in": 31453,
+   "tokens_out": 3493,
+   "cost": 0,
+   "cached": true,
+   "success": true,
+   "duration": 16203,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "docs#151"
+   }
+  },
+  {
+   "id": "log_0052",
+   "created_at": "2026-10-04T10:04:00Z",
+   "provider": "anthropic",
+   "model": "claude-sonnet-5-5",
+   "tokens_in": 26445,
+   "tokens_out": 3383,
+   "cost": 0.13008,
+   "cached": false,
+   "success": true,
+   "duration": 20797,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "docs#152"
+   }
+  },
+  {
+   "id": "log_0053",
+   "created_at": "2026-10-05T11:11:00Z",
+   "provider": "anthropic",
+   "model": "claude-sonnet-5-5",
+   "tokens_in": 20062,
+   "tokens_out": 3963,
+   "cost": 0.119631,
+   "cached": false,
+   "success": true,
+   "duration": 21874,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "docs#153"
+   }
+  },
+  {
+   "id": "log_0054",
+   "created_at": "2026-10-06T12:18:00Z",
+   "provider": "anthropic",
+   "model": "claude-sonnet-5-5",
+   "tokens_in": 22778,
+   "tokens_out": 4705,
+   "cost": 0,
+   "cached": true,
+   "success": true,
+   "duration": 24114,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "docs#154"
+   }
+  },
+  {
+   "id": "log_0055",
+   "created_at": "2026-10-07T13:25:00Z",
+   "provider": "anthropic",
+   "model": "claude-sonnet-5-5",
+   "tokens_in": 26531,
+   "tokens_out": 3958,
+   "cost": 0.138963,
+   "cached": false,
+   "success": true,
+   "duration": 21635,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "docs#155"
+   }
+  },
+  {
+   "id": "log_0056",
+   "created_at": "2026-10-01T14:32:00Z",
+   "provider": "workers-ai",
+   "model": "@cf/zai-org/glm-5.3-flash",
+   "tokens_in": 15447,
+   "tokens_out": 588,
+   "cost": 0.002611,
+   "cached": false,
+   "success": true,
+   "duration": 13770,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "format#156"
+   }
+  },
+  {
+   "id": "log_0057",
+   "created_at": "2026-10-02T15:39:00Z",
+   "provider": "workers-ai",
+   "model": "@cf/zai-org/glm-5.3-flash",
+   "tokens_in": 17588,
+   "tokens_out": 911,
+   "cost": 0.003094,
+   "cached": false,
+   "success": true,
+   "duration": 6005,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "format#157"
+   }
+  },
+  {
+   "id": "log_0058",
+   "created_at": "2026-10-03T16:46:00Z",
+   "provider": "workers-ai",
+   "model": "@cf/zai-org/glm-5.3-flash",
+   "tokens_in": 12785,
+   "tokens_out": 630,
+   "cost": 0,
+   "cached": true,
+   "success": true,
+   "duration": 16048,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "format#158"
+   }
+  },
+  {
+   "id": "log_0059",
+   "created_at": "2026-10-04T17:53:00Z",
+   "provider": "workers-ai",
+   "model": "@cf/zai-org/glm-5.3-flash",
+   "tokens_in": 12394,
+   "tokens_out": 1126,
+   "cost": 0.002422,
+   "cached": false,
+   "success": true,
+   "duration": 22337,
+   "metadata": {
+    "developer": "priya",
+    "repo": "agents-demo-full",
+    "fork": "priya/docs-refresh",
+    "agent": "docs-bot",
+    "task": "format#159"
+   }
+  },
+  {
+   "id": "log_0060",
+   "created_at": "2026-10-06T12:00:00Z",
+   "provider": "anthropic",
+   "model": "claude-sonnet-5-5",
+   "tokens_in": 25000,
+   "tokens_out": 3000,
+   "cost": 0.12,
+   "cached": false,
+   "success": true,
+   "duration": 4000,
+   "metadata": {
+    "repo": "agents-demo-full"
+   }
+  },
+  {
+   "id": "log_0061",
+   "created_at": "2026-10-06T12:00:00Z",
+   "provider": "anthropic",
+   "model": "claude-sonnet-5-5",
+   "tokens_in": 25000,
+   "tokens_out": 3000,
+   "cost": 0.12,
+   "cached": false,
+   "success": true,
+   "duration": 4000,
+   "metadata": {
+    "repo": "agents-demo-full"
+   }
+  },
+  {
+   "id": "log_0062",
+   "created_at": "2026-10-06T12:00:00Z",
+   "provider": "anthropic",
+   "model": "claude-sonnet-5-5",
+   "tokens_in": 25000,
+   "tokens_out": 3000,
+   "cost": 0.12,
+   "cached": false,
+   "success": true,
+   "duration": 4000,
+   "metadata": {
+    "repo": "agents-demo-full"
+   }
+  }
+ ]
+}

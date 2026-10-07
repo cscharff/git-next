@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>git.next insights</title>
+<style>
+	:root {
+		--bg: #f7f7f5; --panel: #fff; --text: #1d1d1f; --muted: #6b6b70; --line: #e4e4e0;
+		--accent: #f38020; --info: #3b6fd4; --warn: #b7791f; --conflict: #c53030; --ok: #2f855a;
+		--chip: #f0f0ec; --bar: #f38020;
+	}
+	@media (prefers-color-scheme: dark) {
+		:root { --bg: #141416; --panel: #1d1d20; --text: #ececee; --muted: #9a9aa2; --line: #2e2e33; --chip: #2a2a2f; --info: #7aa2f7; --warn: #e0af68; --conflict: #f7768e; --ok: #73daca; }
+	}
+	* { box-sizing: border-box; }
+	body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+	header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--line); background: var(--panel); }
+	header h1 { margin: 0; font-size: 18px; letter-spacing: -0.01em; }
+	header h1 span { color: var(--accent); }
+	header .meta { color: var(--muted); font-size: 13px; }
+	header form { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+	input, select, button, textarea { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+	button { cursor: pointer; background: var(--accent); color: #fff; border-color: transparent; }
+	button.secondary { background: var(--chip); color: var(--text); }
+	main { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 16px; padding: 16px 24px 32px; }
+	section.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+	section.panel h2 { margin: 0 0 4px; font-size: 15px; }
+	.sub { color: var(--muted); font-size: 12px; margin-bottom: 12px; }
+	.chip { display: inline-block; padding: 1px 7px; border-radius: 999px; background: var(--chip); font-size: 11px; color: var(--muted); white-space: nowrap; }
+	.sev-conflict { color: #fff; background: var(--conflict); }
+	.sev-warn { color: #1d1d1f; background: var(--warn); }
+	.sev-info { color: #fff; background: var(--info); }
+	.k-org { background: #6b46c1; color: #fff; } .k-contract { background: #2b6cb0; color: #fff; } .k-project { background: #2f855a; color: #fff; }
+	.k-tool { background: #975a16; color: #fff; } .k-personal { background: #718096; color: #fff; }
+	table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+	td { overflow-wrap: anywhere; }
+	td .chip { white-space: normal; margin: 1px 0; }
+	th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+	th { color: var(--muted); font-weight: 500; font-size: 12px; }
+	code, .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+	.finding { padding: 8px 0; border-bottom: 1px solid var(--line); }
+	.finding:last-child { border-bottom: 0; }
+	.finding .ev { color: var(--muted); font-size: 12px; margin-top: 2px; }
+	.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+	.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-bottom: 12px; }
+	.stat { background: var(--chip); border-radius: 8px; padding: 8px 10px; }
+	.stat b { display: block; font-size: 18px; }
+	.stat span { color: var(--muted); font-size: 11px; }
+	.bar { height: 8px; background: var(--chip); border-radius: 4px; overflow: hidden; }
+	.bar > div { height: 100%; background: var(--bar); }
+	.scroll { max-height: 420px; overflow: auto; }
+	.plus { color: var(--ok); } .minus { color: var(--conflict); }
+	.empty { color: var(--muted); font-style: italic; }
+	details summary { cursor: pointer; color: var(--muted); font-size: 12px; margin: 8px 0; }
+	.banner { margin: 12px 24px 0; padding: 8px 12px; border-radius: 8px; background: var(--chip); color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+	<h1>git<span>.next</span> insights</h1>
+	<div class="meta" id="meta">Loading…</div>
+	<form id="live">
+		<input id="repo" value="agents-demo-full" size="16" aria-label="Repository">
+		<input id="ref" value="main" size="8" aria-label="Ref">
+		<input id="base" placeholder="base ref (optional)" size="14" aria-label="Base ref">
+		<button type="submit">Run live</button>
+		<button type="button" class="secondary" id="sample">Use sample</button>
+	</form>
+</header>
+<div class="banner" id="banner" hidden></div>
+<main>
+	<section class="panel" id="stack"><h2>Instruction stack</h2><div class="sub">Layers, winning rules and conflicts with file:line</div><div class="body"></div></section>
+	<section class="panel" id="resources"><h2>Resource map</h2><div class="sub">Workers and bindings per wrangler config, diffed against the base ref</div><div class="body"></div></section>
+	<section class="panel" id="cost"><h2>Cost per agent</h2><div class="sub">AI Gateway spend rolled up by agent, with spend flags and model-fit suggestions</div><div class="body"></div></section>
+	<section class="panel" id="context"><h2>Sliced context</h2><div class="sub">What an agent gets for a task: resolved rules and the best sections within a token budget</div><div class="body"></div></section>
+</main>
+<script>
+const $ = (sel, el = document) => el.querySelector(sel);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const usd = (n) => `$${Number(n).toFixed(2)}`;
+const num = (n) => Number(n).toLocaleString();
+const sev = (s) => `<span class="chip sev-${esc(s)}">${esc(s)}</span>`;
+const kind = (k) => `<span class="chip k-${esc(k)}">${esc(k)}</span>`;
+const ev = (e) => `<code>${esc(e.repo === state.repo ? "" : e.repo + ":")}${esc(e.path)}${e.line ? ":" + e.line : ""}</code>`;
+const state = { repo: "agents-demo-full", insights: null, context: null, source: "" };
+
+async function getJson(url, init) {
+	const res = await fetch(url, init);
+	const body = await res.json();
+	if (!res.ok || body.error) throw new Error(body.error || res.statusText);
+	return body;
+}
+
+async function loadSamples() {
+	const [insights, context] = await Promise.all([getJson("/samples/insights-demo.json"), getJson("/samples/context-agents-demo-full.json")]);
+	state.insights = insights;
+	state.context = context.results;
+	state.source = "sample (offline run)";
+	render();
+}
+
+async function loadLive(e) {
+	e?.preventDefault();
+	const repo = $("#repo").value.trim(), ref = $("#ref").value.trim() || "main", base = $("#base").value.trim();
+	showBanner(`Running providers on ${repo}@${ref}…`);
+	try {
+		const qs = new URLSearchParams({ repo, ref, ...(base ? { base } : {}) });
+		state.insights = await getJson(`/insights?${qs}`);
+		state.repo = repo;
+		state.source = "live";
+		hideBanner();
+		render();
+	} catch (err) {
+		showBanner(`Live run failed (${err.message}); showing the sample instead.`);
+		if (!state.insights) await loadSamples();
+	}
+}
+
+function showBanner(text) { const b = $("#banner"); b.textContent = text; b.hidden = false; }
+function hideBanner() { $("#banner").hidden = true; }
+
+function render() {
+	const d = state.insights;
+	state.repo = d.repo;
+	$("#meta").innerHTML = `${esc(d.repo)}@${esc(d.ref)}${d.base ? ` vs <code>${esc(String(d.base).slice(0, 10))}</code>` : ""} · ${d.insights.length} insights · ${esc(state.source)}`;
+	const by = (p) => d.insights.filter((i) => i.provider === p);
+	renderStack(by("instruction-stack"));
+	renderResources(by("resource-map"));
+	renderCost(by("cost"));
+	renderContext();
+}
+
+function renderStack(items) {
+	const body = $("#stack .body");
+	const summary = items.find((i) => i.title.startsWith("Instruction stack"));
+	if (!summary) return (body.innerHTML = `<p class="empty">No instruction-stack data.</p>`);
+	const m = summary.metrics;
+	const layers = [...m.layers].sort((a, b) => a.rank - b.rank || a.depth - b.depth);
+	const dirs = Object.keys(m.effective || {});
+	const findings = items.filter((i) => i !== summary).sort((a, b) => ({ conflict: 0, warn: 1, info: 2 })[a.severity] - ({ conflict: 0, warn: 1, info: 2 })[b.severity]);
+	body.innerHTML = `
+		<div class="stats">
+			<div class="stat"><b>${layers.length}</b><span>layers</span></div>
+			<div class="stat"><b>${findings.filter((f) => f.severity === "conflict").length}</b><span>conflicts</span></div>
+			<div class="stat"><b>${findings.filter((f) => f.severity === "warn").length}</b><span>warnings</span></div>
+			<div class="stat"><b>${findings.filter((f) => f.severity === "info").length}</b><span>overrides</span></div>
+		</div>
+		<details><summary>Layers (lower rank wins; depth orders project files)</summary>
+			<table><tr><th style="width:48px">Rank</th><th style="width:40%">Layer</th><th>File</th></tr>
+			${layers.map((l) => `<tr><td>${l.rank}${l.kind === "project" ? `.${l.depth}` : ""}</td><td>${kind(l.kind)} ${esc(l.name)}</td><td><code>${esc(l.repo && l.repo !== state.repo ? l.repo + ":" : "")}${esc(l.path)}</code></td></tr>`).join("")}
+			</table></details>
+		<div class="row"><span class="sub" style="margin:0">Winning rules for</span>
+			<select id="dir">${dirs.map((x) => `<option>${esc(x)}</option>`).join("")}</select></div>
+		<div id="winners"></div>
+		<h3 class="sub" style="margin-top:14px">Findings</h3>
+		<div class="scroll">${findings.map((f) => `<div class="finding">${sev(f.severity)} <b>${esc(f.title)}</b><div>${esc(f.detail)}</div><div class="ev">${f.evidence.map(ev).join(" · ")}</div></div>`).join("") || `<p class="empty">No overrides, conflicts or drift.</p>`}</div>`;
+	const showWinners = () => {
+		const rows = (m.effective || {})[$("#dir").value] || [];
+		$("#winners").innerHTML = rows.length
+			? `<table><tr><th style="width:28%">Topic</th><th style="width:34%">Value</th><th>From</th></tr>${rows.map((r) => `<tr><td>${esc(r.topic)}</td><td><code>${esc(r.value)}</code> ${r.strength === "must" ? `<span class="chip">must</span>` : ""}</td><td>${kind(r.kind)} <code>${esc(r.path)}:${r.line}</code></td></tr>`).join("")}</table>`
+			: `<p class="empty">No rules apply here.</p>`;
+	};
+	$("#dir").addEventListener("change", showWinners);
+	showWinners();
+}
+
+function renderResources(items) {
+	const body = $("#resources .body");
+	if (!items.length) return (body.innerHTML = `<p class="empty">No wrangler configs found.</p>`);
+	const counts = {};
+	for (const i of items) for (const [t, bs] of Object.entries(i.metrics?.bindings || {})) counts[t] = (counts[t] || 0) + bs.length;
+	const changed = items.filter((i) => i.metrics?.diff && (i.metrics.diff.added.length || i.metrics.diff.removed.length));
+	body.innerHTML = `
+		<div class="stats">
+			<div class="stat"><b>${items.length}</b><span>configs</span></div>
+			<div class="stat"><b>${changed.length}</b><span>changed vs base</span></div>
+			<div class="stat"><b>${Object.values(counts).reduce((a, b) => a + b, 0)}</b><span>bindings</span></div>
+		</div>
+		<div class="row">${Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([t, n]) => `<span class="chip">${esc(t)} ${n}</span>`).join(" ")}</div>
+		<div class="row"><input id="rsearch" placeholder="Filter workers or bindings" size="24"><label class="sub" style="margin:0"><input type="checkbox" id="ronly"> changed only</label></div>
+		<div class="scroll"><table id="rtable"></table></div>`;
+	const draw = () => {
+		const q = $("#rsearch").value.toLowerCase(), only = $("#ronly").checked;
+		const rows = items.filter((i) => (!only || changed.includes(i) || i.title.includes("config removed")) && (!q || JSON.stringify([i.title, i.scope.path, i.metrics?.bindings]).toLowerCase().includes(q)));
+		$("#rtable").innerHTML = `<tr><th style="width:42%">Worker</th><th>Bindings</th><th style="width:64px">Δ base</th></tr>` + rows.map((i) => {
+			const m = i.metrics || {};
+			const diff = m.diff ? (i.title.includes("config removed") ? `<span class="chip sev-warn">removed</span>` : m.newConfig ? `<span class="chip sev-info">new</span>` : m.diff.added.length || m.diff.removed.length ? `<span class="plus">+${m.diff.added.length}</span> <span class="minus">−${m.diff.removed.length}</span>` : `<span class="chip">same</span>`) : "";
+			const bindings = Object.entries(m.bindings || {}).map(([t, bs]) => `<span class="chip" title="${esc(bs.map((b) => b.name + (b.resource ? " → " + b.resource : "")).join("\n"))}">${esc(t)}: ${bs.length}</span>`).join(" ");
+			return `<tr><td><b>${esc(m.worker || i.title)}</b><br><code>${esc(i.scope.path)}</code></td><td>${bindings || `<span class="empty">none</span>`}</td><td>${diff}</td></tr>`;
+		}).join("");
+	};
+	$("#rsearch").addEventListener("input", draw);
+	$("#ronly").addEventListener("change", draw);
+	draw();
+}
+
+function renderCost(items) {
+	const body = $("#cost .body");
+	const summary = items.find((i) => i.title.startsWith("AI spend"));
+	if (!summary) return (body.innerHTML = `<p class="empty">${esc(items[0]?.title || "No cost data.")}</p>`);
+	const agents = summary.metrics.agents;
+	const max = Math.max(...agents.map((a) => a.cost), 0.01);
+	const flags = items.filter((i) => i.severity === "warn");
+	const fits = items.filter((i) => i.title.startsWith("Model fit"));
+	const saving = fits.reduce((n, f) => n + f.metrics.estimatedSaving, 0);
+	body.innerHTML = `
+		<div class="stats">
+			<div class="stat"><b>${usd(summary.metrics.total)}</b><span>total spend</span></div>
+			<div class="stat"><b>${num(summary.metrics.requests)}</b><span>requests</span></div>
+			<div class="stat"><b>${usd(saving)}</b><span>est. saving from model fit</span></div>
+		</div>
+		<table><tr><th style="width:38%">Agent</th><th></th><th style="width:64px">Spend</th><th style="width:40px">Req</th></tr>
+		${agents.map((a) => `<tr><td><b>${esc(a.agent)}</b><br><span class="sub">${esc(a.models.join(", "))}</span></td><td><div class="bar"><div style="width:${(a.cost / max) * 100}%"></div></div></td><td>${usd(a.cost)}</td><td>${a.requests}</td></tr>`).join("")}
+		</table>
+		${flags.length ? `<h3 class="sub" style="margin-top:14px">Spend flags</h3>${flags.map((f) => `<div class="finding">${sev("warn")} <b>${esc(f.title)}</b><div>${esc(f.detail)}</div></div>`).join("")}` : ""}
+		${fits.length ? `<h3 class="sub" style="margin-top:14px">Model fit</h3>${fits.map((f) => `<div class="finding"><b>${esc(f.metrics.agent)}</b> · ${esc(f.metrics.taskLabel)}: <code>${esc(f.metrics.model)}</code> → <code>${esc(f.metrics.suggest)}</code> <span class="plus">save ${usd(f.metrics.estimatedSaving)}</span><div class="ev">${esc(f.metrics.why)}; ${f.metrics.requests} requests, ${usd(f.metrics.actualCost)} now vs ${usd(f.metrics.estimatedCost)}</div></div>`).join("")}` : ""}
+		<p class="sub" style="margin-top:10px">Source: ${esc(summary.metrics.source)}</p>`;
+}
+
+function renderContext() {
+	const body = $("#context .body");
+	const results = state.context || [];
+	body.innerHTML = `
+		<div class="row"><select id="ctask">${results.map((r, i) => `<option value="${i}">${esc(r.task)}</option>`).join("")}</select></div>
+		<details><summary>Run a new task live</summary>
+			<div class="row"><input id="ntask" placeholder="Task" size="40"><input id="npaths" placeholder="paths, comma separated" size="28"><input id="nbudget" value="4000" size="6"><button type="button" id="nrun">Slice</button></div>
+		</details>
+		<div id="cbody"></div>`;
+	const show = (r) => {
+		if (!r) return ($("#cbody").innerHTML = `<p class="empty">No context sample.</p>`);
+		const s = r.stats;
+		$("#cbody").innerHTML = `
+			<div class="sub">Paths: ${r.paths.map((p) => `<code>${esc(p)}</code>`).join(", ")} · budget ${num(r.budgetTokens)} tokens · ${esc(r.retriever)}</div>
+			<div class="stats">
+				<div class="stat"><b>${num(s.tokensServed)}</b><span>tokens served</span></div>
+				<div class="stat"><b>${num(s.tokensInstructionFilesOnPath)}</b><span>instruction files on path</span></div>
+				<div class="stat"><b>${num(s.tokensAllMarkdown)}</b><span>all markdown (${num(s.markdownFiles)} files)</span></div>
+				<div class="stat"><b>${(s.servedVsAllMarkdown * 100).toFixed(1)}%</b><span>of all markdown</span></div>
+			</div>
+			<table><tr><th style="width:28%">Rule</th><th style="width:34%">Value</th><th>From</th></tr>${r.rules.map((x) => `<tr><td>${esc(x.topic)}</td><td><code>${esc(x.value)}</code></td><td>${kind(x.kind)} <code>${esc(x.source.replace(state.repo + "/", ""))}</code></td></tr>`).join("")}</table>
+			${r.conflicts.length ? r.conflicts.map((c) => `<div class="finding">${sev("conflict")} ${esc(c.explanation)}</div>`).join("") : ""}
+			<h3 class="sub" style="margin-top:14px">Sections served (${r.sections.length})</h3>
+			<div class="scroll">${r.sections.map((x) => `<div class="finding"><code>${esc(x.path)}:${x.startLine}</code> <b>${esc(x.headings.slice(-1)[0] || x.path)}</b> <span class="chip">${x.tokens} tok</span> <span class="chip">score ${x.score}</span></div>`).join("")}</div>
+			<p class="sub">Omitted: ${num(r.omitted.count)} matching sections (${num(r.omitted.tokens)} tokens, ${r.omitted.oversized ?? 0} oversized) + ${num(r.omitted.unmatchedSections)} unmatched.</p>`;
+	};
+	$("#ctask").addEventListener("change", (e) => show(results[e.target.value]));
+	$("#nrun").addEventListener("click", async () => {
+		const payload = { repo: $("#repo").value.trim(), ref: $("#ref").value.trim() || "main", task: $("#ntask").value, paths: $("#npaths").value.split(",").map((s) => s.trim()).filter(Boolean), budgetTokens: Number($("#nbudget").value) };
+		$("#cbody").innerHTML = `<p class="empty">Slicing…</p>`;
+		try {
+			show(await getJson("/context", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }));
+		} catch (err) {
+			$("#cbody").innerHTML = `<p class="empty">Live /context failed: ${esc(err.message)}</p>`;
+		}
+	});
+	show(results[0]);
+}
+
+$("#live").addEventListener("submit", loadLive);
+$("#sample").addEventListener("click", () => { hideBanner(); loadSamples(); });
+loadSamples().catch((err) => showBanner(`Could not load samples: ${err.message}`));
+</script>
+</body>
+</html>

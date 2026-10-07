@@ -1,6 +1,6 @@
 {
   "offline": true,
-  "note": "Built from a local clone of cloudflare/agents at the same HEAD as agents-demo-full.",
+  "note": "Built from a local clone of cloudflare/agents at the same HEAD as agents-demo-full, with the demo layers from fixtures/demo-layers.",
   "results": [
     {
       "repo": "agents-demo-full",
@@ -60,26 +60,68 @@
           "topic": "secrets",
           "value": "never-in-source",
           "strength": "must",
-          "layer": "root",
-          "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:117",
+          "layer": "acme-org",
+          "kind": "org",
+          "source": "git-next-demo-layers/org/AGENTS.md:4",
           "appliesTo": [
             "packages/agents/src/mcp"
           ]
         },
         {
           "topic": "changesetPolicy",
-          "value": "required",
+          "value": "not-required",
           "strength": "must",
-          "layer": "packages/agents",
-          "kind": "project",
-          "source": "agents-demo-full/packages/agents/AGENTS.md:7",
+          "layer": "sow-1234",
+          "kind": "contract",
+          "source": "git-next-demo-layers/contract/AGENTS.md:4",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "allowedModels",
+          "value": "providers:anthropic,workers-ai",
+          "strength": "must",
+          "layer": "acme-org",
+          "kind": "org",
+          "source": "git-next-demo-layers/org/AGENTS.md:3",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "commitFormat",
+          "value": "ticket-id-prefix",
+          "strength": "must",
+          "layer": "sow-1234",
+          "kind": "contract",
+          "source": "git-next-demo-layers/contract/AGENTS.md:3",
+          "appliesTo": [
+            "packages/agents/src/mcp"
+          ]
+        },
+        {
+          "topic": "securityScan",
+          "value": "before-pr",
+          "strength": "should",
+          "layer": "coding-agent",
+          "kind": "tool",
+          "source": "git-next-demo-layers/tool/AGENTS.md:3",
           "appliesTo": [
             "packages/agents/src/mcp"
           ]
         }
       ],
-      "conflicts": [],
+      "conflicts": [
+        {
+          "topic": "changesetPolicy",
+          "explanation": "sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but root [project] (AGENTS.md:144) says \"required\"; both are hard requirements."
+        },
+        {
+          "topic": "changesetPolicy",
+          "explanation": "sow-1234 [contract] (contract/AGENTS.md:4) says \"not-required\" but packages/agents [project] (packages/agents/AGENTS.md:7) says \"required\"; both are hard requirements."
+        }
+      ],
       "sections": [
         {
           "id": "design/voice.md#voice-pipeline-design-experimental-hibernation-withvoice-only-client-reconnect-recovery",
@@ -384,19 +426,6 @@
           "text": "# MCP RPC Transport\n\nAn Agent calling an McpAgent within the same Worker using RPC transport -- no HTTP, no network overhead. Uses Workers AI so no API keys are needed."
         },
         {
-          "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-adding-mcp-servers-url-security",
-          "path": "docs/agents/mcp-client.md",
-          "headings": [
-            "Connecting to MCP Servers",
-            "Adding MCP Servers",
-            "URL Security"
-          ],
-          "startLine": 234,
-          "tokens": 160,
-          "score": 10.761,
-          "text": "### URL Security\n\nMCP server URLs are validated before connection to prevent Server-Side Request Forgery (SSRF). The following URL targets are blocked:\n\n- Private/internal IP ranges (RFC 1918: `10.x`, `172.16-31.x`, `192.168.x`)\n- Unspecified addresses (`0.0.0.0`, `::`)\n- Link-local addresses (`169.254.x`, `fe80::`)\n- Cloud metadata endpoints (`169.254.169.254`)\n- IPv6 unique-local addresses (`fc00::/7`)\n\nLoopback development URLs such as `localhost`, `127.0.0.1`, and `::1` are allowed.\n\nIf you need to connect to another internal MCP server, use the [RPC transport](./mcp-transports.md) with a Durable Object binding instead of HTTP."
-        },
-        {
           "id": "design/mcp.md#mcp-architecture-lifecycles-stateless-server",
           "path": "design/mcp.md",
           "headings": [
@@ -408,19 +437,6 @@
           "tokens": 115,
           "score": 10.718,
           "text": "### Stateless server\n\n1. The client sends `server/discover`.\n2. Each catalog or operation request constructs a fresh `McpServer`/`Server` from the factory.\n3. The handler connects it to a single-exchange transport and returns JSON or SSE.\n4. The server and transport close when the response completes, is cancelled, or aborts.\n5. Stateless Elicitation returns `input_required`; each retry carries the latest `requestState` and that round's `inputResponses`."
-        },
-        {
-          "id": "AGENTS.md#agents-md-contributing-changesets",
-          "path": "AGENTS.md",
-          "headings": [
-            "AGENTS.md",
-            "Contributing",
-            "Changesets"
-          ],
-          "startLine": 142,
-          "tokens": 83,
-          "score": 10.229,
-          "text": "### Changesets\n\nChanges to `packages/` that affect the public API or fix bugs need a changeset:\n\n```bash\npnpm exec changeset       # interactive prompt — pick packages, semver bump, description\n```\n\nThis creates a markdown file in `.changeset/` that gets consumed during release.\n\nExamples, guides, and sites don't need changesets."
         },
         {
           "id": "examples/mcp-rpc-transport/README.md#mcp-rpc-transport-how-to-run",
@@ -435,17 +451,16 @@
           "text": "## How to run\n\n```bash\nnpm install && npm start\n```"
         },
         {
-          "id": "examples/playground/testing.md#playground-testing-guide-mcp-demos-mcp-client-mcp-client",
-          "path": "examples/playground/testing.md",
+          "id": "examples/mcp-elicitation/README.md#legacy-elicitation-run",
+          "path": "examples/mcp-elicitation/README.md",
           "headings": [
-            "Playground Testing Guide",
-            "MCP Demos",
-            "MCP Client (`/mcp/client`)"
+            "Legacy Elicitation",
+            "Run"
           ],
-          "startLine": 839,
-          "tokens": 19,
-          "score": 7.853,
-          "text": "### MCP Client (`/mcp/client`)\n\nDocumentation for connecting to MCP servers."
+          "startLine": 14,
+          "tokens": 11,
+          "score": 3.603,
+          "text": "## Run\n\n```sh\npnpm install\npnpm run dev\n```"
         },
         {
           "id": "design/rfc-coding-agent.md#intro",
@@ -458,9 +473,9 @@
         }
       ],
       "omitted": {
-        "count": 2835,
+        "count": 2837,
         "oversized": 26,
-        "tokens": 747574,
+        "tokens": 747825,
         "unmatchedSections": 856,
         "top": [
           {
@@ -478,6 +493,14 @@
             "tokens": 3364,
             "score": 12.105,
             "reason": "oversized"
+          },
+          {
+            "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-adding-mcp-servers-url-security",
+            "path": "docs/agents/mcp-client.md",
+            "title": "URL Security",
+            "tokens": 160,
+            "score": 10.761,
+            "reason": "budget"
           },
           {
             "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-api-reference-addmcpserver",
@@ -525,6 +548,14 @@
             "title": "Streamable HTTP Transport (Recommended)",
             "tokens": 131,
             "score": 10.31,
+            "reason": "budget"
+          },
+          {
+            "id": "AGENTS.md#agents-md-contributing-changesets",
+            "path": "AGENTS.md",
+            "title": "Changesets",
+            "tokens": 83,
+            "score": 10.229,
             "reason": "budget"
           },
           {
@@ -766,30 +797,14 @@
             "tokens": 69,
             "score": 8.574,
             "reason": "budget"
-          },
-          {
-            "id": "docs/agents/mcp-client.md#connecting-to-mcp-servers-adding-mcp-servers-protocol-negotiation-and-elicitation",
-            "path": "docs/agents/mcp-client.md",
-            "title": "Protocol negotiation and elicitation",
-            "tokens": 782,
-            "score": 8.547,
-            "reason": "budget"
-          },
-          {
-            "id": "design/rfc-sub-agent-routing.md#rfc-external-addressability-for-sub-agents-design-d6-lifecycle-and-deletion",
-            "path": "design/rfc-sub-agent-routing.md",
-            "title": "D6. Lifecycle and deletion",
-            "tokens": 277,
-            "score": 8.501,
-            "reason": "budget"
           }
         ]
       },
       "stats": {
         "markdownFiles": 278,
         "sections": 3721,
-        "rulesTokens": 288,
-        "sectionTokens": 3712,
+        "rulesTokens": 539,
+        "sectionTokens": 3461,
         "tokensServed": 4000,
         "tokensAllMarkdown": 889608,
         "tokensInstructionFilesOnPath": 9882,
@@ -856,20 +871,9 @@
           "topic": "secrets",
           "value": "never-in-source",
           "strength": "must",
-          "layer": "examples",
-          "kind": "project",
-          "source": "agents-demo-full/examples/AGENTS.md:165",
-          "appliesTo": [
-            "examples/workflows/src"
-          ]
-        },
-        {
-          "topic": "changesetPolicy",
-          "value": "required",
-          "strength": "should",
-          "layer": "root",
-          "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:150",
+          "layer": "acme-org",
+          "kind": "org",
+          "source": "git-next-demo-layers/org/AGENTS.md:4",
           "appliesTo": [
             "examples/workflows/src"
           ]
@@ -878,9 +882,42 @@
           "topic": "changesetPolicy",
           "value": "not-required",
           "strength": "must",
-          "layer": "root",
-          "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:152",
+          "layer": "sow-1234",
+          "kind": "contract",
+          "source": "git-next-demo-layers/contract/AGENTS.md:4",
+          "appliesTo": [
+            "examples/workflows/src"
+          ]
+        },
+        {
+          "topic": "allowedModels",
+          "value": "providers:anthropic,workers-ai",
+          "strength": "must",
+          "layer": "acme-org",
+          "kind": "org",
+          "source": "git-next-demo-layers/org/AGENTS.md:3",
+          "appliesTo": [
+            "examples/workflows/src"
+          ]
+        },
+        {
+          "topic": "commitFormat",
+          "value": "ticket-id-prefix",
+          "strength": "must",
+          "layer": "sow-1234",
+          "kind": "contract",
+          "source": "git-next-demo-layers/contract/AGENTS.md:3",
+          "appliesTo": [
+            "examples/workflows/src"
+          ]
+        },
+        {
+          "topic": "securityScan",
+          "value": "before-pr",
+          "strength": "should",
+          "layer": "coding-agent",
+          "kind": "tool",
+          "source": "git-next-demo-layers/tool/AGENTS.md:3",
           "appliesTo": [
             "examples/workflows/src"
           ]
@@ -1058,44 +1095,35 @@
           "text": "## Code Structure\n\n- `src/server.ts` - Agent and Workflow implementation\n  - `TaskAgent` - Manages multiple task workflows with `WorkflowItem[]` state\n  - `TaskProcessingWorkflow` - Multi-step workflow with approval gate\n- `src/app.tsx` - React UI with workflow cards (Kumo components)\n  - `WorkflowCard` - Displays individual workflow with progress and actions\n  - `StatusBadge` - Shows workflow status (queued, running, waiting, complete, error)\n- `src/styles.css` - Tailwind + Kumo imports"
         },
         {
-          "id": "examples/AGENTS.md#agents-md-examples-conventions-ui-kumo-required-ui-patterns",
-          "path": "examples/AGENTS.md",
+          "id": "examples/codemode/README.md#codemode-example-try-it",
+          "path": "examples/codemode/README.md",
           "headings": [
-            "AGENTS.md — examples/",
-            "Conventions",
-            "UI — Kumo",
-            "Required UI patterns"
+            "Codemode Example",
+            "Try it"
           ],
-          "startLine": 190,
-          "tokens": 133,
-          "score": 12.396,
-          "text": "#### Required UI patterns\n\nEvery full-stack example should include:\n\n- **`PoweredByCloudflare`** (from `@cloudflare/kumo`) — footer attribution badge (**required in every example**)\n- **A dark mode toggle** — inline a simple `ModeToggle` component using `useState`/`useEffect` + `localStorage` + Kumo `Button` with sun/moon icons\n- **Connection status** (for WebSocket-based examples) — inline a simple `ConnectionIndicator` showing a colored dot + label\n\nSee `/design/visuals.md` for detailed Kumo usage patterns and known gaps."
+          "startLine": 37,
+          "tokens": 85,
+          "score": 12.036,
+          "text": "## Try it\n\n- \"Create a project called Alpha\" -- LLM writes code that calls `codemode.createProject()`\n- \"Add 3 tasks to Alpha\" -- LLM chains multiple tool calls in a single code block\n- \"List all projects and their tasks\" -- LLM composes results from multiple tools\n- Open Settings to switch between Dynamic Worker and Node Server executors"
         },
         {
-          "id": "examples/think-submissions/README.md#think-durable-submissions",
-          "path": "examples/think-submissions/README.md",
+          "id": "docs/agents/workflows.md#workflows-integration-api-reference-agent-workflow-methods",
+          "path": "docs/agents/workflows.md",
           "headings": [
-            "Think Durable Submissions"
+            "Workflows Integration",
+            "API Reference",
+            "Agent Workflow Methods"
           ],
-          "startLine": 1,
-          "tokens": 69,
-          "score": 11.882,
-          "text": "# Think Durable Submissions\n\nA focused demo of durable programmatic Think turns. It shows how to submit a\nmessage turn, receive an immediate durable ACK, retry safely with an\nidempotency key, inspect status later, cancel active work, and declare a\nrecurring scheduled task."
-        },
-        {
-          "id": "design/rfc-pi-harness-example.md#intro",
-          "path": "design/rfc-pi-harness-example.md",
-          "headings": [],
-          "startLine": 1,
-          "tokens": 4,
-          "score": 2.126,
-          "text": "Status: proposed"
+          "startLine": 234,
+          "tokens": 16,
+          "score": 5.779,
+          "text": "### Agent Workflow Methods\n\nMethods added to the `Agent` class:"
         }
       ],
       "omitted": {
-        "count": 1818,
+        "count": 1819,
         "oversized": 49,
-        "tokens": 534166,
+        "tokens": 534271,
         "unmatchedSections": 1886,
         "top": [
           {
@@ -1131,11 +1159,19 @@
             "reason": "budget"
           },
           {
-            "id": "examples/codemode/README.md#codemode-example-try-it",
-            "path": "examples/codemode/README.md",
-            "title": "Try it",
-            "tokens": 85,
-            "score": 12.036,
+            "id": "examples/AGENTS.md#agents-md-examples-conventions-ui-kumo-required-ui-patterns",
+            "path": "examples/AGENTS.md",
+            "title": "Required UI patterns",
+            "tokens": 133,
+            "score": 12.396,
+            "reason": "budget"
+          },
+          {
+            "id": "examples/think-submissions/README.md#think-durable-submissions",
+            "path": "examples/think-submissions/README.md",
+            "title": "Think Durable Submissions",
+            "tokens": 69,
+            "score": 11.882,
             "reason": "budget"
           },
           {
@@ -1409,23 +1445,15 @@
             "tokens": 54,
             "score": 9.522,
             "reason": "budget"
-          },
-          {
-            "id": "docs/agents/long-running-agents.md#long-running-agents-managing-state-over-time-housekeeping",
-            "path": "docs/agents/long-running-agents.md",
-            "title": "Housekeeping",
-            "tokens": 257,
-            "score": 9.514,
-            "reason": "budget"
           }
         ]
       },
       "stats": {
         "markdownFiles": 278,
         "sections": 3721,
-        "rulesTokens": 325,
-        "sectionTokens": 2672,
-        "tokensServed": 2997,
+        "rulesTokens": 431,
+        "sectionTokens": 2567,
+        "tokensServed": 2998,
         "tokensAllMarkdown": 889608,
         "tokensInstructionFilesOnPath": 5274,
         "servedVsAllMarkdown": 0.003,
@@ -1491,31 +1519,53 @@
           "topic": "secrets",
           "value": "never-in-source",
           "strength": "must",
-          "layer": "root",
-          "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:117",
+          "layer": "acme-org",
+          "kind": "org",
+          "source": "git-next-demo-layers/org/AGENTS.md:4",
           "appliesTo": [
             "agent-think/src"
           ]
         },
         {
           "topic": "changesetPolicy",
-          "value": "required",
-          "strength": "should",
-          "layer": "root",
-          "kind": "project",
-          "source": "agents-demo-full/AGENTS.md:150",
+          "value": "not-required",
+          "strength": "must",
+          "layer": "sow-1234",
+          "kind": "contract",
+          "source": "git-next-demo-layers/contract/AGENTS.md:4",
           "appliesTo": [
             "agent-think/src"
           ]
         },
         {
           "topic": "allowedModels",
-          "value": "gpt-5.6-sol",
+          "value": "providers:anthropic,workers-ai",
+          "strength": "must",
+          "layer": "acme-org",
+          "kind": "org",
+          "source": "git-next-demo-layers/org/AGENTS.md:3",
+          "appliesTo": [
+            "agent-think/src"
+          ]
+        },
+        {
+          "topic": "commitFormat",
+          "value": "ticket-id-prefix",
+          "strength": "must",
+          "layer": "sow-1234",
+          "kind": "contract",
+          "source": "git-next-demo-layers/contract/AGENTS.md:3",
+          "appliesTo": [
+            "agent-think/src"
+          ]
+        },
+        {
+          "topic": "securityScan",
+          "value": "before-pr",
           "strength": "should",
-          "layer": "agent-think",
-          "kind": "project",
-          "source": "agents-demo-full/agent-think/AGENTS.md:192",
+          "layer": "coding-agent",
+          "kind": "tool",
+          "source": "git-next-demo-layers/tool/AGENTS.md:3",
           "appliesTo": [
             "agent-think/src"
           ]
@@ -1599,45 +1649,21 @@
           "text": "---\nname: reproduce\ndescription: Reproduce a cloudflare/agents GitHub issue by scaffolding a minimal Agents/Worker project and deploying it to a temporary Cloudflare account, then report findings back on the issue.\n---\n\nThe current user message contains an `<agent-think-run>` envelope with\n`repository`, `issue`, `instruction`, `requested-by`, and (when available)\n`trigger-comment-id`.\nUse those values exactly. Never infer or substitute another target from examples,\nworkspace contents, GitHub searches, or concurrent issues. If the envelope or a\nrequired field is absent, stop without cloning/editing/posting and return a\nstructured skipped result. When `trigger-comment-id` is present, your first\ncontainer action is the liveness reaction:\n\n```bash\ngh api repos/<repository>/issues/comments/<trigger-comment-id>/reactions \\\n  -f content=rocket\n```\n\nReproduce the bug end-to-end and post your findings as an issue comment.\n\nThe instruction is the free-form text the user typed after `@agent-think` (it\nmay be empty). Treat it as an extra hint from the triggering user\n— e.g. additional reproduction steps, a specific version, or a pointer to the\nsuspect area. Let it guide your reproduction, but the issue itself remains the\nsource of truth.\n\nAll `gh`, `git`, `npm`, `curl`, and `wrangler` commands must run on the\n`container` backend (`bash({ command, backend: \"container\" })`) — the `shell`\nbackend has no real binaries or network. `gh` is already authenticated as the\napp; use it directly (no token handling)."
         },
         {
-          "id": "agent-think/skills/open-pr/SKILL.md#1-gather-everything-known",
-          "path": "agent-think/skills/open-pr/SKILL.md",
+          "id": "agent-think/skills/reproduce/SKILL.md#1-understand-the-issue",
+          "path": "agent-think/skills/reproduce/SKILL.md",
           "headings": [
-            "1. Gather everything known"
+            "1. Understand the issue"
           ],
-          "startLine": 47,
-          "tokens": 225,
-          "score": 17.781,
-          "text": "## 1. Gather everything known\n\n```bash\ngh issue view <issueNumber> --repo <repo> --json title,body,labels,author,comments\n```\n\nRead the body and **every comment**. In particular look for a comment from the\nprior repro run (`@agent-think repro`): it may contain a minimal reproduction, a live URL,\nobserved-vs-expected behavior, and a **root-cause hypothesis** pointing at a\nfile/line. Use it as your starting point — do not re-derive what is already\nknown.\n\n**Decide if this is fixable in one shot.** If the issue is a feature request\nneeding design, is too vague, spans many subsystems, or you cannot locate a\nconfident root cause, stop: return `prOpened: false`, `skipped: true`, and a\n`summary` explaining why. Post a brief, polite comment saying the pr-agent is\nskipping it and what additional detail would help; begin it with\n`Requested by @<requestedBy>` when the run envelope has a requester."
-        },
-        {
-          "id": "docs/think/sub-agents.md#sub-agents-and-programmatic-turns-stability-detection",
-          "path": "docs/think/sub-agents.md",
-          "headings": [
-            "Sub-agents and Programmatic Turns",
-            "Stability Detection"
-          ],
-          "startLine": 522,
-          "tokens": 39,
-          "score": 5.89,
-          "text": "## Stability Detection\n\nThink provides methods to check if the agent is in a stable state — no pending tool results, no pending approvals, no active turns."
-        },
-        {
-          "id": "examples/next/dynamic-agents/README.md#next-dynamic-agents-test",
-          "path": "examples/next/dynamic-agents/README.md",
-          "headings": [
-            "Next: dynamic agents",
-            "Test"
-          ],
-          "startLine": 48,
-          "tokens": 8,
-          "score": 0.709,
-          "text": "## Test\n\n```sh\npnpm run test\n```"
+          "startLine": 45,
+          "tokens": 169,
+          "score": 17.698,
+          "text": "## 1. Understand the issue\n\n```bash\ngh issue view <issueNumber> --repo <repo> --json title,body,labels,comments\n```\n\nRead it carefully. Extract:\n\n- the **observed behavior** (the bug),\n- the **expected behavior**,\n- any **\"To Reproduce\" steps**, code snippets, versions, or stack traces.\n\n**Decide if it is reproducible at all.** If it is a feature request, a question,\na pure-docs issue, or has no concrete runnable behavior, stop here: return\n`skipped: true`, `reproduced: false`, and a `summary` explaining why. Still post\na short, polite comment saying the repro-agent skipped it and why; begin it with\n`Requested by @<requestedBy>` when the run envelope has a requester."
         }
       ],
       "omitted": {
-        "count": 3089,
+        "count": 3091,
         "oversized": 58,
-        "tokens": 810336,
+        "tokens": 810439,
         "unmatchedSections": 622,
         "top": [
           {
@@ -1657,11 +1683,11 @@
             "reason": "budget"
           },
           {
-            "id": "agent-think/skills/reproduce/SKILL.md#1-understand-the-issue",
-            "path": "agent-think/skills/reproduce/SKILL.md",
-            "title": "1. Understand the issue",
-            "tokens": 169,
-            "score": 17.698,
+            "id": "agent-think/skills/open-pr/SKILL.md#1-gather-everything-known",
+            "path": "agent-think/skills/open-pr/SKILL.md",
+            "title": "1. Gather everything known",
+            "tokens": 225,
+            "score": 17.781,
             "reason": "budget"
           },
           {
@@ -1965,9 +1991,9 @@
       "stats": {
         "markdownFiles": 278,
         "sections": 3721,
-        "rulesTokens": 311,
-        "sectionTokens": 2689,
-        "tokensServed": 3000,
+        "rulesTokens": 412,
+        "sectionTokens": 2586,
+        "tokensServed": 2998,
         "tokensAllMarkdown": 889608,
         "tokensInstructionFilesOnPath": 5391,
         "servedVsAllMarkdown": 0.003,
