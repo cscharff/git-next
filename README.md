@@ -38,7 +38,10 @@ The Worker has no caller authentication yet, so keep it to local dev.
   was omitted plus `tokensServed` vs `tokensAllMarkdown` and vs the instruction files on the path.
 - `src/providers/cost`: parses AI Gateway log records (metadata keys `developer`, `repo`, `fork`, `agent`, `task`), rolls
   spend up project → developer → fork → agent → task, flags developers/agents above 2× the median, and prices
-  mechanical tasks on cheaper tiers (`FIT_RULES`). Reads `fixtures/ai-gateway-logs.json` for now; the logs API call is a TODO.
+  mechanical tasks on cheaper tiers (`FIT_RULES`). Reads the `git-next` AI Gateway's logs API when `CF_ACCOUNT_ID` and
+  `AIG_LOGS_TOKEN` (AI Gateway Read) are set in `.dev.vars` (see `.dev.vars.example`); otherwise `fixtures/ai-gateway-logs.json`.
+- `POST /dev/gateway-smoke` (localhost only): one tiny call each to `anthropic/claude-haiku-4.5` (unified billing) and
+  `@cf/zai-org/glm-5.3-flash` through the gateway, max 50 output tokens, tagged with the cost metadata keys.
 - `public/index.html`: the dashboard, served as a static asset by the same Worker.
 
 ## Samples

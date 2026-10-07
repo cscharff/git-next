@@ -1,18 +1,29 @@
 import { env } from "cloudflare:workers";
-import { artifactsSource } from "./core/artifacts-source.ts";
-import { RepoContext } from "./core/repo-context.ts";
-import { buildContext } from "./providers/context/index.ts";
-import { withDemoLayers } from "./demo-layers.ts";
-import { createRegistry } from "./registry.ts";
 import sampleContext from "../samples/context-agents-demo-full.json" with { type: "json" };
 import sampleInsights from "../samples/insights-demo.json" with { type: "json" };
+import { artifactsSource } from "./core/artifacts-source.ts";
+import { RepoContext } from "./core/repo-context.ts";
+import { withDemoLayers } from "./demo-layers.ts";
+import { buildContext } from "./providers/context/index.ts";
+import { gatewayLogsSource } from "./providers/cost/logs.ts";
+import { createRegistry } from "./registry.ts";
+
+// Read-only analysis over Artifacts repos. No caller authentication yet, so local dev only.
+
+/** The AI Gateway git.next routes model calls through and reads cost logs from. */
+const GATEWAY_ID = "git-next";
 
 // Offline samples the dashboard falls back to when there is no live run.
 const SAMPLES: Record<string, unknown> = { "insights-demo.json": sampleInsights, "context-agents-demo-full.json": sampleContext };
 
-// Read-only analysis over Artifacts repos. No caller authentication yet, so local dev only.
-const registry = createRegistry();
+// Real AI Gateway logs when the account id and a read token are configured (.dev.vars / Worker secrets),
+// otherwise the cost provider uses the bundled fixture.
+const registry = createRegistry(
+	env.CF_ACCOUNT_ID && env.AIG_LOGS_TOKEN ? gatewayLogsSource({ accountId: env.CF_ACCOUNT_ID, gatewayId: GATEWAY_ID, token: env.AIG_LOGS_TOKEN }) : undefined,
+);
 
+/** The only models the smoke route may call: small and cheap, capped at 50 output tokens. */
+const SMOKE_MODELS = ["anthropic/claude-haiku-4.5", "@cf/zai-org/glm-5.3-flash"];
 const REPO_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const isLocal = (url: URL) => ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
 
@@ -65,6 +76,27 @@ export default {
 
 		const sample = url.pathname.match(/^\/samples\/([a-z0-9.-]+\.json)$/);
 		if (request.method === "GET" && sample && SAMPLES[sample[1]]) return Response.json(SAMPLES[sample[1]]);
+
+		// POST /dev/gateway-smoke (localhost only) -> one tiny Claude call and one Workers AI call through the gateway.
+		if (request.method === "POST" && url.pathname === "/dev/gateway-smoke" && isLocal(url)) {
+			const metadata = { developer: "chris", repo: "agents-demo-full", fork: "main", agent: "smoke-test", task: "gateway-check" };
+			const gateway = { id: GATEWAY_ID, metadata };
+			const prompt = "Reply with one short sentence: what is a Git fork?";
+			const call = async (model: string) => {
+				try {
+					const out = (await env.AI.run(model as any, { messages: [{ role: "user", content: prompt }], max_tokens: 50 } as any, { gateway })) as any;
+					const text = out?.response ?? out?.choices?.[0]?.message?.content ?? out?.content?.[0]?.text ?? "";
+					return { model, ok: true, text: String(text).slice(0, 200), usage: out?.usage ?? null };
+				} catch (err) {
+					return { model, ok: false, error: String(err).slice(0, 300) };
+				}
+			};
+			const body = (await request.json().catch(() => ({}))) as { models?: string[] };
+			const models = (body.models ?? SMOKE_MODELS).filter((m) => SMOKE_MODELS.includes(m));
+			const results = [];
+			for (const m of models) results.push(await call(m));
+			return Response.json({ gateway: GATEWAY_ID, metadata, results });
+		}
 
 		if (request.method === "GET" && url.pathname === "/providers") {
 			return Response.json(registry.list().map(({ id, title, needs }) => ({ id, title, needs })));

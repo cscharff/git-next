@@ -76,7 +76,39 @@ export function staticCostSource(id: string, records: CostRecord[]): CostSource 
 	return { id, records: async ({ repo }) => records.filter((r) => !repo || r.repo === repo) };
 }
 
-// TODO(cost): real source. Page through
-//   GET /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/logs?meta_info=true&per_page=50&page=N&start_date=&end_date=
-// (also `cf ai-gateway logs list`) with an API token from a Worker secret, filter on metadata.repo,
-// and map each record through parseGatewayLogs. Needs: account id, gateway id, token scope "AI Gateway Read".
+export interface GatewayLogsConfig {
+	accountId: string;
+	gatewayId: string;
+	/** Cloudflare API token with AI Gateway Read on the account. Never logged or returned. */
+	token: string;
+	/** Safety cap on pages fetched per call (50 records per page). */
+	maxPages?: number;
+	fetcher?: typeof fetch;
+}
+
+/**
+ * Reads AI Gateway logs: GET /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/logs, newest first.
+ * Narrows server-side with the free-text metadata search on the repo name, then filters exactly on metadata.repo.
+ */
+export function gatewayLogsSource(cfg: GatewayLogsConfig): CostSource {
+	const fetcher = cfg.fetcher ?? fetch;
+	return {
+		id: `ai-gateway:${cfg.gatewayId}`,
+		async records({ repo }) {
+			const out: CostRecord[] = [];
+			const maxPages = cfg.maxPages ?? 20;
+			for (let page = 1; page <= maxPages; page++) {
+				const qs = new URLSearchParams({ per_page: "50", page: String(page), order_by: "created_at", order_by_direction: "desc", ...(repo ? { search: repo } : {}) });
+				const res = await fetcher(`https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(cfg.accountId)}/ai-gateway/gateways/${encodeURIComponent(cfg.gatewayId)}/logs?${qs}`, {
+					headers: { authorization: `Bearer ${cfg.token}` },
+				});
+				const body = (await res.json().catch(() => null)) as { success?: boolean; result?: unknown[]; errors?: { message?: string }[]; result_info?: { total_count?: number } } | null;
+				if (!res.ok || !body?.success) throw new Error(`AI Gateway logs: HTTP ${res.status} ${body?.errors?.map((e) => e.message).join("; ") ?? ""}`.trim());
+				const rows = body.result ?? [];
+				out.push(...parseGatewayLogs(rows).filter((r) => !repo || r.repo === repo));
+				if (rows.length < 50) break;
+			}
+			return out;
+		},
+	};
+}

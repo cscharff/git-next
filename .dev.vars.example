@@ -1,0 +1,5 @@
+# Copy to .dev.vars (gitignored) for local dev. Never commit real values.
+# Cloudflare account that owns the git-next AI Gateway.
+CF_ACCOUNT_ID=
+# API token with "AI Gateway: Read" on that account, for the cost provider's logs reads.
+AIG_LOGS_TOKEN=

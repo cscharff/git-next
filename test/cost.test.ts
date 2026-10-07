@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { RepoContext, memorySource } from "../src/core/repo-context.ts";
 import { costProvider, fixtureCostSource } from "../src/providers/cost/index.ts";
-import { parseGatewayLogs, staticCostSource, taskLabelOf, UNATTRIBUTED } from "../src/providers/cost/logs.ts";
+import { gatewayLogsSource, parseGatewayLogs, staticCostSource, taskLabelOf, UNATTRIBUTED } from "../src/providers/cost/logs.ts";
 import { modelFit } from "../src/providers/cost/model-fit.ts";
 import { median, rollup, spendFlags } from "../src/providers/cost/rollup.ts";
 
@@ -91,5 +91,33 @@ describe("costProvider", () => {
 		const files = new RepoContext(async () => memorySource({}));
 		const [i] = await costProvider(staticCostSource("empty", [])).analyze({ repo: "x", ref: "main", files });
 		expect(i.title).toBe("No AI Gateway usage for this repo");
+	});
+});
+
+describe("gatewayLogsSource", () => {
+	it("pages through the logs API, sends the token as a bearer header and filters on metadata.repo", async () => {
+		const calls: { url: string; auth: string | null }[] = [];
+		const page = (n: number, repo: string) => Array.from({ length: n }, (_, i) => log({ id: `${repo}-${i}`, cost: 0.01 }, { repo, agent: "a", task: "t#1" }));
+		const pages = [[...page(30, "r"), ...page(20, "other")], page(5, "r")];
+		const fetcher = (async (url: string, init?: RequestInit) => {
+			calls.push({ url, auth: new Headers(init?.headers).get("authorization") });
+			return Response.json({ success: true, result: pages[calls.length - 1] ?? [] });
+		}) as typeof fetch;
+		const src = gatewayLogsSource({ accountId: "acct", gatewayId: "git-next", token: "test-token", fetcher });
+		const recs = await src.records({ repo: "r" });
+		expect(recs).toHaveLength(35);
+		expect(calls).toHaveLength(2);
+		expect(calls[0].url).toMatch(/^https:\/\/api\.cloudflare\.com\/client\/v4\/accounts\/acct\/ai-gateway\/gateways\/git-next\/logs\?/);
+		expect(new URL(calls[1].url).searchParams.get("page")).toBe("2");
+		expect(new URL(calls[0].url).searchParams.get("search")).toBe("r");
+		expect(calls[0].auth).toBe("Bearer test-token");
+		expect(calls.every((c) => !c.url.includes("test-token"))).toBe(true);
+	});
+
+	it("raises API errors without echoing the token", async () => {
+		const fetcher = (async () => Response.json({ success: false, errors: [{ message: "Authentication error" }] }, { status: 403 })) as unknown as typeof fetch;
+		const err = await gatewayLogsSource({ accountId: "a", gatewayId: "g", token: "secret-value", fetcher }).records({}).catch((e) => e);
+		expect(String(err)).toContain("HTTP 403 Authentication error");
+		expect(String(err)).not.toContain("secret-value");
 	});
 });
