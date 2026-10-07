@@ -276,7 +276,7 @@ export function environmentsProvider(opts: EnvironmentsOptions = {}): InsightPro
 					(e): Insight => ({
 						provider: "environments",
 						severity: "warn",
-						scope: { repo, ref, env: envScope({ ...e.from, region: rep.environments.find((x) => x.name === e.from.env)?.region }) },
+						scope: { repo, ref, env: envScope(rep.environments.find((x) => x.name === e.from.env)!) },
 						title: `Cross-cloud edge: ${e.from.env}:${e.from.resource} (${e.from.service}) → ${e.to.env}:${e.to.resource} (${e.to.service})`,
 						detail: `${e.from.cloud} → ${e.to.cloud}: data leaves ${e.to.cloud === "private" || e.from.cloud === "private" ? "the private network" : `one cloud for another`}. Check egress cost and data residency${e.to.cloud === "private" || e.from.cloud === "private" ? " (on-prem data must not leave the network)" : ""}.${e.from.mocked || e.to.mocked ? " Mocked environment." : ""}`,
 						evidence,
