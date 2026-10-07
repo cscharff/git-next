@@ -1,5 +1,5 @@
 {
-	"version": "2026.10.4",
+	"version": "2026.10.5",
 	"owner": "@acme/platform",
 	"gateway": {
 		"id": "git-next",
@@ -35,7 +35,11 @@
 		{ "type": "workflows", "owner": "@acme/platform", "keywords": ["workflow", "steps", "retry"] },
 		{ "type": "ai", "owner": "@acme/ai-platform", "how": "\"ai\": { \"binding\": \"AI\" } and always pass gateway: { id: \"git-next\" }", "rule": "call models only through the org AI Gateway", "keywords": ["ai", "model", "llm", "summary"] },
 		{ "type": "services", "owner": "@acme/platform" },
-		{ "type": "artifacts", "owner": "@acme/platform" }
+		{ "type": "artifacts", "owner": "@acme/platform" },
+		{ "type": "worker_loaders", "owner": "@acme/security", "rule": "dynamic Workers only for sandboxed third-party code, with no outbound network unless reviewed", "keywords": ["sandbox", "plugin", "plugins", "isolate"] },
+		{ "type": "images", "owner": "@acme/storage", "keywords": ["image", "images", "resize", "thumbnail"] },
+		{ "type": "assets", "owner": "@acme/platform" },
+		{ "type": "analytics_engine_datasets", "owner": "@acme/platform", "keywords": ["metrics", "analytics"] }
 	],
 	"tools": {
 		"mcpServers": [{ "name": "cloudflare-docs", "url": "https://docs.mcp.cloudflare.com/mcp", "owner": "@acme/devex" }],

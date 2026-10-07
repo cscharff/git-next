@@ -78,7 +78,7 @@ The demo uses [cloudflare/agents](https://github.com/cloudflare/agents) (MIT, 1,
      48 rules from 13 layers, against 29 for keywords. It catches things like agent-think's own test commands and
      model fallback, and the summary reports per file whether the model, the cache or the fallback was used.
   2. **Resource map** parses every `wrangler.toml|json|jsonc` (with its own TOML and JSONC parsers). It lists each
-     Worker's bindings across 13 types and, with `?base=`, diffs them (added, removed, unchanged, new or removed config).
+     Worker's bindings across 17 types (including Worker Loaders, Images, static assets and Analytics Engine) and, with `?base=`, diffs them (added, removed, unchanged, new or removed config).
   3. **Cost** parses AI Gateway logs, rolls spend up project → developer → fork → agent → task, flags anyone above
      2× the median, and suggests cheaper models for mechanical or well-scoped tasks with an estimated saving.
   4. **Catalog** checks a repo against its org catalog (`.gitnext/catalog.json`, or the org baseline's when
