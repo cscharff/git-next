@@ -211,7 +211,7 @@ async function rulesReport(args: ParsedArgs, io: CliIo): Promise<RulesReport> {
 		conflicts: findings.filter((f) => f.kind === "conflict" && inScope(f)).map((f) => ({ topic: f.topic, explanation: f.explanation, evidence: ev(f) })),
 		warnings: findings
 			.filter((f) => (f.kind === "drift" || (f.policyViolation && f.kind === "overridden")) && inScope(f))
-			.map((f) => ({ topic: f.topic, kind: f.kind === "drift" ? "drift" : "policy", explanation: f.explanation, evidence: ev(f) }))
+			.map((f): RulesReport["warnings"][number] => ({ topic: f.topic, kind: f.kind === "drift" ? "drift" : "policy", explanation: f.explanation, evidence: ev(f) }))
 			.concat(
 				groupDrift(drift.filter((d) => [d.source, ...d.stale].some(touched))).map((g) => ({ topic: "copies", kind: "drift", explanation: describeDrift(g), evidence: [g.source, ...g.staleCopies] })),
 			),

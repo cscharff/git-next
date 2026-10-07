@@ -16,7 +16,7 @@ const option = (name: string) => (argv.includes(name) ? argv[argv.indexOf(name) 
 const [dir, baseSha] = argv.filter((a, i) => !a.startsWith("--") && !["--repo", "--catalog", "--note"].includes(argv[i - 1]));
 const repo = option("--repo") ?? "agents-demo-full";
 const layers = !flag("--no-layers");
-const stack = layers ? { ".gitnext/stack.json": demoLayers()[".gitnext/stack.json"] } : {};
+const stack: Record<string, string> = layers ? { ".gitnext/stack.json": demoLayers()[".gitnext/stack.json"] } : {};
 
 let files: RepoContext;
 if (flag("--git")) {

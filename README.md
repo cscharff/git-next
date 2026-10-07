@@ -95,8 +95,10 @@ The demo uses [cloudflare/agents](https://github.com/cloudflare/agents) (MIT, 1,
     `Retriever`/`Embedder` interfaces, ready for Workers AI EmbeddingGemma + Vectorize. On cloudflare/agents it
     serves about 3,000–4,000 tokens out of 889,608 tokens of markdown.
 - **Dashboard** has panels for the instruction stack, resource map with diff badges, cost per agent, sliced context
-  and the demo agents. A fork selector switches between agents-demo-full and the forks. It loads bundled samples
-  until you press "Run live".
+  and the demo agents. A fork selector switches between agents-demo-full and the forks, and a repo picker switches
+  to a second demo repo, [emdash-cms/emdash](https://github.com/emdash-cms/emdash) as `emdash-demo`. It loads bundled
+  samples until you press "Run live". The EmDash samples are offline runs (`node scripts/demo-insights.ts <clone>
+  --git --repo emdash-demo --catalog org --no-layers`, `node scripts/demo-context.ts <clone> --repo emdash-demo`).
 - **`git next` CLI** (`bin/git-next.ts`) runs the same providers over your working tree or local git objects, or
   asks the Worker with `--remote`. `examples/hooks/pre-push` uses it to block pushes.
 
@@ -110,7 +112,7 @@ git clone <this repo> git-next && cd git-next
 npm install
 npx cf auth login            # browser sign-in
 npx cf auth whoami           # check the account before creating anything
-npm test                     # 83 unit tests; no network
+npm test                     # 106 unit tests; no network
 ```
 
 ### 1. Artifacts namespace and the demo repo
