@@ -1,3 +1,5 @@
+import { isCloud, type Cloud } from "../../core/types.ts";
+
 /** One AI Gateway request, normalized from a log record. */
 export interface CostRecord {
 	id: string;
@@ -16,6 +18,10 @@ export interface CostRecord {
 	task: string;
 	/** Task type parsed from the task id, e.g. "format" from "format#412". */
 	taskLabel: string;
+	/** Where the model ran: metadata.cloud, default cloudflare (the AI Gateway). */
+	cloud: Cloud;
+	/** True for records from mocked sources (Bedrock, Vertex AI, vLLM fixtures), never real spend. */
+	mocked: boolean;
 }
 
 export const UNATTRIBUTED = "(unattributed)";
@@ -62,6 +68,8 @@ export function parseGatewayLogs(input: unknown): CostRecord[] {
 			agent: str(meta.agent),
 			task,
 			taskLabel: taskLabelOf(task),
+			cloud: isCloud(meta.cloud) ? meta.cloud : isCloud(r.cloud) ? r.cloud : "cloudflare",
+			mocked: r.mocked === true || meta.mocked === true,
 		};
 	});
 }
@@ -77,6 +85,14 @@ export const matchesRepo = (r: CostRecord, repo?: string) => !repo || r.repo ===
 
 export function staticCostSource(id: string, records: CostRecord[]): CostSource {
 	return { id, records: async ({ repo }) => records.filter((r) => matchesRepo(r, repo)) };
+}
+
+/** A source whose records are all flagged mocked, whatever the file says. */
+export const mockedCostSource = (id: string, records: CostRecord[]): CostSource => staticCostSource(`mocked:${id}`, records.map((r) => ({ ...r, mocked: true })));
+
+/** Several sources read as one (e.g. the live gateway plus mocked clouds). */
+export function combinedCostSource(...sources: CostSource[]): CostSource {
+	return { id: sources.map((s) => s.id).join("+"), records: async (f) => (await Promise.all(sources.map((s) => s.records(f)))).flat() };
 }
 
 export interface GatewayLogsConfig {
