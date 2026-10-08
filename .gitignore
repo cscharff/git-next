@@ -6,3 +6,5 @@ node_modules/
 .env*
 dist/
 .cloudflare/
+# Written by scripts/demo-new-repo.ts for inspection; nothing reads them
+samples/new-repo-demo/*.files.json
