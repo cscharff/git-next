@@ -26,6 +26,7 @@ with the create-and-push method below (the direct import returned a 502); the da
 - [Code view](#code-view)
 - [Agents in parallel](#agents-in-parallel)
 - [Push review workflow](#push-review-workflow)
+- [MCP server](#mcp-server)
 - [Multi-cloud environments (mocked)](#multi-cloud-environments-mocked)
 - [Writing a provider](#writing-a-provider)
 - [Secrets](#secrets)
@@ -393,6 +394,29 @@ merge button stays locked until its review is approved or auto-approved. `GET /r
 step timeline. The Queue consumer now only starts a Workflow instance per push (one per repo, ref and commit, so
 a redelivered event is a no-op).
 
+## MCP server
+
+git.next is also a remote MCP server at `/mcp` (Streamable HTTP, stateless, built with the Agents SDK's
+`createMcpHandler` and the MCP TypeScript SDK v2), so coding agents ask git.next directly before they edit:
+
+| Tool | What it returns |
+| --- | --- |
+| `get_context` | Winning rules for the files you'll touch (with the layer and `file:line` each comes from), conflicts, pinned org rules and catalog entries, the best doc sections within a budget, and `inFlight` (other forks/branches already changing those files) |
+| `rules_for` | The rules and conflicts for one file or folder |
+| `check_overlap` | Who else is changing these files (same file or same folder), with agent and task |
+| `list_attempts` | Tasks two or more agents are attempting in parallel |
+| `compare_attempts` | The attempts at one task compared, with a pick to merge and the reasons |
+
+It sits behind the same Cloudflare Access check as the dashboard. To connect Claude Code to the deployed Worker, use
+the Access service token (the values from `.dev.vars`; don't paste them into shared config):
+
+```bash
+claude mcp add --transport http git-next https://git-next.nameserver-labs.workers.dev/mcp --header "CF-Access-Client-Id: $CLOUDFLARE_ACCESS_CLIENT_ID" --header "CF-Access-Client-Secret: $CLOUDFLARE_ACCESS_CLIENT_SECRET"
+```
+
+Locally (`npm run dev`), it's `http://localhost:5173/mcp` with no headers. Tools read the same data as the
+dashboard: demo layers apply to `agents-demo-*` repos, and context is checked against the org catalog.
+
 ## Multi-cloud environments (mocked)
 
 A thin, clearly labelled slice for showing Cloudflare next to other clouds. **Only Cloudflare is real**: its
@@ -560,6 +584,7 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
 | `src/code.ts`, `src/code-routes.ts` | Code view: read-only `/code/*` routes, line diffs, commit annotations |
 | `src/work.ts`, `src/work-routes.ts` | Agents in parallel: work in flight, overlap, attempt comparison (`/work*`) |
 | `src/review.ts` (+ `PushReview` in `src/index.ts`) | Push review Workflow: sensitivity rules, review records, decisions |
+| `src/mcp.ts` | git.next as a remote MCP server (`/mcp`) |
 | `src/cli`, `bin/git-next.ts` | the `git next` CLI (`init.ts` for `git next new`) |
 | `public/index.html` | dashboard |
 | `scripts/` | `demo-agents.ts`, `demo-planner.ts`, `demo-new-repo.ts`, offline sample generators (`demo-insights.ts`, `demo-context.ts`, `demo-stack.ts`) |
