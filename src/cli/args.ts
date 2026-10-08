@@ -30,8 +30,12 @@ export interface ParsedArgs {
 	template: string;
 	name?: string;
 	owner?: string;
-	/** init/new --remote: show the Artifacts repo that would be created (dry run; not implemented yet). */
+	/** init/new --remote: show what --artifacts would do, without doing it. */
 	initRemote: boolean;
+	/** init/new: create the repo in Cloudflare Artifacts, push it, and subscribe git.next to its pushes. */
+	artifacts: boolean;
+	/** init/new --artifacts: the queue git.next consumes push events from (default GIT_NEXT_PUSH_QUEUE). */
+	queue?: string;
 	keep: boolean;
 	/** doctor: re-vendor layers and catalog from the baseline and rewrite the pins. */
 	update: boolean;
@@ -66,6 +70,8 @@ const FLAGS: Record<string, FlagSpec> = {
 	"--name": { key: "name", type: "string", commands: ["init", "new"] },
 	"--owner": { key: "owner", type: "string", commands: ["init", "new"] },
 	"--keep": { key: "keep", type: "bool", commands: ["init", "new"] },
+	"--artifacts": { key: "artifacts", type: "bool", commands: ["init", "new"] },
+	"--queue": { key: "queue", type: "string", commands: ["init", "new"] },
 };
 
 /** Parses `git next <command> [args] [flags]`. Supports `--flag value` and `--flag=value`. */
@@ -88,6 +94,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
 		hookJson: false,
 		template: "worker-api",
 		initRemote: false,
+		artifacts: false,
 		keep: false,
 		update: false,
 	};

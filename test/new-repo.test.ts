@@ -184,6 +184,30 @@ describe("git next new / init", () => {
 		expect(existsSync(join(work, "x2"))).toBe(false);
 	});
 
+	it("--artifacts creates the repo, pushes, then subscribes git.next (in that order)", async () => {
+		const { initCommand } = await import("../src/cli/init.ts");
+		const { parseArgs } = await import("../src/cli/args.ts");
+		const calls: string[] = [];
+		const fake = {
+			createRepo: async (name: string) => (calls.push(`create ${name}`), { remote: "https://0123456789abcdef0123456789abcdef.artifacts.cloudflare.net/git/default/pub.git", token: "secret-token" }),
+			push: (dir: string, remote: string, token: string) => (calls.push(`push ${remote.endsWith("pub.git")} ${token === "secret-token"}`), { ok: true, output: "" }),
+			subscribe: async (name: string, queue: string) => (calls.push(`subscribe ${name} ${queue}`), { id: "sub-1" }),
+		};
+		let out = "";
+		const io = { cwd: work, out: (t: string) => (out += t), err: () => {}, env: {}, devVarsFiles: [], stdin: async () => "" };
+		const runRules = async (cwd: string) => ({ code: (await run(cwd, ["rules", "-q"])).code, text: "" });
+		const code = await initCommand(parseArgs(["new", "pub", "--artifacts", "--queue", "q-1", "--org", BASELINE]), io as any, { runRules, packageRoot: ROOT, artifacts: fake });
+		expect(code).toBe(0);
+		expect(calls).toEqual(["create pub", "push true true", "subscribe pub q-1"]);
+		expect(out).toContain("artifacts https://<account>.artifacts.cloudflare.net/git/default/pub.git");
+		expect(out).not.toContain("secret-token");
+		// Without a queue it refuses (and cleans up); a failed first push is an error that never prints the token.
+		await expect(initCommand(parseArgs(["new", "pub2", "--artifacts", "--org", BASELINE]), io as any, { runRules, packageRoot: ROOT, artifacts: fake })).rejects.toThrow(/--queue/);
+		expect(existsSync(join(work, "pub2"))).toBe(false);
+		const failing = { ...fake, push: () => ({ ok: false, output: "rejected" }) };
+		await expect(initCommand(parseArgs(["new", "pub3", "--artifacts", "--queue", "q", "--org", BASELINE]), io as any, { runRules, packageRoot: ROOT, artifacts: failing })).rejects.toThrow(/first push failed: rejected/);
+	});
+
 	it("refuses to create a repo whose project rules conflict with an org must", async () => {
 		const baseline = join(work, "baseline-conflict");
 		cpSync(BASELINE, baseline, { recursive: true });

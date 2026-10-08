@@ -289,7 +289,11 @@ repos fork for provenance) holding:
 
 ```bash
 git next new uploads-api --template worker-api            # alias: git next init <dir>
-git next new uploads-api --template worker-api --remote   # also prints the Artifacts repo it would create (dry run)
+git next new uploads-api --template worker-api --remote   # prints what --artifacts would do (dry run)
+git next new uploads-api --template worker-api --artifacts --queue <git-next-pushes queue id>
+# --artifacts: creates the repo in Cloudflare Artifacts (via the signed-in `cf` CLI), pushes the first commit through
+# the hook with a short-lived token in GIT_CONFIG_* env vars only, then subscribes git.next's push queue to it, so
+# every later push goes through the push-review Workflow. Re-running reuses the repo and subscription.
 ```
 
 It copies the template (only `{{name}}` and `{{owner}}` are filled in, from validated values) and vendors the
@@ -310,12 +314,15 @@ approved.
 through the gateway): "build a small Worker endpoint that stores uploaded files and returns an AI description of
 each".
 
-| | Plain repo | `git next new` repo |
+Live run (`node scripts/demo-new-repo.ts --artifacts`), both repos in Artifacts and subscribed to git.next:
+
+| | Plain repo (`uploads-bare`) | `git next new --artifacts` repo (`uploads-smart`) |
 | --- | --- | --- |
-| Context from git.next | none | 1,011 tokens (385 pinned: org musts, catalog, the shared R2 bucket) |
-| What the agent wrote | `@cf/meta/llama-3.1-8b-instruct` called directly, bucket `uploads-bare` | `@cf/zai-org/glm-5.3-flash` via gateway `git-next`, shared bucket `acme-shared-uploads`, key via `wrangler secret`, commit `SOW-1234: …` |
-| Findings at first push | **3**: gateway bypass, unapproved model, unlisted bucket | **0** |
-| First push | blocked by the hook | went through |
+| Context from git.next | none | 1,168 tokens (477 pinned: org musts, catalog, the shared R2 bucket) |
+| What the agent wrote | `@cf/llava-hf/llava-1.5-7b-hf` and `@cf/meta/llama-3-8b-instruct` called directly, bucket `uploads-bare-files` | approved model via gateway `git-next`, shared bucket `acme-shared-uploads`, commit `SOW-1234: …` |
+| Findings at first push | **4**: gateway bypass, two unapproved models, unlisted bucket | **0** |
+| First push | no hook, so it went straight into Artifacts | through its own hook |
+| git.next push review | held for a person: 6 reasons (5 catalog findings, a new binding) | held for a person: 1 reason (adds a binding to the shared bucket) |
 
 Neither agent wrote an inline key in this run; the secret scan is still active and is covered by tests. Results are
 in `samples/new-repo-demo/`. `--recheck` re-runs the pushes and checks on the kept repos without new model calls.

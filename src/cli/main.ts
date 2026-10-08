@@ -14,6 +14,7 @@ import type { Rule } from "../providers/instruction-stack/types.ts";
 import { checkCatalog, parseCatalog, type Catalog } from "../providers/catalog.ts";
 import { parseJsonc } from "../parse/jsonc.ts";
 import { initCommand, type InitDeps } from "./init.ts";
+import { cfPublisher } from "./artifacts-publish.ts";
 import { doctorCommand } from "./doctor.ts";
 import { resourceMapProvider } from "../providers/resource-map.ts";
 import { USAGE, UsageError, parseArgs, type ParsedArgs } from "./args.ts";
@@ -323,6 +324,7 @@ function verdict(report: RulesReport, code: number, args: ParsedArgs): { action:
 function initDeps(io: CliIo): InitDeps {
 	return {
 		packageRoot: PACKAGE_ROOT,
+		artifacts: cfPublisher,
 		runRules: async (cwd) => {
 			let text = "";
 			const capture = (t: string) => {

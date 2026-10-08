@@ -532,8 +532,9 @@ async function renderParallel() {
 		// Without live attempts, show the recorded attempt run (samples/attempts-demo.json) for its project.
 		const useSample = !compare && sample && (sample.project === (work?.project ?? repo));
 		parallel.data = { work, sets: sets?.sets ?? [], compare: compare ?? (useSample ? sample : null), sample: useSample, reviews: reviews?.reviews ?? [], admin: !!reviews?.admin };
-		// The cost panel's routing suggestion uses the attempt comparison just loaded.
+		// The cost panel's routing suggestion and the new-repo panel's live reviews use what was just loaded.
 		if (state.costView === "live") renderCost();
+		renderNewRepo();
 	}
 	const { work, sets, compare, sample, reviews = [], admin } = parallel.data || {};
 	// Merge gate: an attempt may merge once its push review is approved, or when nothing in it needed review.
@@ -614,10 +615,20 @@ function renderNewRepo() {
 		if (/^Unapproved model/.test(v.title)) return `Approved: ${(v.detail.split("Approved: ")[1] ?? "").split(", ").slice(0, 2).join(", ")}…`;
 		return v.detail.match(/(Use the shared [^.]+)/)?.[1] ?? "";
 	};
-	const col = (a, cls, title, sub) => `
+	// Live run (--artifacts): both repos are in Artifacts; show git.next's push review for each first push.
+	const live = s.live;
+	const liveReview = (name) => live && (parallel.data?.reviews ?? []).find((r) => r.repo === name && r.after === live.heads?.[name]);
+	const pushLine = (a, name) => {
+		if (!live) return a.firstPush.pushed ? `<span class="chip sev-info">push went through</span>` : `<span class="chip sev-conflict">push blocked by the hook</span>`;
+		const r = liveReview(name);
+		const hook = name === live.repos.bare ? "no git.next hook" : "through its git.next hook";
+		return `<span class="livechip">live</span> pushed to Artifacts ${hook} · git.next review: ${r ? `<span class="chip ${r.status === "needs-review" ? "sev-warn" : r.status === "rejected" ? "sev-conflict" : "verdict-pick"}">${esc({ "needs-review": "needs human review", "auto-approved": "nothing sensitive", running: "running" }[r.status] ?? r.status)}</span>` : `<span class="chip">pending</span>`}`;
+	};
+	const col = (a, cls, title, sub, name) => `
 		<div class="col ${cls}">
 			<h3>${title}</h3><div class="sub">${sub}</div>
-			<div class="n">${a.findings}</div><div class="sub">finding${a.findings === 1 ? "" : "s"} at first push · ${a.firstPush.pushed ? `<span class="chip sev-info">push went through</span>` : `<span class="chip sev-conflict">push blocked by the hook</span>`}</div>
+			<div class="n">${a.findings}</div><div class="sub">finding${a.findings === 1 ? "" : "s"} at first push · ${pushLine(a, name)}</div>
+			${live && liveReview(name)?.reasons?.length ? `<div class="why">Held for review: ${liveReview(name).reasons.slice(0, 4).map((x) => esc(x.why)).join(" · ")}</div>` : ""}
 			<ul>${[...a.conflicts.map((c) => `<li>✗ ${esc(c.topic)}: ${esc(c.explanation)}</li>`), ...a.catalogViolations.map((v) => `<li>✗ <b>${esc(v.title)}</b><span class="fix">${esc(fixOf(v))}</span></li>`)].join("") || "<li>✓ Follows org practice from the first commit</li>"}</ul>
 			<div class="stats" style="margin-top:10px">
 				<div class="stat"><b>${a.contextFromGitNext ? num(a.contextFromGitNext.tokensServed) : 0}</b><span>context tokens from git.next${a.contextFromGitNext ? ` (${num(a.contextFromGitNext.pinnedTokens)} pinned)` : ""}</span></div>
@@ -629,8 +640,8 @@ function renderNewRepo() {
 	$("#newrepo .body").innerHTML = `
 		<div class="sub" style="margin-bottom:10px">Task: “${esc(s.task)}”</div>
 		<div class="compare">
-			${col(plain, plain.findings ? "bad" : "good", "Plain repo", "Started empty; checked against the org baseline at push")}
-			${col(smart, smart.findings ? "bad" : "good", "<code>git next new --template worker-api</code>", "Inherits org, contract and tool layers (pinned), the catalog and the hook")}
+			${col(plain, plain.findings ? "bad" : "good", "Plain repo", live ? "Started empty, no git.next hook; reviewed by git.next when it pushed to Artifacts" : "Started empty; checked against the org baseline at push", live?.repos?.bare)}
+			${col(smart, smart.findings ? "bad" : "good", live ? "<code>git next new --template worker-api --artifacts</code>" : "<code>git next new --template worker-api</code>", "Inherits org, contract and tool layers (pinned), the catalog and the hook", live?.repos?.smart)}
 		</div>`;
 }
 
