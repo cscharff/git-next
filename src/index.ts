@@ -3,6 +3,8 @@ import { artifactsSource } from "./core/artifacts-source.ts";
 import { RepoContext, type TreeFile } from "./core/repo-context.ts";
 import type { PushEvent } from "./code.ts";
 import { handleCodeRoute, type CodeDeps } from "./code-routes.ts";
+import { handleWorkRoute, projectOf, type WorkRouteDeps } from "./work-routes.ts";
+import { overlaps, workInFlight, type WorkItem } from "./work.ts";
 import { DEMO_LAYERS_REPO, withDemoLayers } from "./demo-layers.ts";
 import { handleDevRoute } from "./dev-routes.ts";
 import { buildContext, dedupeSections, sectionsOf } from "./providers/context/index.ts";
@@ -113,6 +115,38 @@ const codeDeps = (url: URL): CodeDeps => ({
 	latest: async (repo, ref) => (await getResult(env.RESULTS, repo, ref)) as Record<string, any> | null,
 });
 
+/** Fork sources, cached per isolate ("artifacts:default/agents-demo-full" → "agents-demo-full"). */
+const sources = new Map<string, Promise<string | null>>();
+const sourceOf = (repo: string) => {
+	let s = sources.get(repo);
+	if (!s) {
+		s = (async () => {
+			using handle = await env.ARTIFACTS.get(repo);
+			const source = (await handle.info()).source ?? "";
+			return source.match(/^artifacts:default\/(.+)$/)?.[1] ?? null;
+		})().catch(() => null);
+		sources.set(repo, s);
+	}
+	return s;
+};
+
+/** Wiring for work in flight, overlap and attempts: live index, fork sources, gateway records, org catalog. */
+const workDeps = (url: URL | null): WorkRouteDeps => ({
+	index: async () => (await getIndex(env.RESULTS)).index,
+	sourceOf,
+	files: (repo) => contextFor(url, repo, false),
+	async forksOf(project) {
+		const { repos } = await env.ARTIFACTS.list({ limit: 100 });
+		return repos.filter((r) => r.source === `artifacts:default/${project}`).map((r) => r.name);
+	},
+	cache: {
+		get: async (key) => (await env.RESULTS.get(`work/${key}`, "json")) as WorkItem | null,
+		put: (key, item) => env.RESULTS.put(`work/${key}`, JSON.stringify(item), { expirationTtl: 60 * 60 * 24 * 14 }),
+	},
+	catalog: BASELINE_CATALOG,
+	costs: async (project) => (costSource ? costSource.records({ repo: project }) : []),
+});
+
 export default {
 	async fetch(request) {
 		const url = new URL(request.url);
@@ -160,22 +194,28 @@ export default {
 			const body = (await request.json().catch(() => null)) as Partial<{ repo: string; ref: string; task: string; paths: string[]; budgetTokens: number; layers: string; catalog: string; extractor: string; retriever: string }> | null;
 			if (!body || !REPO_NAME.test(body.repo ?? "") || !body.task) return Response.json({ error: "repo and task are required" }, { status: 400 });
 			const files = contextFor(url, body.repo!, body.layers === "demo");
+			const paths = Array.isArray(body.paths) ? body.paths.filter((p) => typeof p === "string") : [];
+			// Who else is already changing these files (other forks and branches of the same project).
+			const inFlight = (async () => {
+				const deps = workDeps(url);
+				const project = await projectOf(deps, body.repo!);
+				return overlaps(await workInFlight(deps, project), paths, { repo: body.repo!, ...(body.ref && body.ref !== "HEAD" ? { ref: body.ref } : {}) });
+			})().catch(() => []);
 			try {
-				return Response.json(
-					await buildContext(
+				const context = await buildContext(
 						files,
 						{
 						repo: body.repo!,
 						ref: body.ref || "HEAD",
 						task: body.task,
-						paths: Array.isArray(body.paths) ? body.paths.filter((p) => typeof p === "string") : [],
+						paths,
 						budgetTokens: Math.min(Math.max(Number(body.budgetTokens) || 4000, 500), 200_000),
 						...(body.catalog === "org" ? { catalog: BASELINE_CATALOG } : {}),
 						},
 						retrieverFor(body.repo!, body.retriever === "bm25"),
 						body.extractor === "keyword" ? undefined : modelExtractor,
-					),
-				);
+					);
+				return Response.json({ ...context, inFlight: await inFlight });
 			} catch (err) {
 				return Response.json({ error: String(err) }, { status: 500 });
 			}
@@ -286,6 +326,16 @@ export default {
 			};
 			await env.PUSHES.send(event);
 			return Response.json({ enqueued: true, repo: body.repo, after: head.hash });
+		}
+
+		// GET /work* : forks and branches in flight, overlap checks, attempt comparison.
+		if (url.pathname === "/work" || url.pathname.startsWith("/work/")) {
+			try {
+				const res = await handleWorkRoute(request, url, workDeps(url));
+				if (res) return res;
+			} catch (err) {
+				return Response.json({ error: String(err).slice(0, 500) }, { status: 500 });
+			}
 		}
 
 		// GET /code/* : read-only file tree, files, history and diffs for the Code view.

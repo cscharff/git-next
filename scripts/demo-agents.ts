@@ -96,6 +96,9 @@ async function runAgent(spec: AgentSpec, binDir: string, budget: { remaining: nu
 	const ctx = await retry("context", () => post<any>("/context", { repo: spec.fork, ref: "main", task: spec.task, paths: spec.paths, budgetTokens: 3000, layers: "demo" }), 3);
 	result.context = { ...ctx.stats, sections: ctx.sections.length, rules: ctx.rules.length, conflicts: ctx.conflicts.length };
 	note(`context: ${ctx.stats.tokensServed} tokens served (${ctx.sections.length} sections) of ${ctx.stats.tokensAllMarkdown} in all markdown`);
+	// Other agents already changing these files (forks and branches of the same project).
+	result.inFlight = ctx.inFlight ?? [];
+	for (const o of result.inFlight) note(`in flight: ${o.repo}${o.ref !== "main" ? `@${o.ref}` : ""} (${o.agent ?? "?"}) also changes ${[...o.same, ...o.near].slice(0, 3).join(", ")}`);
 
 	const files = spec.include.map((p) => `--- ${p} ---\n${readFileSync(join(dir, p), "utf8")}`).join("\n\n");
 	const rules = ctx.rules.map((r: any) => `- ${r.topic}: ${r.value}${r.strength === "must" ? " (must)" : ""} [${r.kind}: ${r.source}]`).join("\n");

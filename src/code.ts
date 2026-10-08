@@ -41,8 +41,10 @@ export interface DiffLine {
  * is too long to diff here.
  */
 export function lineDiff(before: string, after: string, context = 3): DiffLine[][] | null {
-	const a = before === "" ? [] : before.split("\n");
-	const b = after === "" ? [] : after.split("\n");
+	// A final newline ends the last line; it doesn't start an empty one.
+	const linesOf = (t: string) => (t === "" ? [] : t.replace(/\n$/, "").split("\n"));
+	const a = linesOf(before);
+	const b = linesOf(after);
 	// Trim the common prefix and suffix first: most edits are small, so the LCS table stays tiny.
 	let start = 0;
 	while (start < a.length && start < b.length && a[start] === b[start]) start++;
