@@ -28,9 +28,10 @@ const INSTRUCTIONS =
 
 /** The attempts: same task, same context, different models. */
 const ATTEMPTS = [
-	{ name: "attempt-sonnet", model: "anthropic/claude-sonnet-5.5", maxTokens: 3000 },
+	// Five short files fit in about 3,000 tokens for Haiku; Sonnet writes more, and GLM spends output on reasoning.
+	{ name: "attempt-sonnet", model: "anthropic/claude-sonnet-5.5", maxTokens: 6000 },
 	{ name: "attempt-haiku", model: "anthropic/claude-haiku-4.5", maxTokens: 3000 },
-	{ name: "attempt-glm", model: "@cf/zai-org/glm-5.3-flash", maxTokens: 3000 },
+	{ name: "attempt-glm", model: "@cf/zai-org/glm-5.3-flash", maxTokens: 8000 },
 ];
 
 const argv = process.argv.slice(2);

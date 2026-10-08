@@ -24,6 +24,7 @@ with the create-and-push method below (the direct import returned a 502); the da
 - [Using it](#using-it)
 - [New repositories: smart by default](#new-repositories-smart-by-default)
 - [Code view](#code-view)
+- [Agents in parallel](#agents-in-parallel)
 - [Multi-cloud environments (mocked)](#multi-cloud-environments-mocked)
 - [Writing a provider](#writing-a-provider)
 - [Secrets](#secrets)
@@ -344,6 +345,32 @@ cut off, binaries aren't shown, and diffs longer than 4,000 changed lines per si
 commit's file listing is cached in KV for a week (`codetree/…`); diffs skip unchanged subtrees. Repos on GitHub
 have to be imported into Artifacts before they can be browsed.
 
+## Agents in parallel
+
+When many agents work on one project at once, two questions matter: who else is changing the files I'm about to
+touch, and when several agents tried the same task, which change should ship?
+
+- **Work in flight.** Every fork of the project (from the Artifacts namespace) and every non-main branch git.next has
+  seen a push for, with the files each changes relative to the project's main, its agent and its task (from the
+  `Agent:` / `Agent-Task:` commit trailers). Change sets are cached in KV by repo, head and base.
+- **Overlap warnings.** `POST /context` returns `inFlight`: the other forks and branches already changing the paths
+  the agent asked about (same file, or same folder), so it knows before it starts. The demo agents print it.
+  `GET /work/overlap?repo=&paths=` answers the same question for anyone.
+- **Compare attempts.** Forks or branches that share an `Agent-Task` are attempts at one task. `GET /work/compare`
+  puts them side by side and picks one to merge, with reasons:
+  - what the change itself introduces, checked against the org catalog (unapproved model, a model call that skips
+    the gateway, an unlisted bucket or binding, inline secrets), reading only the changed files;
+  - overlap with other work in flight;
+  - diff size (+/−) and gateway spend for that agent and task (failed tries count);
+  - order: clean first, then least overlap, then smallest diff, then cheapest.
+- **Dashboard:** "4 · Agents in parallel" shows the attempt cards (verdict, findings linked to the Code tab at the
+  line, spend, diff) and the work-in-flight table with clashes highlighted. "Merge into main" is a mock-up.
+- **Recording one:** `node scripts/demo-attempts.ts` gives the same task to Claude Sonnet 5.5, Claude Haiku 4.5 and
+  GLM-5.3-Flash, each on a branch `attempt/<name>` of agents-demo-full (no new repos), and writes
+  `samples/attempts-demo.json`. In the recorded run both Claude attempts followed the pinned catalog (shared bucket,
+  approved model, org gateway); Haiku's was smaller and about 10× cheaper, so it's the pick. GLM spent its whole output
+  budget reasoning and produced no files.
+
 ## Multi-cloud environments (mocked)
 
 A thin, clearly labelled slice for showing Cloudflare next to other clouds. **Only Cloudflare is real**: its
@@ -509,6 +536,7 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
 | `src/parse` | JSONC and minimal TOML parsers |
 | `src/index.ts`, `src/dev-routes.ts` | Worker routes (`/insights`, `/context`, samples, localhost-only `/dev/*`) |
 | `src/code.ts`, `src/code-routes.ts` | Code view: read-only `/code/*` routes, line diffs, commit annotations |
+| `src/work.ts`, `src/work-routes.ts` | Agents in parallel: work in flight, overlap, attempt comparison (`/work*`) |
 | `src/cli`, `bin/git-next.ts` | the `git next` CLI (`init.ts` for `git next new`) |
 | `public/index.html` | dashboard |
 | `scripts/` | `demo-agents.ts`, `demo-planner.ts`, `demo-new-repo.ts`, offline sample generators (`demo-insights.ts`, `demo-context.ts`, `demo-stack.ts`) |

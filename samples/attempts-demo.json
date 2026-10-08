@@ -1,0 +1,133 @@
+{
+  "generatedAt": "2026-10-08T03:15:16.969Z",
+  "generatedBy": "scripts/demo-attempts.ts",
+  "task": "feature#uploads-ai",
+  "runs": [
+    {
+      "attempt": "attempt-sonnet",
+      "model": "anthropic/claude-sonnet-5.5",
+      "branch": "attempt/sonnet",
+      "head": "ef2934d26a9c8d058a58ae81f92f3217f7d80aee",
+      "summary": "Add uploads-ai R2 + Workers AI example",
+      "files": [
+        "examples/uploads-ai/package.json",
+        "examples/uploads-ai/wrangler.jsonc",
+        "examples/uploads-ai/tsconfig.json",
+        "examples/uploads-ai/README.md",
+        "examples/uploads-ai/src/index.ts"
+      ],
+      "usage": {
+        "input_tokens": 1979,
+        "output_tokens": 4334
+      },
+      "inFlight": []
+    },
+    {
+      "attempt": "attempt-glm",
+      "model": "@cf/zai-org/glm-5.3-flash",
+      "error": "SyntaxError: Unexpected end of JSON input"
+    }
+  ],
+  "project": "agents-demo-full",
+  "catalogVersion": "2026.10.5",
+  "attempts": [
+    {
+      "repo": "agents-demo-full",
+      "ref": "attempt/haiku",
+      "head": "1990365f50f3731f0e204d64a3cff82ccc8f3ff0",
+      "agent": "attempt-haiku",
+      "model": "anthropic/claude-haiku-4.5",
+      "files": [
+        {
+          "path": "examples/uploads-ai/.dev.vars.example",
+          "status": "added"
+        },
+        {
+          "path": "examples/uploads-ai/README.md",
+          "status": "added"
+        },
+        {
+          "path": "examples/uploads-ai/package.json",
+          "status": "added"
+        },
+        {
+          "path": "examples/uploads-ai/src/index.ts",
+          "status": "added"
+        },
+        {
+          "path": "examples/uploads-ai/tsconfig.json",
+          "status": "added"
+        },
+        {
+          "path": "examples/uploads-ai/wrangler.jsonc",
+          "status": "added"
+        }
+      ],
+      "added": 102,
+      "removed": 0,
+      "findings": [],
+      "cost": {
+        "usd": 0.008317,
+        "requests": 1,
+        "tokensIn": 1542,
+        "tokensOut": 1355
+      },
+      "overlaps": [],
+      "push": null,
+      "rank": 1,
+      "verdict": "pick",
+      "reasons": [
+        "its change introduces no catalog findings",
+        "smallest diff (+102 −0)",
+        "+102 −0 across 6 file(s), $0.0083 over 1 call(s)"
+      ]
+    },
+    {
+      "repo": "agents-demo-full",
+      "ref": "attempt/sonnet",
+      "head": "ef2934d26a9c8d058a58ae81f92f3217f7d80aee",
+      "agent": "attempt-sonnet",
+      "model": "anthropic/claude-sonnet-5.5",
+      "files": [
+        {
+          "path": "examples/uploads-ai/README.md",
+          "status": "added"
+        },
+        {
+          "path": "examples/uploads-ai/package.json",
+          "status": "added"
+        },
+        {
+          "path": "examples/uploads-ai/src/index.ts",
+          "status": "added"
+        },
+        {
+          "path": "examples/uploads-ai/tsconfig.json",
+          "status": "added"
+        },
+        {
+          "path": "examples/uploads-ai/wrangler.jsonc",
+          "status": "added"
+        }
+      ],
+      "added": 142,
+      "removed": 0,
+      "findings": [],
+      "cost": {
+        "usd": 0.081256,
+        "requests": 2,
+        "tokensIn": 3958,
+        "tokensOut": 7334
+      },
+      "overlaps": [],
+      "push": null,
+      "rank": 2,
+      "verdict": "ok",
+      "reasons": [
+        "its change introduces no catalog findings",
+        "ranked below attempt-haiku",
+        "+142 −0 across 5 file(s), $0.0813 over 2 call(s)"
+      ]
+    }
+  ]
+}
