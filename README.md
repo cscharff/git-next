@@ -25,6 +25,7 @@ with the create-and-push method below (the direct import returned a 502); the da
 - [New repositories: smart by default](#new-repositories-smart-by-default)
 - [Code view](#code-view)
 - [Agents in parallel](#agents-in-parallel)
+- [MCP server](#mcp-server)
 - [Multi-cloud environments (mocked)](#multi-cloud-environments-mocked)
 - [Writing a provider](#writing-a-provider)
 - [Secrets](#secrets)
@@ -371,6 +372,29 @@ touch, and when several agents tried the same task, which change should ship?
   approved model, org gateway); Haiku's was smaller and about 10× cheaper, so it's the pick. GLM spent its whole output
   budget reasoning and produced no files.
 
+## MCP server
+
+git.next is also a remote MCP server at `/mcp` (Streamable HTTP, stateless, built with the Agents SDK's
+`createMcpHandler` and the MCP TypeScript SDK v2), so coding agents ask git.next directly before they edit:
+
+| Tool | What it returns |
+| --- | --- |
+| `get_context` | Winning rules for the files you'll touch (with the layer and `file:line` each comes from), conflicts, pinned org rules and catalog entries, the best doc sections within a budget, and `inFlight` (other forks/branches already changing those files) |
+| `rules_for` | The rules and conflicts for one file or folder |
+| `check_overlap` | Who else is changing these files (same file or same folder), with agent and task |
+| `list_attempts` | Tasks two or more agents are attempting in parallel |
+| `compare_attempts` | The attempts at one task compared, with a pick to merge and the reasons |
+
+It sits behind the same Cloudflare Access check as the dashboard. To connect Claude Code to the deployed Worker, use
+the Access service token (the values from `.dev.vars`; don't paste them into shared config):
+
+```bash
+claude mcp add --transport http git-next https://git-next.nameserver-labs.workers.dev/mcp --header "CF-Access-Client-Id: $CLOUDFLARE_ACCESS_CLIENT_ID" --header "CF-Access-Client-Secret: $CLOUDFLARE_ACCESS_CLIENT_SECRET"
+```
+
+Locally (`npm run dev`), it's `http://localhost:5173/mcp` with no headers. Tools read the same data as the
+dashboard: demo layers apply to `agents-demo-*` repos, and context is checked against the org catalog.
+
 ## Multi-cloud environments (mocked)
 
 A thin, clearly labelled slice for showing Cloudflare next to other clouds. **Only Cloudflare is real**: its
@@ -537,6 +561,7 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
 | `src/index.ts`, `src/dev-routes.ts` | Worker routes (`/insights`, `/context`, samples, localhost-only `/dev/*`) |
 | `src/code.ts`, `src/code-routes.ts` | Code view: read-only `/code/*` routes, line diffs, commit annotations |
 | `src/work.ts`, `src/work-routes.ts` | Agents in parallel: work in flight, overlap, attempt comparison (`/work*`) |
+| `src/mcp.ts` | git.next as a remote MCP server (`/mcp`) |
 | `src/cli`, `bin/git-next.ts` | the `git next` CLI (`init.ts` for `git next new`) |
 | `public/index.html` | dashboard |
 | `scripts/` | `demo-agents.ts`, `demo-planner.ts`, `demo-new-repo.ts`, offline sample generators (`demo-insights.ts`, `demo-context.ts`, `demo-stack.ts`) |
