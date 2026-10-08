@@ -127,7 +127,7 @@ git clone <this repo> git-next && cd git-next
 npm install
 npx cf auth login            # browser sign-in
 npx cf auth whoami           # check the account before creating anything
-npm test                     # 136 unit tests; no network
+npm test                     # unit tests; no network, no account needed
 ```
 
 ### 1. Artifacts namespace and the demo repo
@@ -183,7 +183,23 @@ Then, in the Cloudflare dashboard (these steps are manual):
    `npm run dev` loads them; `npm run deploy` uploads the other `.dev.vars` entries as Worker secrets and leaves
    these out.
 
-### 3. Run it
+### 3. Resources the Worker binds
+
+`cloudflare.config.ts` names every binding. Create these once in your account, then put **your** KV namespace id in
+`RESULTS` (the id in the file is the author's and won't work in another account):
+
+```bash
+npx cf kv namespaces create --title git-next-results            # copy the id into RESULTS in cloudflare.config.ts
+npx cf queues create --queue-name git-next-pushes               # push events from Artifacts
+npx cf queues create --queue-name git-next-pushes-dlq           # dead-letter queue for pushes that keep failing
+npx cf vectorize create --name git-next-sections --config-dimensions 768 --config-metric cosine
+npx cf vectorize metadata-index create git-next-sections --property-name repo --index-type string
+```
+
+The `git-next-push-review` Workflow, the assets and the AI binding are created by the first deploy; the AI Gateway is
+step 2. Without the logs token (step 2.2), the cost panel uses the bundled fixture.
+
+### 4. Run it
 
 ```bash
 npm run dev                  # cf dev on http://localhost:5173 with remote ARTIFACTS + AI bindings (loads .dev.vars)
@@ -193,8 +209,30 @@ git next --help
 node scripts/demo-agents.ts  # forks + three agents (needs the dev server and .dev.vars; capped at --budget-usd 10)
 ```
 
-Nothing here deploys anything. The Worker is meant for local dev: `/insights` and `/context` have no caller
-authentication yet, and the `/dev/*` routes (which mint repo tokens and spend model credits) only answer on localhost.
+Nothing in this step deploys anything. Locally the Worker treats you as an admin, and the `/dev/*` routes (which
+mint repo tokens and spend model credits) only answer on localhost, deployed or not.
+
+### 5. Deploy behind Cloudflare Access (optional)
+
+Deployed, every request (dashboard, API, MCP) must carry a Cloudflare Access token for the Worker's application, or
+it gets a 401; with `ACCESS_AUD` set to `"unset"` the Worker refuses everything that isn't localhost.
+
+1. In Zero Trust → Access → Applications, add a self-hosted application for the Worker's workers.dev hostname
+   (`git-next.<your-subdomain>.workers.dev`) with a policy for the people who may use it, plus the Service Auth
+   policy from step 2.3.
+2. In `cloudflare.config.ts`, set `ACCESS_TEAM_DOMAIN` to your team domain (`<team>.cloudflareaccess.com`) and
+   `ACCESS_AUD` to the application's audience tag. Neither is a secret: both are sent to every visitor's browser.
+3. Put the admins (Access identities who may approve reviews and change precedence) in `.dev.vars` as
+   `ADMIN_EMAILS`, then deploy. The deploy script uploads `.dev.vars` as Worker secrets, without the service token:
+
+```bash
+npm run deploy
+```
+
+4. Subscribe each repo you want reviewed to the push queue. `git next new <name> --artifacts` does it for new repos;
+   for an existing one, create a subscription from `artifacts.repo` (namespace `default`, the repo name) to the
+   `git-next-pushes` queue for `pushed` events (`npx cf queues subscriptions create --body …`, the same body
+   `src/cli/artifacts-publish.ts` sends).
 
 ## Using it
 
@@ -472,7 +510,7 @@ It sits behind the same Cloudflare Access check as the dashboard. To connect Cla
 the Access service token (the values from `.dev.vars`; don't paste them into shared config):
 
 ```bash
-claude mcp add --transport http git-next https://git-next.nameserver-labs.workers.dev/mcp --header "CF-Access-Client-Id: $CLOUDFLARE_ACCESS_CLIENT_ID" --header "CF-Access-Client-Secret: $CLOUDFLARE_ACCESS_CLIENT_SECRET"
+claude mcp add --transport http git-next https://git-next.<your-subdomain>.workers.dev/mcp --header "CF-Access-Client-Id: $CLOUDFLARE_ACCESS_CLIENT_ID" --header "CF-Access-Client-Secret: $CLOUDFLARE_ACCESS_CLIENT_SECRET"
 ```
 
 Locally (`npm run dev`), it's `http://localhost:5173/mcp` with no headers. Tools read the same data as the
@@ -632,7 +670,9 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
   list of patterns plus a generic `key = "…"` rule that skips placeholders, env references, constant names, URLs
   and paths. Tests, fixtures and generated `*.d.ts` files are not scanned; model registries (`*models*.json`) are
   always read. Expect false negatives on unusual formats. Without a catalog, the Worker scans only wrangler and env files.
-- **Not deployed.** There's no auth on the API, and the dashboard and Worker are local-dev only.
+- **Access is the only gate.** Deployed, the Worker trusts any identity that passed its Access application; there are
+  no per-repo permissions, and anyone allowed in can read every repo's analysis. Only `ADMIN_EMAILS` may approve
+  reviews or change precedence.
 
 ## Repository layout
 
@@ -658,4 +698,16 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
 
 ## License
 
-MIT, see [LICENSE](LICENSE). The demo content is [cloudflare/agents](https://github.com/cloudflare/agents), also MIT.
+MIT, see [LICENSE](LICENSE).
+
+### Third-party content
+
+git.next doesn't vendor any of these repos, but the recorded samples in `samples/` quote paths, rule lines and short
+excerpts from them, and the demo imports them into Artifacts. All three are MIT-licensed:
+
+- [cloudflare/agents](https://github.com/cloudflare/agents): Copyright (c) 2025 Cloudflare, Inc. The main demo repo
+  (`agents-demo-full` and its forks); most of `samples/`.
+- [emdash-cms/emdash](https://github.com/emdash-cms/emdash): Copyright 2026 Cloudflare Inc. The second demo repo
+  (`samples/*emdash*`).
+- [centminmod/claude-plugins](https://github.com/centminmod/claude-plugins): Copyright (c) 2026 George Liu. The
+  plugin marketplace shown in the plugins beat; `test/plugins.test.ts` uses a synthetic repo shaped like it.
