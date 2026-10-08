@@ -1,7 +1,9 @@
 import { env } from "cloudflare:workers";
 import { artifactsSource } from "./core/artifacts-source.ts";
-import { RepoContext } from "./core/repo-context.ts";
-import { withDemoLayers } from "./demo-layers.ts";
+import { RepoContext, type TreeFile } from "./core/repo-context.ts";
+import type { PushEvent } from "./code.ts";
+import { handleCodeRoute, type CodeDeps } from "./code-routes.ts";
+import { DEMO_LAYERS_REPO, withDemoLayers } from "./demo-layers.ts";
 import { handleDevRoute } from "./dev-routes.ts";
 import { buildContext, dedupeSections, sectionsOf } from "./providers/context/index.ts";
 import { Bm25Retriever } from "./providers/context/retrieve.ts";
@@ -92,6 +94,24 @@ function contextFor(url: URL | null, repo: string, demo: boolean, envs = false):
 	const factory = (name: string) => artifactsSource(env.ARTIFACTS, name);
 	return new RepoContext((demo || envs) && demoLayersFor(url, repo) ? withDemoLayers(factory, repo, { envs }) : factory);
 }
+
+/** Wiring for the Code view: the same repo readers the analysis uses (demo layers included where allowed). */
+const codeDeps = (url: URL): CodeDeps => ({
+	// Demo layers overlay the agents-demo-* repos only (as the dashboard's analysis does).
+	context: (_repo, via) => contextFor(url, via, via.startsWith("agents-demo")),
+	async listRepos() {
+		const { repos } = await env.ARTIFACTS.list({ limit: 100 });
+		const out = repos.map((r) => ({ name: r.name, description: r.description, defaultBranch: r.defaultBranch, lastPushAt: r.lastPushAt, source: r.source }));
+		if (demoLayersFor(url, "agents-demo-full") && !out.some((r) => r.name === DEMO_LAYERS_REPO)) out.push({ name: DEMO_LAYERS_REPO, description: "Demo instruction layers (org, contract, tool, personal): fixtures overlaid at analysis time", defaultBranch: "HEAD", lastPushAt: null, source: null });
+		return out;
+	},
+	events: async () => (await getIndex(env.RESULTS)).events as PushEvent[],
+	treeCache: {
+		get: async (key) => (await env.RESULTS.get(`codetree/${key}`, "json")) as TreeFile[] | null,
+		put: (key, files) => env.RESULTS.put(`codetree/${key}`, JSON.stringify(files), { expirationTtl: 60 * 60 * 24 * 7 }),
+	},
+	latest: async (repo, ref) => (await getResult(env.RESULTS, repo, ref)) as Record<string, any> | null,
+});
 
 export default {
 	async fetch(request) {
@@ -266,6 +286,16 @@ export default {
 			};
 			await env.PUSHES.send(event);
 			return Response.json({ enqueued: true, repo: body.repo, after: head.hash });
+		}
+
+		// GET /code/* : read-only file tree, files, history and diffs for the Code view.
+		if (url.pathname.startsWith("/code/")) {
+			try {
+				const res = await handleCodeRoute(request, url, codeDeps(url));
+				if (res) return res;
+			} catch (err) {
+				return Response.json({ error: String(err).slice(0, 500) }, { status: 500 });
+			}
 		}
 
 		if (request.method === "GET" && url.pathname === "/providers") {

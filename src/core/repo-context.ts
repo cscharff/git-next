@@ -9,6 +9,27 @@ export interface CommitInfo {
 	message: string;
 	author: string;
 	committedAt: number;
+	/** Parent commit hashes (first parent first), when the source knows them. */
+	parents?: string[];
+}
+
+export interface ChangedFile {
+	path: string;
+	status: "added" | "removed" | "modified";
+}
+
+/** Files that differ between two file lists (by blob hash), sorted by path. */
+export function diffTrees(base: TreeFile[], head: TreeFile[]): ChangedFile[] {
+	const before = new Map(base.map((f) => [f.path, f.hash]));
+	const after = new Map(head.map((f) => [f.path, f.hash]));
+	const out: ChangedFile[] = [];
+	for (const [path, hash] of after) {
+		const was = before.get(path);
+		if (was === undefined) out.push({ path, status: "added" });
+		else if (was !== hash) out.push({ path, status: "modified" });
+	}
+	for (const path of before.keys()) if (!after.has(path)) out.push({ path, status: "removed" });
+	return out.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
 }
 
 /** Minimal read surface over one repository. Artifacts in production, in-memory in tests. */
@@ -16,6 +37,10 @@ export interface RepoSource {
 	listFiles(ref: string): Promise<TreeFile[]>;
 	readBlob(hash: string): Promise<string | null>;
 	log(ref: string, limit: number): Promise<CommitInfo[]>;
+	/** Optional fast path: one file's bytes by ref and path, without listing the tree (null when absent). */
+	readPath?(ref: string, path: string): Promise<Uint8Array | null>;
+	/** Optional fast path: files that differ between two refs, skipping subtrees whose hash didn't change. */
+	changedFiles?(baseRef: string, headRef: string): Promise<ChangedFile[]>;
 }
 
 /** Resolves repo names to sources, so providers can read other repos (e.g. org instruction layers). */
@@ -61,6 +86,22 @@ export class RepoContext {
 		return (await this.source(repo)).log(ref, limit);
 	}
 
+	/** One file's bytes: the source's direct read when it has one, else via the tree (null when absent). */
+	async readBytes(repo: string, ref: string, path: string): Promise<Uint8Array | null> {
+		const source = await this.source(repo);
+		if (source.readPath) return source.readPath(ref, path);
+		const text = await this.readFile(repo, ref, path);
+		return text === null ? null : new TextEncoder().encode(text);
+	}
+
+	/** Files that differ between two refs: the source's fast path when it has one, else a full comparison of both trees. */
+	async changedFiles(repo: string, baseRef: string, headRef: string): Promise<ChangedFile[]> {
+		const source = await this.source(repo);
+		if (source.changedFiles) return source.changedFiles(baseRef, headRef);
+		const [base, head] = await Promise.all([this.readTree(repo, baseRef), this.readTree(repo, headRef)]);
+		return diffTrees(base, head);
+	}
+
 	/** Files at a ref whose path matches the predicate. */
 	async find(repo: string, ref: string, match: (path: string) => boolean): Promise<TreeFile[]> {
 		return (await this.readTree(repo, ref)).filter((f) => match(f.path));
@@ -103,5 +144,11 @@ export function overlayFiles(source: RepoSource, files: Record<string, string>):
 		async readBlob(hash) {
 			return byHash.has(hash) ? byHash.get(hash)! : source.readBlob(hash);
 		},
+		...(source.readPath && {
+			async readPath(ref: string, path: string) {
+				const hit = entries.find((e) => e.path === path);
+				return hit ? new TextEncoder().encode(hit.content) : source.readPath!(ref, path);
+			},
+		}),
 	};
 }
