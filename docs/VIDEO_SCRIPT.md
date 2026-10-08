@@ -30,7 +30,7 @@ hidden otherwise. Timings are cumulative; narration is written to be read aloud.
      "Command reference" below).
    - About $0.40 in all. Don't delete forks. If you want a clean history, create fresh forks under new names and
      point `scripts/agent-specs.ts` at them.
-3. **Org tab.** Open `#org` and press Refresh once (the first load reads every repo and about 800 gateway records;
+3. **Org tab.** Open `#org`, check **Org scale** is selected (the toggle is remembered per browser), and press Refresh once (the first load reads every repo and about 800 gateway records;
    later loads are cached for 30 seconds). Check the four reviews show under "Waiting for a person", the uploads
    repos show as PII-regulated with red controls, and the two mock-up badges (forecast, review SLA) are visible.
    **Dashboard.** Reload and check that each hero panel shows data: 1 Rules in force, 2 New repositories, 3 Cost and
@@ -52,9 +52,12 @@ hidden otherwise. Timings are cumulative; narration is written to be read aloud.
 
 ### 0. Cold open on the Org tab: 0:00–1:05
 *Open on `#org` (the **Org** link in the header). Everything on it is live: Artifacts repos and their
-`.gitnext/app.json`, stored push results, review records from the Workflow and the AI Gateway logs. Two figures are
-mock-ups and say so on screen: the month-end forecast and the review SLA targets.*
-- **0:00 The top row.** AI spend this month against the org's budget, teams or projects over budget, changes waiting
+`.gitnext/app.json`, stored push results, review records from the Workflow and the AI Gateway logs, plus, in the
+default **Org scale** view, a synthetic production-scale dataset (about $19.7k over 30 days) added to spend and cost
+per change. Its numbers carry an asterisk and the footnote under the top row says what's in them; leave the footnote
+on screen, and don't describe the spend as ours. Two figures are mock-ups and say so: the forecast and the review
+SLA targets.*
+- **0:00 The top row.** AI spend over the last 30 days (about $19.7k*) against the org's budget, teams or projects over budget, changes waiting
   for a person (with the oldest), PII repos missing controls, unresolved rule conflicts.
   **Narration:** "You already have agents writing code. What you don't have is visibility into how that code gets
   made: which instructions they followed, what they cost, and what's waiting on a person. And soon it won't be one
@@ -67,7 +70,9 @@ mock-ups and say so on screen: the month-end forecast and the review SLA targets
   real policy, not a label: a PII repo gets an extra rules layer, a narrower model catalog, and a person on every
   change to its data paths. And you can see at a glance which controls a repo is missing, with the evidence."
 - **0:35 Spend.** Click through "Top spend by": Project, Model, Developer. Point at the red team bar (over its
-  monthly budget), the overspend lines, cost per merged change, and the forecast card with its **mock-up** label.
+  monthly budget), the overspend lines, cost per merged change (about $15–35 per change), and the forecast card with
+  its **mock-up** label. Optional: click **Live only** for a second to show the real gateway spend underneath, then
+  back to **Org scale**.
   **Narration:** "Spend rolls up from every model call to project, team and cost centre, against budget. Not at
   month end. Now. And per change that actually cleared review, which is the number that matters."
 - **0:50 Review, flow and risk.** The waiting list (attempt-haiku, attempt-sonnet, uploads-bare, uploads-smart),

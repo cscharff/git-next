@@ -26,6 +26,8 @@ import orgRegistryJson from "../fixtures/org-baseline/org.json" with { type: "js
 import piiProfileLayer from "../fixtures/org-baseline/profiles/pii-regulated.md?raw";
 import { APP_FILE, parseAppDeclaration, parseOrgRegistry, profileCatalog, profileOf, profileReviewReasons, resolveApp, withProfileLayers } from "./org.ts";
 import { buildOrg } from "./org-routes.ts";
+import { expandOrgScale, type OrgScaleData } from "./org-scale.ts";
+import orgScaleJson from "../fixtures/org-scale/usage.json" with { type: "json" };
 import { llmExtractor, memoryCache, type ExtractCache } from "./providers/instruction-stack/llm-extract.ts";
 import { keywordExtractor } from "./providers/instruction-stack/extract.ts";
 import { DEFAULT_ORDER, validOrder, type LayerKind, type PrecedenceOverride, type RuleExtractor } from "./providers/instruction-stack/types.ts";
@@ -177,9 +179,10 @@ async function allReviews(limit = 200): Promise<ReviewRecord[]> {
 }
 
 /** The Org view, computed from live data and kept for 30 seconds per isolate (the dashboard polls it). */
-let orgCache: { at: number; body: unknown } | null = null;
-async function orgView(url: URL, fresh: boolean) {
-	if (!fresh && orgCache && Date.now() - orgCache.at < 30_000) return orgCache.body;
+const orgCache = new Map<boolean, { at: number; body: unknown }>();
+async function orgView(url: URL, fresh: boolean, live: boolean) {
+	const hit = orgCache.get(live);
+	if (!fresh && hit && Date.now() - hit.at < 30_000) return hit.body;
 	const deps = workDeps(url);
 	const body = await buildOrg({
 		org: ORG,
@@ -203,8 +206,9 @@ async function orgView(url: URL, fresh: boolean) {
 			return { project, items: items.map((w) => ({ repo: w.repo, ref: w.ref, agent: w.agent, task: w.task, files: w.files.map((f) => f.path), updatedAt: w.updatedAt })) };
 		},
 		reviewers: adminEmails(),
+		scale: (now) => (live ? null : expandOrgScale(orgScaleJson as unknown as OrgScaleData, now)),
 	});
-	orgCache = { at: Date.now(), body };
+	orgCache.set(live, { at: Date.now(), body });
 	return body;
 }
 
@@ -427,7 +431,8 @@ export default {
 		// GET /org : classification profiles, spend vs budget, review flow, risk and instruction health across all repos.
 		if (request.method === "GET" && url.pathname === "/org") {
 			try {
-				return Response.json(await orgView(url, url.searchParams.has("fresh")));
+				// ?live=1: live data only, without the synthetic production-scale dataset.
+				return Response.json(await orgView(url, url.searchParams.has("fresh"), url.searchParams.get("live") === "1"));
 			} catch (err) {
 				return Response.json({ error: String(err).slice(0, 500) }, { status: 500 });
 			}

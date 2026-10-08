@@ -300,14 +300,30 @@ export interface OrgInputs {
 	work: WorkSnapshot[];
 	/** People who may decide reviews (Access identities). */
 	reviewers: string[];
+	/**
+	 * The synthetic production-scale dataset (fixtures/org-scale), added to live spend and merged changes only. Risk,
+	 * controls and review flow always use live data. Null for the "Live only" view.
+	 */
+	scale?: OrgScale | null;
 }
+
+export interface OrgScale {
+	costs: CostRecord[];
+	merged: { project: string; at: string; count: number }[];
+	note: string;
+}
+
+/** Spend and cost per change cover the last 30 days. */
+export const WINDOW_DAYS = 30;
 
 const round = (n: number, p = 4) => Math.round(n * 10 ** p) / 10 ** p;
 const hours = (ms: number) => round(ms / 3_600_000, 1);
 const sum = (xs: number[]) => xs.reduce((n, x) => n + x, 0);
 type Top = { key: string; cost: number; requests: number };
+/** Requests a record stands for (the org-scale dataset stores daily totals). */
+const weight = (r: CostRecord) => r.requests ?? 1;
 function topN(records: CostRecord[], key: (r: CostRecord) => string, n = 5): Top[] {
-	return [...Map.groupBy(records, key)].map(([k, rs]) => ({ key: k, cost: round(sum(rs.map((r) => r.cost))), requests: rs.length })).sort((a, b) => b.cost - a.cost).slice(0, n);
+	return [...Map.groupBy(records, key)].map(([k, rs]) => ({ key: k, cost: round(sum(rs.map((r) => r.cost))), requests: sum(rs.map(weight)) })).sort((a, b) => b.cost - a.cost).slice(0, n);
 }
 
 const WAITING = new Set(["needs-review"]);
@@ -315,15 +331,18 @@ const OPEN = new Set(["running", "needs-review"]);
 const MERGEABLE = new Set(["approved", "auto-approved"]);
 
 export function orgReport(i: OrgInputs) {
-	const month = i.now.toISOString().slice(0, 7);
+	const since = i.now.getTime() - WINDOW_DAYS * 86_400_000;
+	const inWindow = (at: string) => Date.parse(at) >= since;
 	const projectOf = new Map(i.repos.map((r) => [r.repo, r.project]));
 	const appOf = new Map(i.repos.map((r) => [r.repo, r.app]));
 	// Gateway records name the repo in metadata.repo and the fork in metadata.fork: a known fork or repo maps to its
 	// project; anything else (e.g. git.next's own calls) keeps its name.
 	const projectFor = (r: CostRecord) => projectOf.get(r.fork) ?? projectOf.get(r.repo) ?? r.repo;
 	const appFor = (project: string) => appOf.get(project) ?? resolveApp(i.org, project, null);
-	const monthCosts = i.costs.filter((r) => r.at.startsWith(month));
-	const reviewsThisMonth = i.reviews.filter((r) => r.startedAt.startsWith(month));
+	const liveCosts = i.costs.filter((r) => inWindow(r.at));
+	const monthCosts = [...liveCosts, ...(i.scale?.costs ?? []).filter((r) => inWindow(r.at))];
+	const reviewsThisMonth = i.reviews.filter((r) => inWindow(r.startedAt));
+	const scaleMerged = (project: string) => sum((i.scale?.merged ?? []).filter((m) => m.project === project && inWindow(m.at)).map((m) => m.count));
 
 	// ── repos ──
 	const projects = [...new Set(i.repos.map((r) => r.project))];
@@ -354,13 +373,12 @@ export function orgReport(i: OrgInputs) {
 	].sort((a, b) => b.pct - a.pct);
 	const perMergedChange = projectBudgets
 		.map((p) => {
-			const merged = reviewsThisMonth.filter((r) => (projectOf.get(r.repo) ?? r.repo) === p.project && MERGEABLE.has(r.status)).length;
+			const merged = reviewsThisMonth.filter((r) => (projectOf.get(r.repo) ?? r.repo) === p.project && MERGEABLE.has(r.status)).length + scaleMerged(p.project);
 			return { project: p.project, spendUsd: p.spendUsd, merged, perChangeUsd: merged ? round(p.spendUsd / merged) : null };
 		})
 		.filter((p) => p.spendUsd > 0 || p.merged > 0)
 		.sort((a, b) => (b.perChangeUsd ?? -1) - (a.perChangeUsd ?? -1) || b.spendUsd - a.spendUsd);
-	const day = i.now.getUTCDate();
-	const daysInMonth = new Date(Date.UTC(i.now.getUTCFullYear(), i.now.getUTCMonth() + 1, 0)).getUTCDate();
+	const lastWeek = sum(monthCosts.filter((r) => Date.parse(r.at) >= i.now.getTime() - 7 * 86_400_000).map((r) => r.cost));
 	const budgetTotal = sum(i.org.teams.map((t) => t.budgetUsd ?? 0));
 
 	// ── reviews and flow ──
@@ -401,20 +419,22 @@ export function orgReport(i: OrgInputs) {
 
 	return {
 		generatedAt: i.now.toISOString(),
-		month,
+		windowDays: WINDOW_DAYS,
 		registryVersion: i.org.version,
 		catalogVersion: i.catalog.version,
 		sources: { costs: i.costSource, costRecords: i.costs.length, reviews: i.reviews.length, storedResults: i.repos.filter((r) => r.result).length },
 		profiles: i.org.profiles.map((p) => ({ ...p, repos: repos.filter((r) => r.class === p.id).map((r) => r.repo), models: p.limits.models ?? null })),
 		repos,
 		spend: {
-			monthUsd: total,
-			requests: monthCosts.length,
+			totalUsd: total,
+			liveUsd: round(sum(liveCosts.map((r) => r.cost))),
+			requests: sum(monthCosts.map(weight)),
+			scale: i.scale ? { usd: round(sum((i.scale.costs ?? []).filter((r) => inWindow(r.at)).map((r) => r.cost))), requests: sum(i.scale.costs.filter((r) => inWindow(r.at)).map(weight)), merged: sum(i.scale.merged.filter((m) => inWindow(m.at)).map((m) => m.count)), note: i.scale.note } : null,
 			top: { project: topN(monthCosts, projectFor), environment: topN(monthCosts, (r) => appFor(projectFor(r)).environment), resource: topN(monthCosts, (r) => r.provider), model: topN(monthCosts, (r) => r.model), developer: topN(monthCosts, (r) => r.developer) },
 			teams,
 			overBudget,
 			perMergedChange,
-			forecast: { mock: true, note: "Mock-up: straight-line projection of month-to-date spend; no seasonality or commitments.", day, daysInMonth, projectedUsd: round(day ? (total / day) * daysInMonth : 0), budgetUsd: budgetTotal },
+			forecast: { mock: true, note: "Mock-up: the next 30 days at the last 7 days' run rate; no seasonality or commitments.", projectedUsd: round((lastWeek / 7) * 30, 2), budgetUsd: budgetTotal },
 		},
 		flow: {
 			open: i.reviews.filter((r) => OPEN.has(r.status)).length,

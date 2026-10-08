@@ -480,18 +480,26 @@ label:
   (gateway logs and the stored catalog check), guardrails and data location (declared in `.gitnext/app.json`), and
   push review active (review records exist).
 
-**What the tab shows.** Spend this month: top five by project (forks roll up into their project), environment,
+**What the tab shows.** Spend over the last 30 days: top five by project (forks roll up into their project), environment,
 resource (the gateway provider), model and developer; teams against budget; teams and projects over budget; cost per
-merged change (spend divided by changes the Workflow approved or auto-approved this month). Review and flow: open
+merged change (spend divided by changes the Workflow approved or auto-approved in the window). Review and flow: open
 reviews, what waits for a person with average and oldest wait, approved vs rejected, reviewer load (admins by the
 name part of their Access identity), forks and branches in flight and tasks with several attempts. Risk and
 instruction health: flagged pushes, catalog violations by repo, drift from the org baseline (catalog behind, no
 catalog, precedence overridden, stale vendored copies), PII repos missing controls, unresolved conflicts, repos
 without AGENTS.md, plugin hooks that need review, and files several forks or branches are changing.
 
-**Mock-ups (labelled on screen):** the month-end forecast is a straight-line projection of the real month-to-date
-spend, and the review SLA targets per class are illustrative. Budgets in `org.json` are set at demo scale (cents),
-so the demo's real spend shows overspend.
+**Production-scale dataset (footnoted on screen).** The demo's real gateway spend is a few dollars, so by default
+the Org tab adds a synthetic month of usage at production scale: about $19,700 of AI Gateway calls (675k requests
+from 40 developers across the demo's six projects, with the real model mix and catalog prices, and PII-regulated
+projects on their two approved models) and 873 merged changes. It lives in `fixtures/org-scale/usage.json`, generated
+by `node scripts/gen-org-scale.ts` (seeded, so re-running reproduces it), and is dated relative to now so the window
+is always full. It only feeds spend, request counts, budgets and cost per merged change: review flow, risk and
+controls are always live. Every number it touches carries an asterisk and the footnote says what's in it; **Live
+only** (`/org?live=1`) shows live data alone. Budgets in `org.json` are set for that scale (thousands per team).
+
+**Mock-ups (labelled on screen):** the forecast (the next 30 days at the last 7 days' run rate) and the review SLA
+targets per class.
 
 ## MCP server
 

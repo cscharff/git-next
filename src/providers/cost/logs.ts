@@ -22,6 +22,10 @@ export interface CostRecord {
 	cloud: Cloud;
 	/** True for records from mocked sources (Bedrock, Vertex AI, vLLM fixtures), never real spend. */
 	mocked: boolean;
+	/** Requests this record stands for (daily totals in the org-scale dataset); 1 when absent. */
+	requests?: number;
+	/** True for the Org tab's synthetic production-scale dataset (fixtures/org-scale), never real spend. */
+	synthetic?: boolean;
 }
 
 export const UNATTRIBUTED = "(unattributed)";

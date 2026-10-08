@@ -263,15 +263,15 @@
 <div id="orgview" hidden>
 	<section class="panel hero"><h2>Org overview</h2><div class="sub" id="orgsub">Every repo's classification profile, owner, team and cost centre; spend against budget; review flow; risk and instruction health. Built from stored push results, review records and AI Gateway logs.</div><div class="body" id="orgkpis"><p class="empty">Loading…</p></div></section>
 	<section class="panel hero" id="orgapps"><h2>Apps and classification</h2><div class="sub">A repo declares its class in <code>.gitnext/app.json</code>; the org registry fills in what it doesn't say and sets budgets. A repo can raise its class, never lower it. Each profile adds its own rules layer and catalog limits.</div><div class="body"></div></section>
-	<section class="panel hero" id="orgspend"><h2>Spend</h2><div class="sub">This month's AI Gateway spend, rolled up across every repo and fork, against team and project budgets.</div><div class="body"></div></section>
+	<section class="panel hero" id="orgspend"><h2>Spend</h2><div class="sub">The last 30 days of AI Gateway spend, rolled up across every repo and fork, against team and project monthly budgets.</div><div class="body"></div></section>
 	<section class="panel hero" id="orgflow"><h2>Review and flow</h2><div class="sub">Pushes in the review Workflow, what waits for a person and for how long, who decides, and attempts in flight.</div><div class="body"></div></section>
 	<section class="panel hero" id="orgrisk"><h2>Risk and instruction health</h2><div class="sub">What needs attention across the org, from the latest analysis of each repo and every push review.</div><div class="body"></div></section>
 </div>
 <script>
 const $ = (sel, el = document) => el.querySelector(sel);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-const usd = (n) => (n > 0 && n < 0.01 ? `$${Number(n).toPrecision(3)}` : `$${Number(n).toFixed(2)}`);
-const num = (n) => Number(n).toLocaleString();
+const usd = (n) => (n >= 1000 ? `$${Math.round(n).toLocaleString("en-US")}` : n > 0 && n < 0.01 ? `$${Number(n).toPrecision(3)}` : `$${Number(n).toFixed(2)}`);
+const num = (n) => Number(n).toLocaleString("en-US");
 const sev = (s) => `<span class="chip sev-${esc(s)}">${esc(s)}</span>`;
 const kind = (k) => `<span class="chip k-${esc(k)}">${esc(k)}</span>`;
 const short = (m) => String(m ?? "").replace(/^anthropic\//, "");
@@ -1263,7 +1263,8 @@ showView();
 </script>
 <script>
 // ── Org view: classification profiles, spend vs budget, review flow, risk (GET /org) ──
-const org = { data: null, top: "project", timer: null, loading: null };
+// live: the "Live only" view (no synthetic production-scale dataset); remembered per viewer.
+const org = { data: null, top: "project", timer: null, loading: null, live: (() => { try { return localStorage.getItem("org.live") === "1"; } catch { return false; } })() };
 const MOCK = `<span class="mocked" title="Not real data: a labelled mock-up">mock-up</span>`;
 const cls = (c, title) => `<span class="cls c-${esc(c)}">${esc(title || c)}</span>`;
 const repoLink = (repo) => `<a class="src" href="${esc(codeHref(repo, "", 0))}"><code>${esc(repo)}</code></a>`;
@@ -1279,7 +1280,8 @@ async function loadOrg(fresh) {
 	if (org.loading) return org.loading;
 	org.loading = (async () => {
 		try {
-			org.data = await getJson(`/org${fresh ? "?fresh=1" : ""}`);
+			const qs = new URLSearchParams({ ...(fresh ? { fresh: "1" } : {}), ...(org.live ? { live: "1" } : {}) });
+			org.data = await getJson(`/org${qs.size ? `?${qs}` : ""}`);
 			renderOrg();
 		} catch (err) {
 			if (!org.data) $("#orgkpis").innerHTML = `<p class="empty">Could not load the org view: ${esc(err.message)}</p>`;
@@ -1293,25 +1295,42 @@ async function loadOrg(fresh) {
 function renderOrg() {
 	const d = org.data;
 	const s = d.spend, f = d.flow, r = d.risk;
-	const over = s.monthUsd > s.forecast.budgetUsd;
+	const over = s.totalUsd > s.forecast.budgetUsd;
+	const star = s.scale ? `<sup title="Includes the synthetic production-scale dataset; see the note below">*</sup>` : "";
 	const missing = r.piiMissingControls.length;
 	const conflicts = r.conflicts.reduce((n, x) => n + x.conflicts, 0);
-	$("#orgsub").innerHTML = `Every repo's classification profile, owner, team and cost centre; spend against budget; review flow; risk and instruction health. Live: ${num(d.sources.costRecords)} AI Gateway records (<code>${esc(d.sources.costs)}</code>), ${d.sources.reviews} push reviews, ${d.sources.storedResults} stored analyses · org registry ${esc(d.registryVersion)} · catalog ${esc(d.catalogVersion)} · ${esc(new Date(d.generatedAt).toLocaleTimeString())} <button type="button" class="secondary" id="orgrefresh" style="padding:1px 8px;font-size:12px">Refresh</button>`;
+	$("#orgsub").innerHTML = `Every repo's classification profile, owner, team and cost centre; spend against budget; review flow; risk and instruction health. Live: ${num(d.sources.costRecords)} AI Gateway records (<code>${esc(d.sources.costs)}</code>), ${d.sources.reviews} push reviews, ${d.sources.storedResults} stored analyses · org registry ${esc(d.registryVersion)} · catalog ${esc(d.catalogVersion)} · ${esc(new Date(d.generatedAt).toLocaleTimeString())} <button type="button" class="secondary" id="orgrefresh" style="padding:1px 8px;font-size:12px">Refresh</button>
+		<div class="tabs" style="margin:8px 0 0"><button type="button" data-live="0" class="${org.live ? "" : "on"}">Org scale*</button><button type="button" data-live="1" class="${org.live ? "on" : ""}">Live only</button></div>`;
 	$("#orgrefresh").addEventListener("click", () => loadOrg(true));
+	$("#orgsub").querySelectorAll("[data-live]").forEach((b) => b.addEventListener("click", () => {
+		org.live = b.dataset.live === "1";
+		try { localStorage.setItem("org.live", org.live ? "1" : "0"); } catch {}
+		org.data = null;
+		$("#orgkpis").innerHTML = `<p class="empty">Loading…</p>`;
+		loadOrg(false);
+	}));
 	$("#orgkpis").innerHTML = `
 		<div class="big">
-			<div class="stat ${over ? "bad" : ""}"><b>${usd(s.monthUsd)}</b><span>AI spend in ${esc(d.month)} · budget ${usd(s.forecast.budgetUsd)}</span></div>
-			<div class="stat"><b>${usd(s.forecast.projectedUsd)}</b><span>month-end forecast ${MOCK}</span></div>
+			<div class="stat ${over ? "bad" : ""}"><b>${usd(s.totalUsd)}${star}</b><span>AI spend, last ${d.windowDays} days · budget ${usd(s.forecast.budgetUsd)}</span></div>
+			<div class="stat"><b>${usd(s.forecast.projectedUsd)}${star}</b><span>next ${d.windowDays} days at last week's rate ${MOCK}</span></div>
 			<div class="stat ${s.overBudget.length ? "bad" : "good"}"><b>${s.overBudget.length}</b><span>teams or projects over budget</span></div>
 			<div class="stat ${f.waiting.length ? "warnc" : "good"}"><b>${f.waiting.length}</b><span>waiting for a person${f.oldest ? ` · oldest ${ago(f.oldest.ageHours)}` : ""}</span></div>
 			<div class="stat ${missing ? "bad" : "good"}"><b>${missing}</b><span>PII repos missing controls</span></div>
 			<div class="stat ${conflicts ? "bad" : "good"}"><b>${conflicts}</b><span>unresolved rule conflicts</span></div>
 		</div>
+		${scaleNote(d)}
 		${d.errors?.length ? `<details><summary>${d.errors.length} source(s) could not be read</summary>${d.errors.map((e) => `<div class="why">${esc(e)}</div>`).join("")}</details>` : ""}`;
 	renderOrgApps(d);
 	renderOrgSpend(d);
 	renderOrgFlow(d);
 	renderOrgRisk(d);
+}
+
+/** The on-screen footnote for the production-scale dataset (shown wherever its numbers are). */
+function scaleNote(d) {
+	const s = d.spend.scale;
+	if (!s) return `<p class="why">Live only: AI Gateway logs, review records and stored analyses, nothing added.</p>`;
+	return `<p class="why">* Spend, request counts and cost per merged change include a synthetic production-scale dataset: ${usd(s.usd)} of AI Gateway usage (${num(s.requests)} requests) and ${num(s.merged)} merged changes over ${d.windowDays} days (<code>fixtures/org-scale</code>, generated by <code>scripts/gen-org-scale.ts</code>), added to ${usd(d.spend.liveUsd)} of live gateway spend. Review flow, risk and controls are live only, as are the per-change costs elsewhere on the dashboard. Switch to <b>Live only</b> to see live data alone.</p>`;
 }
 
 function renderOrgApps(d) {
@@ -1330,7 +1349,7 @@ function renderOrgApps(d) {
 		<td>${cls(x.class, x.profile)}<div class="why">${x.classSource === "repo" ? "declared in <code>.gitnext/app.json</code>" : x.classSource === "org" ? "org registry" : "org default (undeclared)"}</div>${x.error ? `<div class="why" style="color:var(--conflict)">${esc(x.error)}</div>` : ""}</td>
 		<td>${x.owner ? `<code>${esc(x.owner)}</code>` : `<span style="color:var(--conflict)">no owner</span>`}<div class="why">${esc(x.teamName || x.team || "no team")}${x.costCentre ? ` · ${esc(x.costCentre)}` : ""}</div></td>
 		<td>${esc(x.environment)}</td>
-		<td>${usd(x.spendUsd)}${x.budgetUsd != null ? `<div class="why" ${x.spendUsd > x.budgetUsd ? 'style="color:var(--conflict)"' : ""}>of ${usd(x.budgetUsd)}</div>` : `<div class="why">no budget</div>`}</td>
+		<td>${usd(x.spendUsd)}${d.spend.scale && x.spendUsd ? "<sup>*</sup>" : ""}${x.budgetUsd != null ? `<div class="why" ${x.spendUsd > x.budgetUsd ? 'style="color:var(--conflict)"' : ""}>of ${usd(x.budgetUsd)}</div>` : `<div class="why">no budget</div>`}</td>
 		<td>${x.controls.map((c) => `<span class="ctl ${c.ok ? "" : "no"}" title="${esc(c.evidence)}">${c.ok ? "✓" : "✗"} ${esc(c.label)}</span>`).join(" ")}</td>
 	</tr>`);
 	$("#orgapps .body").innerHTML = `
@@ -1353,7 +1372,7 @@ function renderOrgSpend(d) {
 			<div>
 				<h3 class="sub" style="margin:0 0 6px">Top spend by</h3>
 				<div class="tabs">${Object.entries(DIMS).map(([k, v]) => `<button type="button" data-top="${k}" class="${org.top === k ? "on" : ""}">${v}</button>`).join("")}</div>
-				${bars || `<p class="empty">No spend this month.</p>`}
+				${bars || `<p class="empty">No spend in the last ${d.windowDays} days.</p>`}
 			</div>
 			<div>
 				<h3 class="sub" style="margin:0 0 6px">Teams against monthly budget</h3>
@@ -1365,14 +1384,15 @@ function renderOrgSpend(d) {
 			<div>
 				<h3 class="sub" style="margin:0 0 6px">Cost per merged change</h3>
 				<table><tr><th>Project</th><th style="width:22%">Spend</th><th style="width:22%">Cleared to merge</th><th style="width:22%">Per change</th></tr>${s.perMergedChange.map((p) => `<tr><td>${esc(p.project)}</td><td>${usd(p.spendUsd)}</td><td>${p.merged}</td><td>${p.perChangeUsd != null ? usd(p.perChangeUsd) : `<span class="why">no change cleared</span>`}</td></tr>`).join("")}</table>
-				<div class="why">Changes the review Workflow approved or auto-approved this month (the merge gate); spend from the AI Gateway logs.</div>
+				<div class="why">Changes the review Workflow approved or auto-approved in the last ${d.windowDays} days (the merge gate)${s.scale ? ", plus the dataset's merged changes*" : ""}; spend from the AI Gateway logs${s.scale ? "*" : ""}.</div>
 			</div>
 			<div class="mockcard">
-				<h3 class="sub" style="margin:0 0 6px">Month-end forecast ${MOCK}</h3>
-				<div class="big" style="margin:4px 0 8px"><div class="stat ${s.forecast.projectedUsd > s.forecast.budgetUsd ? "bad" : ""}"><b>${usd(s.forecast.projectedUsd)}</b><span>projected · budget ${usd(s.forecast.budgetUsd)}</span></div><div class="stat"><b>${s.forecast.day}/${s.forecast.daysInMonth}</b><span>days into ${esc(d.month)}</span></div></div>
-				<div class="why">${esc(s.forecast.note)} The month-to-date figure it starts from is real.</div>
+				<h3 class="sub" style="margin:0 0 6px">Forecast ${MOCK}</h3>
+				<div class="big" style="margin:4px 0 8px"><div class="stat ${s.forecast.projectedUsd > s.forecast.budgetUsd ? "bad" : ""}"><b>${usd(s.forecast.projectedUsd)}${s.scale ? "<sup>*</sup>" : ""}</b><span>next ${d.windowDays} days · budget ${usd(s.forecast.budgetUsd)}</span></div></div>
+				<div class="why">${esc(s.forecast.note)}</div>
 			</div>
-		</div>`;
+		</div>
+		${scaleNote(d)}`;
 	$("#orgspend .body").querySelectorAll("[data-top]").forEach((b) => b.addEventListener("click", () => { org.top = b.dataset.top; renderOrgSpend(org.data); }));
 }
 

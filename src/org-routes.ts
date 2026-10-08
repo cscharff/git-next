@@ -1,5 +1,5 @@
 import type { RepoContext } from "./core/repo-context.ts";
-import { APP_FILE, orgReport, parseAppDeclaration, resolveApp, summarizeStored, type OrgRegistry, type OrgReport, type RepoFacts, type WorkSnapshot } from "./org.ts";
+import { APP_FILE, orgReport, type OrgScale, parseAppDeclaration, resolveApp, summarizeStored, type OrgRegistry, type OrgReport, type RepoFacts, type WorkSnapshot } from "./org.ts";
 import type { Catalog } from "./providers/catalog.ts";
 import type { CostRecord } from "./providers/cost/logs.ts";
 import type { IndexEntry } from "./results.ts";
@@ -23,6 +23,8 @@ export interface OrgRouteDeps {
 	costSource: string;
 	work(project: string): Promise<WorkSnapshot>;
 	reviewers: string[];
+	/** The synthetic production-scale dataset, or null for the "Live only" view. */
+	scale?: (now: Date) => OrgScale | null;
 	now?: () => Date;
 }
 
@@ -75,6 +77,7 @@ export async function buildOrg(deps: OrgRouteDeps): Promise<OrgReport & { errors
 	);
 	const busy = [...new Set(repos.filter((r) => r.repo !== r.project || index.some((e) => e.repo === r.repo && e.ref !== "main" && e.ref !== "master")).map((r) => r.project))];
 	const work = (await Promise.all(busy.map((p) => settle(errors, `${p} work in flight`, deps.work(p), null)))).filter((w): w is WorkSnapshot => !!w);
-	const report = orgReport({ now: deps.now?.() ?? new Date(), org: deps.org, catalog: deps.catalog, repos, index, reviews, costs, costSource: deps.costSource, work, reviewers: deps.reviewers });
+	const now = deps.now?.() ?? new Date();
+	const report = orgReport({ now, scale: deps.scale?.(now) ?? null, org: deps.org, catalog: deps.catalog, repos, index, reviews, costs, costSource: deps.costSource, work, reviewers: deps.reviewers });
 	return { ...report, errors };
 }
