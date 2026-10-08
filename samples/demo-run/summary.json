@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-07T22:55:52.021Z",
+  "generatedAt": "2026-10-08T00:33:54.325Z",
   "sourceRepo": "agents-demo-full",
   "gateway": "git-next",
   "budgetUsd": 10,
-  "gatewayTotalUsd": 0.8941777738803577,
-  "agentsCostUsd": 0.09654700000000001,
+  "gatewayTotalUsd": 1.5227472278293324,
+  "agentsCostUsd": 0.095109,
   "agents": [
     {
       "agent": "docs-agent",
@@ -81,32 +81,34 @@
         "examples/r2-uploads/src/index.ts"
       ],
       "remote": "https://<account>.artifacts.cloudflare.net/git/default/agents-demo-r2.git",
-      "base": "52a9038f4cc90db1a946ad46869fdc660e6bb993",
+      "base": "10378ad977d0b0fe12a7a6a6eb27b926e3ec45ae",
       "context": {
         "markdownFiles": 279,
-        "sections": 16,
-        "rulesTokens": 564,
-        "pinnedTokens": 130,
-        "sectionTokens": 2435,
+        "sections": 14,
+        "duplicateSections": 19,
+        "duplicateTokens": 407,
+        "rulesTokens": 663,
+        "pinnedTokens": 184,
+        "sectionTokens": 2336,
         "tokensServed": 2999,
-        "tokensAllMarkdown": 889754,
+        "tokensAllMarkdown": 889767,
         "tokensInstructionFilesOnPath": 5274,
         "servedVsAllMarkdown": 0.003,
         "servedVsInstructionFilesOnPath": 0.569,
-        "rules": 9,
+        "rules": 10,
         "conflicts": 0
       },
       "usage": {
-        "input_tokens": 5342,
-        "output_tokens": 2215
+        "input_tokens": 5193,
+        "output_tokens": 2101
       },
-      "promptChars": 13944,
-      "summary": "Add server-only r2-uploads example",
+      "promptChars": 13566,
+      "summary": "Add server-only R2 uploads example",
       "edits": [
         {
           "path": "examples/r2-uploads/package.json",
           "kind": "create",
-          "bytes": 399
+          "bytes": 411
         },
         {
           "path": "examples/r2-uploads/wrangler.jsonc",
@@ -119,40 +121,40 @@
           "bytes": 253
         },
         {
-          "path": "examples/r2-uploads/src/index.ts",
-          "kind": "create",
-          "bytes": 935
-        },
-        {
           "path": "examples/r2-uploads/README.md",
           "kind": "create",
           "bytes": 585
+        },
+        {
+          "path": "examples/r2-uploads/src/index.ts",
+          "kind": "create",
+          "bytes": 1089
         }
       ],
       "commit": {
-        "sha": "0bbd69fd734d6aeeae2f13177058489152cba014",
-        "message": "SOW-1042: Add server-only r2-uploads example",
-        "diffstat": "4 files changed, 16 insertions(+), 25 deletions(-)"
+        "sha": "7561648c265a82b120ffcb21cb6e88e79419e35b",
+        "message": "SOW-1042: Add server-only R2 uploads example",
+        "diffstat": "2 files changed, 17 insertions(+), 8 deletions(-)"
       },
       "hook": {
         "layers": "fixtures/demo-layers",
         "blocked": false,
-        "output": "To https://<account>.artifacts.cloudflare.net/git/default/agents-demo-r2.git\n   52a9038f..0bbd69fd  HEAD -> main"
+        "output": "To https://<account>.artifacts.cloudflare.net/git/default/agents-demo-r2.git\n   10378ad9..7561648c  HEAD -> main"
       },
       "pushed": true,
-      "head": "0bbd69fd734d6aeeae2f13177058489152cba014",
+      "head": "7561648c265a82b120ffcb21cb6e88e79419e35b",
       "log": [
         "reusing agents-demo-r2",
-        "context: 2999 tokens served (16 sections) of 889754 in all markdown",
-        "model anthropic/claude-sonnet-5.5: {\"input_tokens\":5342,\"output_tokens\":2215}",
-        "applied 5 edit(s): Add server-only r2-uploads example",
-        "pushed 0bbd69fd73 to agents-demo-r2"
+        "context: 2999 tokens served (14 sections) of 889767 in all markdown",
+        "model anthropic/claude-sonnet-5.5: {\"input_tokens\":5193,\"output_tokens\":2101}",
+        "applied 5 edit(s): Add server-only R2 uploads example",
+        "pushed 7561648c26 to agents-demo-r2"
       ],
       "gateway": {
         "requests": 1,
-        "cost": 0.032834,
-        "tokensIn": 5342,
-        "tokensOut": 2215
+        "cost": 0.031396,
+        "tokensIn": 5193,
+        "tokensOut": 2101
       }
     },
     {
