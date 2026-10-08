@@ -5,7 +5,7 @@ import type { PushEvent } from "./code.ts";
 import { handleCodeRoute, type CodeDeps } from "./code-routes.ts";
 import { handleWorkRoute, projectOf, type WorkRouteDeps } from "./work-routes.ts";
 import { attemptSets, compareAttempts, overlaps, workInFlight, type WorkItem } from "./work.ts";
-import { createMcpHandler } from "agents/mcp";
+import { createMcpHandler } from "agents/mcp/server";
 import { gitNextMcpServer } from "./mcp.ts";
 import { DEMO_LAYERS_REPO, withDemoLayers } from "./demo-layers.ts";
 import { handleDevRoute } from "./dev-routes.ts";
