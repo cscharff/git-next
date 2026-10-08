@@ -122,6 +122,51 @@
 	.matrix th .sub { margin: 0; font-weight: 400; }
 	.svc { display: inline-block; margin: 1px 2px 1px 0; padding: 1px 7px; border-radius: 6px; background: var(--chip); font-size: 12px; }
 	.svc.no { background: color-mix(in srgb, var(--conflict) 18%, var(--chip)); color: var(--conflict); }
+	/* Code view */
+	a.src { color: var(--info); text-decoration: none; } a.src:hover { text-decoration: underline; }
+	#codeview { padding: 16px 24px 32px; }
+	main[hidden] { display: none; }
+	#codeview[hidden] { display: none; }
+	.cv-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+	.cv-bar .tabs { margin: 0; }
+	.cv { display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) minmax(240px, 320px); gap: 12px; align-items: start; }
+	@media (max-width: 1200px) { .cv { grid-template-columns: minmax(200px, 260px) minmax(0, 1fr); } .cv-rules { grid-column: 1 / -1; } }
+	@media (max-width: 760px) { .cv { grid-template-columns: 1fr; } }
+	.cv .panel { padding: 12px; }
+	.cv-tree { max-height: calc(100vh - 170px); overflow: auto; font-size: 13px; }
+	.cv-tree .node { display: flex; gap: 6px; align-items: center; padding: 2px 4px; border-radius: 4px; cursor: pointer; white-space: nowrap; }
+	.cv-tree .node:hover { background: var(--chip); }
+	.cv-tree .node.on { background: color-mix(in srgb, var(--accent) 18%, var(--chip)); }
+	.cv-tree .node .twisty { width: 10px; color: var(--muted); font-size: 10px; }
+	.cv-tree .kids { margin-left: 12px; border-left: 1px solid var(--line); padding-left: 4px; }
+	.cv-tree .badge { font-size: 9px; padding: 0 5px; }
+	.crumbs { font: 12px ui-monospace, monospace; color: var(--muted); margin-bottom: 8px; overflow-wrap: anywhere; }
+	.crumbs a { color: var(--info); text-decoration: none; cursor: pointer; }
+	.src-view { overflow: auto; max-height: calc(100vh - 210px); border: 1px solid var(--line); border-radius: 8px; }
+	.src-view table { table-layout: auto; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; border: 0; }
+	.src-view td { border: 0; padding: 0 10px; white-space: pre; overflow-wrap: normal; vertical-align: top; }
+	.src-view td.ln { color: var(--muted); text-align: right; user-select: none; width: 1%; padding-right: 8px; border-right: 1px solid var(--line); }
+	.src-view td.ln a { color: inherit; text-decoration: none; }
+	.src-view tr.rule td { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+	.src-view tr.rule td.ln { color: var(--accent); font-weight: 600; }
+	.src-view tr.target td { background: color-mix(in srgb, var(--info) 22%, transparent); }
+	.src-view tr.add td { background: color-mix(in srgb, var(--ok) 16%, transparent); }
+	.src-view tr.del td { background: color-mix(in srgb, var(--conflict) 14%, transparent); }
+	.src-view tr.hunk td { color: var(--muted); background: var(--chip); }
+	.tok-c { color: var(--muted); font-style: italic; } .tok-s { color: var(--ok); } .tok-k { color: #8250df; } .tok-n { color: var(--warn); }
+	@media (prefers-color-scheme: dark) { .tok-k { color: #bb9af7; } }
+	.md { max-height: calc(100vh - 210px); overflow: auto; padding: 4px 8px; font-size: 14px; }
+	.md pre { background: var(--chip); padding: 8px 10px; border-radius: 6px; overflow: auto; }
+	.md h1, .md h2, .md h3 { margin: 16px 0 6px; } .md h1 { font-size: 20px; } .md h2 { font-size: 17px; } .md h3 { font-size: 15px; }
+	.md .rule-mark { background: color-mix(in srgb, var(--accent) 14%, transparent); border-left: 3px solid var(--accent); padding-left: 6px; display: block; }
+	.cv.hist { grid-template-columns: minmax(300px, 400px) minmax(0, 1fr) minmax(240px, 300px); }
+	.commit { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 4px 8px; padding: 8px 4px; border-bottom: 1px solid var(--line); cursor: pointer; align-items: start; }
+	.commit .chips { grid-column: 2; }
+	.commit:hover { background: var(--chip); }
+	.commit.on { background: color-mix(in srgb, var(--accent) 12%, var(--chip)); }
+	.commit .msg { font-weight: 600; overflow-wrap: anywhere; } .commit .by { color: var(--muted); font-size: 12px; }
+	.commit .chips { display: flex; gap: 4px; flex-wrap: wrap; }
+	.st-added { color: var(--ok); } .st-removed { color: var(--conflict); } .st-modified { color: var(--warn); }
 </style>
 </head>
 <body>
@@ -132,6 +177,7 @@
 		<a href="#newrepo">2 · New repos</a>
 		<a href="#cost">3 · Cost &amp; overspend</a>
 		<a href="#more">More</a>
+		<a href="#code">Code</a>
 	</nav>
 	<div class="tabs envs" id="envs" role="group" aria-label="Environment" hidden></div>
 	<select id="fork" aria-label="Fork" hidden><option value="">agents-demo-full</option></select>
@@ -161,6 +207,20 @@
 		<section class="panel" id="agents" hidden style="grid-column: 1 / -1"><h2>Demo agents</h2><div class="sub">Agents on forks: sliced context, a gateway-tagged model call, the pre-push check</div><div class="body"></div></section>
 	</div>
 </main>
+<div id="codeview" hidden>
+	<div class="cv-bar">
+		<select id="cvrepo" aria-label="Repository"></select>
+		<input id="cvref" size="12" aria-label="Ref" value="main">
+		<div class="tabs" id="cvtabs"><button type="button" data-tab="files" class="on">Files</button><button type="button" data-tab="history">History</button></div>
+		<input id="cvfilter" placeholder="Filter files…" size="22" aria-label="Filter files">
+		<span class="meta" id="cvhead"></span>
+	</div>
+	<div class="cv">
+		<section class="panel"><div class="cv-tree" id="cvtree"><p class="empty">Loading…</p></div></section>
+		<section class="panel" id="cvmain"><p class="empty">Pick a file.</p></section>
+		<section class="panel cv-rules" id="cvrules"></section>
+	</div>
+</div>
 <script>
 const $ = (sel, el = document) => el.querySelector(sel);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -358,7 +418,7 @@ function renderStack(items, catalogItems = []) {
 	const dirs = Object.keys(m.effective || {});
 	const rootWins = (l) => (m.effective?.["."] || []).filter((r) => r.path === l.path).length;
 	const totalRules = Object.values(perLayer).reduce((a, b) => a + b, 0);
-	const sideHtml = (v) => `<div class="side">${kind(v.kind)} ${esc(v.layer)}<b>${esc(v.value)}${v.strength === "must" ? " · must" : ""}</b><code>${esc(v.path)}:${v.line}</code><div class="why">${esc(String(v.text ?? "").slice(0, 120))}</div></div>`;
+	const sideHtml = (v) => `<div class="side">${kind(v.kind)} ${esc(v.layer)}<b>${esc(v.value)}${v.strength === "must" ? " · must" : ""}</b>${srcLink(m, v.path, v.line)}<div class="why">${esc(String(v.text ?? "").slice(0, 120))}</div></div>`;
 
 	body.innerHTML = `
 		<div class="big">
@@ -375,7 +435,7 @@ function renderStack(items, catalogItems = []) {
 				<div class="legend">Lower rank wins: org 1 › contract 2 › project 3 (deeper folders win) › tool 4 › personal 5 › agent memory 6${m.precedence?.overridden ? ` · <b style="color:var(--warn)">precedence overridden by admin: ${esc(m.precedence.note)}</b>` : ""}</div>
 				${(m.skippedLayers || []).length ? `<div class="legend">Not counted: ${m.skippedLayers.map((x) => `<code>${esc(x.path)}</code> (${esc(x.reason)} of <code>${esc(x.of)}</code>)`).join(", ")}</div>` : ""}
 				<div id="prec"></div>
-				${layers.map((l) => `<div class="layer ${esc(l.kind)}"><div class="rank">${l.rank}${l.kind === "project" ? `.${l.depth}` : ""}</div><div class="who">${kind(l.kind)} <b style="display:inline">${esc(l.name)}</b><code style="display:block">${esc(l.repo && l.repo !== state.repo ? l.repo + ":" : "")}${esc(l.path)}</code></div><div class="counts">${ruleCount(l)} rule${ruleCount(l) === 1 ? "" : "s"}${rootWins(l) ? `<br><b style="color:var(--text)">wins ${rootWins(l)}</b> at root` : ""}</div></div>`).join("")}
+				${layers.map((l) => `<div class="layer ${esc(l.kind)}"><div class="rank">${l.rank}${l.kind === "project" ? `.${l.depth}` : ""}</div><div class="who">${kind(l.kind)} <b style="display:inline">${esc(l.name)}</b><a class="src" style="display:block" href="${esc(codeHref(l.repo || state.repo, l.path, 0))}"><code>${esc(l.repo && l.repo !== state.repo ? l.repo + ":" : "")}${esc(l.path)}</code></a></div><div class="counts">${ruleCount(l)} rule${ruleCount(l) === 1 ? "" : "s"}${rootWins(l) ? `<br><b style="color:var(--text)">wins ${rootWins(l)}</b> at root` : ""}</div></div>`).join("")}
 			</div>
 			<div>
 				<div class="row"><h3 class="sub" style="margin:0">What wins in</h3><select id="dir">${dirs.map((x) => `<option>${esc(x)}</option>`).join("")}</select></div>
@@ -390,7 +450,7 @@ function renderStack(items, catalogItems = []) {
 		const rows = (m.effective || {})[$("#dir").value] || [];
 		const losers = (r) => overrides.filter((o) => o.metrics.topic === r.topic && o.metrics.values[0].path === r.path && o.metrics.values[0].value === r.value).map((o) => o.metrics.values[1]);
 		$("#winners").innerHTML = rows.length
-			? `<table><tr><th style="width:24%">Topic</th><th style="width:30%">Wins</th><th>From · why</th></tr>${rows.map((r) => { const l = losers(r); return `<tr><td>${esc(r.topic)}</td><td><code>${esc(r.value)}</code>${r.strength === "must" ? ` <span class="chip">must</span>` : ""}</td><td>${kind(r.kind)} <code>${esc(r.path)}:${r.line}</code>${l.length ? `<div class="why">beats ${l.map((x) => `${esc(x.kind)} “${esc(x.value)}”`).join(", ")} (lower rank)</div>` : ""}</td></tr>`; }).join("")}</table>`
+			? `<table><tr><th style="width:24%">Topic</th><th style="width:30%">Wins</th><th>From · why</th></tr>${rows.map((r) => { const l = losers(r); return `<tr><td>${esc(r.topic)}</td><td><code>${esc(r.value)}</code>${r.strength === "must" ? ` <span class="chip">must</span>` : ""}</td><td>${kind(r.kind)} ${srcLink(m, r.path, r.line)}${l.length ? `<div class="why">beats ${l.map((x) => `${esc(x.kind)} “${esc(x.value)}”`).join(", ")} (lower rank)</div>` : ""}</td></tr>`; }).join("")}</table>`
 			: `<p class="empty">No rules apply here.</p>`;
 	};
 	$("#dir").addEventListener("change", showWinners);
@@ -656,7 +716,7 @@ function renderContext() {
 			<table><tr><th style="width:28%">Rule</th><th style="width:34%">Value</th><th>From</th></tr>${r.rules.map((x) => `<tr><td>${esc(x.topic)}</td><td><code>${esc(x.value)}</code></td><td>${kind(x.kind)} <code>${esc(x.source.replace(state.repo + "/", ""))}</code></td></tr>`).join("")}</table>
 			${r.conflicts.length ? r.conflicts.map((c) => `<div class="finding">${sev("conflict")} ${esc(c.explanation)}</div>`).join("") : ""}
 			<h3 class="sub" style="margin-top:14px">Sections served (${r.sections.length})</h3>
-			<div class="scroll">${r.sections.map((x) => `<div class="finding"><code>${esc(x.path)}:${x.startLine}</code> <b>${esc(x.headings.slice(-1)[0] || x.path)}</b> <span class="chip">${x.tokens} tok</span> <span class="chip">score ${x.score}</span>${x.duplicates ? ` <span class="chip" title="${esc((x.duplicatePaths || []).join("\n"))}">+${x.duplicates} identical copies, served once</span>` : ""}</div>`).join("")}</div>
+			<div class="scroll">${r.sections.map((x) => `<div class="finding">${srcLink(null, x.path, x.startLine, state.repo)} <b>${esc(x.headings.slice(-1)[0] || x.path)}</b> <span class="chip">${x.tokens} tok</span> <span class="chip">score ${x.score}</span>${x.duplicates ? ` <span class="chip" title="${esc((x.duplicatePaths || []).join("\n"))}">+${x.duplicates} identical copies, served once</span>` : ""}</div>`).join("")}</div>
 			<p class="sub">Omitted: ${num(r.omitted.count)} matching sections (${num(r.omitted.tokens)} tokens, ${r.omitted.oversized ?? 0} oversized) + ${num(r.omitted.unmatchedSections)} unmatched.</p>`;
 	};
 	$("#ctask").addEventListener("change", (e) => show(results[e.target.value]));
@@ -692,6 +752,316 @@ loadSamples()
 	.then(() => pollIndex(true))
 	.then(() => setInterval(() => pollIndex(false), 5000))
 	.catch((err) => showBanner(`Could not load samples: ${err.message}`));
+</script>
+<script>
+// ── Code view: browse a repo's files and history, with the rules git.next found highlighted in place ──
+// Route: #code?repo=&ref=&path=&line=&via=&tab=files|history&commit=   (everything else is the dashboard)
+
+const DEMO_LAYERS = "git-next-demo-layers";
+const cv = { repos: null, key: "", files: [], head: null, open: new Set(), insights: null, insightsFor: "", route: {}, log: null };
+
+/** Link into the Code view; layer files from the demo layer repo are browsed "via" the analysed repo. */
+function codeHref(repo, path, line, extra = {}) {
+	const demo = repo === DEMO_LAYERS;
+	const ref = demo ? "HEAD" : extra.ref || "main";
+	const qs = new URLSearchParams({ repo, ref, ...(path ? { path } : {}), ...(line ? { line: String(line) } : {}), ...(demo ? { via: extra.via || state.repo } : {}), ...(extra.tab ? { tab: extra.tab } : {}), ...(extra.commit ? { commit: extra.commit } : {}) });
+	return `#code?${qs}`;
+}
+/** Which repo a rule's path lives in: the layer list knows (demo layers live in their own repo). */
+function repoOfPath(m, path) {
+	return (m?.layers || []).find((l) => l.path === path)?.repo || state.repo;
+}
+/** `path:line` as a link to the Code view at that line. */
+function srcLink(m, path, line, repo) {
+	const r = repo || repoOfPath(m, path);
+	return `<a class="src" href="${esc(codeHref(r, path, line))}"><code>${esc(path)}:${esc(line)}</code></a>`;
+}
+
+function parseRoute() {
+	if (!location.hash.startsWith("#code")) return null;
+	const q = new URLSearchParams(location.hash.slice(location.hash.indexOf("?") + 1 || location.hash.length));
+	return { repo: q.get("repo") || state.repo || "agents-demo-full", ref: q.get("ref") || "main", path: q.get("path") || "", line: Number(q.get("line")) || 0, via: q.get("via") || "", tab: q.get("tab") || "files", commit: q.get("commit") || "" };
+}
+function setRoute(patch) {
+	const r = { ...cv.route, ...patch };
+	const q = new URLSearchParams(Object.entries({ repo: r.repo, ref: r.ref, path: r.path, line: r.line || "", via: r.via, tab: r.tab === "files" ? "" : r.tab, commit: r.commit }).filter(([, v]) => v));
+	location.hash = `code?${q}`;
+}
+
+async function showView() {
+	const route = parseRoute();
+	const inCode = !!route;
+	$("main").hidden = inCode;
+	$("#codeview").hidden = !inCode;
+	if (!inCode) return;
+	if (cv.route.repo !== route.repo || cv.route.path !== route.path || !cv.route.repo) window.scrollTo(0, 0);
+	cv.route = route;
+	try {
+		await cvLoad(route);
+	} catch (err) {
+		$("#cvmain").innerHTML = `<p class="empty">Could not load: ${esc(err.message)}</p>`;
+	}
+}
+
+async function cvLoad(r) {
+	if (!cv.repos) {
+		const { repos } = await getJson("/code/repos").catch(() => ({ repos: [] }));
+		cv.repos = repos;
+	}
+	const names = new Set(cv.repos.map((x) => x.name));
+	if (!names.has(r.repo)) cv.repos.push({ name: r.repo, description: null });
+	$("#cvrepo").innerHTML = cv.repos.map((x) => `<option value="${esc(x.name)}" ${x.name === r.repo ? "selected" : ""}>${esc(x.name)}${x.source ? ` (fork of ${esc(String(x.source).replace(/^artifacts:default\//, ""))})` : ""}</option>`).join("");
+	$("#cvref").value = r.ref;
+	$("#cvtabs").querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.tab === r.tab));
+	$("#cvfilter").hidden = r.tab !== "files";
+	$(".cv").classList.toggle("hist", r.tab === "history");
+
+	const key = `${r.repo}@${r.ref}~${r.via}`;
+	if (cv.key !== key) {
+		$("#cvtree").innerHTML = `<p class="empty">Reading the tree…</p>`;
+		const t = await getJson(`/code/tree?${new URLSearchParams({ repo: r.repo, ref: r.ref, ...(r.via ? { via: r.via } : {}) })}`);
+		cv.key = key;
+		cv.files = t.files;
+		cv.head = t.head;
+		cv.log = null;
+		cv.open = new Set([""]);
+	}
+	// Rules: the analysed repo's insights (the dashboard's, or the stored live result for this fork). On a cold load
+	// via a deep link, give the dashboard's first load a moment so its insights can be used.
+	for (let n = 0; !state.insights && n < 30; n++) await new Promise((res) => setTimeout(res, 200));
+	const analysed = r.repo === DEMO_LAYERS ? r.via || state.repo : r.repo;
+	if (cv.insightsFor !== analysed) {
+		cv.insightsFor = analysed;
+		cv.insights = state.insights?.repo === analysed ? state.insights : await tryJson(`/results?repo=${encodeURIComponent(analysed)}&ref=main`);
+	}
+	$("#cvhead").innerHTML = cv.head ? `<code>${esc(cv.head.hash.slice(0, 7))}</code> ${esc(String(cv.head.message).split("\n")[0].slice(0, 70))} · ${esc(cv.head.author)} · ${num(cv.files.length)} files` : `${num(cv.files.length)} files${r.repo === DEMO_LAYERS ? " · fixture layers overlaid at analysis time" : ""}`;
+
+	if (r.tab === "history") return cvHistory(r);
+	if (r.path) for (let i = r.path.indexOf("/"); i > 0; i = r.path.indexOf("/", i + 1)) cv.open.add(r.path.slice(0, i));
+	cvTree();
+	r.path ? await cvFile(r) : cvReadme(r);
+	cvRules(r);
+}
+
+// ── tree ──
+function treeOf(files) {
+	const root = { dirs: new Map(), files: [] };
+	for (const f of files) {
+		const parts = f.path.split("/");
+		let node = root;
+		for (const p of parts.slice(0, -1)) {
+			if (!node.dirs.has(p)) node.dirs.set(p, { dirs: new Map(), files: [] });
+			node = node.dirs.get(p);
+		}
+		node.files.push(f);
+	}
+	return root;
+}
+function cvLayerBadge(path) {
+	const m = stackMetrics(cv.insights);
+	const l = (m?.layers || []).find((x) => x.path === path && (x.repo || state.repo) === cv.route.repo);
+	if (l) return ` <span class="chip badge k-${esc(l.kind)}" title="${esc(l.name)} · rank ${esc(l.rank)}">${esc(l.kind)} ${esc(l.rank)}${l.kind === "project" ? `.${esc(l.depth)}` : ""}</span>`;
+	return /(^|\/)(AGENTS|CLAUDE|GEMINI)\.md$|(^|\/)agent\.ya?ml$/i.test(path) ? ` <span class="chip badge">instructions</span>` : "";
+}
+function cvTree() {
+	const filter = $("#cvfilter").value.trim().toLowerCase();
+	const el = $("#cvtree");
+	if (filter) {
+		const hits = cv.files.filter((f) => f.path.toLowerCase().includes(filter)).slice(0, 400);
+		el.innerHTML = hits.length ? hits.map((f) => `<div class="node ${f.path === cv.route.path ? "on" : ""}" data-file="${esc(f.path)}"><span class="mono">${esc(f.path)}</span>${cvLayerBadge(f.path)}</div>`).join("") : `<p class="empty">No matches.</p>`;
+	} else {
+		const render = (node, prefix) => [
+			...[...node.dirs.keys()].sort().map((name) => {
+				const path = prefix + name;
+				const open = cv.open.has(path);
+				return `<div class="node" data-dir="${esc(path)}"><span class="twisty">${open ? "▾" : "▸"}</span>${esc(name)}/</div>${open ? `<div class="kids">${render(node.dirs.get(name), `${path}/`)}</div>` : ""}`;
+			}),
+			...node.files.map((f) => `<div class="node ${f.path === cv.route.path ? "on" : ""}" data-file="${esc(f.path)}"><span class="twisty"></span>${esc(f.path.slice(prefix.length))}${cvLayerBadge(f.path)}</div>`),
+		].join("");
+		el.innerHTML = render(treeOf(cv.files), "") || `<p class="empty">Empty tree.</p>`;
+	}
+	el.querySelectorAll("[data-dir]").forEach((n) => n.addEventListener("click", () => { const d = n.dataset.dir; cv.open.has(d) ? cv.open.delete(d) : cv.open.add(d); cvTree(); }));
+	el.querySelectorAll("[data-file]").forEach((n) => n.addEventListener("click", () => setRoute({ path: n.dataset.file, line: 0 })));
+}
+
+// ── rules for a file ──
+function stackMetrics(d) {
+	return d?.insights?.find((i) => i.provider === "instruction-stack" && i.title.startsWith("Instruction stack"))?.metrics ?? null;
+}
+/** Every rule git.next extracted from this file (winners, overridden and conflicting), keyed by line. */
+function rulesInFile(repo, path) {
+	const d = cv.insights;
+	const m = stackMetrics(d);
+	if (!m) return new Map();
+	const byLine = new Map();
+	const add = (v, how) => {
+		if (!v || v.path !== path || repoOfPath(m, v.path) !== repo || !v.line) return;
+		const list = byLine.get(v.line) ?? [];
+		if (!list.some((x) => x.topic === v.topic && x.how === how)) list.push({ ...v, how });
+		byLine.set(v.line, list);
+	};
+	for (const rows of Object.values(m.effective || {})) for (const r of rows) add(r, "wins");
+	for (const i of d.insights.filter((x) => x.provider === "instruction-stack" && x.metrics?.values)) for (const v of i.metrics.values) add({ ...v, topic: v.topic ?? i.metrics.topic }, i.metrics.kind === "conflict" ? "conflict" : v === i.metrics.values[0] ? "wins" : "overridden");
+	return byLine;
+}
+function cvRules(r) {
+	const el = $("#cvrules");
+	const m = stackMetrics(cv.insights);
+	if (!m) return (el.innerHTML = `<h3 class="sub" style="margin:0">Rules in force here</h3><p class="empty">No git.next analysis for ${esc(cv.insightsFor)} yet. It appears after the next push.</p>`);
+	// The nearest analysed directory at or above the file (or folder) being viewed.
+	const at = r.repo === DEMO_LAYERS ? "." : (r.path.includes("/") ? r.path.slice(0, r.path.lastIndexOf("/")) : ".");
+	const dirs = Object.keys(m.effective || {});
+	let dir = at;
+	while (dir !== "." && !dirs.includes(dir)) dir = dir.includes("/") ? dir.slice(0, dir.lastIndexOf("/")) : ".";
+	const rows = (m.effective || {})[dir] || [];
+	const conflicts = cv.insights.insights.filter((i) => i.metrics?.kind === "conflict" && rows.some((x) => x.topic === i.metrics.topic));
+	el.innerHTML = `<h3 class="sub" style="margin:0 0 4px">Rules in force here</h3>
+		<div class="why" style="margin-bottom:8px">For <code>${esc(r.repo === DEMO_LAYERS ? cv.insightsFor : at)}</code>${dir !== at ? ` (nearest analysed folder: <code>${esc(dir)}</code>)` : ""} · from the ${esc(cv.insights === state.insights ? state.source : `live result for ${cv.insightsFor}`)}</div>
+		${rows.length ? `<table style="font-size:12px"><tr><th style="width:42%">Topic</th><th>Wins · from</th></tr>${rows.map((x) => `<tr><td style="overflow-wrap:anywhere">${esc(x.topic)}</td><td><code>${esc(x.value)}</code>${x.strength === "must" ? ` <span class="chip">must</span>` : ""}<div>${kind(x.kind)} ${srcLink(m, x.path, x.line)}</div></td></tr>`).join("")}</table>` : `<p class="empty">No rules apply here.</p>`}
+		${conflicts.length ? `<h3 class="sub" style="margin:12px 0 4px;color:var(--conflict)">Conflicts here</h3>${conflicts.map((c) => `<div class="why">✗ ${esc(c.metrics.topic)}: ${c.metrics.values.map((v) => `${esc(v.kind)} “${esc(v.value)}” ${srcLink(m, v.path, v.line)}`).join(" vs ")}</div>`).join("")}` : ""}`;
+}
+
+// ── file viewer ──
+const KEYWORDS = /\b(import|export|from|const|let|var|function|return|if|else|for|while|async|await|new|class|extends|interface|type|default|throw|try|catch|true|false|null|undefined)\b/g;
+/** Light highlighting for code: comments, strings, keywords and numbers (line by line, escaped first). */
+function highlight(line, lang) {
+	if (!["js", "ts", "tsx", "jsx", "mjs", "cjs", "json", "jsonc"].includes(lang)) return esc(line);
+	const out = [];
+	let rest = line;
+	const re = /(\/\/.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/;
+	while (rest) {
+		const mm = rest.match(re);
+		if (!mm) { out.push(plain(rest)); break; }
+		out.push(plain(rest.slice(0, mm.index)));
+		out.push(`<span class="${mm[1] ? "tok-c" : "tok-s"}">${esc(mm[0])}</span>`);
+		rest = rest.slice(mm.index + mm[0].length);
+	}
+	return out.join("");
+	function plain(t) { return esc(t).replace(KEYWORDS, `<span class="tok-k">$1</span>`).replace(/\b(\d+(?:\.\d+)?)\b/g, `<span class="tok-n">$1</span>`); }
+}
+
+/** Small markdown renderer: headings, lists, fences, quotes, paragraphs, inline code/bold/links. Rule lines are marked. */
+function renderMarkdown(text, rules, r) {
+	const inline = (t) => esc(t)
+		.replace(/`([^`]+)`/g, "<code>$1</code>")
+		.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+		.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (all, label, href) => {
+			const raw = href.replace(/&amp;/g, "&");
+			if (/^https?:\/\//.test(raw)) return `<a href="${esc(raw)}" target="_blank" rel="noopener">${label}</a>`;
+			if (/^[\w./-]+(#[\w-]*)?$/.test(raw)) {
+				const base = r.path.includes("/") ? r.path.slice(0, r.path.lastIndexOf("/") + 1) : "";
+				const parts = (base + raw.split("#")[0]).split("/");
+				const norm = [];
+				for (const p of parts) p === ".." ? norm.pop() : p && p !== "." && norm.push(p);
+				return `<a href="${esc(codeHref(r.repo, norm.join("/"), 0, { ref: r.ref, via: r.via }))}">${label}</a>`;
+			}
+			return label;
+		});
+	const lines = text.split("\n");
+	const html = [];
+	for (let i = 0; i < lines.length; i++) {
+		const line = lines[i];
+		const mark = (h, n = i + 1) => (rules.has(n) ? `<span class="rule-mark" title="${esc(rules.get(n).map((x) => `${x.topic} = ${x.value} (${x.how})`).join("\n"))}">${h}</span>` : h);
+		if (/^```/.test(line)) {
+			const body = [];
+			while (++i < lines.length && !/^```/.test(lines[i])) body.push(lines[i]);
+			html.push(`<pre><code>${esc(body.join("\n"))}</code></pre>`);
+		} else if (/^#{1,6}\s/.test(line)) {
+			const n = line.match(/^#+/)[0].length;
+			html.push(`<h${Math.min(n, 4)}>${mark(inline(line.replace(/^#+\s*/, "")))}</h${Math.min(n, 4)}>`);
+		} else if (/^\s*([-*+]|\d+\.)\s/.test(line)) {
+			const items = [];
+			for (; i < lines.length && /^\s*([-*+]|\d+\.)\s/.test(lines[i]); i++) items.push(`<li>${mark(inline(lines[i].replace(/^\s*([-*+]|\d+\.)\s/, "")), i + 1)}</li>`);
+			i--;
+			html.push(`<ul>${items.join("")}</ul>`);
+		} else if (/^\s*\|.*\|\s*$/.test(line) && /^\s*\|[\s:|-]+\|\s*$/.test(lines[i + 1] ?? "")) {
+			const cells = (l) => l.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+			const headRow = cells(line);
+			const body = [];
+			for (i += 2; i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i]); i++) body.push(`<tr>${cells(lines[i]).map((c) => `<td>${mark(inline(c), i + 1)}</td>`).join("")}</tr>`);
+			i--;
+			html.push(`<table style="table-layout:auto;margin:8px 0"><tr>${headRow.map((c) => `<th>${inline(c)}</th>`).join("")}</tr>${body.join("")}</table>`);
+		} else if (/^>\s?/.test(line)) {
+			html.push(`<blockquote class="why">${mark(inline(line.replace(/^>\s?/, "")))}</blockquote>`);
+		} else if (line.trim()) {
+			html.push(`<p>${mark(inline(line))}</p>`);
+		}
+	}
+	return html.join("\n");
+}
+
+async function cvFile(r) {
+	const el = $("#cvmain");
+	el.innerHTML = `<p class="empty">Loading ${esc(r.path)}…</p>`;
+	const f = await getJson(`/code/file?${new URLSearchParams({ repo: r.repo, ref: r.ref, path: r.path, ...(r.via ? { via: r.via } : {}) })}`);
+	const rules = rulesInFile(r.repo, r.path);
+	const crumbs = r.path.split("/").map((p, i, all) => (i < all.length - 1 ? `<a data-open="${esc(all.slice(0, i + 1).join("/"))}">${esc(p)}</a>` : `<b>${esc(p)}</b>`)).join(" / ");
+	const isMd = /\.(md|mdx|markdown)$/i.test(r.path);
+	const mode = r.line || !isMd || cv.mdSource ? "source" : "rendered";
+	const head = `<div class="crumbs"><a data-open="">${esc(r.repo)}</a> / ${crumbs} · ${num(f.size)} bytes${rules.size ? ` · <span style="color:var(--accent)">${rules.size} rule line${rules.size === 1 ? "" : "s"}</span>` : ""}
+		${isMd ? ` · <a data-mode="${mode === "source" ? "rendered" : "source"}">${mode === "source" ? "Rendered" : "Source"}</a>` : ""}
+		· <a data-hist="1">History</a></div>`;
+	if (f.binary) return (el.innerHTML = `${head}<p class="empty">Binary file (${num(f.size)} bytes), not shown.</p>`);
+	if (mode === "rendered") {
+		el.innerHTML = `${head}<div class="md">${renderMarkdown(f.text, rules, r)}</div>`;
+	} else {
+		const lang = (r.path.match(/\.([a-z0-9]+)$/i)?.[1] || "").toLowerCase();
+		const rows = f.text.split("\n").map((t, i) => {
+			const n = i + 1, rs = rules.get(n);
+			return `<tr id="L${n}" class="${rs ? "rule" : ""} ${n === r.line ? "target" : ""}" ${rs ? `title="${esc(rs.map((x) => `${x.topic} = ${x.value} (${x.kind}, ${x.how})`).join("\n"))}"` : ""}><td class="ln"><a href="${esc(codeHref(r.repo, r.path, n, { ref: r.ref, via: r.via }))}">${n}</a></td><td>${highlight(t, lang)}</td></tr>`;
+		});
+		el.innerHTML = `${head}${f.truncated ? `<p class="why">Showing the first 1 MB.</p>` : ""}<div class="src-view"><table>${rows.join("")}</table></div>`;
+		if (r.line) $(`#L${r.line}`)?.scrollIntoView({ block: "center" });
+	}
+	el.querySelectorAll("[data-open]").forEach((a) => a.addEventListener("click", () => { const d = a.dataset.open; if (d) cv.open.add(d); setRoute({ path: "", line: 0 }); }));
+	el.querySelector("[data-mode]")?.addEventListener("click", (e) => { cv.mdSource = e.target.dataset.mode === "source"; setRoute({ line: 0 }); cvFile({ ...r, line: 0 }); });
+	el.querySelector("[data-hist]")?.addEventListener("click", () => setRoute({ tab: "history" }));
+}
+async function cvReadme(r) {
+	const readme = cv.files.find((f) => /^readme\.md$/i.test(f.path)) || cv.files.find((f) => /^agents\.md$/i.test(f.path));
+	if (readme) return cvFile({ ...r, path: readme.path });
+	$("#cvmain").innerHTML = `<p class="empty">Pick a file.</p>`;
+}
+
+// ── history ──
+async function cvHistory(r) {
+	$("#cvtree").innerHTML = `<p class="empty">Loading history…</p>`;
+	if (!cv.log) cv.log = (await getJson(`/code/log?${new URLSearchParams({ repo: r.repo, ref: r.ref, limit: "50", ...(r.via ? { via: r.via } : {}) })}`)).commits;
+	const commit = r.commit || cv.log[0]?.hash || "";
+	// Artifacts reports commit times in seconds.
+	const ago = (t) => new Date(t < 1e12 ? t * 1000 : t).toLocaleString();
+	$("#cvtree").innerHTML = cv.log.length ? cv.log.map((c) => `<div class="commit ${c.hash === commit ? "on" : ""}" data-commit="${esc(c.hash)}">
+		<code>${esc(c.hash.slice(0, 7))}</code>
+		<div><div class="msg">${esc(String(c.message).split("\n")[0])}</div><div class="by">${esc(c.author)} · ${esc(ago(c.committedAt))}${c.agentTask ? ` · task <code>${esc(c.agentTask)}</code>` : ""}</div></div>
+		<div class="chips">${c.push ? `<span class="chip ${c.push.conflicts ? "sev-conflict" : ""}">${c.push.conflicts} conflict${c.push.conflicts === 1 ? "" : "s"}</span><span class="chip ${c.push.catalogViolations ? "sev-conflict" : ""}">${c.push.catalogViolations} catalog</span>${c.push.warnings != null ? `<span class="chip ${c.push.warnings ? "sev-warn" : ""}">${c.push.warnings} warn</span>` : ""}` : `<span class="chip" title="No git.next push result recorded for this commit">not analysed</span>`}${c.cost ? `<span class="chip" title="${c.cost.requests} gateway calls tagged with Agent-Task ${esc(c.agentTask)}${c.cost.commits > 1 ? `, shared by ${c.cost.commits} commits listed here` : ""}">${usd(c.cost.cost)}${c.cost.commits > 1 ? ` (task, ${c.cost.commits} commits)` : ""}</span>` : ""}</div>
+	</div>`).join("") : `<p class="empty">No history (fixture layers have none).</p>`;
+	$("#cvtree").querySelectorAll("[data-commit]").forEach((n) => n.addEventListener("click", () => setRoute({ commit: n.dataset.commit })));
+	const c = cv.log.find((x) => x.hash === commit);
+	cvRules({ ...r, path: "" });
+	if (!c) return ($("#cvmain").innerHTML = `<p class="empty">Pick a commit.</p>`);
+	$("#cvmain").innerHTML = `<p class="empty">Diffing ${esc(c.hash.slice(0, 7))}…</p>`;
+	const d = await getJson(`/code/diff?${new URLSearchParams({ repo: r.repo, ref: c.hash, ...(r.via ? { via: r.via } : {}) })}`);
+	$("#cvmain").innerHTML = `<div class="crumbs"><b>${esc(String(c.message).split("\n")[0])}</b> · <code>${esc(c.hash.slice(0, 10))}</code>${d.base ? ` vs parent <code>${esc(d.base.slice(0, 7))}</code>` : " (root commit)"}</div>
+		<pre class="why" style="white-space:pre-wrap;margin:0 0 10px">${esc(String(c.message).split("\n").slice(1).join("\n").trim())}</pre>
+		<div class="row"><b>${d.changed.length} file${d.changed.length === 1 ? "" : "s"} changed</b></div>
+		${d.changed.slice(0, 200).map((x) => `<details data-path="${esc(x.path)}" data-status="${esc(x.status)}"><summary><span class="st-${esc(x.status)}">${esc(x.status)}</span> <code>${esc(x.path)}</code>${cvLayerBadge(x.path)} · <a href="${esc(codeHref(r.repo, x.path, 0, { ref: c.hash, via: r.via }))}">view</a></summary><div class="src-view" style="margin:6px 0 10px"></div></details>`).join("")}`;
+	$("#cvmain").querySelectorAll("details[data-path]").forEach((det) => det.addEventListener("toggle", async () => {
+		const box = det.querySelector(".src-view");
+		if (!det.open || box.dataset.loaded) return;
+		box.dataset.loaded = "1";
+		box.innerHTML = `<p class="empty" style="padding:6px">Loading diff…</p>`;
+		const one = await getJson(`/code/diff?${new URLSearchParams({ repo: r.repo, ref: c.hash, base: d.base, path: det.dataset.path, ...(r.via ? { via: r.via } : {}) })}`).catch((err) => ({ error: err.message }));
+		if (one.error || !one.hunks) return (box.innerHTML = `<p class="empty" style="padding:6px">${esc(one.error || "Too large to diff here.")}</p>`);
+		box.innerHTML = `<table>${one.hunks.map((h) => `<tr class="hunk"><td class="ln">…</td><td class="ln"></td><td>@@ -${h[0].a ?? 0} +${h[0].b ?? 0} @@</td></tr>${h.map((l) => `<tr class="${l.op === "+" ? "add" : l.op === "-" ? "del" : ""}"><td class="ln">${l.a ?? ""}</td><td class="ln">${l.b ?? ""}</td><td>${esc(l.op)} ${esc(l.text)}</td></tr>`).join("")}`).join("")}</table>`;
+	}));
+}
+
+$("#cvrepo").addEventListener("change", () => { const repo = $("#cvrepo").value; setRoute({ repo, ref: repo === DEMO_LAYERS ? "HEAD" : "main", via: repo === DEMO_LAYERS ? state.repo : "", path: "", line: 0, commit: "" }); });
+$("#cvref").addEventListener("change", () => setRoute({ ref: $("#cvref").value.trim() || "main", path: "", line: 0, commit: "" }));
+$("#cvtabs").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => setRoute({ tab: b.dataset.tab, commit: "" })));
+$("#cvfilter").addEventListener("input", () => cvTree());
+window.addEventListener("hashchange", showView);
+showView();
 </script>
 </body>
 </html>

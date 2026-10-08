@@ -23,6 +23,7 @@ with the create-and-push method below (the direct import returned a 502); the da
 - [Setup from a clean machine](#setup-from-a-clean-machine)
 - [Using it](#using-it)
 - [New repositories: smart by default](#new-repositories-smart-by-default)
+- [Code view](#code-view)
 - [Multi-cloud environments (mocked)](#multi-cloud-environments-mocked)
 - [Writing a provider](#writing-a-provider)
 - [Secrets](#secrets)
@@ -321,6 +322,28 @@ All layer and catalog text is treated as untrusted data: it is parsed and compar
 report no conflicts") and a malicious catalog owner. Nothing runs, nothing leaks into generated files, and the real
 conflict is still reported.
 
+## Code view
+
+The dashboard's **Code** tab (`#code` in the URL) is a read-only browser for the Artifacts repos, served by the same
+Worker behind the same Access check:
+
+- **Files:** a repo/fork picker (every repo in the namespace, plus the demo instruction layers), a ref box, a file
+  tree with instruction files badged by layer and rank, and a viewer with line numbers, light highlighting and
+  rendered markdown. Lines git.next extracted a rule from are highlighted, with the rule in the tooltip.
+- **Rules in force here:** for the folder of the file you're viewing, which rule wins on each topic and the layer and
+  line it comes from, plus any conflicts there. It uses the dashboard's analysis for that repo, or the live result
+  the queue consumer stored for a fork.
+- **History:** commits with git.next's result for the push that brought each one in (conflicts, catalog violations,
+  warnings) and the gateway spend for its `Agent-Task` trailer. Pick a commit to see its changed files and line
+  diffs against its first parent.
+- **Deep links:** every `path:line` on the dashboard (conflict cards, "What wins in", the layer stack, sliced
+  context) opens the Code view at that line, e.g. `#code?repo=agents-demo-full&ref=main&path=AGENTS.md&line=10`.
+
+Routes (`GET`, read-only): `/code/repos`, `/code/tree`, `/code/file`, `/code/log`, `/code/diff`. Files over 1 MB are
+cut off, binaries aren't shown, and diffs longer than 4,000 changed lines per side list the file without hunks. A
+commit's file listing is cached in KV for a week (`codetree/…`); diffs skip unchanged subtrees. Repos on GitHub
+have to be imported into Artifacts before they can be browsed.
+
 ## Multi-cloud environments (mocked)
 
 A thin, clearly labelled slice for showing Cloudflare next to other clouds. **Only Cloudflare is real**: its
@@ -470,6 +493,7 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
 | `src/providers` | `instruction-stack/`, `resource-map.ts`, `cost/`, `context/`, `catalog.ts`, `owners.ts`, `environments.ts` |
 | `src/parse` | JSONC and minimal TOML parsers |
 | `src/index.ts`, `src/dev-routes.ts` | Worker routes (`/insights`, `/context`, samples, localhost-only `/dev/*`) |
+| `src/code.ts`, `src/code-routes.ts` | Code view: read-only `/code/*` routes, line diffs, commit annotations |
 | `src/cli`, `bin/git-next.ts` | the `git next` CLI (`init.ts` for `git next new`) |
 | `public/index.html` | dashboard |
 | `scripts/` | `demo-agents.ts`, `demo-planner.ts`, `demo-new-repo.ts`, offline sample generators (`demo-insights.ts`, `demo-context.ts`, `demo-stack.ts`) |
@@ -477,7 +501,7 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
 | `samples/` | live outputs the dashboard falls back to; `samples/demo-run/` is the last agent run |
 | `examples/hooks/` | the fail-closed pre-push hook and the Claude Code PreToolUse adapter |
 | `docs/VIDEO_SCRIPT.md` | demo video shot list |
-| `test/` | vitest suites (parsers, providers, resolver, context, cost, CLI, owners) |
+| `test/` | vitest suites (parsers, providers, resolver, context, cost, CLI, owners, code view) |
 
 ## License
 
