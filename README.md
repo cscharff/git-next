@@ -26,6 +26,7 @@ with the create-and-push method below (the direct import returned a 502); the da
 - [Code view](#code-view)
 - [Agents in parallel](#agents-in-parallel)
 - [Push review workflow](#push-review-workflow)
+- [Org view: classification, spend, flow and risk](#org-view-classification-spend-flow-and-risk)
 - [MCP server](#mcp-server)
 - [Multi-cloud environments (mocked)](#multi-cloud-environments-mocked)
 - [Writing a provider](#writing-a-provider)
@@ -407,6 +408,52 @@ merge button stays locked until its review is approved or auto-approved. `GET /r
 step timeline. The Queue consumer now only starts a Workflow instance per push (one per repo, ref and commit, so
 a redelivered event is a no-op).
 
+## Org view: classification, spend, flow and risk
+
+The dashboard's **Org** tab (`#org`, backed by `GET /org`) is the whole org on one screen. It reads only what
+git.next already stores: the repos and fork sources in Artifacts, each project's `.gitnext/app.json`, the stored push
+results and index in KV, the review records the PushReview Workflow writes, and the AI Gateway logs. A source that
+can't be read is listed under the top row instead of blanking the view. Results are cached for 30 seconds per isolate
+(`?fresh=1` skips the cache).
+
+**Classification profiles.** Every repo is `public`, `internal` or `pii-regulated`. A repo declares its class,
+owner, team, cost centre and environment in `.gitnext/app.json`:
+
+```json
+{ "class": "pii-regulated", "owner": "@acme/storage", "team": "storage", "environment": "staging",
+  "controls": { "guardrails": true, "dataLocation": "eu" } }
+```
+
+The org registry (`fixtures/org-baseline/org.json`) fills in what a repo doesn't say, defines the profiles, the
+teams with their cost centres, and the monthly budgets per team and project (budgets are the org's call, so a repo
+can't set its own). A repo can raise its class but never lower it below the registry's. The profile is policy, not a
+label:
+
+- **Rules layer.** A class with a `layer` adds it to the repo's instruction stack at org rank, for analysis and
+  sliced context (`profiles/pii-regulated.md`: the two approved models, guardrails, EU data, never log personal data,
+  a reviewer on data paths). The repo itself is never written; the layer is served as `git-next-org-profiles`.
+  Public and internal repos use the org baseline as is.
+- **Catalog limits.** `limits.models` narrows the org catalog for the class. The push review classifies changes
+  against the narrowed catalog, and the Org view flags gateway calls from the repo or its forks to models outside it.
+- **Human review on data paths.** A push to a PII repo that touches `limits.reviewPaths` (migrations, schemas,
+  storage and upload code, wrangler configs) always waits for a person (`kind: "profile"` in the review reasons).
+- **Required controls**, each checked against evidence you can hover: an owner, an AGENTS.md, approved models only
+  (gateway logs and the stored catalog check), guardrails and data location (declared in `.gitnext/app.json`), and
+  push review active (review records exist).
+
+**What the tab shows.** Spend this month: top five by project (forks roll up into their project), environment,
+resource (the gateway provider), model and developer; teams against budget; teams and projects over budget; cost per
+merged change (spend divided by changes the Workflow approved or auto-approved this month). Review and flow: open
+reviews, what waits for a person with average and oldest wait, approved vs rejected, reviewer load (admins by the
+name part of their Access identity), forks and branches in flight and tasks with several attempts. Risk and
+instruction health: flagged pushes, catalog violations by repo, drift from the org baseline (catalog behind, no
+catalog, precedence overridden, stale vendored copies), PII repos missing controls, unresolved conflicts, repos
+without AGENTS.md, plugin hooks that need review, and files several forks or branches are changing.
+
+**Mock-ups (labelled on screen):** the month-end forecast is a straight-line projection of the real month-to-date
+spend, and the review SLA targets per class are illustrative. Budgets in `org.json` are set at demo scale (cents),
+so the demo's real spend shows overspend.
+
 ## MCP server
 
 git.next is also a remote MCP server at `/mcp` (Streamable HTTP, stateless, built with the Agents SDK's
@@ -597,11 +644,12 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
 | `src/code.ts`, `src/code-routes.ts` | Code view: read-only `/code/*` routes, line diffs, commit annotations |
 | `src/work.ts`, `src/work-routes.ts` | Agents in parallel: work in flight, overlap, attempt comparison (`/work*`) |
 | `src/review.ts` (+ `PushReview` in `src/index.ts`) | Push review Workflow: sensitivity rules, review records, decisions |
+| `src/org.ts`, `src/org-routes.ts` | Org view: classification profiles, the profile layer, spend/flow/risk roll-ups (`/org`) |
 | `src/mcp.ts` | git.next as a remote MCP server (`/mcp`) |
 | `src/cli`, `bin/git-next.ts` | the `git next` CLI (`init.ts` for `git next new`) |
 | `public/index.html` | dashboard |
 | `scripts/` | `demo-agents.ts`, `demo-planner.ts`, `demo-new-repo.ts`, offline sample generators (`demo-insights.ts`, `demo-context.ts`, `demo-stack.ts`) |
-| `fixtures/` | org baseline (layers, catalog, templates), demo instruction layers (and the resolved variant), AI Gateway log fixture, mocked multi-cloud environments and cost logs |
+| `fixtures/` | org baseline (layers, catalog, templates, org registry and profile layers), demo instruction layers (and the resolved variant), AI Gateway log fixture, mocked multi-cloud environments and cost logs |
 | `samples/` | live outputs the dashboard falls back to; `samples/demo-run/` is the last agent run |
 | `examples/hooks/` | the fail-closed pre-push hook and the Claude Code PreToolUse adapter |
 | `docs/VIDEO_SCRIPT.md` | demo video shot list |

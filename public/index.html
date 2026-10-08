@@ -132,6 +132,32 @@
 	.verdict-pick { background: var(--ok); color: #fff; } .verdict-blocked { background: var(--conflict); color: #fff; } .verdict-ok { background: var(--info); color: #fff; }
 	.flight td { font-size: 12px; }
 	.flight tr.hot td { background: color-mix(in srgb, var(--warn) 10%, transparent); }
+	/* Org view */
+	#orgview { padding: 16px 24px 32px; display: flex; flex-direction: column; gap: 16px; }
+	#orgview[hidden] { display: none; }
+	/* The repo pickers and environment switch belong to the per-repo dashboard, not the org view. */
+	body.org #envs, body.org #fork, body.org #reposel, body.org header > .meta { display: none !important; }
+	.profiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 16px; }
+	.profile { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; border-top: 4px solid var(--info); }
+	.profile.c-public { border-top-color: var(--ok); } .profile.c-pii-regulated { border-top-color: #b83280; }
+	.profile h3 { margin: 0 0 4px; font-size: 15px; display: flex; justify-content: space-between; gap: 8px; }
+	.profile ul { margin: 6px 0; padding-left: 18px; font-size: 12px; }
+	.cls { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11px; color: #fff; background: var(--info); white-space: nowrap; }
+	.cls.c-public { background: var(--ok); } .cls.c-pii-regulated { background: #b83280; }
+	.ctl { display: inline-block; margin: 1px 2px 1px 0; padding: 0 6px; border-radius: 6px; font-size: 11px; background: color-mix(in srgb, var(--ok) 16%, var(--chip)); color: var(--ok); white-space: nowrap; }
+	.ctl.no { background: color-mix(in srgb, var(--conflict) 16%, var(--chip)); color: var(--conflict); }
+	.obar { display: grid; grid-template-columns: minmax(110px, 200px) 1fr 120px; gap: 10px; align-items: center; padding: 4px 0; font-size: 13px; }
+	.obar .bar { height: 10px; }
+	.obar .bar > div.over { background: var(--conflict); }
+	.obar .bar { position: relative; }
+	.obar .bar .budget { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--text); }
+	.risks { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+	.risk { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; border-left: 4px solid var(--ok); }
+	.risk.hit { border-left-color: var(--conflict); } .risk.some { border-left-color: var(--warn); }
+	.risk h4 { margin: 0 0 6px; font-size: 13px; display: flex; justify-content: space-between; gap: 8px; }
+	.risk h4 b { font-size: 18px; }
+	.risk div.why { margin: 3px 0; }
+	.mockcard { border: 1px dashed var(--warn); border-radius: 10px; padding: 10px 12px; }
 	/* Code view */
 	a.src { color: var(--info); text-decoration: none; } a.src:hover { text-decoration: underline; }
 	#codeview { padding: 16px 24px 32px; }
@@ -183,6 +209,7 @@
 <header>
 	<h1>git<span>.next</span></h1>
 	<nav>
+		<a href="#org">Org</a>
 		<a href="#stack">1 · Rules in force</a>
 		<a href="#newrepo">2 · New repos</a>
 		<a href="#cost">3 · Cost &amp; overspend</a>
@@ -232,6 +259,13 @@
 		<section class="panel" id="cvmain"><p class="empty">Pick a file.</p></section>
 		<section class="panel cv-rules" id="cvrules"></section>
 	</div>
+</div>
+<div id="orgview" hidden>
+	<section class="panel hero"><h2>Org overview</h2><div class="sub" id="orgsub">Every repo's classification profile, owner, team and cost centre; spend against budget; review flow; risk and instruction health. Built from stored push results, review records and AI Gateway logs.</div><div class="body" id="orgkpis"><p class="empty">Loading…</p></div></section>
+	<section class="panel hero" id="orgapps"><h2>Apps and classification</h2><div class="sub">A repo declares its class in <code>.gitnext/app.json</code>; the org registry fills in what it doesn't say and sets budgets. A repo can raise its class, never lower it. Each profile adds its own rules layer and catalog limits.</div><div class="body"></div></section>
+	<section class="panel hero" id="orgspend"><h2>Spend</h2><div class="sub">This month's AI Gateway spend, rolled up across every repo and fork, against team and project budgets.</div><div class="body"></div></section>
+	<section class="panel hero" id="orgflow"><h2>Review and flow</h2><div class="sub">Pushes in the review Workflow, what waits for a person and for how long, who decides, and attempts in flight.</div><div class="body"></div></section>
+	<section class="panel hero" id="orgrisk"><h2>Risk and instruction health</h2><div class="sub">What needs attention across the org, from the latest analysis of each repo and every push review.</div><div class="body"></div></section>
 </div>
 <script>
 const $ = (sel, el = document) => el.querySelector(sel);
@@ -934,8 +968,12 @@ function setRoute(patch) {
 async function showView() {
 	const route = parseRoute();
 	const inCode = !!route;
-	$("main").hidden = inCode;
+	const inOrg = location.hash === "#org";
+	$("main").hidden = inCode || inOrg;
 	$("#codeview").hidden = !inCode;
+	$("#orgview").hidden = !inOrg;
+	document.body.classList.toggle("org", inOrg);
+	if (inOrg) return typeof showOrg === "function" ? showOrg() : undefined; // defined in the next script
 	if (!inCode) return;
 	if (cv.route.repo !== route.repo || cv.route.path !== route.path || !cv.route.repo) window.scrollTo(0, 0);
 	cv.route = route;
@@ -1219,6 +1257,169 @@ $("#cvtabs").querySelectorAll("button").forEach((b) => b.addEventListener("click
 $("#cvfilter").addEventListener("input", () => cvTree());
 window.addEventListener("hashchange", showView);
 showView();
+</script>
+<script>
+// ── Org view: classification profiles, spend vs budget, review flow, risk (GET /org) ──
+const org = { data: null, top: "project", timer: null, loading: null };
+const MOCK = `<span class="mocked" title="Not real data: a labelled mock-up">mock-up</span>`;
+const cls = (c, title) => `<span class="cls c-${esc(c)}">${esc(title || c)}</span>`;
+const repoLink = (repo) => `<a class="src" href="${esc(codeHref(repo, "", 0))}"><code>${esc(repo)}</code></a>`;
+const ago = (h) => (h == null ? "—" : h < 1 ? `${Math.round(h * 60)} min` : h < 48 ? `${h.toFixed(1)} h` : `${(h / 24).toFixed(1)} days`);
+const pct = (a, b) => (b ? Math.min(100, Math.round((a / b) * 100)) : 0);
+
+async function showOrg(fresh = false) {
+	clearInterval(org.timer);
+	org.timer = setInterval(() => { if (location.hash === "#org") loadOrg(false); else clearInterval(org.timer); }, 30000);
+	await loadOrg(fresh);
+}
+async function loadOrg(fresh) {
+	if (org.loading) return org.loading;
+	org.loading = (async () => {
+		try {
+			org.data = await getJson(`/org${fresh ? "?fresh=1" : ""}`);
+			renderOrg();
+		} catch (err) {
+			if (!org.data) $("#orgkpis").innerHTML = `<p class="empty">Could not load the org view: ${esc(err.message)}</p>`;
+		} finally {
+			org.loading = null;
+		}
+	})();
+	return org.loading;
+}
+
+function renderOrg() {
+	const d = org.data;
+	const s = d.spend, f = d.flow, r = d.risk;
+	const over = s.monthUsd > s.forecast.budgetUsd;
+	const missing = r.piiMissingControls.length;
+	const conflicts = r.conflicts.reduce((n, x) => n + x.conflicts, 0);
+	$("#orgsub").innerHTML = `Every repo's classification profile, owner, team and cost centre; spend against budget; review flow; risk and instruction health. Live: ${num(d.sources.costRecords)} AI Gateway records (<code>${esc(d.sources.costs)}</code>), ${d.sources.reviews} push reviews, ${d.sources.storedResults} stored analyses · org registry ${esc(d.registryVersion)} · catalog ${esc(d.catalogVersion)} · ${esc(new Date(d.generatedAt).toLocaleTimeString())} <button type="button" class="secondary" id="orgrefresh" style="padding:1px 8px;font-size:12px">Refresh</button>`;
+	$("#orgrefresh").addEventListener("click", () => loadOrg(true));
+	$("#orgkpis").innerHTML = `
+		<div class="big">
+			<div class="stat ${over ? "bad" : ""}"><b>${usd(s.monthUsd)}</b><span>AI spend in ${esc(d.month)} · budget ${usd(s.forecast.budgetUsd)}</span></div>
+			<div class="stat"><b>${usd(s.forecast.projectedUsd)}</b><span>month-end forecast ${MOCK}</span></div>
+			<div class="stat ${s.overBudget.length ? "bad" : "good"}"><b>${s.overBudget.length}</b><span>teams or projects over budget</span></div>
+			<div class="stat ${f.waiting.length ? "warnc" : "good"}"><b>${f.waiting.length}</b><span>waiting for a person${f.oldest ? ` · oldest ${ago(f.oldest.ageHours)}` : ""}</span></div>
+			<div class="stat ${missing ? "bad" : "good"}"><b>${missing}</b><span>PII repos missing controls</span></div>
+			<div class="stat ${conflicts ? "bad" : "good"}"><b>${conflicts}</b><span>unresolved rule conflicts</span></div>
+		</div>
+		${d.errors?.length ? `<details><summary>${d.errors.length} source(s) could not be read</summary>${d.errors.map((e) => `<div class="why">${esc(e)}</div>`).join("")}</details>` : ""}`;
+	renderOrgApps(d);
+	renderOrgSpend(d);
+	renderOrgFlow(d);
+	renderOrgRisk(d);
+}
+
+function renderOrgApps(d) {
+	const limits = (p) => {
+		const l = p.limits || {};
+		const out = [];
+		if (p.layer) out.push(`adds the rules layer <code>${esc(p.layer)}</code> at org rank`);
+		if (l.models?.length) out.push(`models narrowed to ${l.models.map((m) => `<code>${esc(short(m))}</code>`).join(", ")}`);
+		if (l.guardrails) out.push("AI Gateway guardrails required");
+		if (l.dataLocation) out.push(`data stays in ${esc(l.dataLocation.toUpperCase())}`);
+		if (l.reviewPaths?.length) out.push(`a person reviews every change to ${l.reviewPaths.slice(0, 4).map((g) => `<code>${esc(g)}</code>`).join(", ")}${l.reviewPaths.length > 4 ? ` and ${l.reviewPaths.length - 4} more paths` : ""}`);
+		return out.length ? `<ul>${out.map((x) => `<li>${x}</li>`).join("")}</ul>` : `<ul><li>org baseline layers and catalog, unchanged</li></ul>`;
+	};
+	const rows = d.repos.map((x) => `<tr>
+		<td>${repoLink(x.repo)}${x.forks.length ? `<div class="why">${x.forks.length} fork${x.forks.length === 1 ? "" : "s"}</div>` : ""}</td>
+		<td>${cls(x.class, x.profile)}<div class="why">${x.classSource === "repo" ? "declared in <code>.gitnext/app.json</code>" : x.classSource === "org" ? "org registry" : "org default (undeclared)"}</div>${x.error ? `<div class="why" style="color:var(--conflict)">${esc(x.error)}</div>` : ""}</td>
+		<td>${x.owner ? `<code>${esc(x.owner)}</code>` : `<span style="color:var(--conflict)">no owner</span>`}<div class="why">${esc(x.teamName || x.team || "no team")}${x.costCentre ? ` · ${esc(x.costCentre)}` : ""}</div></td>
+		<td>${esc(x.environment)}</td>
+		<td>${usd(x.spendUsd)}${x.budgetUsd != null ? `<div class="why" ${x.spendUsd > x.budgetUsd ? 'style="color:var(--conflict)"' : ""}>of ${usd(x.budgetUsd)}</div>` : `<div class="why">no budget</div>`}</td>
+		<td>${x.controls.map((c) => `<span class="ctl ${c.ok ? "" : "no"}" title="${esc(c.evidence)}">${c.ok ? "✓" : "✗"} ${esc(c.label)}</span>`).join(" ")}</td>
+	</tr>`);
+	$("#orgapps .body").innerHTML = `
+		<div class="profiles">${d.profiles.map((p) => `<div class="profile c-${esc(p.id)}"><h3>${esc(p.title)} <span class="chip">${p.repos.length} repo${p.repos.length === 1 ? "" : "s"}</span></h3><div class="why">${esc(p.summary)}</div>${limits(p)}<div>${p.repos.map((x) => `<span class="chip">${esc(x)}</span>`).join(" ")}</div></div>`).join("")}</div>
+		<div class="scroll" style="max-height:none"><table><tr><th style="width:17%">Repo</th><th style="width:15%">Class</th><th style="width:17%">Owner · team · cost centre</th><th style="width:9%">Env</th><th style="width:9%">Spend</th><th>Required controls (hover for evidence)</th></tr>${rows.join("")}</table></div>`;
+}
+
+function renderOrgSpend(d) {
+	const s = d.spend;
+	const DIMS = { project: "Project", environment: "Environment", resource: "Resource (provider)", model: "Model", developer: "Developer" };
+	const top = s.top[org.top] || [];
+	const max = Math.max(...top.map((t) => t.cost), 0.000001);
+	const bars = top.map((t) => `<div class="obar"><div>${org.top === "model" ? `<code>${esc(short(t.key))}</code>` : esc(t.key)}</div><div class="bar"><div style="width:${pct(t.cost, max)}%"></div></div><div>${usd(t.cost)} <span class="why">${num(t.requests)} calls</span></div></div>`).join("");
+	const budgetRow = (name, spend, budget, sub) => {
+		const scale = Math.max(spend, budget || 0, 0.000001);
+		return `<div class="obar"><div>${esc(name)}${sub ? `<div class="why">${sub}</div>` : ""}</div><div class="bar"><div class="${budget != null && spend > budget ? "over" : ""}" style="width:${pct(spend, scale)}%"></div>${budget != null ? `<span class="budget" style="left:${pct(budget, scale)}%" title="budget ${usd(budget)}"></span>` : ""}</div><div>${usd(spend)} <span class="why">${budget != null ? `/ ${usd(budget)}` : "no budget"}</span></div></div>`;
+	};
+	$("#orgspend .body").innerHTML = `
+		<div class="two">
+			<div>
+				<h3 class="sub" style="margin:0 0 6px">Top spend by</h3>
+				<div class="tabs">${Object.entries(DIMS).map(([k, v]) => `<button type="button" data-top="${k}" class="${org.top === k ? "on" : ""}">${v}</button>`).join("")}</div>
+				${bars || `<p class="empty">No spend this month.</p>`}
+			</div>
+			<div>
+				<h3 class="sub" style="margin:0 0 6px">Teams against monthly budget</h3>
+				${s.teams.map((t) => budgetRow(t.name, t.spendUsd, t.budgetUsd, `${t.costCentre ? esc(t.costCentre) : ""}${t.projects.length ? ` · ${t.projects.map(esc).join(", ")}` : ""}`)).join("")}
+				${s.overBudget.length ? `<div style="margin-top:10px">${s.overBudget.map((o) => `<div class="why" style="color:var(--conflict)">⚠ ${esc(o.level)} <b>${esc(o.key)}</b> at ${o.pct}% of its ${usd(o.budgetUsd)} budget (${usd(o.spendUsd)})</div>`).join("")}</div>` : `<p class="why">Everyone is within budget.</p>`}
+			</div>
+		</div>
+		<div class="two" style="margin-top:16px">
+			<div>
+				<h3 class="sub" style="margin:0 0 6px">Cost per merged change</h3>
+				<table><tr><th>Project</th><th style="width:22%">Spend</th><th style="width:22%">Cleared to merge</th><th style="width:22%">Per change</th></tr>${s.perMergedChange.map((p) => `<tr><td>${esc(p.project)}</td><td>${usd(p.spendUsd)}</td><td>${p.merged}</td><td>${p.perChangeUsd != null ? usd(p.perChangeUsd) : `<span class="why">no change cleared</span>`}</td></tr>`).join("")}</table>
+				<div class="why">Changes the review Workflow approved or auto-approved this month (the merge gate); spend from the AI Gateway logs.</div>
+			</div>
+			<div class="mockcard">
+				<h3 class="sub" style="margin:0 0 6px">Month-end forecast ${MOCK}</h3>
+				<div class="big" style="margin:4px 0 8px"><div class="stat ${s.forecast.projectedUsd > s.forecast.budgetUsd ? "bad" : ""}"><b>${usd(s.forecast.projectedUsd)}</b><span>projected · budget ${usd(s.forecast.budgetUsd)}</span></div><div class="stat"><b>${s.forecast.day}/${s.forecast.daysInMonth}</b><span>days into ${esc(d.month)}</span></div></div>
+				<div class="why">${esc(s.forecast.note)} The month-to-date figure it starts from is real.</div>
+			</div>
+		</div>`;
+	$("#orgspend .body").querySelectorAll("[data-top]").forEach((b) => b.addEventListener("click", () => { org.top = b.dataset.top; renderOrgSpend(org.data); }));
+}
+
+function renderOrgFlow(d) {
+	const f = d.flow;
+	const decided = f.approved + f.rejected;
+	$("#orgflow .body").innerHTML = `
+		<div class="stats">
+			<div class="stat"><b>${f.open}</b><span>open in the Workflow</span></div>
+			<div class="stat"><b>${f.waiting.length}</b><span>waiting for a person</span></div>
+			<div class="stat"><b>${ago(f.avgWaitHours)}</b><span>average wait</span></div>
+			<div class="stat"><b>${f.oldest ? ago(f.oldest.ageHours) : "—"}</b><span>oldest${f.oldest ? `: ${esc(f.oldest.repo)}@${esc(f.oldest.ref)}` : ""}</span></div>
+			<div class="stat good"><b>${f.approved}</b><span>approved (incl. auto)</span></div>
+			<div class="stat ${f.rejected ? "bad" : ""}"><b>${f.rejected}</b><span>rejected</span></div>
+			<div class="stat"><b>${f.inFlight}</b><span>forks and branches in flight</span></div>
+		</div>
+		${decided ? `<div class="bar" style="height:10px;margin-bottom:12px" title="approved ${f.approved} · rejected ${f.rejected}"><div style="width:${pct(f.approved, decided)}%;background:var(--ok)"></div></div>` : ""}
+		<div class="two">
+			<div>
+				<h3 class="sub" style="margin:0 0 6px">Waiting for a person</h3>
+				${f.waiting.length ? `<table><tr><th style="width:38%">Change</th><th style="width:16%">Class</th><th>Why</th><th style="width:16%">Waiting</th></tr>${f.waiting.map((w) => `<tr><td><code>${esc(w.repo)}${w.ref !== "main" ? `@${esc(w.ref)}` : ""}</code> <code class="why">${esc(w.after.slice(0, 7))}</code></td><td>${cls(w.class)}</td><td>${w.reasons.map((k) => `<span class="chip">${esc(k)}</span>`).join(" ")}</td><td>${ago(w.ageHours)}${w.ageHours > f.sla.targetHours[w.class] ? ` <span class="chip sev-warn" title="past the mock-up SLA">late</span>` : ""}</td></tr>`).join("")}</table>` : `<p class="empty">Nothing is waiting.</p>`}
+				${f.attempts.length ? `<h3 class="sub" style="margin:14px 0 6px">Several agents, one task</h3>${f.attempts.map((a) => `<div class="why"><b>${esc(a.task)}</b> (${esc(a.project)}): ${a.attempts.map((x) => `<code>${esc(x)}</code>`).join(" vs ")} · <a href="#parallel">compare</a></div>`).join("")}` : ""}
+			</div>
+			<div>
+				<h3 class="sub" style="margin:0 0 6px">Reviewer load</h3>
+				${f.reviewers.length ? `<table><tr><th>Reviewer</th><th style="width:20%">Approved</th><th style="width:20%">Rejected</th><th style="width:26%">Queue share</th></tr>${f.reviewers.map((x) => `<tr><td>${esc(x.by)}</td><td>${x.approved}</td><td>${x.rejected}</td><td>${x.share ?? "—"}</td></tr>`).join("")}</table><div class="why">Admins (Access identities) who may decide; queue share is what's waiting divided among them.</div>` : `<p class="empty">No reviewers configured (ADMIN_EMAILS).</p>`}
+				<div class="mockcard" style="margin-top:12px">
+					<h3 class="sub" style="margin:0 0 6px">Review SLA ${MOCK}</h3>
+					<div class="why">${Object.entries(f.sla.targetHours).map(([k, h]) => `${esc(k)} ${h} h`).join(" · ")} → <b>${f.sla.breached}</b> waiting change${f.sla.breached === 1 ? "" : "s"} past target. ${esc(f.sla.note)} Wait times are real.</div>
+				</div>
+			</div>
+		</div>`;
+}
+
+function renderOrgRisk(d) {
+	const r = d.risk;
+	const card = (title, n, body, severity = "hit") => `<div class="risk ${n ? severity : ""}"><h4><span>${title}</span><b>${n}</b></h4>${n ? body : `<div class="why">None.</div>`}</div>`;
+	const list = (xs, f, max = 6) => xs.slice(0, max).map(f).join("") + (xs.length > max ? `<div class="why">and ${xs.length - max} more</div>` : "");
+	$("#orgrisk .body").innerHTML = `<div class="risks">
+		${card("PII repos missing controls", r.piiMissingControls.length, list(r.piiMissingControls, (x) => `<div class="why">${repoLink(x.repo)}: ${x.missing.map((m) => `<span class="ctl no">✗ ${esc(m)}</span>`).join(" ")}</div>`))}
+		${card("Flagged pushes", r.flaggedPushes.length, list(r.flaggedPushes, (x) => `<div class="why"><code>${esc(x.repo)}${x.ref !== "main" ? `@${esc(x.ref)}` : ""}</code> ${esc(x.status)} · ${x.kinds.map((k) => `<span class="chip">${esc(k)}</span>`).join(" ")}</div>`), "some")}
+		${card("Catalog violations by repo", r.catalogByRepo.length, list(r.catalogByRepo, (x) => `<div class="why">${repoLink(x.repo)}: ${x.code ? `${x.code} in code${Object.keys(x.byKind).length ? ` (${Object.entries(x.byKind).map(([k, n]) => `${n} ${esc(k)}`).join(", ")})` : ""}` : ""}${x.code && x.gatewayModels.length ? "; " : ""}${x.gatewayModels.length ? `gateway calls to ${x.gatewayModels.map((m) => `<code>${esc(short(m))}</code>`).join(", ")} outside its class's catalog` : ""}</div>`))}
+		${card("Unresolved rule conflicts", r.conflicts.length, list(r.conflicts, (x) => `<div class="why">${repoLink(x.repo)}: ${x.conflicts} conflict${x.conflicts === 1 ? "" : "s"} a person has to settle</div>`))}
+		${card("Drift from the org baseline", r.drift.length, list(r.drift, (x) => `<div class="why">${repoLink(x.repo)}: ${esc(x.what)}</div>`), "some")}
+		${card("Repos without AGENTS.md", r.noInstructions.length, list(r.noInstructions, (x) => `<div class="why">${repoLink(x)}: agents get no project rules</div>`), "some")}
+		${card("Plugin hooks that need review", r.riskyHooks.length, list(r.riskyHooks, (x) => `<div class="why">${repoLink(x.repo)}: ${esc(x.title.replace(/^Plugin hook needs review: /, ""))}</div>`), "some")}
+		${card("Overlap hotspots", r.overlap.length, list(r.overlap, (x) => `<div class="why"><code>${esc(x.path)}</code> (${esc(x.project)}): ${x.who.map((w) => `<code>${esc(w)}</code>`).join(", ")}</div>`), "some")}
+	</div>`;
+}
+if (location.hash === "#org") showOrg();
 </script>
 </body>
 </html>

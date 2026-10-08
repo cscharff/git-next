@@ -1,0 +1,45 @@
+{
+	"version": "2026.10.1",
+	"owner": "@acme/platform",
+	"defaultClass": "internal",
+	"profiles": [
+		{
+			"id": "public",
+			"title": "Public",
+			"summary": "Open source or customer-facing code with no customer data. The org baseline applies as is.",
+			"limits": {}
+		},
+		{
+			"id": "internal",
+			"title": "Internal",
+			"summary": "Internal tools and services. The org baseline applies as is; data paths follow the normal push review.",
+			"limits": {}
+		},
+		{
+			"id": "pii-regulated",
+			"title": "PII-regulated",
+			"summary": "Stores or processes personal data. Adds the PII rules layer, narrows the catalog to two models, requires guardrails and EU data location, and sends every change to a data path to a person.",
+			"layer": "profiles/pii-regulated.md",
+			"limits": {
+				"models": ["anthropic/claude-sonnet-5.5", "@cf/zai-org/glm-5.3-flash"],
+				"guardrails": true,
+				"dataLocation": "eu",
+				"reviewPaths": ["migrations/**", "schema/**", "**/*.sql", "src/data/**", "src/db/**", "src/storage/**", "src/uploads/**", "**/wrangler.jsonc", "**/wrangler.json", "**/wrangler.toml"]
+			}
+		}
+	],
+	"teams": [
+		{ "id": "agents", "name": "Agents platform", "owner": "@acme/agents", "costCentre": "CC-4100", "budgetUsd": 0.75 },
+		{ "id": "cms", "name": "CMS", "owner": "@acme/cms", "costCentre": "CC-4200", "budgetUsd": 0.5 },
+		{ "id": "storage", "name": "Storage and uploads", "owner": "@acme/storage", "costCentre": "CC-4300", "budgetUsd": 0.25 },
+		{ "id": "platform", "name": "Developer platform", "owner": "@acme/platform", "costCentre": "CC-4000", "budgetUsd": 1 }
+	],
+	"projects": [
+		{ "repo": "agents-demo-full", "class": "internal", "team": "agents", "owner": "@acme/agents", "environment": "production", "budgetUsd": 0.6 },
+		{ "repo": "emdash-demo", "class": "public", "team": "cms", "owner": "@acme/cms", "environment": "production", "budgetUsd": 0.5 },
+		{ "repo": "uploads-smart", "class": "pii-regulated", "team": "storage", "owner": "@acme/storage", "environment": "staging", "budgetUsd": 0.1 },
+		{ "repo": "uploads-bare", "class": "pii-regulated", "team": "storage", "environment": "staging", "budgetUsd": 0.1 },
+		{ "repo": "claude-plugins", "class": "internal", "team": "platform", "owner": "@acme/devex", "environment": "development" },
+		{ "repo": "git-next", "class": "internal", "team": "platform", "owner": "@acme/platform", "environment": "production", "budgetUsd": 1 }
+	]
+}
