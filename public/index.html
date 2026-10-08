@@ -532,6 +532,8 @@ async function renderParallel() {
 		// Without live attempts, show the recorded attempt run (samples/attempts-demo.json) for its project.
 		const useSample = !compare && sample && (sample.project === (work?.project ?? repo));
 		parallel.data = { work, sets: sets?.sets ?? [], compare: compare ?? (useSample ? sample : null), sample: useSample, reviews: reviews?.reviews ?? [], admin: !!reviews?.admin };
+		// The cost panel's routing suggestion uses the attempt comparison just loaded.
+		if (state.costView === "live") renderCost();
 	}
 	const { work, sets, compare, sample, reviews = [], admin } = parallel.data || {};
 	// Merge gate: an attempt may merge once its push review is approved, or when nothing in it needed review.
@@ -559,7 +561,8 @@ async function renderParallel() {
 		${a.findings.length ? `<ul>${a.findings.map((f) => `<li>${esc(f.title)} <a class="src" href="${esc(codeHref(a.repo, f.path, f.line || 0, { ref: a.ref }))}"><code>${esc(f.path.split("/").slice(-2).join("/"))}${f.line ? `:${f.line}` : ""}</code></a></li>`).join("")}</ul>` : ""}
 		${a.overlaps.length ? `<div class="why" style="color:var(--warn)">⚠ overlaps ${a.overlaps.map((o) => `${esc(o.repo)}${o.ref !== "main" ? `@${esc(o.ref)}` : ""}`).join(", ")}</div>` : ""}
 		<div class="why" style="margin-top:6px">${a.reasons.map(esc).join(" · ")}</div>
-		<div class="row" style="margin-top:8px">Push review: ${reviewChip(reviewOf(a))}</div>
+		<div class="row" style="margin-top:8px" title="Mock-up. The real version would run the project's typecheck and tests for this attempt in a Cloudflare Sandbox and add the result to the ranking.">Tests (Sandbox): ${a.findings.length ? `<span class="chip">skipped: blocked by catalog</span>` : `<span class="chip verdict-pick">typecheck ✓</span> <span class="chip verdict-pick">tests ✓</span>`} ${mockedBadge(true)}</div>
+		<div class="row">Push review: ${reviewChip(reviewOf(a))}</div>
 		${a.verdict === "pick" ? (() => { const r = reviewOf(a); const ok = r && (r.status === "approved" || r.status === "auto-approved"); return `<button type="button" disabled title="${ok ? "Not wired: merging would fast-forward main to this attempt and close the others" : "Locked until the push review approves this change"}" style="opacity:.75">${ok ? "Merge into main" : "Merge locked: review first"} <span class="mocked" style="border-color:#fff;color:#fff">mocked</span></button>`; })() : ""}
 	</div>`;
 	el.innerHTML = `
@@ -684,9 +687,27 @@ function renderCost() {
 			</div>
 			${fits.length ? `<h3 style="margin:16px 0 8px;font-size:15px">Right-size the model</h3><div class="cards">${fits.map((f) => `<div class="card warnb" style="border-left-color:var(--ok)"><h4>${esc(f.metrics.agent)} · ${esc(f.metrics.taskLabel)}${f.metrics.suggestCloud ? ` <span class="chip">${esc(CLOUD_LABEL[f.metrics.cloud])} → ${esc(CLOUD_LABEL[f.metrics.suggestCloud])}</span>` : ""}${mockedBadge(f.metrics.mocked)}</h4><code>${esc(short(f.metrics.model))}</code> → <code>${esc(short(f.metrics.suggest))}</code> <b style="color:var(--ok)">save ${usd(f.metrics.estimatedSaving)}</b><div class="why">${esc(f.metrics.why)} · ${f.metrics.requests} calls, ${usd(f.metrics.actualCost)} now vs ${usd(f.metrics.estimatedCost)}</div></div>`).join("")}</div>` : ""}
 			${flags.length || policy.length ? `<h3 style="margin:16px 0 8px;font-size:15px">Flags</h3><div class="cards">${[...flags, ...policy].map((f) => `<div class="card warnb"><h4>${esc(f.title)}${mockedBadge(f.scope.env?.mocked || f.metrics?.mocked)}</h4><div class="why">${esc(f.detail)}</div></div>`).join("")}</div>` : ""}
+			${state.costView === "live" ? gatewayControls(m) : ""}
 			<p class="sub" style="margin-top:10px">Source: ${esc(m.source)}${state.costView === "team" ? " · illustrative team of four developers" : ""}${m.mockedRequests ? ` · ${m.mockedRequests} mocked requests (Bedrock, Vertex AI, vLLM fixtures), not real spend` : ""}${slice ? " · developer, fork and agent breakdowns cover all clouds" : ""}</p>`;
 	}
 	body.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => { state.costView = b.dataset.v; renderCost(); }));
+}
+
+/**
+ * AI Gateway controls beyond logging. Cached-request counts are real (from the gateway logs); guardrails and routing
+ * are mock-ups of what turning them on would show. The routing suggestion comes from the latest attempt comparison.
+ */
+function gatewayControls(m) {
+	const top = (m.rollup || [])[0];
+	const cached = top?.cachedRequests ?? 0;
+	const pick = parallel.data?.compare?.attempts?.find((a) => a.verdict === "pick");
+	const runnerUp = parallel.data?.compare?.attempts?.find((a) => a !== pick && !a.findings.length);
+	const route = pick && runnerUp && pick.cost.usd < runnerUp.cost.usd ? { from: short(runnerUp.model ?? ""), to: short(pick.model ?? ""), task: String(parallel.data.compare.task).split("#")[0], ratio: runnerUp.cost.usd / Math.max(pick.cost.usd, 1e-6) } : null;
+	return `<h3 style="margin:16px 0 8px;font-size:15px">AI Gateway controls</h3><div class="cards">
+		<div class="card" style="border-left-color:var(--info)"><h4>Caching <span class="livechip">live</span></h4><div class="why"><b>${num(cached)}</b> of ${num(top?.requests ?? m.requests)} requests served from cache. Caching is off on the git-next gateway; rule extraction and repeated context requests are the candidates (same prompt, same answer). Turning it on is one gateway setting.</div></div>
+		<div class="card warnb"><h4>Guardrails and DLP ${mockedBadge(true)}</h4><div class="why">Prompt and response checks on every agent call. Illustrative: <b>1</b> prompt held because the context included an API key pattern from a test fixture, <b>0</b> responses blocked. With DLP on, secrets and personal data are caught at the gateway before they reach any model.</div></div>
+		<div class="card" style="border-left-color:var(--ok)"><h4>Dynamic routing ${route ? "" : mockedBadge(true)}${route ? ` <span class="chip">suggested</span>` : ""}</h4><div class="why">${route ? `Route <code>${esc(route.task)}#*</code> tasks to <code>${esc(route.to)}</code>, fall back to <code>${esc(route.from)}</code>. In the last attempt comparison both changes were clean and ${esc(route.to)} cost ${route.ratio.toFixed(0)}× less.` : "Route by task type with a fallback chain, e.g. docs fixes to a small model and refactors to a large one."} ${mockedBadge(true)} not configured on the gateway yet.</div></div>
+	</div>`;
 }
 
 function renderResources(items) {

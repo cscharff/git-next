@@ -388,6 +388,12 @@ visible on the dashboard:
    it's auto-approved.
 5. **record decision:** who decided, when and why, on the review record.
 
+**Mock-ups (labelled on screen):** each attempt card has a "Tests (Sandbox)" row showing what running the project's
+typecheck and tests for that attempt in a Cloudflare Sandbox would add (not wired yet; it doesn't affect the
+ranking). The cost panel's "AI Gateway controls" shows the real cache hit count (caching is off on the git-next
+gateway, `cache_ttl` 0), a mocked guardrails/DLP card, and a dynamic-routing suggestion derived from the latest
+attempt comparison (not configured on the gateway).
+
 The push itself has already landed in Artifacts, so the gate is on merging: in "Agents in parallel" an attempt's
 merge button stays locked until its review is approved or auto-approved. `GET /reviews` lists recent runs with their
 step timeline. The Queue consumer now only starts a Workflow instance per push (one per repo, ref and commit, so
