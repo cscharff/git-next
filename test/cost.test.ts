@@ -141,6 +141,19 @@ describe("gatewayLogsSource", () => {
 		expect(calls.every((c) => !c.url.includes("test-token"))).toBe(true);
 	});
 
+	it("fetches the remaining pages concurrently when the API reports a total, up to maxPages", async () => {
+		const seen: number[] = [];
+		const fetcher = (async (url: string) => {
+			const page = Number(new URL(url).searchParams.get("page"));
+			seen.push(page);
+			return Response.json({ success: true, result: Array.from({ length: 50 }, (_, i) => log({ id: `${page}-${i}`, cost: 0.01 }, { repo: "r" })), result_info: { total_count: 1000 } });
+		}) as typeof fetch;
+		const recs = await gatewayLogsSource({ accountId: "a", gatewayId: "g", token: "t", fetcher, maxPages: 7 }).records({});
+		expect(recs).toHaveLength(350);
+		expect(seen.sort((a, b) => a - b)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+		expect(new Set(recs.map((r) => r.id)).size).toBe(350);
+	});
+
 	it("raises API errors without echoing the token", async () => {
 		const fetcher = (async () => Response.json({ success: false, errors: [{ message: "Authentication error" }] }, { status: 403 })) as unknown as typeof fetch;
 		const err = await gatewayLogsSource({ accountId: "a", gatewayId: "g", token: "secret-value", fetcher }).records({}).catch((e) => e);

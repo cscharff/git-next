@@ -8,7 +8,7 @@ import { checkChange } from "./work.ts";
 // dashboard shows (status, timeline, reasons, decision).
 
 export interface SensitiveReason {
-	kind: "instructions" | "org-config" | "infrastructure" | "secrets" | "ci-hooks-plugins" | "dependencies" | "catalog";
+	kind: "instructions" | "org-config" | "infrastructure" | "secrets" | "ci-hooks-plugins" | "dependencies" | "catalog" | "profile";
 	path: string;
 	why: string;
 }

@@ -115,20 +115,26 @@ export function gatewayLogsSource(cfg: GatewayLogsConfig): CostSource {
 	return {
 		id: `ai-gateway:${cfg.gatewayId}`,
 		async records({ repo }) {
-			const out: CostRecord[] = [];
 			const maxPages = cfg.maxPages ?? 20;
-			for (let page = 1; page <= maxPages; page++) {
+			const fetchPage = async (page: number) => {
 				const qs = new URLSearchParams({ per_page: "50", page: String(page), order_by: "created_at", order_by_direction: "desc", ...(repo ? { search: repo } : {}) });
 				const res = await fetcher(`https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(cfg.accountId)}/ai-gateway/gateways/${encodeURIComponent(cfg.gatewayId)}/logs?${qs}`, {
 					headers: { authorization: `Bearer ${cfg.token}` },
 				});
 				const body = (await res.json().catch(() => null)) as { success?: boolean; result?: unknown[]; errors?: { message?: string }[]; result_info?: { total_count?: number } } | null;
 				if (!res.ok || !body?.success) throw new Error(`AI Gateway logs: HTTP ${res.status} ${body?.errors?.map((e) => e.message).join("; ") ?? ""}`.trim());
-				const rows = body.result ?? [];
-				out.push(...parseGatewayLogs(rows).filter((r) => matchesRepo(r, repo)));
-				if (rows.length < 50) break;
+				return { rows: body.result ?? [], total: body.result_info?.total_count };
+			};
+			const first = await fetchPage(1);
+			const pages: unknown[][] = [first.rows];
+			if (first.rows.length >= 50 && first.total) {
+				// The total is known: fetch the remaining pages five at a time instead of one by one.
+				const last = Math.min(maxPages, Math.ceil(first.total / 50));
+				for (let page = 2; page <= last; page += 5) pages.push(...(await Promise.all(Array.from({ length: Math.min(5, last - page + 1) }, (_, k) => fetchPage(page + k).then((p) => p.rows)))));
+			} else {
+				for (let page = 2; page <= maxPages && pages[pages.length - 1].length >= 50; page++) pages.push((await fetchPage(page)).rows);
 			}
-			return out;
+			return pages.flatMap((rows) => parseGatewayLogs(rows).filter((r) => matchesRepo(r, repo)));
 		},
 	};
 }

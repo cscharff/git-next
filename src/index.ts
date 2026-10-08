@@ -22,6 +22,10 @@ import { getIndex, getResult, kvExtractCache, parsePushEvent, putResult, type Pu
 import { classifyChange, instanceIdFor, parseDecision, reviewKey, type ReviewRecord, type ReviewStatus } from "./review.ts";
 import baselineCatalogJson from "../fixtures/org-baseline/catalog.json" with { type: "json" };
 import { parseCatalog } from "./providers/catalog.ts";
+import orgRegistryJson from "../fixtures/org-baseline/org.json" with { type: "json" };
+import piiProfileLayer from "../fixtures/org-baseline/profiles/pii-regulated.md?raw";
+import { APP_FILE, parseAppDeclaration, parseOrgRegistry, profileCatalog, profileOf, profileReviewReasons, resolveApp, withProfileLayers } from "./org.ts";
+import { buildOrg } from "./org-routes.ts";
 import { llmExtractor, memoryCache, type ExtractCache } from "./providers/instruction-stack/llm-extract.ts";
 import { keywordExtractor } from "./providers/instruction-stack/extract.ts";
 import { DEFAULT_ORDER, validOrder, type LayerKind, type PrecedenceOverride, type RuleExtractor } from "./providers/instruction-stack/types.ts";
@@ -39,6 +43,10 @@ const SAMPLES: Record<string, unknown> = ALL_SAMPLES;
 
 /** The org's current catalog (org-baseline). Validated at startup so a bad catalog fails loudly. */
 const BASELINE_CATALOG = parseCatalog(JSON.stringify(baselineCatalogJson));
+/** Classification profiles, teams, budgets and the project registry (org-baseline/org.json). Validated at startup. */
+const ORG = parseOrgRegistry(JSON.stringify(orgRegistryJson));
+/** Profile rules layers, by their path in the org registry. */
+const PROFILE_LAYERS: Record<string, string> = { "profiles/pii-regulated.md": piiProfileLayer };
 
 // Real AI Gateway logs when the account id and a read token are configured (.dev.vars / Worker secrets),
 // otherwise the cost provider uses the bundled fixture.
@@ -94,10 +102,15 @@ const isLocal = (url: URL) => ["localhost", "127.0.0.1", "[::1]"].includes(url.h
 /** Demo layers are allowed locally, and when deployed with DEMO_LAYERS=on (for agents-demo-* repos only). */
 const demoLayersFor = (url: URL | null, repo: string) => (url ? isLocal(url) : false) || (env.DEMO_LAYERS === "on" && repo.startsWith("agents-demo"));
 
-/** Repo reader for a request; `demo` overlays fixtures/demo-layers (and `envs` the mocked environments) without touching the repo. */
-function contextFor(url: URL | null, repo: string, demo: boolean, envs = false): RepoContext {
+/**
+ * Repo reader for a request; `demo` overlays fixtures/demo-layers (and `envs` the mocked environments) without touching
+ * the repo. `profiles` adds the repo's classification profile layer (e.g. PII-regulated) to its stack, for analysis
+ * and sliced context; the Code view and diffs read the repo as it is.
+ */
+function contextFor(url: URL | null, repo: string, demo: boolean, envs = false, profiles = false): RepoContext {
 	const factory = (name: string) => artifactsSource(env.ARTIFACTS, name);
-	return new RepoContext((demo || envs) && demoLayersFor(url, repo) ? withDemoLayers(factory, repo, { envs }) : factory);
+	const layered = (demo || envs) && demoLayersFor(url, repo) ? withDemoLayers(factory, repo, { envs }) : factory;
+	return new RepoContext(profiles ? withProfileLayers(layered, ORG, PROFILE_LAYERS) : layered);
 }
 
 /** Wiring for the Code view: the same repo readers the analysis uses (demo layers included where allowed). */
@@ -150,11 +163,56 @@ const workDeps = (url: URL | null): WorkRouteDeps => ({
 	costs: async (project) => (costSource ? costSource.records({ repo: project }) : []),
 });
 
+/** Every review record (KV, written by the PushReview Workflow), newest first; capped so a busy org stays cheap. */
+async function allReviews(limit = 200): Promise<ReviewRecord[]> {
+	const keys: KVNamespaceListKey<{ updatedAt?: string }>[] = [];
+	let cursor: string | undefined;
+	do {
+		const page = await env.RESULTS.list<{ updatedAt?: string }>({ prefix: "review/", ...(cursor ? { cursor } : {}) });
+		keys.push(...page.keys);
+		cursor = page.list_complete ? undefined : page.cursor;
+	} while (cursor && keys.length < 1000);
+	const recent = keys.sort((a, b) => (b.metadata?.updatedAt ?? "").localeCompare(a.metadata?.updatedAt ?? "")).slice(0, limit);
+	return (await Promise.all(recent.map((k) => env.RESULTS.get(k.name, "json") as Promise<ReviewRecord | null>))).filter((r): r is ReviewRecord => !!r);
+}
+
+/** The Org view, computed from live data and kept for 30 seconds per isolate (the dashboard polls it). */
+let orgCache: { at: number; body: unknown } | null = null;
+async function orgView(url: URL, fresh: boolean) {
+	if (!fresh && orgCache && Date.now() - orgCache.at < 30_000) return orgCache.body;
+	const deps = workDeps(url);
+	const body = await buildOrg({
+		org: ORG,
+		catalog: BASELINE_CATALOG,
+		async listRepos() {
+			const { repos } = await env.ARTIFACTS.list({ limit: 100 });
+			return repos.map((r) => ({ name: r.name, source: r.source ?? null, defaultBranch: r.defaultBranch }));
+		},
+		files: (repo) => contextFor(url, repo, false),
+		index: async () => (await getIndex(env.RESULTS)).index,
+		stored: async (repo, ref) => (await getResult(env.RESULTS, repo, ref)) as Record<string, any> | null,
+		reviews: () => allReviews(),
+		precedenceOverridden: async (repo) => !!(await env.RESULTS.get(`precedence/${repo}`)),
+		costs: async () => {
+			if (!costSource) throw new Error("AI Gateway logs are not configured (CF_ACCOUNT_ID, AIG_LOGS_TOKEN)");
+			return costSource.records({});
+		},
+		costSource: costSource?.id ?? "none",
+		async work(project) {
+			const items = await workInFlight(deps, project);
+			return { project, items: items.map((w) => ({ repo: w.repo, ref: w.ref, agent: w.agent, task: w.task, files: w.files.map((f) => f.path), updatedAt: w.updatedAt })) };
+		},
+		reviewers: adminEmails(),
+	});
+	orgCache = { at: Date.now(), body };
+	return body;
+}
+
 type ContextBody = Partial<{ repo: string; ref: string; task: string; paths: string[]; budgetTokens: number; layers: string; catalog: string; extractor: string; retriever: string }>;
 
 /** Sliced context for a task plus `inFlight`: other forks and branches already changing the same paths. */
 async function contextWithOverlap(url: URL | null, body: ContextBody & { repo: string; task: string }) {
-	const files = contextFor(url, body.repo, body.layers === "demo");
+	const files = contextFor(url, body.repo, body.layers === "demo", false, true);
 	const paths = Array.isArray(body.paths) ? body.paths.filter((p) => typeof p === "string") : [];
 	const inFlight = (async () => {
 		const deps = workDeps(url);
@@ -231,7 +289,7 @@ export default {
 			const only = url.searchParams.get("providers")?.split(",").filter(Boolean);
 			// ?envs=demo adds the MOCKED multi-cloud environments and the Bedrock/Vertex/vLLM cost fixtures (demo layers only).
 			const envs = url.searchParams.get("envs") === "demo" && demoLayersFor(url, repo);
-			const files = contextFor(url, repo, url.searchParams.get("layers") === "demo", envs);
+			const files = contextFor(url, repo, url.searchParams.get("layers") === "demo", envs, true);
 			const started = Date.now();
 			try {
 				// ?cost=fixture uses the bundled team sample instead of live gateway logs (for the team-overspend view).
@@ -323,7 +381,7 @@ export default {
 				using handle = await env.ARTIFACTS.get(body.repo!);
 				const [head] = await handle.log({ ref: "main", limit: 1 });
 				const started = Date.now();
-				const files = contextFor(null, body.repo!, true);
+				const files = contextFor(null, body.repo!, true, false, true);
 				const result = await registry.run({ repo: body.repo!, ref: head.hash, files });
 				await putResult(env.RESULTS, body.repo!, "main", { repo: body.repo, ref: "main", commit: head.hash, base: null, ms: Date.now() - started, ...result }, null);
 				return Response.json({ ok: true, entry });
@@ -364,6 +422,15 @@ export default {
 			};
 			await env.PUSHES.send(event);
 			return Response.json({ enqueued: true, repo: body.repo, after: head.hash });
+		}
+
+		// GET /org : classification profiles, spend vs budget, review flow, risk and instruction health across all repos.
+		if (request.method === "GET" && url.pathname === "/org") {
+			try {
+				return Response.json(await orgView(url, url.searchParams.has("fresh")));
+			} catch (err) {
+				return Response.json({ error: String(err).slice(0, 500) }, { status: 500 });
+			}
 		}
 
 		// GET /reviews?repo= : recent push reviews (PushReview Workflow runs) with status, timeline and reasons.
@@ -480,7 +547,7 @@ export class PushReview extends WorkflowEntrypoint<Env, PushParams> {
 
 		const summary = await step.do("analyse", STEP, async () => {
 			const started = Date.now();
-			const files = contextFor(null, repo, true);
+			const files = contextFor(null, repo, true, false, true);
 			const result = await registry.run({ repo, ref: trigger.after, base: trigger.before ?? undefined, files });
 			const entry = await putResult(env.RESULTS, repo, ref, { repo, ref, commit: trigger.after, base: trigger.before, ms: Date.now() - started, ...result }, trigger);
 			const s = { conflicts: entry.conflicts, catalogViolations: entry.catalogViolations, warnings: entry.warnings, insights: entry.insights };
@@ -513,7 +580,11 @@ export class PushReview extends WorkflowEntrypoint<Env, PushParams> {
 				const b = await files.readBytes(repo, side === "before" ? base! : trigger.after, path).catch(() => null);
 				return b ? new TextDecoder().decode(b) : null;
 			};
-			const found = await classifyChange(changed, text, BASELINE_CATALOG);
+			// The repo's class narrows the catalog (e.g. PII: two models) and sends its data paths to a person.
+			const project = (await sourceOf(repo)) ?? repo;
+			const declared = parseAppDeclaration(await text(APP_FILE, "after").catch(() => null)).decl;
+			const profile = profileOf(ORG, resolveApp(ORG, project, declared).class);
+			const found = [...(await classifyChange(changed, text, profileCatalog(BASELINE_CATALOG, profile))), ...profileReviewReasons(profile, changed)];
 			await updateReview(key, (r) => ({ ...stepped(r, "classify", started, found.length ? `${found.length} sensitive change(s) in ${changed.length} file(s)` : `nothing sensitive in ${changed.length} file(s)`), reasons: found }));
 			return found;
 		});
