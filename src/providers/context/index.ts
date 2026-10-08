@@ -101,7 +101,8 @@ export async function buildContext(files: RepoContext, req: ContextRequest, make
 	const { sections, copies } = dedupeSections(allSections);
 	const duplicateTokens = allSections.length === sections.length ? 0 : tokensAllMarkdown - sections.reduce((n, s) => n + s.tokens, 0);
 	const instructionPaths = new Set(stack.layers.filter((l) => l.repo === repo).map((l) => l.path));
-	const onPath = stack.layers.filter((l) => l.repo === repo && (paths.length ? paths.some((p) => governs(l.scopeDir, p)) : l.scopeDir === ""));
+	// Instruction files an agent would load anyway for these paths (on-demand skills and commands aren't).
+	const onPath = stack.layers.filter((l) => l.repo === repo && !l.onDemand && (paths.length ? paths.some((p) => governs(l.scopeDir, p)) : l.scopeDir === ""));
 	const tokensInstructionFilesOnPath = onPath.reduce((n, l) => n + estimateTokens(stack.texts.get(l) ?? ""), 0);
 
 	// 3. Retrieve and re-weight: governing instruction files and nearby docs up, unrelated instruction files down.

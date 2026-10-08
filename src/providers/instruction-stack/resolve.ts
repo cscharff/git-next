@@ -32,7 +32,7 @@ const where = (r: Rule) => `${r.layer.name} [${r.layer.kind}] (${r.layer.path}:$
 export function modelProvider(model: string): string {
 	const vendor = model.match(/^(anthropic|openai|google|mistral|deepseek|workers-ai)\//)?.[1];
 	if (vendor) return vendor;
-	if (/^claude-/.test(model)) return "anthropic";
+	if (/^claude-/.test(model) || /^(sonnet|opus|haiku|fable)(\[1m\])?$/.test(model)) return "anthropic";
 	if (/^(gpt-|o\d)/.test(model)) return "openai";
 	if (/^gemini-/.test(model)) return "google";
 	if (/^@cf\//.test(model)) return "workers-ai";
@@ -82,6 +82,8 @@ export function resolve(rules: Rule[], facts: ConfigFact[] = []): Finding[] {
 				const a = list[i];
 				const b = list[j];
 				if (a.value === b.value || !overlaps(a, b) || compatible(a, b) === true) continue;
+				// Two different skills/commands each apply to their own task once loaded: they don't contend.
+				if (a.layer.onDemand && b.layer.onDemand && !sameLayer(a, b)) continue;
 				const pairKey = [topic, ...[a, b].map((r) => `${r.layer.path}=${r.value}`).sort()].join("|");
 				if (seen.has(pairKey)) continue;
 				seen.add(pairKey);
@@ -129,10 +131,13 @@ export function resolve(rules: Rule[], facts: ConfigFact[] = []): Finding[] {
 	return findings;
 }
 
-/** The winning rule per topic for a directory (highest precedence; ties keep every peer value), unscoped rules plus `env`'s. */
+/**
+ * The winning rule per topic for a directory (highest precedence; ties keep every peer value), unscoped rules plus
+ * `env`'s. On-demand layers (skills, subagents, commands) only apply once loaded, so they never win here.
+ */
 export function effectiveRules(rules: Rule[], dir: string, env?: Cloud): Rule[] {
 	const out: Rule[] = [];
-	for (const [, list] of Map.groupBy(rules.filter((r) => appliesTo(r, dir) && (!ruleEnv(r) || ruleEnv(r) === env)), (r) => r.topic)) {
+	for (const [, list] of Map.groupBy(rules.filter((r) => !r.layer.onDemand && appliesTo(r, dir) && (!ruleEnv(r) || ruleEnv(r) === env)), (r) => r.topic)) {
 		const top = list.reduce((best, r) => (precedence(r.layer, best.layer) > 0 ? r : best));
 		const winners = list.filter((r) => precedence(r.layer, top.layer) === 0);
 		out.push(...winners.filter((r, i) => winners.findIndex((w) => w.value === r.value) === i));

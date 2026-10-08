@@ -36,7 +36,15 @@ export interface Layer {
 	path: string;
 	/** Directory the layer governs ("" = whole repo). Stack-file layers govern the whole repo. */
 	scopeDir: string;
-	origin: "project" | "stack" | "agent" | "memory";
+	origin: "project" | "stack" | "agent" | "memory" | "skill" | "subagent" | "command";
+	/**
+	 * Loaded only when needed (skills, subagents, slash commands): its rules are checked for conflicts and policy but
+	 * don't decide what wins in a directory. `trigger` says when it loads (a description, or the command name).
+	 */
+	onDemand?: boolean;
+	trigger?: string;
+	/** The Claude Code plugin that ships the layer, if any. */
+	plugin?: string;
 	/** Stack layers only: the layer applies in this cloud's environments only (e.g. an on-prem platform layer). */
 	env?: Cloud;
 }
