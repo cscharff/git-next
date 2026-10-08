@@ -691,11 +691,19 @@ async function selectFork(fork) {
 	$("#fork").value = fork;
 	state.sampleRepo = $("#reposel").value = "agents-demo-full"; // forks are of agents-demo-full
 	state.repo = fork || "agents-demo-full";
-	const live = state.index.find((e) => e.repo === state.repo && e.ref === "main");
-	if (live) return loadStored(live.repo, live.ref, false);
+	// A live result for main, else for whichever branch the repo was analysed on (imports can be master-only).
+	const live = state.index.find((e) => e.repo === state.repo && e.ref === "main") ?? state.index.find((e) => e.repo === state.repo);
+	if (live) {
+		state.followLive = true;
+		return loadStored(live.repo, live.ref, false).catch((err) => showBanner(`Could not load the live result for ${live.repo}: ${err.message}`));
+	}
 	if (!fork) return loadSamples();
 	const agent = state.demoRun.agents.find((a) => a.fork === fork);
-	state.insights = await getJson(`/samples/demo-run/${encodeURIComponent(fork)}.json`);
+	try {
+		state.insights = await getJson(`/samples/demo-run/${encodeURIComponent(fork)}.json`);
+	} catch (err) {
+		return showBanner(`No live or recorded result for ${fork} yet (${err.message}).`);
+	}
 	state.source = `demo run (${agent?.agent ?? fork})`;
 	$("#repo").value = fork;
 	$("#base").value = agent?.base ?? "";
