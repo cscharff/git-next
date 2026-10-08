@@ -1,6 +1,7 @@
 import type { RepoContext, TreeFile } from "../core/repo-context.ts";
 import { isCloud, isResourceKind, type Cloud, type Insight, type InsightProvider, type ResourceKind } from "../core/types.ts";
 import { parseJsonc } from "../parse/jsonc.ts";
+import { scanPlugins } from "./instruction-stack/plugins.ts";
 import { isWranglerConfig, parseWranglerConfig, type BindingType } from "./resource-map.ts";
 
 // Checks a repo against its org's catalog of approved models, resources, tools and checks, and scans for
@@ -224,7 +225,7 @@ export function bindingApproval(catalog: Catalog, type: string, resource?: strin
 // ── provider ──────────────────────────────────────────────────────────────────
 
 export interface CatalogFinding {
-	kind: "model" | "binding" | "gateway" | "secret";
+	kind: "model" | "binding" | "gateway" | "secret" | "tool";
 	title: string;
 	detail: string;
 	evidence: { path: string; line?: number }[];
@@ -304,6 +305,15 @@ export async function checkCatalog(files: RepoContext, repo: string, ref: string
 					? { kind: "model", title: `Planning-only model in code: ${model}`, detail: `${model} is approved for ${entry.jobs!.join("/")} only (${entry.rule ?? "catalog"}), not for application code. Approved for code: ${approved}.`, evidence: where.slice(0, 5) }
 					: { kind: "model", title: `Unapproved model: ${model}`, detail: `${model} is not in catalog ${catalog.version}. Approved: ${approved}.`, evidence: where.slice(0, 5) },
 			);
+		}
+		// MCP servers Claude Code plugins in the repo would start: only the catalog's tools.mcpServers are approved.
+		if (catalog.tools?.mcpServers) {
+			const approved = catalog.tools.mcpServers;
+			const norm = (u: string) => u.replace(/\/+$/, "").toLowerCase();
+			for (const plugin of (await scanPlugins(files, repo, ref)).plugins)
+				for (const m of plugin.mcpServers)
+					if (!approved.some((a) => a.name === m.name || (a.url && m.url && norm(a.url) === norm(m.url))))
+						findings.push({ kind: "tool", title: `MCP server not in catalog: ${m.name}`, detail: `Plugin ${plugin.name} starts MCP server "${m.name}" (${m.url ?? m.command}), which catalog ${catalog.version} doesn't list. Approved: ${approved.map((a) => a.name).join(", ") || "none"}.`, evidence: [{ path: plugin.manifest }] });
 		}
 		for (const f of configs) {
 			const text = texts.find((t) => t.path === f.path)?.text ?? "";

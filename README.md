@@ -385,6 +385,21 @@ them, and every insight, record and dashboard element about them says `mocked`.
   their folder. Their `model`/`models` become an allowed-models rule checked against the org's provider policy (an
   agent configured for an unapproved provider is a policy conflict), and their `rules`/`instructions` go through the
   normal extractor with real line numbers. The parser is a small YAML subset; anything else is ignored.
+- **Claude Code plugins and skills, on demand.** Skills (`skills/<name>/SKILL.md`), subagents (`agents/<name>.md`) and
+  slash commands (`commands/**.md`) shipped by a plugin (a folder with `.claude-plugin/plugin.json`), or kept in a
+  repo's own `.claude/` (skills also in `.agents/`), join the stack as tool-rank layers marked **on demand**. Their
+  frontmatter `model` (aliases like `opus` count as Anthropic) becomes an allowed-models rule, and their body goes
+  through the normal extractor with real line numbers. Because they only apply once loaded, they never decide what
+  wins in a folder, and two different skills aren't set against each other. A skill that contradicts an always-on
+  layer (the org, the project) is still a conflict. Byte-identical copies (one per template) count once. Each layer
+  shows when it loads: the skill's description, or the command name.
+  Skills elsewhere (an app's runtime skills under `examples/…/skills/`, a skill's `references/` docs) aren't layers.
+- **Plugin inventory and checks.** The dashboard lists each plugin's version, skills, subagents, commands, hooks,
+  registered code modules and MCP servers. It warns when the marketplace (`.claude-plugin/marketplace.json`) lists
+  a different version than `plugin.json` or points at a plugin that isn't there, when a hook runs something worth a
+  look (network fetch, piping to a shell, recursive delete, sudo, eval), and when a skill or subagent has no
+  description (an agent can't tell when to use it). With a catalog in force, MCP servers a plugin starts must be in
+  the catalog's `tools.mcpServers`. Plugin files are read as data; nothing in them is run.
 - **Agent memory, lowest rank.** `.gitnext/memory/*.md` and `AGENT_MEMORY.md` are a `memory` layer at rank 6, below
   personal. What an agent "remembers" applies only where no human-authored layer speaks, and loses otherwise.
 - **`git next doctor [--update]`.** For a repo made with `git next new`, it shows whether the catalog is behind the

@@ -407,7 +407,11 @@ function renderStack(items, catalogItems = []) {
 	const summary = items.find((i) => i.title.startsWith("Instruction stack"));
 	if (!summary) return (body.innerHTML = `<p class="empty">No instruction-stack data.</p>`);
 	const m = summary.metrics;
-	const layers = [...m.layers].sort((a, b) => a.rank - b.rank || a.depth - b.depth);
+	const allLayers = [...m.layers].sort((a, b) => a.rank - b.rank || a.depth - b.depth);
+	// Skills, subagents and slash commands load on demand: listed apart, they never decide what wins in a folder.
+	const layers = allLayers.filter((l) => !l.onDemand);
+	const onDemand = allLayers.filter((l) => l.onDemand);
+	const plugins = m.plugins || [];
 	const perLayer = m.rulesPerLayer || {};
 	const ruleCount = (l) => perLayer[`${l.repo}:${l.path}`] ?? 0;
 	const conflicts = items.filter((i) => i.metrics?.kind === "conflict");
@@ -423,6 +427,7 @@ function renderStack(items, catalogItems = []) {
 	body.innerHTML = `
 		<div class="big">
 			<div class="stat"><b>${layers.length}</b><span>instruction layers</span></div>
+			${onDemand.length ? `<div class="stat"><b>${onDemand.length}</b><span>on demand: skills, agents, commands</span></div>` : ""}
 			<div class="stat"><b>${totalRules}</b><span>rules extracted</span></div>
 			<div class="stat ${conflicts.length ? "bad" : "good"}"><b>${conflicts.length}</b><span>conflicts to settle</span></div>
 			<div class="stat ${warnings.length ? "warnc" : ""}"><b>${warnings.length}</b><span>policy / drift warnings</span></div>
@@ -436,6 +441,8 @@ function renderStack(items, catalogItems = []) {
 				${(m.skippedLayers || []).length ? `<div class="legend">Not counted: ${m.skippedLayers.map((x) => `<code>${esc(x.path)}</code> (${esc(x.reason)} of <code>${esc(x.of)}</code>)`).join(", ")}</div>` : ""}
 				<div id="prec"></div>
 				${layers.map((l) => `<div class="layer ${esc(l.kind)}"><div class="rank">${l.rank}${l.kind === "project" ? `.${l.depth}` : ""}</div><div class="who">${kind(l.kind)} <b style="display:inline">${esc(l.name)}</b><a class="src" style="display:block" href="${esc(codeHref(l.repo || state.repo, l.path, 0))}"><code>${esc(l.repo && l.repo !== state.repo ? l.repo + ":" : "")}${esc(l.path)}</code></a></div><div class="counts">${ruleCount(l)} rule${ruleCount(l) === 1 ? "" : "s"}${rootWins(l) ? `<br><b style="color:var(--text)">wins ${rootWins(l)}</b> at root` : ""}</div></div>`).join("")}
+				${onDemand.length ? `<details ${layers.length ? "" : "open"}><summary>On demand: ${onDemand.length} skills, subagents and commands (tool rank; checked for conflicts and policy, never win a folder)</summary>
+					${onDemand.map((l) => `<div class="layer tool" style="border-left-style:dotted"><div class="rank" style="font-size:11px">${esc(l.origin)}</div><div class="who"><b style="display:inline">${esc(l.name)}</b>${l.trigger ? `<div class="why">loads ${l.origin === "command" ? "as" : "when"}: ${esc(l.trigger.slice(0, 160))}</div>` : ` <span class="chip sev-warn">no description</span>`}<a class="src" style="display:block" href="${esc(codeHref(l.repo || state.repo, l.path, 0))}"><code>${esc(l.path)}</code></a></div><div class="counts">${ruleCount(l)} rule${ruleCount(l) === 1 ? "" : "s"}</div></div>`).join("")}</details>` : ""}
 			</div>
 			<div>
 				<div class="row"><h3 class="sub" style="margin:0">What wins in</h3><select id="dir">${dirs.map((x) => `<option>${esc(x)}</option>`).join("")}</select></div>
@@ -444,6 +451,8 @@ function renderStack(items, catalogItems = []) {
 		</div>
 		${conflicts.length ? `<h3 style="margin:18px 0 8px;font-size:15px">Conflicts: two hard rules disagree, so a person has to decide</h3>
 		<div class="cards">${conflicts.map((c) => { const [a, b] = c.metrics.values; return `<div class="card"><h4>${esc(c.metrics.topic)}${envBadge(c.scope.env)}</h4><div class="vs">${sideHtml(a)}<div class="x">✗</div>${sideHtml(b)}</div></div>`; }).join("")}</div>` : `<p class="sub" style="margin-top:14px">✓ No conflicts: every disagreement is settled by rank.</p>`}
+		${plugins.length ? `<h3 style="margin:18px 0 8px;font-size:15px">Claude Code plugins${m.marketplace ? ` <span class="chip">marketplace ${esc(m.marketplace.name || m.marketplace.path)}</span>` : ""}</h3>
+		<table><tr><th style="width:18%">Plugin</th><th style="width:12%">Version</th><th>Skills</th><th style="width:14%">Agents · commands</th><th style="width:26%">Hooks · modules</th><th style="width:14%">MCP servers</th></tr>${plugins.map((p) => `<tr><td><a class="src" href="${esc(codeHref(state.repo, p.manifest, 0))}"><b>${esc(p.name)}</b></a>${p.description ? `<div class="why">${esc(p.description.slice(0, 90))}</div>` : ""}</td><td><code>${esc(p.version || "—")}</code>${p.marketplaceVersion && p.marketplaceVersion !== p.version ? `<div class="why" style="color:var(--warn)">marketplace says ${esc(p.marketplaceVersion)}</div>` : ""}</td><td>${p.skills.map((x) => `<span class="chip">${esc(x)}</span>`).join(" ") || `<span class="empty">—</span>`}</td><td>${[...p.subagents.map((x) => `agent ${x}`), ...p.commands.map((x) => `/${x.replace(/\//g, ":")}`)].map((x) => `<span class="chip">${esc(x)}</span>`).join(" ") || `<span class="empty">—</span>`}</td><td>${[...p.hooks.map((h) => `<div class="why"${h.risk ? ` style="color:var(--warn)" title="${esc(h.risk)}"` : ""}>${esc(h.event)}${h.matcher ? ` (${esc(h.matcher)})` : ""}: <code>${esc(h.command.slice(0, 60))}</code>${h.risk ? " ⚠" : ""}</div>`), ...(p.modules || []).map((x) => `<div class="why" title="Code the plugin registers to run inside the app">module <code>${esc(x)}</code></div>`)].join("") || `<span class="empty">—</span>`}</td><td>${p.mcpServers.map((x) => `<span class="chip" title="${esc(x.url || x.command || "")}">${esc(x.name)}</span>`).join(" ") || `<span class="empty">—</span>`}</td></tr>`).join("")}</table>` : ""}
 		${warnings.length || catViolations.length ? `<h3 style="margin:18px 0 8px;font-size:15px">Policy and drift</h3><div class="cards">${[...warnings, ...catViolations].map((w) => `<div class="card warnb"><h4>${esc(w.title)}</h4><div class="why">${esc(w.detail)}</div></div>`).join("")}</div>` : ""}`;
 
 	const showWinners = () => {
@@ -871,8 +880,10 @@ function treeOf(files) {
 function cvLayerBadge(path) {
 	const m = stackMetrics(cv.insights);
 	const l = (m?.layers || []).find((x) => x.path === path && (x.repo || state.repo) === cv.route.repo);
+	if (l?.onDemand) return ` <span class="chip badge k-${esc(l.kind)}" title="${esc(l.name)} · on demand${l.trigger ? `: ${esc(l.trigger)}` : ""}">${esc(l.origin)}</span>`;
 	if (l) return ` <span class="chip badge k-${esc(l.kind)}" title="${esc(l.name)} · rank ${esc(l.rank)}">${esc(l.kind)} ${esc(l.rank)}${l.kind === "project" ? `.${esc(l.depth)}` : ""}</span>`;
-	return /(^|\/)(AGENTS|CLAUDE|GEMINI)\.md$|(^|\/)agent\.ya?ml$/i.test(path) ? ` <span class="chip badge">instructions</span>` : "";
+	if (/(^|\/)\.claude-plugin\/(plugin|marketplace)\.json$|(^|\/)hooks\/hooks\.json$/.test(path)) return ` <span class="chip badge">plugin</span>`;
+	return /(^|\/)(AGENTS|CLAUDE|GEMINI|SKILL)\.md$|(^|\/)agent\.ya?ml$/i.test(path) ? ` <span class="chip badge">instructions</span>` : "";
 }
 function cvTree() {
 	const filter = $("#cvfilter").value.trim().toLowerCase();

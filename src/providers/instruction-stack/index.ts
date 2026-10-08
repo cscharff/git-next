@@ -5,6 +5,7 @@ import { describeDrift, findCopyDrift, groupDrift, symlinkTarget } from "./copy-
 import { parseYamlSubset } from "../../parse/yaml.ts";
 import { configFacts, isConfigFactFile, type ConfigFact } from "./config-facts.ts";
 import { keywordExtractor } from "./extract.ts";
+import { componentRules, findComponents, readManifests, scanPlugins, triggerOf } from "./plugins.ts";
 import { effectiveRules, resolve, type Finding } from "./resolve.ts";
 import { DEFAULT_ORDER, KIND_RANK, LAYER_KINDS, ranksFor, ruleEnv, validOrder, type Layer, type LayerKind, type PrecedenceOverride, type Rule, type RuleExtractor } from "./types.ts";
 
@@ -35,6 +36,13 @@ export async function collectLayers(files: RepoContext, repo: string, ref: strin
 	for (const f of await files.find(repo, ref, isMemoryFile)) {
 		const dir = f.path.startsWith(".gitnext/") ? "" : dirOf(f.path);
 		layers.push({ name: `memory ${f.path}`, kind: "memory", rank: ranks.memory, depth: dir ? dir.split("/").length : 0, repo, path: f.path, scopeDir: dir, origin: "memory" });
+	}
+	// Claude Code plugins and the repo's own .claude/.agents skills, subagents and commands: tool rank, on demand.
+	const { paths, manifests } = await readManifests(files, repo, ref);
+	for (const c of findComponents(paths, manifests)) {
+		const pluginName = c.pluginRoot === null ? undefined : String(manifests.get(c.pluginRoot)?.name ?? (c.pluginRoot.split("/").pop() || repo));
+		const text = (await files.readFile(repo, ref, c.path).catch(() => null)) ?? "";
+		layers.push({ name: `${c.kind} ${c.name}${pluginName ? ` (${pluginName})` : ""}`, kind: "tool", rank: ranks.tool, depth: c.scopeDir ? c.scopeDir.split("/").length : 0, repo, path: c.path, scopeDir: c.scopeDir, origin: c.kind, onDemand: true, trigger: triggerOf(c, text), ...(pluginName ? { plugin: pluginName } : {}) });
 	}
 	const stackText = await files.readFile(repo, ref, STACK_FILE);
 	if (stackText) {
@@ -132,6 +140,14 @@ export function dedupeLayers(layers: Layer[], texts: Map<Layer, string>): { kept
 				continue;
 			}
 		}
+		// A skill or command vendored into several places (one per template) is one set of instructions: keep the first.
+		if (l.onDemand && text != null) {
+			const same = seen.find((k) => k.onDemand && k.origin === l.origin && texts.get(k) === text);
+			if (same) {
+				skipped.push({ path: l.path, reason: "duplicate", of: same.path });
+				continue;
+			}
+		}
 		seen.push(l);
 	}
 	const order = (path: string) => layers.findIndex((l) => l.path === path);
@@ -153,9 +169,17 @@ export async function loadStack(files: RepoContext, repo: string, ref: string, e
 		}),
 	);
 	const { kept: layers, skipped } = dedupeLayers(collected, texts);
-	for (const s of skipped) texts.delete(collected.find((l) => l.path === s.path && l.origin === "project")!);
+	for (const s of skipped) texts.delete(collected.find((l) => l.path === s.path && (l.origin === "project" || l.onDemand))!);
 	// Extract every layer in parallel (model-backed extraction makes this matter); keep layer order.
-	const perLayer = await Promise.all(layers.map((layer) => (!texts.has(layer) ? [] : layer.origin === "agent" ? agentYamlRules(layer, texts.get(layer)!, extractor) : extractor.extract(layer, texts.get(layer)!))));
+	const perLayer = await Promise.all(
+		layers.map((layer) => {
+			const text = texts.get(layer);
+			if (text == null) return [];
+			if (layer.origin === "agent") return agentYamlRules(layer, text, extractor);
+			if (layer.origin === "skill" || layer.origin === "subagent" || layer.origin === "command") return componentRules(layer, text, extractor);
+			return extractor.extract(layer, text);
+		}),
+	);
 	const rules: Rule[] = perLayer.flat();
 	const factFiles = await files.find(repo, ref, isConfigFactFile);
 	const facts = (await Promise.all(factFiles.map(async (f) => configFacts(f.path, (await files.readFile(repo, ref, f.path)) ?? "")))).flat();
@@ -177,7 +201,7 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 		async analyze({ repo, ref, files }) {
 			const prec = (await opts.precedence?.(repo).catch(() => null)) ?? null;
 			const override = prec?.override && validOrder(prec.override.order) ? prec.override : null;
-			const [{ layers, rules, facts, skipped, errors }, drift] = await Promise.all([loadStack(files, repo, ref, extractor, override), findCopyDrift(files, repo, ref).then(groupDrift)]);
+			const [{ layers, rules, facts, skipped, errors }, drift, plugins] = await Promise.all([loadStack(files, repo, ref, extractor, override), findCopyDrift(files, repo, ref).then(groupDrift), scanPlugins(files, repo, ref)]);
 			const findings = resolve(rules, facts);
 
 			const insights: Insight[] = findings.map((f) => ({
@@ -202,18 +226,25 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 					metrics: { kind: "drift", topic: "copies", ...g },
 				});
 			}
+			// Plugins: version drift against the marketplace, missing plugins, hooks worth a look, undescribed skills.
+			for (const f of plugins.findings)
+				insights.push({ provider: "instruction-stack", severity: f.severity, scope: { repo, ref, path: f.evidence[0]?.path }, title: f.title, detail: f.detail, evidence: f.evidence.map((e) => ({ repo, ...e })), metrics: { kind: "plugin", topic: "plugins" } });
+			const onDemand = layers.filter((l) => l.onDemand);
 			insights.unshift({
 				provider: "instruction-stack",
 				severity: errors.length ? "warn" : "info",
 				scope: { repo, ref },
-				title: `Instruction stack: ${layers.length} layers, ${rules.length} rules${override ? " (precedence overridden)" : ""}`,
+				title: `Instruction stack: ${layers.length} layers${onDemand.length ? ` (${onDemand.length} on demand)` : ""}, ${rules.length} rules${override ? " (precedence overridden)" : ""}`,
 				detail: errors.length
 					? `Errors: ${errors.join("; ")}`
 					: `Extractor ${extractor.id}; ${findings.length} findings.${skipped.length ? ` Skipped ${skipped.length} file(s) that repeat a layer: ${skipped.map((s) => `${s.path} (${s.reason} of ${s.of})`).join(", ")}.` : ""}`,
 				evidence: layers.map((l) => ({ repo: l.repo, path: l.path })),
 				metrics: {
 					extractor: extractor.id,
-					layers: layers.map((l) => ({ name: l.name, kind: l.kind, rank: l.rank, depth: l.depth, repo: l.repo, path: l.path, origin: l.origin, ...(l.env ? { env: l.env } : {}) })),
+					layers: layers.map((l) => ({ name: l.name, kind: l.kind, rank: l.rank, depth: l.depth, repo: l.repo, path: l.path, origin: l.origin, ...(l.env ? { env: l.env } : {}), ...(l.onDemand ? { onDemand: true, trigger: l.trigger ?? "" } : {}), ...(l.plugin ? { plugin: l.plugin } : {}) })),
+					// Claude Code plugins in the repo: what each ships (skills, subagents, commands, hooks, MCP servers).
+					plugins: plugins.plugins,
+					marketplace: plugins.marketplace,
 					// Rules each layer contributes, so the dashboard can show how much of the stack comes from where.
 					// Layer order in force, and any admin override with its audit trail (always shown in the UI).
 					precedence: {
@@ -228,7 +259,7 @@ export function instructionStackProvider(extractor: RuleExtractor = keywordExtra
 					rulesByTopic: Object.fromEntries([...Map.groupBy(rules, (r) => r.topic)].map(([t, rs]) => [t, [...new Set(rs.map((r) => r.value))]])),
 					// Winning rule per topic at the repo root and in each directory with its own instruction file.
 					effective: Object.fromEntries(
-						["", ...new Set(layers.filter((l) => l.scopeDir).map((l) => l.scopeDir))].map((dir) => [
+						["", ...new Set(layers.filter((l) => l.scopeDir && !l.onDemand).map((l) => l.scopeDir))].map((dir) => [
 							dir || ".",
 							effectiveRules(rules, dir).map((r) => ({ topic: r.topic, value: r.value, strength: r.strength, layer: r.layer.name, kind: r.layer.kind, path: r.layer.path, line: r.line })),
 						]),
