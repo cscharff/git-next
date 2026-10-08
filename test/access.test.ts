@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { accessToken, resetAccessCache, verifyAccess } from "../src/access.ts";
+import { accessToken, identityOf, resetAccessCache, verifyAccess } from "../src/access.ts";
 
 const team = "example.cloudflareaccess.com";
 const aud = "aud-tag-123";
@@ -29,6 +29,10 @@ describe("verifyAccess", () => {
 		expect(await verifyAccess(await sign(good), cfg)).toEqual({ email: "member@example.com", sub: undefined });
 	});
 
+	it("reports a service token's client id (Access leaves its email empty)", async () => {
+		expect(await verifyAccess(await sign({ ...good, email: "", sub: "", common_name: "abc123.access" }), cfg)).toEqual({ email: "", sub: "", serviceToken: "abc123.access" });
+	});
+
 	it("rejects missing, expired, wrong-audience, wrong-issuer, unknown-key and tampered tokens", async () => {
 		expect(await verifyAccess(null, cfg)).toBeNull();
 		expect(await verifyAccess(await sign({ ...good, exp: 1_799_999_000 }), cfg)).toBeNull();
@@ -44,5 +48,13 @@ describe("verifyAccess", () => {
 		expect(accessToken(new Request("https://x", { headers: { "Cf-Access-Jwt-Assertion": "a.b.c" } }))).toBe("a.b.c");
 		expect(accessToken(new Request("https://x", { headers: { Cookie: "x=1; CF_Authorization=d.e.f" } }))).toBe("d.e.f");
 		expect(accessToken(new Request("https://x"))).toBeNull();
+	});
+});
+
+describe("identityOf", () => {
+	it("uses the email, or service:<client id> for a service token (with a short name for audit trails)", async () => {
+		expect(identityOf({ email: "a@example.com" })).toEqual({ id: "a@example.com", name: "a@example.com" });
+		expect(identityOf({ email: "", serviceToken: "abc123def456.access" })).toEqual({ id: "service:abc123def456.access", name: "service token abc123" });
+		expect(identityOf({ sub: "s-1" })).toEqual({ id: "s-1", name: "s-1" });
 	});
 });

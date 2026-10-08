@@ -35,12 +35,12 @@ export function accessToken(request: Request): string | null {
 }
 
 /** Returns the verified token's claims, or null if the token is missing, malformed, unsigned by the team, expired or for another app. */
-export async function verifyAccess(token: string | null, cfg: AccessConfig): Promise<{ email?: string; sub?: string } | null> {
+export async function verifyAccess(token: string | null, cfg: AccessConfig): Promise<{ email?: string; sub?: string; serviceToken?: string } | null> {
 	if (!token || !cfg.aud || !cfg.teamDomain) return null;
 	const parts = token.split(".");
 	if (parts.length !== 3) return null;
 	let header: { kid?: string; alg?: string };
-	let claims: { aud?: string | string[]; iss?: string; exp?: number; nbf?: number; email?: string; sub?: string };
+	let claims: { aud?: string | string[]; iss?: string; exp?: number; nbf?: number; email?: string; sub?: string; common_name?: string };
 	try {
 		header = json(parts[0]);
 		claims = json(parts[1]);
@@ -61,7 +61,19 @@ export async function verifyAccess(token: string | null, cfg: AccessConfig): Pro
 	const now = Math.floor((cfg.now ?? Date.now)() / 1000);
 	const auds = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
 	if (claims.iss !== `https://${cfg.teamDomain}` || !auds.includes(cfg.aud) || !claims.exp || claims.exp < now || (claims.nbf && claims.nbf > now + 60)) return null;
-	return { email: claims.email, sub: claims.sub };
+	// Service tokens carry no email: Access puts the token's client id in common_name.
+	return { email: claims.email, sub: claims.sub, ...(!claims.email && claims.common_name ? { serviceToken: claims.common_name } : {}) };
+}
+
+/**
+ * Who a verified request is. `id` is what ADMIN_EMAILS is matched against: the email, or `service:<client id>` for a
+ * service token. `name` is what goes in audit trails and on screen: the email, or a short label for a service token
+ * (the full client id isn't needed to tell tokens apart and doesn't belong on a dashboard).
+ */
+export function identityOf(user: { email?: string; sub?: string; serviceToken?: string }): { id: string; name: string } {
+	if (user.email) return { id: user.email, name: user.email };
+	if (user.serviceToken) return { id: `service:${user.serviceToken}`, name: `service token ${user.serviceToken.slice(0, 6)}` };
+	return { id: user.sub || "unknown", name: user.sub || "unknown" };
 }
 
 export function resetAccessCache() {

@@ -16,7 +16,7 @@ import { EMBED_MODEL, HybridRetriever, VectorizeRetriever, coverage, indexSectio
 import { gatewayLogsSource, type CostSource } from "./providers/cost/logs.ts";
 import { fixtureCostSource } from "./providers/cost/index.ts";
 import { withMockedClouds } from "./providers/cost/mocked.ts";
-import { accessToken, verifyAccess } from "./access.ts";
+import { accessToken, identityOf, verifyAccess } from "./access.ts";
 import { createRegistry } from "./registry.ts";
 import { getIndex, getResult, kvExtractCache, parsePushEvent, putResult, type PushTrigger } from "./results.ts";
 import { classifyChange, instanceIdFor, parseDecision, reviewKey, type ReviewRecord, type ReviewStatus } from "./review.ts";
@@ -273,14 +273,16 @@ export default {
 		const url = new URL(request.url);
 
 		// Deployed: only requests that passed Cloudflare Access (verified JWT for this app) get anything, assets included.
-		let identity = { email: "local-admin", local: true };
+		// `email` is the identity ADMIN_EMAILS is matched against; `name` is what audit trails record.
+		let identity = { email: "local-admin", name: "local-admin", local: true };
 		if (!isLocal(url)) {
 			const configuredAud: string = env.ACCESS_AUD;
 			const aud = configuredAud === "unset" ? "" : configuredAud;
 			if (!aud) return new Response("git.next: Cloudflare Access is not configured for this deployment yet.", { status: 401 });
 			const user = await verifyAccess(accessToken(request), { teamDomain: env.ACCESS_TEAM_DOMAIN, aud }).catch(() => null);
 			if (!user) return new Response("Unauthorized", { status: 401 });
-			identity = { email: user.email ?? user.sub ?? "unknown", local: false };
+			const who = identityOf(user);
+			identity = { email: who.id, name: who.name, local: false };
 		}
 		const isAdmin = identity.local || adminEmails().includes(identity.email.toLowerCase());
 
@@ -357,7 +359,7 @@ export default {
 
 		if (request.method === "GET" && url.pathname === "/catalog") return Response.json(BASELINE_CATALOG);
 
-		if (request.method === "GET" && url.pathname === "/whoami") return Response.json({ email: identity.email, admin: isAdmin, local: identity.local });
+		if (request.method === "GET" && url.pathname === "/whoami") return Response.json({ email: identity.name, admin: isAdmin, local: identity.local });
 
 		// Precedence: org › contract › project › tool › personal by default; admins may change it per repo (if org policy allows).
 		if (url.pathname === "/precedence") {
@@ -375,7 +377,7 @@ export default {
 				if (reason.length < 10) return Response.json({ error: "a reason (10+ characters) is required; it goes in the audit trail" }, { status: 400 });
 				const reset = body.order === null;
 				if (!reset && !validOrder(body.order)) return Response.json({ error: `order must list each of ${DEFAULT_ORDER.join(", ")} exactly once, or be null to reset` }, { status: 400 });
-				const entry = { action: reset ? "reset" : "set", order: reset ? DEFAULT_ORDER : (body.order as LayerKind[]), by: identity.email, at: new Date().toISOString(), reason };
+				const entry = { action: reset ? "reset" : "set", order: reset ? DEFAULT_ORDER : (body.order as LayerKind[]), by: identity.name, at: new Date().toISOString(), reason };
 				const auditKey = `precedence-audit/${body.repo}`;
 				const audit = ((await env.RESULTS.get(auditKey, "json")) as unknown[] | null) ?? [];
 				await env.RESULTS.put(auditKey, JSON.stringify([entry, ...audit].slice(0, 100)));
@@ -455,7 +457,7 @@ export default {
 			if (!record) return Response.json({ error: "no review for that push" }, { status: 404 });
 			if (record.status !== "needs-review") return Response.json({ error: `review is ${record.status}, not waiting for a decision` }, { status: 409 });
 			const instance = await env.PUSH_REVIEW.get(record.instanceId);
-			await instance.sendEvent({ type: "review", payload: { decision: d.decision, reason: d.reason, by: identity.email } });
+			await instance.sendEvent({ type: "review", payload: { decision: d.decision, reason: d.reason, by: identity.name } });
 			return Response.json({ ok: true, instanceId: record.instanceId, decision: d.decision });
 		}
 		// /mcp : git.next as a remote MCP server (Streamable HTTP, stateless). Behind the same Access check as everything else.
