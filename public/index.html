@@ -525,15 +525,19 @@ async function renderParallel() {
 	if (parallel.key !== repo || Date.now() - parallel.at > 15000) {
 		parallel.key = repo;
 		parallel.at = Date.now();
-		const [work, sets, sample] = await Promise.all([tryJson(`/work?repo=${encodeURIComponent(repo)}`), tryJson(`/work/attempts?repo=${encodeURIComponent(repo)}`), tryJson("/samples/attempts-demo.json")]);
+		const [work, sets, sample, reviews] = await Promise.all([tryJson(`/work?repo=${encodeURIComponent(repo)}`), tryJson(`/work/attempts?repo=${encodeURIComponent(repo)}`), tryJson("/samples/attempts-demo.json"), tryJson("/reviews")]);
 		const liveSet = sets?.sets?.[0];
 		parallel.task = parallel.task && sets?.sets?.some((x) => x.task === parallel.task) ? parallel.task : liveSet?.task || "";
 		const compare = parallel.task ? await tryJson(`/work/compare?${new URLSearchParams({ repo, task: parallel.task })}`) : null;
 		// Without live attempts, show the recorded attempt run (samples/attempts-demo.json) for its project.
 		const useSample = !compare && sample && (sample.project === (work?.project ?? repo));
-		parallel.data = { work, sets: sets?.sets ?? [], compare: compare ?? (useSample ? sample : null), sample: useSample };
+		parallel.data = { work, sets: sets?.sets ?? [], compare: compare ?? (useSample ? sample : null), sample: useSample, reviews: reviews?.reviews ?? [], admin: !!reviews?.admin };
 	}
-	const { work, sets, compare, sample } = parallel.data || {};
+	const { work, sets, compare, sample, reviews = [], admin } = parallel.data || {};
+	// Merge gate: an attempt may merge once its push review is approved, or when nothing in it needed review.
+	const reviewOf = (a) => reviews.find((r) => r.repo === a.repo && r.ref === a.ref && r.after === a.head);
+	const REVIEW_LABEL = { running: "review running", "needs-review": "needs human review", approved: "approved", rejected: "rejected", "auto-approved": "nothing sensitive", expired: "review expired", failed: "review failed" };
+	const reviewChip = (r) => (r ? `<span class="chip ${r.status === "needs-review" ? "sev-warn" : r.status === "rejected" || r.status === "expired" ? "sev-conflict" : r.status === "approved" || r.status === "auto-approved" ? "verdict-pick" : ""}">${esc(REVIEW_LABEL[r.status] ?? r.status)}</span>` : `<span class="chip">not reviewed</span>`);
 	const items = work?.items ?? [];
 	if (!items.length && !compare) return (el.innerHTML = `<p class="empty">No forks or branches with work in flight for ${esc(work?.project ?? repo)}.</p>`);
 	const shared = (a, b) => a.files.filter((f) => b.files.some((g) => g.path === f.path)).map((f) => f.path);
@@ -555,7 +559,8 @@ async function renderParallel() {
 		${a.findings.length ? `<ul>${a.findings.map((f) => `<li>${esc(f.title)} <a class="src" href="${esc(codeHref(a.repo, f.path, f.line || 0, { ref: a.ref }))}"><code>${esc(f.path.split("/").slice(-2).join("/"))}${f.line ? `:${f.line}` : ""}</code></a></li>`).join("")}</ul>` : ""}
 		${a.overlaps.length ? `<div class="why" style="color:var(--warn)">⚠ overlaps ${a.overlaps.map((o) => `${esc(o.repo)}${o.ref !== "main" ? `@${esc(o.ref)}` : ""}`).join(", ")}</div>` : ""}
 		<div class="why" style="margin-top:6px">${a.reasons.map(esc).join(" · ")}</div>
-		${a.verdict === "pick" ? `<button type="button" disabled title="Not wired: merging would fast-forward main to this attempt and close the others" style="margin-top:8px;opacity:.75">Merge into main <span class="mocked" style="border-color:#fff;color:#fff">mocked</span></button>` : ""}
+		<div class="row" style="margin-top:8px">Push review: ${reviewChip(reviewOf(a))}</div>
+		${a.verdict === "pick" ? (() => { const r = reviewOf(a); const ok = r && (r.status === "approved" || r.status === "auto-approved"); return `<button type="button" disabled title="${ok ? "Not wired: merging would fast-forward main to this attempt and close the others" : "Locked until the push review approves this change"}" style="opacity:.75">${ok ? "Merge into main" : "Merge locked: review first"} <span class="mocked" style="border-color:#fff;color:#fff">mocked</span></button>`; })() : ""}
 	</div>`;
 	el.innerHTML = `
 		<div class="big">
@@ -568,9 +573,28 @@ async function renderParallel() {
 		<div class="sub">${esc(compare.task)}${compare.catalogVersion ? ` · changes checked against catalog ${esc(compare.catalogVersion)}` : ""}${sets.length > 1 ? ` · <select id="ptask">${sets.map((x) => `<option ${x.task === parallel.task ? "selected" : ""}>${esc(x.task)}</option>`).join("")}</select>` : ""}</div>
 		<div class="attempts">${attempts.map(card).join("")}</div>
 		<p class="why">Order: no catalog findings in the change first, then fewest overlaps with other work, then smallest diff, then lowest spend.</p>` : `<p class="sub">No task has two or more attempts yet. Agents given the same <code>Agent-Task</code> on separate forks or branches show up here side by side.</p>`}
+		${reviews.length ? `<h3 class="sub" style="margin:16px 0 6px">Push reviews <span class="why">(a Workflow per push: analyse → index → classify → human review when sensitive)</span></h3>
+		<div class="cards">${reviews.slice(0, 8).map((r) => `<div class="card ${r.status === "needs-review" ? "warnb" : ""}" style="border-left-color:${r.status === "needs-review" ? "var(--warn)" : r.status === "rejected" || r.status === "expired" ? "var(--conflict)" : r.status === "running" ? "var(--info)" : "var(--ok)"}">
+			<h4><a class="src" href="${esc(codeHref(r.repo, "", 0, { ref: r.ref, tab: "history", commit: r.after }))}"><code>${esc(r.repo)}${r.ref !== "main" ? `@${esc(r.ref)}` : ""}</code></a> <code>${esc(r.after.slice(0, 7))}</code> ${reviewChip(r)}</h4>
+			<div class="why">${esc(r.commit?.message ?? "")}${r.commit?.author ? ` · ${esc(r.commit.author)}` : ""}</div>
+			<div class="row" style="margin:6px 0">${r.steps.map((st) => `<span class="chip" title="${esc(st.detail ?? "")}">${esc(st.name)}${st.ms > 900 ? ` ${(st.ms / 1000).toFixed(st.ms > 9000 ? 0 : 1)}s` : ""}</span>`).join(" → ")}${r.status === "needs-review" ? ` → <span class="chip sev-warn">waiting for a person</span>` : ""}</div>
+			${r.reasons.length ? `<ul style="margin:4px 0;padding-left:18px;font-size:12px">${r.reasons.slice(0, 5).map((x) => `<li>${esc(x.why)} <a class="src" href="${esc(codeHref(r.repo, x.path, 0, { ref: r.ref }))}"><code>${esc(x.path.split("/").slice(-2).join("/"))}</code></a></li>`).join("")}${r.reasons.length > 5 ? `<li>…and ${r.reasons.length - 5} more</li>` : ""}</ul>` : ""}
+			${r.decision ? `<div class="why">${r.decision.decision === "approve" ? "Approved" : "Rejected"} by ${esc(r.decision.by)} · ${esc(new Date(r.decision.at).toLocaleString())}: “${esc(r.decision.reason)}”</div>` : ""}
+			${r.status === "needs-review" && admin ? `<div class="row" style="margin-top:6px" data-review="${esc(JSON.stringify({ repo: r.repo, ref: r.ref, after: r.after }))}"><input class="rreason" placeholder="Reason (audit trail)" size="26"><button type="button" class="rdecide" data-d="approve">Approve</button><button type="button" class="secondary rdecide" data-d="reject">Reject</button></div>` : r.status === "needs-review" ? `<div class="why">Waiting for an admin to approve or reject.</div>` : ""}
+		</div>`).join("")}</div>` : ""}
 		${items.length ? `<h3 class="sub" style="margin:16px 0 6px">Work in flight</h3><table class="flight"><tr><th style="width:24%">Fork or branch</th><th style="width:18%">Agent · task</th><th style="width:22%">Changes</th><th>Same files as</th><th style="width:14%">Updated</th></tr>${rows.join("")}</table>
 		<p class="why">Agents get the same check before they start: <code>POST /context</code> returns <code>inFlight</code>, the other forks and branches already changing the files they're about to touch.</p>` : ""}`;
 	$("#ptask")?.addEventListener("change", (e) => { parallel.task = e.target.value; parallel.at = 0; renderParallel(); });
+	el.querySelectorAll(".rdecide").forEach((b) => b.addEventListener("click", async () => {
+		const box = b.closest("[data-review]");
+		try {
+			await getJson("/reviews/decide", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...JSON.parse(box.dataset.review), decision: b.dataset.d, reason: box.querySelector(".rreason").value }) });
+			showBanner(`Review ${b.dataset.d === "approve" ? "approved" : "rejected"}; the Workflow is recording the decision.`);
+			setTimeout(() => { parallel.at = 0; renderParallel(); }, 2500);
+		} catch (err) {
+			showBanner(`Could not record the decision: ${err.message}`);
+		}
+	}));
 }
 
 // ── 2. New repositories ───────────────────────────────────────────────────────

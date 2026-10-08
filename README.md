@@ -25,6 +25,7 @@ with the create-and-push method below (the direct import returned a 502); the da
 - [New repositories: smart by default](#new-repositories-smart-by-default)
 - [Code view](#code-view)
 - [Agents in parallel](#agents-in-parallel)
+- [Push review workflow](#push-review-workflow)
 - [Multi-cloud environments (mocked)](#multi-cloud-environments-mocked)
 - [Writing a provider](#writing-a-provider)
 - [Secrets](#secrets)
@@ -371,6 +372,27 @@ touch, and when several agents tried the same task, which change should ship?
   approved model, org gateway); Haiku's was smaller and about 10× cheaper, so it's the pick. GLM spent its whole output
   budget reasoning and produced no files.
 
+## Push review workflow
+
+Every push runs through a Cloudflare Workflow (`PushReview`), so each step is durable, retried on failure, and
+visible on the dashboard:
+
+1. **analyse:** git.next's providers run on the pushed commit; the result is stored for the dashboard.
+2. **index embeddings:** the repo's markdown is embedded for sliced context (a failure here never blocks a review).
+3. **classify:** the change is checked for anything a person should look at before it merges. That covers files
+   with agent instructions (AGENTS.md, CLAUDE.md, SKILL.md, agent.yaml, `.claude/`, `.agents/`), git.next config
+   (`.gitnext/`), secrets files, CI, git hooks, plugins and MCP servers, new bindings in wrangler configs, new
+   dependencies, and catalog findings in the changed files.
+4. **human review, when sensitive:** the Workflow pauses (`step.waitForEvent`, up to 7 days) until an admin approves
+   or rejects the change on the dashboard, with a reason. `POST /reviews/decide` resumes it. Nothing sensitive:
+   it's auto-approved.
+5. **record decision:** who decided, when and why, on the review record.
+
+The push itself has already landed in Artifacts, so the gate is on merging: in "Agents in parallel" an attempt's
+merge button stays locked until its review is approved or auto-approved. `GET /reviews` lists recent runs with their
+step timeline. The Queue consumer now only starts a Workflow instance per push (one per repo, ref and commit, so
+a redelivered event is a no-op).
+
 ## Multi-cloud environments (mocked)
 
 A thin, clearly labelled slice for showing Cloudflare next to other clouds. **Only Cloudflare is real**: its
@@ -537,6 +559,7 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
 | `src/index.ts`, `src/dev-routes.ts` | Worker routes (`/insights`, `/context`, samples, localhost-only `/dev/*`) |
 | `src/code.ts`, `src/code-routes.ts` | Code view: read-only `/code/*` routes, line diffs, commit annotations |
 | `src/work.ts`, `src/work-routes.ts` | Agents in parallel: work in flight, overlap, attempt comparison (`/work*`) |
+| `src/review.ts` (+ `PushReview` in `src/index.ts`) | Push review Workflow: sensitivity rules, review records, decisions |
 | `src/cli`, `bin/git-next.ts` | the `git next` CLI (`init.ts` for `git next new`) |
 | `public/index.html` | dashboard |
 | `scripts/` | `demo-agents.ts`, `demo-planner.ts`, `demo-new-repo.ts`, offline sample generators (`demo-insights.ts`, `demo-context.ts`, `demo-stack.ts`) |
