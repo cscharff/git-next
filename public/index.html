@@ -122,6 +122,16 @@
 	.matrix th .sub { margin: 0; font-weight: 400; }
 	.svc { display: inline-block; margin: 1px 2px 1px 0; padding: 1px 7px; border-radius: 6px; background: var(--chip); font-size: 12px; }
 	.svc.no { background: color-mix(in srgb, var(--conflict) 18%, var(--chip)); color: var(--conflict); }
+	/* Agents in parallel */
+	.attempts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+	.attempt { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; border-top: 4px solid var(--line); }
+	.attempt.pick { border-top-color: var(--ok); } .attempt.blocked { border-top-color: var(--conflict); } .attempt.ok { border-top-color: var(--info); }
+	.attempt h3 { margin: 0 0 2px; font-size: 15px; display: flex; gap: 8px; align-items: center; }
+	.attempt .rank { font: 600 13px ui-monospace, monospace; color: var(--muted); }
+	.attempt ul { margin: 6px 0; padding-left: 18px; font-size: 12px; }
+	.verdict-pick { background: var(--ok); color: #fff; } .verdict-blocked { background: var(--conflict); color: #fff; } .verdict-ok { background: var(--info); color: #fff; }
+	.flight td { font-size: 12px; }
+	.flight tr.hot td { background: color-mix(in srgb, var(--warn) 10%, transparent); }
 	/* Code view */
 	a.src { color: var(--info); text-decoration: none; } a.src:hover { text-decoration: underline; }
 	#codeview { padding: 16px 24px 32px; }
@@ -176,6 +186,7 @@
 		<a href="#stack">1 · Rules in force</a>
 		<a href="#newrepo">2 · New repos</a>
 		<a href="#cost">3 · Cost &amp; overspend</a>
+		<a href="#parallel">4 · Agents in parallel</a>
 		<a href="#more">More</a>
 		<a href="#code">Code</a>
 	</nav>
@@ -200,6 +211,7 @@
 	<section class="panel hero" id="stack"><h2><span class="step">1</span>Rules in force</h2><div class="sub">Every instruction an agent working in this repo is steered by: which layer it comes from, what wins in each directory and why, and the conflicts a person has to settle.</div><div class="body"></div></section>
 	<section class="panel hero" id="newrepo" hidden><h2><span class="step">2</span>New repositories, smart by default</h2><div class="sub">Same agent, same model, same prompt: a plain repo versus one created with <code>git next new</code>, which inherits the org's layers and catalog. Findings at the first push.</div><div class="body"></div></section>
 	<section class="panel hero" id="cost"><h2><span class="step">3</span>Cost and overspend</h2><div class="sub">Every model call goes through the org AI Gateway, tagged with developer, repo, fork, agent and task. Spend rolls up from one call to the whole project.</div><div class="body"></div></section>
+	<section class="panel hero" id="parallel"><h2><span class="step">4</span>Agents in parallel</h2><div class="sub">Every fork and branch of the project with work in flight, who is touching the same files, and, when several agents attempt the same task, a side-by-side comparison with a pick to merge.</div><div class="body"><p class="empty">Loading…</p></div></section>
 	<div class="grid" id="more">
 		<section class="panel" id="resources"><h2>Resource map</h2><div class="sub">Workers and bindings per wrangler config, diffed against the base ref</div><div class="body"></div></section>
 		<section class="panel" id="environments" hidden><h2>Environments</h2><div class="sub">The same app across clouds, by resource kind. Cloudflare is read from wrangler config; the other clouds are declared in <code>.gitnext/environments.json</code> and <span class="mocked">mocked</span>.</div><div class="body"></div></section>
@@ -339,6 +351,7 @@ function render() {
 	renderStack(by("instruction-stack"), by("catalog"));
 	renderNewRepo();
 	renderCost();
+	renderParallel();
 	renderResources(by("resource-map"));
 	renderEnvironments(all.filter((i) => i.provider === "environments"));
 	renderContext();
@@ -500,6 +513,64 @@ async function renderPrecedence(repo, fromInsights) {
 	};
 	$("#psave")?.addEventListener("click", () => send($("#pcontract").checked ? ["contract", "org", "project", "tool", "personal", "memory"] : ["org", "contract", "project", "tool", "personal", "memory"]));
 	$("#preset")?.addEventListener("click", () => send(null));
+}
+
+// ── 4. Agents in parallel: work in flight, overlap, attempts compared ─────────
+
+const parallel = { key: "", at: 0, data: null, task: "" };
+async function renderParallel() {
+	const el = $("#parallel .body");
+	const repo = state.repo || "agents-demo-full";
+	// Refetch at most every 15 s per repo (render runs on every live update).
+	if (parallel.key !== repo || Date.now() - parallel.at > 15000) {
+		parallel.key = repo;
+		parallel.at = Date.now();
+		const [work, sets, sample] = await Promise.all([tryJson(`/work?repo=${encodeURIComponent(repo)}`), tryJson(`/work/attempts?repo=${encodeURIComponent(repo)}`), tryJson("/samples/attempts-demo.json")]);
+		const liveSet = sets?.sets?.[0];
+		parallel.task = parallel.task && sets?.sets?.some((x) => x.task === parallel.task) ? parallel.task : liveSet?.task || "";
+		const compare = parallel.task ? await tryJson(`/work/compare?${new URLSearchParams({ repo, task: parallel.task })}`) : null;
+		// Without live attempts, show the recorded attempt run (samples/attempts-demo.json) for its project.
+		const useSample = !compare && sample && (sample.project === (work?.project ?? repo));
+		parallel.data = { work, sets: sets?.sets ?? [], compare: compare ?? (useSample ? sample : null), sample: useSample };
+	}
+	const { work, sets, compare, sample } = parallel.data || {};
+	const items = work?.items ?? [];
+	if (!items.length && !compare) return (el.innerHTML = `<p class="empty">No forks or branches with work in flight for ${esc(work?.project ?? repo)}.</p>`);
+	const shared = (a, b) => a.files.filter((f) => b.files.some((g) => g.path === f.path)).map((f) => f.path);
+	const rows = items.map((w) => {
+		const clash = items.filter((o) => o !== w && shared(w, o).length);
+		return `<tr class="${clash.length ? "hot" : ""}"><td><a class="src" href="${esc(codeHref(w.repo, "", 0, { ref: w.ref, tab: "history" }))}"><code>${esc(w.repo)}${w.ref !== "main" ? `@${esc(w.ref)}` : ""}</code></a></td><td>${esc(w.agent ?? "—")}${w.task ? `<div class="why">${esc(w.task)}</div>` : ""}</td><td>${w.files.length} file${w.files.length === 1 ? "" : "s"}<div class="why">${esc(w.files.slice(0, 2).map((f) => f.path).join(", "))}${w.files.length > 2 ? "…" : ""}</div></td><td>${clash.length ? clash.map((o) => `<div class="why" style="color:var(--warn)">⚠ ${esc(o.repo)}${o.ref !== "main" ? `@${esc(o.ref)}` : ""}: ${esc(shared(w, o).slice(0, 2).join(", "))}</div>`).join("") : `<span class="empty">—</span>`}</td><td class="why">${esc(new Date(w.updatedAt).toLocaleString())}</td></tr>`;
+	});
+	const overlapping = items.filter((w) => items.some((o) => o !== w && shared(w, o).length)).length;
+	const attempts = compare?.attempts ?? [];
+	const pick = attempts.find((a) => a.verdict === "pick");
+	const card = (a) => `<div class="attempt ${esc(a.verdict)}">
+		<h3><span class="rank">#${a.rank}</span>${esc(a.agent ?? a.ref)} <span class="chip verdict-${esc(a.verdict)}">${a.verdict === "pick" ? "pick to merge" : esc(a.verdict)}</span></h3>
+		<div class="why"><code>${esc(a.ref)}</code> · ${esc(short(a.model ?? "model unknown"))} · <a class="src" href="${esc(codeHref(a.repo, "", 0, { ref: a.ref, tab: "history" }))}">diff</a></div>
+		<div class="stats" style="margin:8px 0">
+			<div class="stat"><b class="plus">+${a.added}</b><span>−${a.removed} · ${a.files.length} files</span></div>
+			<div class="stat ${a.findings.length ? "bad" : "good"}"><b>${a.findings.length}</b><span>catalog findings</span></div>
+			<div class="stat"><b>${usd(a.cost.usd)}</b><span>${a.cost.requests} call${a.cost.requests === 1 ? "" : "s"}</span></div>
+		</div>
+		${a.findings.length ? `<ul>${a.findings.map((f) => `<li>${esc(f.title)} <a class="src" href="${esc(codeHref(a.repo, f.path, f.line || 0, { ref: a.ref }))}"><code>${esc(f.path.split("/").slice(-2).join("/"))}${f.line ? `:${f.line}` : ""}</code></a></li>`).join("")}</ul>` : ""}
+		${a.overlaps.length ? `<div class="why" style="color:var(--warn)">⚠ overlaps ${a.overlaps.map((o) => `${esc(o.repo)}${o.ref !== "main" ? `@${esc(o.ref)}` : ""}`).join(", ")}</div>` : ""}
+		<div class="why" style="margin-top:6px">${a.reasons.map(esc).join(" · ")}</div>
+		${a.verdict === "pick" ? `<button type="button" disabled title="Not wired: merging would fast-forward main to this attempt and close the others" style="margin-top:8px;opacity:.75">Merge into main <span class="mocked" style="border-color:#fff;color:#fff">mocked</span></button>` : ""}
+	</div>`;
+	el.innerHTML = `
+		<div class="big">
+			<div class="stat"><b>${items.length}</b><span>forks and branches in flight</span></div>
+			<div class="stat ${overlapping ? "warnc" : "good"}"><b>${overlapping}</b><span>touching the same files as another</span></div>
+			<div class="stat"><b>${sets.length || (compare ? 1 : 0)}</b><span>tasks with competing attempts</span></div>
+			${pick ? `<div class="stat good"><b>${esc(pick.agent ?? pick.ref)}</b><span>recommended to merge</span></div>` : ""}
+		</div>
+		${compare ? `<h3 style="margin:0 0 4px;font-size:15px">Same task, ${attempts.length} attempts${sample ? ` <span class="chip">recorded run</span>` : ` <span class="livechip">live</span>`}</h3>
+		<div class="sub">${esc(compare.task)}${compare.catalogVersion ? ` · changes checked against catalog ${esc(compare.catalogVersion)}` : ""}${sets.length > 1 ? ` · <select id="ptask">${sets.map((x) => `<option ${x.task === parallel.task ? "selected" : ""}>${esc(x.task)}</option>`).join("")}</select>` : ""}</div>
+		<div class="attempts">${attempts.map(card).join("")}</div>
+		<p class="why">Order: no catalog findings in the change first, then fewest overlaps with other work, then smallest diff, then lowest spend.</p>` : `<p class="sub">No task has two or more attempts yet. Agents given the same <code>Agent-Task</code> on separate forks or branches show up here side by side.</p>`}
+		${items.length ? `<h3 class="sub" style="margin:16px 0 6px">Work in flight</h3><table class="flight"><tr><th style="width:24%">Fork or branch</th><th style="width:18%">Agent · task</th><th style="width:22%">Changes</th><th>Same files as</th><th style="width:14%">Updated</th></tr>${rows.join("")}</table>
+		<p class="why">Agents get the same check before they start: <code>POST /context</code> returns <code>inFlight</code>, the other forks and branches already changing the files they're about to touch.</p>` : ""}`;
+	$("#ptask")?.addEventListener("change", (e) => { parallel.task = e.target.value; parallel.at = 0; renderParallel(); });
 }
 
 // ── 2. New repositories ───────────────────────────────────────────────────────
