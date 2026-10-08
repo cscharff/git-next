@@ -93,23 +93,27 @@ hidden otherwise. Timings are cumulative; narration is written to be read aloud.
 ### 2. Rules for a new project, smart by default: 3:05–4:20
 *Panel 2.*
 - **3:05 The setup.** Read the task line: "build a small Worker endpoint that stores uploaded files…". Same agent,
-  same model (Claude Sonnet 5), same prompt; one plain repo, one made with `git next new --template worker-api`.
-- **3:20 The payoff.** Left column: **3** findings, "push blocked by the hook". It called an unapproved Llama model
-  (`@cf/meta/llama-3-8b-instruct`), called it directly instead of through the org gateway, and invented a bucket the
-  catalog doesn't list (`uploads-bare-files`), each with the fix in green ("Use the shared UPLOADS →
-  acme-shared-uploads…"). Right column: **0** findings, "push went through", 1,059 context tokens from git.next (432
-  pinned), and the pinned items "shared r2_buckets: UPLOADS → acme-shared-uploads · ai: approved", plus a
-  `SOW-1234:` commit.
+  same model (Claude Sonnet 5), same prompt. Two real repos in Artifacts: **uploads-bare**, a plain repo with no
+  git.next hook (like any plain repo today), and **uploads-smart**, made with
+  `git next new --template worker-api --artifacts`. Both are subscribed to git.next's push review.
+- **3:20 The payoff.** Left column: **4** findings, "live · pushed to Artifacts, no git.next hook · git.next review:
+  needs human review". It called two unapproved models (`@cf/llava-hf/llava-1.5-7b-hf`,
+  `@cf/meta/llama-3-8b-instruct`), called them directly instead of through the org gateway, and invented a bucket
+  the catalog doesn't list (`uploads-bare-files`), each with the fix in green ("Use the shared UPLOADS →
+  acme-shared-uploads…"). Right column: **0** findings, pushed through its own hook, 1,168 context tokens from
+  git.next (477 pinned), the pinned "shared r2_buckets: UPLOADS → acme-shared-uploads · ai: approved", and a
+  `SOW-1234:` commit. Its review is held for one reason only: it adds a binding (to the approved shared bucket).
   **Narration:** "Most new repos start empty and learn the org's rules the slow way: from review comments, after the
   code is written. That's backwards. A repo made with git next starts already knowing them: the org's layers, its
-  catalog of approved models and resources, secure defaults and the hook. Same agent, same prompt. The plain repo's
-  first push is blocked three times. The smart repo's first push is clean, because its agent was handed the right
+  catalog of approved models and resources, secure defaults and the hook. Same agent, same prompt, both real repos.
+  The plain repo had nothing to stop it, so its first push went straight in, and git.next caught four problems on
+  arrival and held it for a person. The smart repo's first push is clean, because its agent was handed the right
   bucket and the right model before it wrote a line."
-- **4:05 Where it comes from (inset, 15s).** `git next new uploads-api --template worker-api` shows its summary
-  (layers pinned, catalog version, hook installed, "rules ✓"), then
+- **4:05 Where it comes from (inset, 15s).** `git next new uploads-api --template worker-api --artifacts` shows its
+  summary (layers pinned, catalog version, hook installed, "rules ✓", and the Artifacts repo it created), then
   `git next context "add an endpoint that stores uploaded files" src/index.ts` shows "Pinned (always loaded)".
-  **Narration:** "One command creates it. Every context request after that pins the org's rules and the catalog
-  entries that matter for the task."
+  **Narration:** "One command creates it, in Artifacts, already watched by git.next. Every context request after that
+  pins the org's rules and the catalog entries that matter for the task."
 
 ### 3. Cost and overspend: 4:20–5:35
 *Panel 3. Start on "This demo · live gateway logs".*

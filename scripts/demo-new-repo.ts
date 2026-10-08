@@ -6,12 +6,17 @@
 // fail-closed pre-push hook to a LOCAL bare remote. The bare repo is checked as org CI would check it
 // (org baseline layers + catalog); the smart repo uses its own pinned layers and catalog.
 //
+// With --artifacts the run is live: both repos are created in Cloudflare Artifacts and subscribed to git.next's push
+// queue, the plain repo gets no git.next hook (like any plain repo), and both first pushes land in Artifacts, where the
+// push-review Workflow analyses them. The local org check still runs, for the summary.
+//
 // Needs the local Worker (`npm run dev`) and .dev.vars (CF_ACCOUNT_ID, AIG_LOGS_TOKEN). Spend cap: --budget-usd 0.5.
-// Usage: node scripts/demo-new-repo.ts [--worker-url http://localhost:5173] [--budget-usd 0.5] [--keep] [--recheck]
+// Usage: node scripts/demo-new-repo.ts [--worker-url http://localhost:5173] [--budget-usd 0.5] [--keep] [--recheck] [--artifacts --queue <id>]
 import { execFileSync, spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
+import { cfPublisher } from "../src/cli/artifacts-publish.ts";
 import { runCli } from "../src/cli/main.ts";
 import { applyEdits, estimateUsd, gatewaySource, gatewaySpend, parseEdits, workerPost } from "./agent-lib.ts";
 
@@ -29,6 +34,10 @@ const BUDGET_USD = Number(opt("--budget-usd", "0.5"));
 const KEEP = argv.includes("--keep") || argv.includes("--recheck");
 /** Reuse the repos from a previous --keep run: redo the pushes and checks without calling the model again. */
 const RECHECK = argv.includes("--recheck");
+/** Live: repos in Artifacts, subscribed to git.next's push queue (--queue, default the git-next-pushes queue). */
+const ARTIFACTS = argv.includes("--artifacts");
+const QUEUE = opt("--queue", "ed972cccfcdd49bcb1fedcc313687de8");
+if (ARTIFACTS && RECHECK) throw new Error("--recheck works on the local repos only");
 const WORKDIR = join(tmpdir(), "git-next-demo-new-repo");
 
 const redact = (s: string) => s.replace(/Bearer\s+\S+/g, "Bearer ***").replace(/https:\/\/[0-9a-f]{32}\.artifacts\.cloudflare\.net/g, "https://<account>.artifacts.cloudflare.net").replaceAll(ROOT, "<git-next>").replaceAll(WORKDIR, "<workdir>");
@@ -93,6 +102,8 @@ rmSync(binDir, { recursive: true, force: true });
 mkdirSync(binDir);
 symlinkSync(join(ROOT, "bin/git-next.ts"), join(binDir, "git-next"));
 
+// The pre-push hooks call `git-next`: put this checkout's CLI on PATH for every push in this run.
+process.env.PATH = `${binDir}:${process.env.PATH}`;
 const spentBefore = await gatewaySpend(ROOT, GATEWAY_ID);
 // The cap covers every run of this demo: earlier calls tagged with this task count against it.
 const priorDemoSpend = (await gatewaySource(ROOT, GATEWAY_ID).records({ repo: "new-repo-demo" })).filter((r) => r.task === TASK_ID).reduce((n, r) => n + r.cost, 0);
@@ -118,10 +129,18 @@ writeFileSync(join(bare, "README.md"), "# uploads-bare\n\nA small upload service
 git(bare, "init", "-q", "-b", "main");
 git(bare, "add", "-A");
 git(bare, "commit", "-q", "-m", "Initial commit");
-cpSync(join(ROOT, "examples/hooks/pre-push"), join(bare, ".git/hooks/pre-push"));
+if (ARTIFACTS) {
+	// Live: a plain repo in Artifacts has no git.next hook, but the org subscribes every repo to git.next's review.
+	const repo = await cfPublisher.createRepo("uploads-bare", "Plain repo for the git.next new-repo demo");
+	// --force: on a re-run the demo's own repo may hold an earlier first commit.
+	const first = cfPublisher.push(bare, repo.remote, repo.token, { force: true });
+	if (!first.ok) throw new Error(`first push of uploads-bare failed: ${first.output}`);
+	await cfPublisher.subscribe("uploads-bare", QUEUE);
+	console.log("created uploads-bare in Artifacts (no git.next hook), subscribed to git.next's push review");
+} else cpSync(join(ROOT, "examples/hooks/pre-push"), join(bare, ".git/hooks/pre-push"));
 
-// 2. The same project created with `git next new`.
-const created = await cli(WORKDIR, ["new", "uploads-smart", "--template", "worker-api", "--org", BASELINE]);
+// 2. The same project created with `git next new` (with --artifacts: created in Artifacts and subscribed).
+const created = await cli(WORKDIR, ["new", "uploads-smart", "--template", "worker-api", "--org", BASELINE, ...(ARTIFACTS ? ["--artifacts", "--queue", QUEUE] : [])]);
 if (created.code !== 0) throw new Error(`git next new failed: ${created.err}`);
 console.log(created.out.trim());
 
@@ -132,18 +151,34 @@ ctxJson = JSON.parse((await cli(smart, ["context", TASK, "src/index.ts", "--budg
 [bareRun, smartRun] = await Promise.all([runAgent("bare-agent", bare, "", budget), runAgent("smart-agent", smart, `Context from git next (rules and org catalog for this repo):\n${ctx.out}`, budget)]);
 }
 
-// 4. First push of each, through the fail-closed hook to a local bare remote. The org checks the bare repo
-//    against its baseline (as org CI would); the smart repo carries its own pinned layers and catalog.
-const remotes = { bare: join(WORKDIR, "remote-bare.git"), smart: join(WORKDIR, "remote-smart.git") };
-for (const r of Object.values(remotes)) {
-	rmSync(r, { recursive: true, force: true });
-	execFileSync("git", ["init", "-q", "--bare", "-b", "main", r]);
-}
+// 4. First push of each. Local: through the fail-closed hook to a local bare remote, the org checking the bare repo
+//    against its baseline (as org CI would). Live (--artifacts): to Artifacts; the plain repo has no hook, the smart
+//    repo pushes through its own; git.next's push-review Workflow then analyses both.
 const orgEnv = { GIT_NEXT_LAYERS: join(BASELINE, ".gitnext/stack.json") };
-// Seed each remote with the repo's first commit so the hook checks exactly what the agent pushed.
-for (const [dir, remote] of [[bare, remotes.bare], [smart, remotes.smart]] as const) execFileSync("git", ["push", "-q", "--no-verify", remote, "HEAD~1:refs/heads/main"], { cwd: dir });
-const barePush = push(bare, remotes.bare, orgEnv, binDir);
-const smartPush = push(smart, remotes.smart, {}, binDir);
+let barePush: { pushed: boolean; output: string };
+let smartPush: { pushed: boolean; output: string };
+const heads: Record<string, string> = {};
+if (ARTIFACTS) {
+	/** Short-lived write token from the cf CLI, used only in GIT_CONFIG_* env vars for one push. */
+	const pushLive = (dir: string, name: string) => {
+		const token = JSON.parse(execFileSync("npx", ["cf", "artifacts", "namespaces", "tokens", "create", "default", "--repo", name, "--scope", "write", "--ttl", "600"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] })).plaintext as string;
+		const r = spawnSync("git", ["push", "origin", "HEAD:main"], { cwd: dir, encoding: "utf8", env: { ...process.env, PATH: `${binDir}:${process.env.PATH}`, GIT_CONFIG_COUNT: "1", GIT_CONFIG_KEY_0: "http.extraHeader", GIT_CONFIG_VALUE_0: `Authorization: Bearer ${token}`, GIT_TERMINAL_PROMPT: "0" } });
+		heads[name] = git(dir, "rev-parse", "HEAD");
+		return { pushed: r.status === 0, output: redact(`${r.stdout}${r.stderr}`).trim() };
+	};
+	barePush = pushLive(bare, "uploads-bare");
+	smartPush = pushLive(smart, "uploads-smart");
+} else {
+	const remotes = { bare: join(WORKDIR, "remote-bare.git"), smart: join(WORKDIR, "remote-smart.git") };
+	for (const r of Object.values(remotes)) {
+		rmSync(r, { recursive: true, force: true });
+		execFileSync("git", ["init", "-q", "--bare", "-b", "main", r]);
+	}
+	// Seed each remote with the repo's first commit so the hook checks exactly what the agent pushed.
+	for (const [dir, remote] of [[bare, remotes.bare], [smart, remotes.smart]] as const) execFileSync("git", ["push", "-q", "--no-verify", remote, "HEAD~1:refs/heads/main"], { cwd: dir });
+	barePush = push(bare, remotes.bare, orgEnv, binDir);
+	smartPush = push(smart, remotes.smart, {}, binDir);
+}
 
 // 5. Findings at first push, as JSON.
 const bareRules = JSON.parse((await cli(bare, ["rules", "--json", "--layers", orgEnv.GIT_NEXT_LAYERS])).out);
@@ -170,6 +205,8 @@ const summary = {
 	runCostUsd: costOf("bare-agent") + costOf("smart-agent"),
 	allAttemptsCostUsd: allAttempts("bare-agent") + allAttempts("smart-agent"),
 	note: RECHECK ? `Pushes and checks re-run at ${runStart} on the repos from the previous run (no new model calls).` : undefined,
+	// Live: the repos and first-push commits in Artifacts, so the dashboard can show git.next's push reviews for them.
+	live: ARTIFACTS ? { repos: { bare: "uploads-bare", smart: "uploads-smart" }, heads, hook: { bare: "none (plain repo)", smart: "git next pre-push" } } : undefined,
 	agents: [
 		{
 			agent: "bare-agent",

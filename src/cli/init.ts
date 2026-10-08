@@ -7,6 +7,7 @@ import { CATALOG_FILE, parseCatalog } from "../providers/catalog.ts";
 import { keywordExtractor } from "../providers/instruction-stack/extract.ts";
 import { KIND_RANK, LAYER_KINDS, type Layer, type LayerKind } from "../providers/instruction-stack/types.ts";
 import type { ParsedArgs } from "./args.ts";
+import type { ArtifactsPublisher } from "./artifacts-publish.ts";
 import type { CliIo } from "./main.ts";
 
 // `git next new <name> --template worker-api` / `git next init <dir>`: a repo that starts smart. It inherits the
@@ -25,6 +26,8 @@ export interface InitDeps {
 	/** Runs `git next rules` in the new repo and returns its exit code plus printable text. */
 	runRules: (cwd: string) => Promise<{ code: number; text: string }>;
 	packageRoot: string;
+	/** For --artifacts: creates the Artifacts repo, pushes, subscribes git.next's queue. */
+	artifacts?: ArtifactsPublisher;
 }
 
 interface BaselineLayer {
@@ -122,10 +125,11 @@ export async function initCommand(args: ParsedArgs, io: CliIo, d: InitDeps): Pro
 	if (args.initRemote) {
 		io.out(
 			[
-				"Dry run (--remote): would create an Artifacts repo for this project:",
-				`  1. fork org-baseline → ${name} (keeps provenance to the baseline)`,
-				`  2. push the files generated below to ${name}:main with a short-lived write token passed in GIT_CONFIG_* env vars`,
-				"  Not performed: creating Artifacts repos waits for explicit approval. Continuing with the local repo only.",
+				"Dry run (--remote): with --artifacts, git next would also:",
+				`  1. create the Artifacts repo ${name} (namespace default)`,
+				`  2. push the files generated below to ${name}:main through the pre-push hook, with the repo's write token passed only in GIT_CONFIG_* env vars`,
+				"  3. subscribe git.next's push queue to the repo, so every later push is analysed and reviewed",
+				"  Not performed. Continuing with the local repo only.",
 				"",
 			].join("\n"),
 		);
@@ -193,8 +197,22 @@ export async function initCommand(args: ParsedArgs, io: CliIo, d: InitDeps): Pro
 		git(target, "add", "-A");
 		execFileSync("git", [...(hasIdentity ? [] : ["-c", "user.name=git next", "-c", "user.email=git-next@localhost"]), "commit", "-q", "-m", `Create ${name} from org baseline (catalog ${catalog.version})`], { cwd: target, stdio: "pipe" });
 
+		// --artifacts: the repo lives in Cloudflare Artifacts from its first commit, and git.next reviews every push after it.
+		let published: { remote: string; subscription: string } | null = null;
+		if (args.artifacts) {
+			const queue = args.queue ?? io.env?.GIT_NEXT_PUSH_QUEUE;
+			if (!queue) throw new Error("--artifacts needs --queue <id> (or GIT_NEXT_PUSH_QUEUE): the queue git.next reads push events from");
+			if (!d.artifacts) throw new Error("--artifacts isn't available here");
+			const repo = await d.artifacts.createRepo(name, `Created by git next ${args.command} from ${orgLabel} (template ${args.template})`);
+			const pushed = d.artifacts.push(target, repo.remote, repo.token);
+			if (!pushed.ok) throw new Error(`created Artifacts repo ${name}, but the first push failed: ${pushed.output}`);
+			// Subscribed after the first push, so the generated bootstrap commit isn't held for review.
+			const sub = await d.artifacts.subscribe(name, queue);
+			published = { remote: repo.remote.replace(/^https:\/\/[0-9a-f]{32}\./, "https://<account>."), subscription: sub.id };
+		}
+
 		if (args.json) {
-			io.out(`${JSON.stringify({ name, dir: target, template: args.template, baseline: stack.baseline, layers: stack.layers.map((l) => l.path), files: written.map((f) => relative(target, f)).sort(), hook: ".git/hooks/pre-push", rules: "pass" }, null, 2)}\n`);
+			io.out(`${JSON.stringify({ name, dir: target, template: args.template, baseline: stack.baseline, layers: stack.layers.map((l) => l.path), files: written.map((f) => relative(target, f)).sort(), hook: ".git/hooks/pre-push", rules: "pass", ...(published ? { artifacts: published } : {}) }, null, 2)}\n`);
 		} else {
 			io.out(
 				[
@@ -204,6 +222,7 @@ export async function initCommand(args: ParsedArgs, io: CliIo, d: InitDeps): Pro
 					`  files    ${written.map((f) => relative(target, f)).sort().join(", ")}`,
 					"  hook     .git/hooks/pre-push (fail-closed; GIT_NEXT_ALLOW_ON_ERROR=1 to bypass on errors)",
 					"  rules    ✓ no conflicts or catalog violations",
+					...(published ? [`  artifacts ${published.remote} (main pushed; git.next reviews every push from here)`] : []),
 					"",
 				].join("\n"),
 			);
