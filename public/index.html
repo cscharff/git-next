@@ -782,10 +782,9 @@ function parseRoute() {
 	const q = new URLSearchParams(location.hash.slice(location.hash.indexOf("?") + 1 || location.hash.length));
 	return { repo: q.get("repo") || state.repo || "agents-demo-full", ref: q.get("ref") || "main", path: q.get("path") || "", line: Number(q.get("line")) || 0, via: q.get("via") || "", tab: q.get("tab") || "files", commit: q.get("commit") || "" };
 }
+const routeHash = (r) => `#code?${new URLSearchParams(Object.entries({ repo: r.repo, ref: r.ref, path: r.path, line: r.line || "", via: r.via, tab: r.tab === "files" ? "" : r.tab, commit: r.commit }).filter(([, v]) => v))}`;
 function setRoute(patch) {
-	const r = { ...cv.route, ...patch };
-	const q = new URLSearchParams(Object.entries({ repo: r.repo, ref: r.ref, path: r.path, line: r.line || "", via: r.via, tab: r.tab === "files" ? "" : r.tab, commit: r.commit }).filter(([, v]) => v));
-	location.hash = `code?${q}`;
+	location.hash = routeHash({ ...cv.route, ...patch });
 }
 
 async function showView() {
@@ -819,8 +818,17 @@ async function cvLoad(r) {
 	const key = `${r.repo}@${r.ref}~${r.via}`;
 	if (cv.key !== key) {
 		$("#cvtree").innerHTML = `<p class="empty">Reading the tree…</p>`;
-		const t = await getJson(`/code/tree?${new URLSearchParams({ repo: r.repo, ref: r.ref, ...(r.via ? { via: r.via } : {}) })}`);
-		cv.key = key;
+		const tree = (ref) => getJson(`/code/tree?${new URLSearchParams({ repo: r.repo, ref, ...(r.via ? { via: r.via } : {}) })}`);
+		// Imported repos can have only `master` (and Artifacts may still report `main` as the default): fall back visibly.
+		const t = await tree(r.ref).catch(async (err) => {
+			if (r.ref !== "main" || !/ref not found/.test(err.message)) throw err;
+			const fallback = await tree("master");
+			cv.route = r = { ...r, ref: "master" };
+			$("#cvref").value = "master";
+			history.replaceState(null, "", routeHash(r));
+			return fallback;
+		});
+		cv.key = `${r.repo}@${r.ref}~${r.via}`;
 		cv.files = t.files;
 		cv.head = t.head;
 		cv.log = null;
