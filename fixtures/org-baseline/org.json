@@ -29,17 +29,17 @@
 		}
 	],
 	"teams": [
-		{ "id": "agents", "name": "Agents platform", "owner": "@acme/agents", "costCentre": "CC-4100", "budgetUsd": 0.75 },
-		{ "id": "cms", "name": "CMS", "owner": "@acme/cms", "costCentre": "CC-4200", "budgetUsd": 0.5 },
-		{ "id": "storage", "name": "Storage and uploads", "owner": "@acme/storage", "costCentre": "CC-4300", "budgetUsd": 0.25 },
-		{ "id": "platform", "name": "Developer platform", "owner": "@acme/platform", "costCentre": "CC-4000", "budgetUsd": 1 }
+		{ "id": "agents", "name": "Agents platform", "owner": "@acme/agents", "costCentre": "CC-4100", "budgetUsd": 7500 },
+		{ "id": "cms", "name": "CMS", "owner": "@acme/cms", "costCentre": "CC-4200", "budgetUsd": 5000 },
+		{ "id": "storage", "name": "Storage and uploads", "owner": "@acme/storage", "costCentre": "CC-4300", "budgetUsd": 3000 },
+		{ "id": "platform", "name": "Developer platform", "owner": "@acme/platform", "costCentre": "CC-4000", "budgetUsd": 6000 }
 	],
 	"projects": [
-		{ "repo": "agents-demo-full", "class": "internal", "team": "agents", "owner": "@acme/agents", "environment": "production", "budgetUsd": 0.6 },
-		{ "repo": "emdash-demo", "class": "public", "team": "cms", "owner": "@acme/cms", "environment": "production", "budgetUsd": 0.5 },
-		{ "repo": "uploads-smart", "class": "pii-regulated", "team": "storage", "owner": "@acme/storage", "environment": "staging", "budgetUsd": 0.1 },
-		{ "repo": "uploads-bare", "class": "pii-regulated", "team": "storage", "environment": "staging", "budgetUsd": 0.1 },
+		{ "repo": "agents-demo-full", "class": "internal", "team": "agents", "owner": "@acme/agents", "environment": "production", "budgetUsd": 7000 },
+		{ "repo": "emdash-demo", "class": "public", "team": "cms", "owner": "@acme/cms", "environment": "production", "budgetUsd": 4500 },
+		{ "repo": "uploads-smart", "class": "pii-regulated", "team": "storage", "owner": "@acme/storage", "environment": "staging", "budgetUsd": 1200 },
+		{ "repo": "uploads-bare", "class": "pii-regulated", "team": "storage", "environment": "staging", "budgetUsd": 1500 },
 		{ "repo": "claude-plugins", "class": "internal", "team": "platform", "owner": "@acme/devex", "environment": "development" },
-		{ "repo": "git-next", "class": "internal", "team": "platform", "owner": "@acme/platform", "environment": "production", "budgetUsd": 1 }
+		{ "repo": "git-next", "class": "internal", "team": "platform", "owner": "@acme/platform", "environment": "production", "budgetUsd": 4000 }
 	]
 }

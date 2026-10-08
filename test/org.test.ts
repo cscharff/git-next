@@ -10,6 +10,10 @@ import type { ReviewRecord } from "../src/review.ts";
 
 const ORG = parseOrgRegistry(readFileSync(new URL("../fixtures/org-baseline/org.json", import.meta.url), "utf8"));
 const CATALOG = parseCatalog(readFileSync(new URL("../fixtures/org-baseline/catalog.json", import.meta.url), "utf8"));
+// The registry with demo-scale budgets (cents), so a handful of test records can go over them.
+const TEAM_BUDGETS: Record<string, number> = { agents: 0.75, cms: 0.5, storage: 0.25, platform: 1 };
+const PROJECT_BUDGETS: Record<string, number> = { "agents-demo-full": 0.6, "emdash-demo": 0.5, "uploads-smart": 0.1, "uploads-bare": 0.1, "git-next": 1 };
+const SMALL = { ...ORG, teams: ORG.teams.map((t) => ({ ...t, budgetUsd: TEAM_BUDGETS[t.id] })), projects: ORG.projects.map((p) => ({ ...p, budgetUsd: PROJECT_BUDGETS[p.repo] })) };
 const PII_LAYER = readFileSync(new URL("../fixtures/org-baseline/profiles/pii-regulated.md", import.meta.url), "utf8");
 
 const cost = (over: Partial<CostRecord>): CostRecord => ({ id: "x", at: "2026-10-05T10:00:00Z", model: "anthropic/claude-sonnet-5.5", provider: "anthropic", tokensIn: 1, tokensOut: 1, cost: 0.1, cached: false, success: true, developer: "chris", repo: "agents-demo-full", fork: "main", agent: "a", task: "t#1", taskLabel: "t", cloud: "cloudflare", mocked: false, ...over });
@@ -31,7 +35,7 @@ describe("org registry and declarations", () => {
 
 	it("lets a repo raise its class but never lower it below the registry", () => {
 		expect(resolveApp(ORG, "uploads-smart", { class: "public" })).toMatchObject({ class: "pii-regulated", classSource: "org" });
-		expect(resolveApp(ORG, "agents-demo-full", { class: "pii-regulated" })).toMatchObject({ class: "pii-regulated", classSource: "repo", team: "agents", costCentre: "CC-4100", budgetUsd: 0.6 });
+		expect(resolveApp(ORG, "agents-demo-full", { class: "pii-regulated" })).toMatchObject({ class: "pii-regulated", classSource: "repo", team: "agents", costCentre: "CC-4100", budgetUsd: 7000 });
 		expect(resolveApp(ORG, "somewhere-new", null)).toMatchObject({ class: "internal", classSource: "default", owner: null, budgetUsd: null });
 	});
 });
@@ -82,15 +86,15 @@ describe("orgReport", () => {
 		},
 		"main",
 	);
-	const fact = (repo: string, over: Partial<RepoFacts> = {}): RepoFacts => ({ repo, project: repo, app: resolveApp(ORG, repo, null), result: null, hasInstructions: true, precedenceOverridden: false, ...over });
+	const fact = (repo: string, over: Partial<RepoFacts> = {}): RepoFacts => ({ repo, project: repo, app: resolveApp(SMALL, repo, null), result: null, hasInstructions: true, precedenceOverridden: false, ...over });
 	const inputs: OrgInputs = {
 		now: new Date("2026-10-08T05:00:00Z"),
-		org: ORG,
+		org: SMALL,
 		catalog: CATALOG,
 		repos: [
 			fact("agents-demo-full", { result: stored, precedenceOverridden: true }),
-			fact("agents-demo-r2", { project: "agents-demo-full", app: resolveApp(ORG, "agents-demo-full", null), hasInstructions: null }),
-			fact("uploads-smart", { app: resolveApp(ORG, "uploads-smart", { controls: { guardrails: true, dataLocation: "eu" } }) }),
+			fact("agents-demo-r2", { project: "agents-demo-full", app: resolveApp(SMALL, "agents-demo-full", null), hasInstructions: null }),
+			fact("uploads-smart", { app: resolveApp(SMALL, "uploads-smart", { controls: { guardrails: true, dataLocation: "eu" } }) }),
 			fact("uploads-bare", { hasInstructions: false }),
 		],
 		index: [],
@@ -105,7 +109,7 @@ describe("orgReport", () => {
 			cost({ cost: 0.5, fork: "agents-demo-r2", developer: "chris" }),
 			cost({ cost: 0.2, repo: "new-repo-demo", fork: "uploads-smart", model: "anthropic/claude-sonnet-5", developer: "maya" }),
 			cost({ cost: 0.05, repo: "git-next", fork: "resolver", provider: "workers-ai", model: "@cf/zai-org/glm-5.3-flash", developer: "git-next" }),
-			cost({ cost: 9, at: "2026-09-30T23:00:00Z" }),
+			cost({ cost: 9, at: "2026-09-01T00:00:00Z" }),
 		],
 		costSource: "test",
 		work: [{ project: "agents-demo-full", items: [
@@ -117,8 +121,10 @@ describe("orgReport", () => {
 	};
 	const r = orgReport(inputs);
 
-	it("rolls spend up by project (forks included), team and dimension, this month only", () => {
-		expect(r.spend.monthUsd).toBe(0.75);
+	it("rolls spend up by project (forks included), team and dimension, over the last 30 days", () => {
+		expect(r.spend.totalUsd).toBe(0.75);
+		expect(r.spend.liveUsd).toBe(0.75);
+		expect(r.spend.scale).toBeNull();
 		expect(r.spend.top.project).toEqual([{ key: "agents-demo-full", cost: 0.5, requests: 1 }, { key: "uploads-smart", cost: 0.2, requests: 1 }, { key: "git-next", cost: 0.05, requests: 1 }]);
 		expect(r.spend.top.environment.map((t) => t.key)).toEqual(["production", "staging"]);
 		expect(r.spend.top.resource.map((t) => t.key)).toEqual(["anthropic", "workers-ai"]);
@@ -126,7 +132,7 @@ describe("orgReport", () => {
 		expect(r.spend.teams.find((t) => t.id === "storage")).toMatchObject({ spendUsd: 0.2, budgetUsd: 0.25 });
 		expect(r.spend.overBudget).toEqual([{ level: "project", key: "uploads-smart", budgetUsd: 0.1, spendUsd: 0.2, pct: 200 }]);
 		expect(r.spend.perMergedChange.find((p) => p.project === "uploads-smart")).toEqual({ project: "uploads-smart", spendUsd: 0.2, merged: 1, perChangeUsd: 0.2 });
-		expect(r.spend.forecast).toMatchObject({ mock: true, day: 8, daysInMonth: 31, projectedUsd: 2.9063 });
+		expect(r.spend.forecast).toMatchObject({ mock: true, projectedUsd: 3.21, budgetUsd: 2.5 });
 	});
 
 	it("reports review flow from the review records", () => {
