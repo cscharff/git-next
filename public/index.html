@@ -840,7 +840,10 @@ async function cvLoad(r) {
 	const analysed = r.repo === DEMO_LAYERS ? r.via || state.repo : r.repo;
 	if (cv.insightsFor !== analysed) {
 		cv.insightsFor = analysed;
-		cv.insights = state.insights?.repo === analysed ? state.insights : await tryJson(`/results?repo=${encodeURIComponent(analysed)}&ref=main`);
+		// Stored results are per branch: the one being viewed (e.g. master on an import), else main.
+		const stored = (ref) => tryJson(`/results?repo=${encodeURIComponent(analysed)}&ref=${encodeURIComponent(ref)}`);
+		const branch = r.repo === DEMO_LAYERS || /^[0-9a-f]{40}$/.test(r.ref) ? "main" : r.ref;
+		cv.insights = state.insights?.repo === analysed ? state.insights : (await stored(branch)) ?? (branch !== "main" ? await stored("main") : null);
 	}
 	$("#cvhead").innerHTML = cv.head ? `<code>${esc(cv.head.hash.slice(0, 7))}</code> ${esc(String(cv.head.message).split("\n")[0].slice(0, 70))} · ${esc(cv.head.author)} · ${num(cv.files.length)} files` : `${num(cv.files.length)} files${r.repo === DEMO_LAYERS ? " · fixture layers overlaid at analysis time" : ""}`;
 
