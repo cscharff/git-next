@@ -11,8 +11,9 @@ export default defineConfig({
 		assets: { notFoundHandling: "none", runWorkerFirst: true },
 		env: {
 			ASSETS: bindings.assets(),
-			// Cloudflare Access: the team domain and this application's audience tag. "unset" refuses every non-local
-			// request (fail closed) until the Access application exists.
+			// Cloudflare Access: the team domain and this application's audience tag (public values, not secrets). Replace
+			// both with your own (README, "Deploy behind Cloudflare Access"); "unset" refuses every non-local request
+			// (fail closed) until the Access application exists.
 			ACCESS_TEAM_DOMAIN: bindings.text("circus.cloudflareaccess.com"),
 			ACCESS_AUD: bindings.text("732681b3f2ea5f1b4e424ad65f8978f0ff46ef22cd80303045a5dc7ed442df22"),
 			// Read-only use: providers read trees, blobs and commits from repos in this namespace.
@@ -23,6 +24,7 @@ export default defineConfig({
 			// Embeddings of markdown sections (EmbeddingGemma-300m, 768-dim, cosine), filtered by repo.
 			SECTIONS: bindings.vectorize({ name: "git-next-sections", dev: { remote: true } }),
 			// Stored results (latest insights per repo/ref, index, recent pushes) and the rule-extraction cache.
+			// The author's namespace id: replace it with yours (`npx cf kv namespaces create`, README step 3).
 			RESULTS: bindings.kv({ id: "add53cfdb613401cbc50c632dfb058f9" }),
 			// Push events from Artifacts (event subscriptions → this queue); the producer is used by /dev/enqueue locally.
 			PUSHES: bindings.queue({ name: "git-next-pushes" }),

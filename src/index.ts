@@ -30,7 +30,7 @@ import { llmExtractor, memoryCache, type ExtractCache } from "./providers/instru
 import { keywordExtractor } from "./providers/instruction-stack/extract.ts";
 import { DEFAULT_ORDER, validOrder, type LayerKind, type PrecedenceOverride, type RuleExtractor } from "./providers/instruction-stack/types.ts";
 
-// Read-only analysis over Artifacts repos. No caller authentication yet, so local dev only.
+// Read-only analysis over Artifacts repos. Deployed, every request must pass Cloudflare Access (see fetch below).
 
 /** The AI Gateway git.next routes model calls through and reads cost logs from. */
 const GATEWAY_ID = "git-next";
