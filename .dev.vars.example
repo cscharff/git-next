@@ -5,3 +5,7 @@ CF_ACCOUNT_ID=
 AIG_LOGS_TOKEN=
 # Comma-separated Access identities allowed to override layer precedence (deployed only; localhost is admin in dev).
 ADMIN_EMAILS=
+# Access service token for local dev only: `npm run dev` passes these to cf dev, whose remote bindings reach the
+# Access-protected workers.dev domain. `npm run deploy` leaves them out of the Worker's secrets.
+CLOUDFLARE_ACCESS_CLIENT_ID=
+CLOUDFLARE_ACCESS_CLIENT_SECRET=

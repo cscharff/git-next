@@ -11,7 +11,8 @@ hidden otherwise. Timings are cumulative; narration is written to be read aloud.
 ## Pre-recording checklist
 
 1. **Sign-in and secrets.** `npx cf auth whoami` shows the right account. `.dev.vars` has `CF_ACCOUNT_ID` and
-   `AIG_LOGS_TOKEN`. Never show `.dev.vars` or `cat` it on screen.
+   `AIG_LOGS_TOKEN`, plus the Access service token (`CLOUDFLARE_ACCESS_CLIENT_ID`/`_SECRET`) so `npm run dev` gets
+   past Access. Never show `.dev.vars` or `cat` it on screen.
 2. **Fresh numbers.** With `npm run dev` running:
    - `node scripts/demo-agents.ts` (three agents on the forks; it reuses existing forks and adds commits on top).
    - `node scripts/demo-planner.ts --keep` (Fable 5.1 plans, three Sonnet 5.5 workers; local pushes).

@@ -4,10 +4,11 @@
 	"type": "module",
 	"license": "MIT",
 	"scripts": {
-		"dev": "cf dev",
+		"dev": "node --env-file-if-exists=.dev.vars node_modules/cf/bin/cf dev",
 		"build": "cf build",
 		"test": "vitest run",
-		"typecheck": "cf workers types && tsc && tsc -p tsconfig.cli.json"
+		"typecheck": "cf workers types && tsc && tsc -p tsconfig.cli.json",
+		"deploy": "grep -v '^CLOUDFLARE_ACCESS_' .dev.vars > .dev.vars.deploy && cf deploy --secrets-file .dev.vars.deploy; status=$?; rm -f .dev.vars.deploy; exit $status"
 	},
 	"devDependencies": {
 		"@cloudflare/vite-plugin": "beta",

@@ -171,11 +171,17 @@ Then, in the Cloudflare dashboard (these steps are manual):
    **Account → AI Gateway → Read** and Account resources to your account; a short TTL is a good idea. Copy
    `.dev.vars.example` to `.dev.vars` (gitignored) and fill in `CF_ACCOUNT_ID` and `AIG_LOGS_TOKEN`. Without it,
    the cost provider uses `fixtures/ai-gateway-logs.json`.
+3. **Access service token (once the Worker is deployed behind Cloudflare Access).** `cf dev`'s remote bindings go
+   through the Worker's workers.dev domain, so Access has to let local dev through. Create a service token (Zero Trust
+   → Access → Service credentials), add a **Service Auth** policy that includes it to the Access application, and put
+   its id and secret in `.dev.vars` as `CLOUDFLARE_ACCESS_CLIENT_ID` / `CLOUDFLARE_ACCESS_CLIENT_SECRET`.
+   `npm run dev` loads them; `npm run deploy` uploads the other `.dev.vars` entries as Worker secrets and leaves
+   these out.
 
 ### 3. Run it
 
 ```bash
-npm run dev                  # cf dev on http://localhost:5173 with remote ARTIFACTS + AI bindings
+npm run dev                  # cf dev on http://localhost:5173 with remote ARTIFACTS + AI bindings (loads .dev.vars)
 open http://localhost:5173   # dashboard
 npm link                     # optional: puts git-next on PATH so `git next` works
 git next --help
