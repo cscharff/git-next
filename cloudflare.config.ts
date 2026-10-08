@@ -1,4 +1,4 @@
-import { bindings, defineConfig, triggers } from "cf/config";
+import { bindings, defineConfig, exports, triggers } from "cf/config";
 import * as entrypoint from "./src/index.ts" with { type: "cf-worker" };
 
 export default defineConfig({
@@ -26,6 +26,8 @@ export default defineConfig({
 			RESULTS: bindings.kv({ id: "add53cfdb613401cbc50c632dfb058f9" }),
 			// Push events from Artifacts (event subscriptions → this queue); the producer is used by /dev/enqueue locally.
 			PUSHES: bindings.queue({ name: "git-next-pushes" }),
+			// Every push runs through this Workflow: analyse → index → classify → human review when sensitive → decision.
+			PUSH_REVIEW: bindings.workflow({ name: "git-next-push-review", worker: "git-next", exportName: "PushReview" }),
 			// "on": overlay fixtures/demo-layers for agents-demo-* repos (the demo's org/contract/tool/personal layers).
 			DEMO_LAYERS: bindings.text("on"),
 			// For the cost provider's AI Gateway logs reads. Set in .dev.vars locally (gitignored) and as Worker secrets.
@@ -33,6 +35,9 @@ export default defineConfig({
 			AIG_LOGS_TOKEN: bindings.secret(),
 			// Comma-separated emails (Access identities) allowed to override layer precedence. Unset: nobody (fail closed).
 			ADMIN_EMAILS: bindings.secret(),
+		},
+		exports: {
+			PushReview: exports.workflow({ name: "git-next-push-review" }),
 		},
 		// One push per invocation: a first analysis plus embedding can take several minutes, so batching would risk
 		// the invocation time limit; up to 3 pushes are analysed in parallel.

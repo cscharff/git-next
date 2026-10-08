@@ -1,4 +1,4 @@
-import { env } from "cloudflare:workers";
+import { WorkflowEntrypoint, env, type WorkflowEvent, type WorkflowStep } from "cloudflare:workers";
 import { artifactsSource } from "./core/artifacts-source.ts";
 import { RepoContext, type TreeFile } from "./core/repo-context.ts";
 import type { PushEvent } from "./code.ts";
@@ -18,7 +18,8 @@ import { fixtureCostSource } from "./providers/cost/index.ts";
 import { withMockedClouds } from "./providers/cost/mocked.ts";
 import { accessToken, verifyAccess } from "./access.ts";
 import { createRegistry } from "./registry.ts";
-import { getIndex, getResult, kvExtractCache, parsePushEvent, putResult } from "./results.ts";
+import { getIndex, getResult, kvExtractCache, parsePushEvent, putResult, type PushTrigger } from "./results.ts";
+import { classifyChange, instanceIdFor, parseDecision, reviewKey, type ReviewRecord, type ReviewStatus } from "./review.ts";
 import baselineCatalogJson from "../fixtures/org-baseline/catalog.json" with { type: "json" };
 import { parseCatalog } from "./providers/catalog.ts";
 import { llmExtractor, memoryCache, type ExtractCache } from "./providers/instruction-stack/llm-extract.ts";
@@ -365,6 +366,26 @@ export default {
 			return Response.json({ enqueued: true, repo: body.repo, after: head.hash });
 		}
 
+		// GET /reviews?repo= : recent push reviews (PushReview Workflow runs) with status, timeline and reasons.
+		if (request.method === "GET" && url.pathname === "/reviews") {
+			const repo = url.searchParams.get("repo");
+			const list = await env.RESULTS.list<{ repo: string; updatedAt: string }>({ prefix: repo && REPO_NAME.test(repo) ? `review/${repo}/` : "review/" });
+			const recent = list.keys.sort((a, b) => (b.metadata?.updatedAt ?? "").localeCompare(a.metadata?.updatedAt ?? "")).slice(0, 25);
+			const records = (await Promise.all(recent.map((k) => env.RESULTS.get(k.name, "json")))).filter(Boolean);
+			return Response.json({ reviews: records, admin: isAdmin });
+		}
+		// POST /reviews/decide {repo, ref, after, decision: approve|reject, reason} : admins only; resumes the Workflow.
+		if (request.method === "POST" && url.pathname === "/reviews/decide") {
+			if (!isAdmin) return Response.json({ error: "only admins can approve or reject a review" }, { status: 403 });
+			const d = parseDecision(await request.json().catch(() => null));
+			if (typeof d === "string") return Response.json({ error: d }, { status: 400 });
+			const record = (await env.RESULTS.get(reviewKey(d.repo, d.ref, d.after), "json")) as ReviewRecord | null;
+			if (!record) return Response.json({ error: "no review for that push" }, { status: 404 });
+			if (record.status !== "needs-review") return Response.json({ error: `review is ${record.status}, not waiting for a decision` }, { status: 409 });
+			const instance = await env.PUSH_REVIEW.get(record.instanceId);
+			await instance.sendEvent({ type: "review", payload: { decision: d.decision, reason: d.reason, by: identity.email } });
+			return Response.json({ ok: true, instanceId: record.instanceId, decision: d.decision });
+		}
 		// /mcp : git.next as a remote MCP server (Streamable HTTP, stateless). Behind the same Access check as everything else.
 		if (url.pathname === "/mcp") return mcpHandler(url).fetch(request);
 
@@ -404,24 +425,125 @@ export default {
 				message.ack();
 				continue;
 			}
-			const started = Date.now();
+			// Each push becomes a PushReview Workflow instance (one per repo/ref/commit; a redelivered event finds it exists).
 			try {
-				const files = contextFor(null, push.repo, true);
-				const result = await registry.run({ repo: push.repo, ref: push.trigger.after, base: push.trigger.before ?? undefined, files });
-				const entry = await putResult(env.RESULTS, push.repo, push.ref, { repo: push.repo, ref: push.ref, commit: push.trigger.after, base: push.trigger.before, ms: Date.now() - started, ...result }, push.trigger);
-				console.log(JSON.stringify({ event: "analysed", repo: push.repo, ref: push.ref, after: push.trigger.after.slice(0, 10), ms: entry.ms, conflicts: entry.conflicts, catalogViolations: entry.catalogViolations }));
-				// Keep embeddings current for sliced context; a failure here doesn't fail the analysis.
-				try {
-					const indexed = await indexSections({ embed, index: env.SECTIONS, manifest }, push.repo, dedupeSections(await sectionsOf(files, push.repo, push.trigger.after)).sections);
-					console.log(JSON.stringify({ event: "indexed", repo: push.repo, ...indexed }));
-				} catch (err) {
-					console.error(JSON.stringify({ event: "index-failed", repo: push.repo, error: String(err).slice(0, 300) }));
-				}
+				await env.PUSH_REVIEW.create({ id: instanceIdFor(push.repo, push.ref, push.trigger.after), params: push });
+				console.log(JSON.stringify({ event: "review-started", repo: push.repo, ref: push.ref, after: push.trigger.after.slice(0, 10) }));
 				message.ack();
 			} catch (err) {
-				console.error(JSON.stringify({ event: "analysis-failed", repo: push.repo, ref: push.ref, error: String(err).slice(0, 300) }));
-				message.retry({ delaySeconds: 30 });
+				if (/already exists|duplicate/i.test(String(err))) message.ack();
+				else {
+					console.error(JSON.stringify({ event: "review-start-failed", repo: push.repo, error: String(err).slice(0, 300) }));
+					message.retry({ delaySeconds: 30 });
+				}
 			}
 		}
 	},
 } satisfies ExportedHandler<Env>;
+
+// ── PushReview Workflow ───────────────────────────────────────────────────────
+
+type PushParams = { repo: string; ref: string; trigger: PushTrigger };
+type ReviewDecisionEvent = { decision: "approve" | "reject"; reason: string; by: string };
+const STEP = { retries: { limit: 2, delay: "30 seconds" as const, backoff: "exponential" as const }, timeout: "15 minutes" as const };
+
+/** Reads, changes and writes the push's review record (only this instance writes it, so no lost updates). */
+async function updateReview(key: string, change: (r: ReviewRecord) => ReviewRecord) {
+	const current = (await env.RESULTS.get(key, "json")) as ReviewRecord;
+	const next = change(current);
+	await env.RESULTS.put(key, JSON.stringify(next), { metadata: { repo: next.repo, ref: next.ref, after: next.after, status: next.status, updatedAt: next.updatedAt }, expirationTtl: 60 * 60 * 24 * 30 });
+	return next;
+}
+const stepped = (r: ReviewRecord, name: string, started: number, detail?: string, status?: ReviewStatus): ReviewRecord => ({
+	...r,
+	...(status ? { status } : {}),
+	updatedAt: new Date().toISOString(),
+	steps: [...r.steps, { name, at: new Date(started).toISOString(), ms: Date.now() - started, ...(detail ? { detail } : {}) }],
+});
+
+/**
+ * One push, end to end: analyse it (git.next's providers, stored for the dashboard), index its markdown for sliced
+ * context, classify whether the change is sensitive, and if it is, wait for a person (an admin) to approve or reject
+ * it before it may merge. Every step is recorded on the review record the dashboard shows.
+ */
+export class PushReview extends WorkflowEntrypoint<Env, PushParams> {
+	async run(event: Readonly<WorkflowEvent<PushParams>>, step: WorkflowStep) {
+		const { repo, ref, trigger } = event.payload;
+		const key = reviewKey(repo, ref, trigger.after);
+
+		await step.do("start", async () => {
+			const now = new Date().toISOString();
+			const record: ReviewRecord = { repo, ref, after: trigger.after, before: trigger.before, instanceId: event.instanceId, status: "running", startedAt: now, updatedAt: now, commit: trigger.commits[0] ? { message: trigger.commits[0].message, author: trigger.commits[0].author } : null, reasons: [], steps: [] };
+			await env.RESULTS.put(key, JSON.stringify(record), { metadata: { repo, ref, after: trigger.after, status: record.status, updatedAt: now }, expirationTtl: 60 * 60 * 24 * 30 });
+			return true;
+		});
+
+		const summary = await step.do("analyse", STEP, async () => {
+			const started = Date.now();
+			const files = contextFor(null, repo, true);
+			const result = await registry.run({ repo, ref: trigger.after, base: trigger.before ?? undefined, files });
+			const entry = await putResult(env.RESULTS, repo, ref, { repo, ref, commit: trigger.after, base: trigger.before, ms: Date.now() - started, ...result }, trigger);
+			const s = { conflicts: entry.conflicts, catalogViolations: entry.catalogViolations, warnings: entry.warnings, insights: entry.insights };
+			await updateReview(key, (r) => ({ ...stepped(r, "analyse", started, `${s.insights} insights, ${s.conflicts} conflicts, ${s.catalogViolations} catalog`), summary: s }));
+			return s;
+		});
+
+		await step.do("index embeddings", STEP, async () => {
+			const started = Date.now();
+			let detail: string;
+			try {
+				const files = contextFor(null, repo, true);
+				const indexed = await indexSections({ embed, index: env.SECTIONS, manifest }, repo, dedupeSections(await sectionsOf(files, repo, trigger.after)).sections);
+				detail = `${indexed.embedded} new of ${indexed.total} sections`;
+			} catch (err) {
+				// Sliced context falls back to BM25; this never blocks a review.
+				detail = `skipped: ${String(err).slice(0, 120)}`;
+			}
+			await updateReview(key, (r) => stepped(r, "index embeddings", started, detail));
+			return detail;
+		});
+
+		const reasons = await step.do("classify", STEP, async () => {
+			const started = Date.now();
+			const files = contextFor(null, repo, false);
+			// A new branch has no "before": measure it from the project's main.
+			const base = trigger.before ?? (await files.log(repo, "main", 1))[0]?.hash ?? null;
+			const changed = base ? await files.changedFiles(repo, base, trigger.after) : [];
+			const text = async (path: string, side: "before" | "after") => {
+				const b = await files.readBytes(repo, side === "before" ? base! : trigger.after, path).catch(() => null);
+				return b ? new TextDecoder().decode(b) : null;
+			};
+			const found = await classifyChange(changed, text, BASELINE_CATALOG);
+			await updateReview(key, (r) => ({ ...stepped(r, "classify", started, found.length ? `${found.length} sensitive change(s) in ${changed.length} file(s)` : `nothing sensitive in ${changed.length} file(s)`), reasons: found }));
+			return found;
+		});
+
+		if (!reasons.length) {
+			await step.do("auto-approve", async () => {
+				await updateReview(key, (r) => stepped(r, "auto-approve", Date.now(), "no sensitive changes: merge allowed", "auto-approved"));
+				return true;
+			});
+			return { status: "auto-approved", summary };
+		}
+
+		await step.do("request human review", async () => {
+			await updateReview(key, (r) => stepped(r, "request human review", Date.now(), [...new Set(reasons.map((x) => x.why.replace(/^(adds|modifies|removes) a file that /, "")))].slice(0, 3).join("; "), "needs-review"));
+			return true;
+		});
+		let decision: ReviewDecisionEvent | null = null;
+		try {
+			decision = (await step.waitForEvent<ReviewDecisionEvent>("human review", { type: "review", timeout: "7 days" })).payload;
+		} catch {
+			decision = null;
+		}
+		const final: ReviewStatus = !decision ? "expired" : decision.decision === "approve" ? "approved" : "rejected";
+		await step.do("record decision", async () => {
+			await updateReview(key, (r) => ({
+				...stepped(r, "record decision", Date.now(), decision ? `${decision.decision}d by ${decision.by}: ${decision.reason}` : "no decision within 7 days", final),
+				...(decision ? { decision: { by: decision.by, at: new Date().toISOString(), decision: decision.decision, reason: decision.reason } } : {}),
+			}));
+			return true;
+		});
+		return { status: final, summary };
+	}
+}
