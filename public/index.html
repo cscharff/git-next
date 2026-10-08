@@ -637,6 +637,8 @@ async function renderParallel() {
 
 // ── 2. New repositories ───────────────────────────────────────────────────────
 
+/** Mock-up: developer time to fix the plain repo's first-push findings. There's no agreed formula, so it's a fixed, labelled estimate. */
+const REMEDIATION_HOURS = 0.34;
 function renderNewRepo() {
 	const panel = $("#newrepo");
 	const s = state.newRepo;
@@ -667,6 +669,7 @@ function renderNewRepo() {
 			<div class="stats" style="margin-top:10px">
 				<div class="stat"><b>${a.contextFromGitNext ? num(a.contextFromGitNext.tokensServed) : 0}</b><span>context tokens from git.next${a.contextFromGitNext ? ` (${num(a.contextFromGitNext.pinnedTokens)} pinned)` : ""}</span></div>
 				<div class="stat"><b>${usd(a.cost)}</b><span>${esc(short(s.model))} call</span></div>
+				${a === plain && a.findings ? `<div class="stat bad"><b>${REMEDIATION_HOURS} hours</b><span>developer hours for remediation <span class="mocked" title="Mock-up: an illustrative estimate, not computed from the findings">mock-up</span></span></div>` : ""}
 			</div>
 			${a.contextFromGitNext?.pinned?.relevant?.length ? `<div class="why">Pinned for this task: ${a.contextFromGitNext.pinned.relevant.filter((r) => /^\s*shared|^model|^ai:/.test(r)).map((r) => esc(r.trim().split(";")[0])).join(" · ")}</div>` : ""}
 			<div class="why" style="margin-top:6px">Commit: ${esc(a.commit)}</div>
