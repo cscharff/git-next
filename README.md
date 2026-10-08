@@ -397,7 +397,8 @@ visible on the dashboard:
    it's auto-approved.
 5. **record decision:** who decided, when and why, on the review record.
 
-**Mock-ups (labelled on screen):** each attempt card has a "Tests (Sandbox)" row showing what running the project's
+**Mock-ups (labelled on screen):** the plain repo's "developer hours for remediation" in New repositories is a
+fixed illustrative estimate (0.34 hours), not computed from its findings. Each attempt card has a "Tests (Sandbox)" row showing what running the project's
 typecheck and tests for that attempt in a Cloudflare Sandbox would add (not wired yet; it doesn't affect the
 ranking). The cost panel's "AI Gateway controls" shows the real cache hit count (caching is off on the git-next
 gateway, `cache_ttl` 0), a mocked guardrails/DLP card, and a dynamic-routing suggestion derived from the latest

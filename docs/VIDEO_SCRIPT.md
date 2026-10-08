@@ -126,14 +126,16 @@ mock-ups and say so on screen: the month-end forecast and the review SLA targets
   needs human review". It called two unapproved models (`@cf/llava-hf/llava-1.5-7b-hf`,
   `@cf/meta/llama-3-8b-instruct`), called them directly instead of through the org gateway, and invented a bucket
   the catalog doesn't list (`uploads-bare-files`), each with the fix in green ("Use the shared UPLOADS →
-  acme-shared-uploads…"). Right column: **0** findings, pushed through its own hook, 1,168 context tokens from
+  acme-shared-uploads…"). Under them, point at **0.34 hours** of "developer hours for remediation" (labelled
+  mock-up) next to the $0.05 model call. Right column: **0** findings, pushed through its own hook, 1,168 context tokens from
   git.next (477 pinned), the pinned "shared r2_buckets: UPLOADS → acme-shared-uploads · ai: approved", and a
   `SOW-1234:` commit. Its review is held for one reason only: it adds a binding (to the approved shared bucket).
   **Narration:** "Most new repos start empty and learn the org's rules the slow way: from review comments, after the
   code is written. That's backwards. A repo made with git next starts already knowing them: the org's layers, its
   catalog of approved models and resources, secure defaults and the hook. Same agent, same prompt, both real repos.
   The plain repo had nothing to stop it, so its first push went straight in, and git.next caught four problems on
-  arrival and held it for a person. The smart repo's first push is clean, because its agent was handed the right
+  arrival and held it for a person. The model call cost five cents. Cleaning up after it costs a developer's
+  time, and that's the real bill. The smart repo's first push is clean, because its agent was handed the right
   bucket and the right model before it wrote a line."
 - **4:35 Where it comes from (inset, 15s).** `git next new uploads-api --template worker-api --artifacts` shows its
   summary (layers pinned, catalog version, hook installed, "rules ✓", and the Artifacts repo it created), then
