@@ -596,7 +596,8 @@ Some engagements need it the other way. The org baseline's catalog sets the poli
 by ticking "Let contract outrank org" and giving a reason.
 
 - **Who counts as an admin:** deployed, a Cloudflare Access identity listed in the `ADMIN_EMAILS` secret; nobody if
-  it's unset, so it fails closed. In local dev, localhost is admin.
+  it's unset, so it fails closed. A service token has no email, so list it as `service:<client id>`; audit trails
+  record it as "service token" plus the first six characters of its id. In local dev, localhost is admin.
 - **How it's stored:** `POST /precedence` validates the order, requires a reason of at least 10 characters, writes
   the override to KV, appends an entry to an append-only audit trail (who, when, the order, why), and re-runs the
   analysis straight away.

@@ -385,10 +385,17 @@ export function orgReport(i: OrgInputs) {
 	const waiting = i.reviews.filter((r) => WAITING.has(r.status)).map((r) => ({ repo: r.repo, ref: r.ref, after: r.after, since: r.updatedAt, ageHours: hours(i.now.getTime() - Date.parse(r.updatedAt)), class: appFor(projectOf.get(r.repo) ?? r.repo).class, reasons: [...new Set(r.reasons.map((x) => x.kind))] }));
 	waiting.sort((a, b) => b.ageHours - a.ageHours);
 	const decided = i.reviews.filter((r) => r.decision);
-	// Reviewers by the name part of their Access identity: the view is shown on screen, full addresses aren't needed.
-	const person = (by: string) => by.split("@")[0];
-	const byReviewer = [...Map.groupBy(decided, (r) => person(r.decision!.by))].map(([by, rs]) => ({ by, approved: rs.filter((r) => r.decision!.decision === "approve").length, rejected: rs.filter((r) => r.decision!.decision === "reject").length }));
-	for (const by of i.reviewers.map(person)) if (!byReviewer.some((r) => r.by === by)) byReviewer.push({ by, approved: 0, rejected: 0 });
+	// Reviewers are shown without names (the view goes on screen): people as "Reviewer 1, 2…", service tokens by the
+	// short label their decisions are recorded under. A configured `service:<client id>` maps to that same label.
+	const labels = new Map<string, string>();
+	const label = (by: string) => {
+		const key = by.startsWith("service:") ? `service token ${by.slice(8, 14)}` : by.toLowerCase();
+		if (!labels.has(key)) labels.set(key, key.startsWith("service token ") ? key : `Reviewer ${[...labels.values()].filter((v) => v.startsWith("Reviewer")).length + 1}`);
+		return labels.get(key)!;
+	};
+	for (const by of i.reviewers) label(by);
+	const byReviewer = [...Map.groupBy(decided, (r) => label(r.decision!.by))].map(([by, rs]) => ({ by, approved: rs.filter((r) => r.decision!.decision === "approve").length, rejected: rs.filter((r) => r.decision!.decision === "reject").length }));
+	for (const by of new Set(i.reviewers.map(label))) if (!byReviewer.some((r) => r.by === by)) byReviewer.push({ by, approved: 0, rejected: 0 });
 	const status = Object.fromEntries([...Map.groupBy(i.reviews, (r) => r.status)].map(([s, rs]) => [s, rs.length]));
 	const attempts = i.work.flatMap((w) => [...Map.groupBy(w.items.filter((x) => x.task), (x) => x.task!)].filter(([, xs]) => xs.length > 1).map(([task, xs]) => ({ project: w.project, task, attempts: xs.map((x) => `${x.repo}${x.ref !== "main" ? `@${x.ref}` : ""}`) })));
 	const slaHours: Record<AppClass, number> = { "pii-regulated": 24, internal: 72, public: 72 };

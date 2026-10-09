@@ -139,7 +139,10 @@ describe("orgReport", () => {
 		expect(r.flow.waiting.map((w) => [w.repo, w.ageHours, w.class])).toEqual([["uploads-bare", 24, "pii-regulated"], ["agents-demo-full", 1, "internal"]]);
 		expect(r.flow.avgWaitHours).toBe(12.5);
 		expect(r.flow).toMatchObject({ open: 2, approved: 2, rejected: 1, inFlight: 3 });
-		expect(r.flow.reviewers).toEqual([{ by: "ana", approved: 1, rejected: 1, share: 1 }, { by: "lee", approved: 0, rejected: 0, share: 1 }]);
+		expect(r.flow.reviewers).toEqual([{ by: "Reviewer 1", approved: 1, rejected: 1, share: 1 }, { by: "Reviewer 2", approved: 0, rejected: 0, share: 1 }]);
+		// No names or ids on screen: a service token appears under its short label.
+		const svc = orgReport({ ...inputs, reviewers: ["service:abcdef123456.access"], reviews: [review({ status: "approved", decision: { by: "service token abcdef", at: "", decision: "approve", reason: "fine, merged" } })] });
+		expect(svc.flow.reviewers).toEqual([{ by: "service token abcdef", approved: 1, rejected: 0, share: 0 }]);
 		expect(r.flow.attempts).toEqual([{ project: "agents-demo-full", task: "add-docs", attempts: ["agents-demo-full@attempt/haiku", "agents-demo-full@attempt/sonnet"] }]);
 		expect(r.flow.sla).toMatchObject({ mock: true, breached: 0 });
 	});

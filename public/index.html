@@ -1418,7 +1418,7 @@ function renderOrgFlow(d) {
 			</div>
 			<div>
 				<h3 class="sub" style="margin:0 0 6px">Reviewer load</h3>
-				${f.reviewers.length ? `<table><tr><th>Reviewer</th><th style="width:20%">Approved</th><th style="width:20%">Rejected</th><th style="width:26%">Queue share</th></tr>${f.reviewers.map((x) => `<tr><td>${esc(x.by)}</td><td>${x.approved}</td><td>${x.rejected}</td><td>${x.share ?? "—"}</td></tr>`).join("")}</table><div class="why">Admins (Access identities) who may decide; queue share is what's waiting divided among them.</div>` : `<p class="empty">No reviewers configured (ADMIN_EMAILS).</p>`}
+				${f.reviewers.length ? `<table><tr><th>Reviewer</th><th style="width:20%">Approved</th><th style="width:20%">Rejected</th><th style="width:26%">Queue share</th></tr>${f.reviewers.map((x) => `<tr><td>${esc(x.by)}</td><td>${x.approved}</td><td>${x.rejected}</td><td>${x.share ?? "—"}</td></tr>`).join("")}</table><div class="why">Admins (Access identities) who may decide, shown without names; queue share is what's waiting divided among them.</div>` : `<p class="empty">No reviewers configured (ADMIN_EMAILS).</p>`}
 				<div class="mockcard" style="margin-top:12px">
 					<h3 class="sub" style="margin:0 0 6px">Review SLA ${MOCK}</h3>
 					<div class="why">${Object.entries(f.sla.targetHours).map(([k, h]) => `${esc(k)} ${h} h`).join(" · ")} → <b>${f.sla.breached}</b> waiting change${f.sla.breached === 1 ? "" : "s"} past target. ${esc(f.sla.note)} Wait times are real.</div>
