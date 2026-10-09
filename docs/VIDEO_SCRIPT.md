@@ -1,4 +1,4 @@
-# git.next demo video: shot list (target 9:45)
+# git.next demo video: shot list (target 9:50)
 
 **Approach: big thing first, with a point of view.** The dashboard is the product on screen. It opens on the **Org
 tab**: every repo's classification, spend against budget, what waits for a person, and what's at risk, across the
@@ -38,7 +38,8 @@ hidden otherwise. Timings are cumulative; narration is written to be read aloud.
    about 7 seconds, then under one). Pick **claude-plugins (live)** in a second tab and leave it there for beat 6, so its live analysis never runs on
    camera.
    In "4 · Agents in parallel", check that both attempt cards show and that the attempt-haiku and attempt-sonnet push
-   reviews say **needs human review**. Don't approve them before recording: the approval is a shot, and it's one take
+   reviews say **needs human review**. Don't approve or reject them before recording (decisions and reasons are under
+   "Review decisions"): the approval is a shot, and it's one take
    per commit. For a retake, push a fresh commit to the attempt branch (see "Command reference").
 6. **MCP inset prep.** In a scratch clone of cloudflare/agents, connect Claude Code to git.next once (`claude mcp add`
    from the README's "MCP server" section, with the service token from `.dev.vars` in environment variables; never on
@@ -172,7 +173,7 @@ SLA targets.*
   **Narration:** "And the gateway can act on what it learns: cache what repeats, stop secrets before they reach a
   model, and route a class of task to the model that's proven good enough."
 
-### 4. Agents in parallel: which change ships? 6:05–7:35
+### 4. Agents in parallel: which change ships? 6:05–7:40
 *Panel 4. This is the Artifacts post's own question, answered on one screen.*
 - **6:05 Work in flight.** Point at the big numbers (forks and branches in flight, tasks with competing attempts,
   "attempt-haiku recommended to merge"), then the **Work in flight** table: every fork and branch of the project, its
@@ -194,12 +195,16 @@ SLA targets.*
   sensitive**, auto-approved.
   **Narration:** "Every push runs through a Workflow: analyse, index, classify. A docs fix sails through. A change
   that adds infrastructure or dependencies waits for a person. Agents move fast; a human signs off on what matters."
-- **7:15 Approve, then merge.** Type the reason ("Shared bucket and approved model; deps are standard Workers
-  tooling.") and click **Approve**. A few seconds later the card reads "approved by …" with the reason, and the
-  attempt card's button changes to **Merge into main** (mocked).
-  **Narration:** "Approved, on the record, and now it can ship."
+- **7:15 Approve the pick, reject the other attempt.** On attempt-haiku's card, type the reason ("Shared bucket and
+  approved model; deps are standard Workers tooling.") and click **Approve**. A few seconds later the card reads
+  "approved by …" with the reason, and the attempt card's button changes to **Merge into main** (mocked). Then, on
+  attempt-sonnet's card (reason typed before the take), click **Reject**: "Superseded by attempt-haiku: same task,
+  both clean; haiku is the smaller change (+102 vs +142 lines) at about a tenth of the cost ($0.008 vs $0.081)."
+  The card reads "rejected by …" with the reason. See "Review decisions" below for why.
+  **Narration:** "Approved, on the record, and now it can ship. The attempt that lost gets a decision too: it passed
+  every check, it just wasn't the best one. Closed with a reason, not left open for someone to merge by mistake."
 
-### 5. The agent asks git.next itself (MCP): 7:35–8:05
+### 5. The agent asks git.next itself (MCP): 7:40–8:10
 - **Screen:** the terminal, full width for this beat: Claude Code in the scratch clone with git.next connected over
   MCP. Prompt: "Add a delete endpoint to examples/uploads-ai. Check with git-next first." Claude Code calls
   **get_context**, and the result shows the winning rules with their `file:line` sources and **inFlight**: the two
@@ -208,8 +213,8 @@ SLA targets.*
   these files, which attempt won. No wrapper scripts. Any agent that speaks MCP gets the same answers you see on the
   dashboard."
 
-### 6. The repos agents are producing: plugins and skills: 8:05–8:35
-- **8:05 Switch repos.** Cut straight to a second browser tab where **claude-plugins (live)** was already picked and
+### 6. The repos agents are producing: plugins and skills: 8:10–8:40
+- **8:10 Switch repos.** Cut straight to a second browser tab where **claude-plugins (live)** was already picked and
   analysed during prep (picking it on camera waits on a live analysis): a public Claude Code plugin marketplace
   imported into Artifacts. Panel 1 switches: **3** on-demand layers (session-metrics,
   audit-session-metrics, task-breakdown), each with "loads when: …" from its description. Scroll to the **Claude Code
@@ -220,13 +225,13 @@ SLA targets.*
   when each skill loads, what model it asks for, whether it contradicts the org, and which plugins run code in your
   tools without asking."
 
-### 7. How the data gets there: agents push, the dashboard updates: 8:35–9:05
-- **8:35 Agents at work.** Back on cloudflare/agents (repo picker), scroll to "More" → **Demo agents**: three agents
+### 7. How the data gets there: agents push, the dashboard updates: 8:40–9:10
+- **8:40 Agents at work.** Back on cloudflare/agents (repo picker), scroll to "More" → **Demo agents**: three agents
   on three forks, each with its context size, cost, pre-push result and commit.
   **Narration:** "Each agent works on its own fork. Before it calls a model, it asks git.next for a slice of
   context: the rules for the files it will touch and the docs that matter, within a budget. About 3,000 tokens
   instead of 890,000. Less to pay for, less to get confused by."
-- **8:55 Live update (10s, no waiting on camera).** With the dashboard on a fork (fork selector → agents-demo-r2),
+- **9:00 Live update (10s, no waiting on camera).** With the dashboard on a fork (fork selector → agents-demo-r2),
   show the terminal inset starting the push, then cut to the moment the live dot pulses and "Recent pushes" shows the
   new commit. Artifacts emits a `pushed` event and the queue starts the push-review Workflow; analysis takes about 25
   seconds and queue delivery can take a few minutes, so start the push well before the shot and edit the wait out. Deployed: run `node scripts/demo-agents.ts --only r2-agent`
@@ -235,7 +240,7 @@ SLA targets.*
   **Narration:** "Every push to Artifacts starts that review Workflow, so the dashboard stays current while agents
   work. No nightly job. No one remembering to run a report."
 
-### 8. Built to extend, and close: 9:05–9:45
+### 8. Built to extend, and close: 9:10–9:50
 - **Screen:** `src/providers/owners.ts` beside the one-line `.register(ownersProvider)`, then back to the full
   dashboard.
   **Narration:** "Each view comes from a small provider behind one interface, so teams can add their own. Agents
@@ -244,6 +249,27 @@ SLA targets.*
   every skill and plugin accounted for, every model call costed, and the whole org, classified and
   against budget, on one screen. Built on Cloudflare Artifacts, Workers, Workflows,
   AI Gateway and the Agents SDK."
+
+## Review decisions
+
+Four pushes are held for a person and saved for filming. One take per commit (a decision can't be undone), so these
+are the decisions and the reasons to type, settled before recording:
+
+| Review | Decision | When | Reason to type |
+| --- | --- | --- | --- |
+| agents-demo-full@attempt/haiku | **Approve** | On camera, 7:15 | Shared bucket and approved model; deps are standard Workers tooling. |
+| agents-demo-full@attempt/sonnet | **Reject** | On camera, 7:15 | Superseded by attempt-haiku: same task, both clean; haiku is the smaller change (+102 vs +142 lines) at about a tenth of the cost ($0.008 vs $0.081). |
+| uploads-bare@main | **Reject** | After the take | Unapproved models (llava-1.5-7b, llama-3-8b), model calls bypass the org gateway, and an unlisted bucket (uploads-bare-files). |
+| uploads-smart@main | **Approve** | After the take | Only change is the approved shared bucket (UPLOADS → acme-shared-uploads); no catalog findings. |
+
+Why reject attempt-sonnet rather than leave it open: it passed every check, so nothing else would stop it. Two
+mergeable attempts at one task invite a second merge of the same feature, and an open review counts against the
+review queue and SLA on the Org tab. Rejecting it with the comparison as the reason closes the loop on the record,
+and shows the human gate saying no to a change that is fine but not the best. The ranking already picked haiku
+(clean first, then least overlap, then smallest diff, then cheapest); the reviewer confirms it.
+
+The two uploads decisions happen after the take so beat 2 keeps showing both as "needs human review" and beat 0's
+Org tab shows four waiting. Decide them in the same session, after the last take that needs them.
 
 ## Cut for time
 
