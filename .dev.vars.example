@@ -9,3 +9,10 @@ ADMIN_EMAILS=
 # Access-protected workers.dev domain. `npm run deploy` leaves them out of the Worker's secrets.
 CLOUDFLARE_ACCESS_CLIENT_ID=
 CLOUDFLARE_ACCESS_CLIENT_SECRET=
+# Account-specific config values, not secrets: `npm run dev` and `npm run deploy` read them for cloudflare.config.ts,
+# and deploy does not upload them as Worker secrets. Unset Access values refuse every non-local request (fail closed).
+DEPLOY_RESULTS_KV_ID=
+DEPLOY_ACCESS_TEAM_DOMAIN=
+DEPLOY_ACCESS_AUD=
+# The git-next-pushes queue id, for `node scripts/demo-new-repo.ts --artifacts`.
+DEPLOY_PUSHES_QUEUE_ID=

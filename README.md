@@ -185,11 +185,12 @@ Then, in the Cloudflare dashboard (these steps are manual):
 
 ### 3. Resources the Worker binds
 
-`cloudflare.config.ts` names every binding. Create these once in your account, then put **your** KV namespace id in
-`RESULTS` (the id in the file is the author's and won't work in another account):
+`cloudflare.config.ts` names every binding. Create these once in your account, then put the KV namespace id in
+`.dev.vars` as `DEPLOY_RESULTS_KV_ID` (and the `git-next-pushes` queue id as `DEPLOY_PUSHES_QUEUE_ID` for the live
+new-repo demo):
 
 ```bash
-npx cf kv namespaces create --title git-next-results            # copy the id into RESULTS in cloudflare.config.ts
+npx cf kv namespaces create --title git-next-results            # copy the id into DEPLOY_RESULTS_KV_ID in .dev.vars
 npx cf queues create --queue-name git-next-pushes               # push events from Artifacts
 npx cf queues create --queue-name git-next-pushes-dlq           # dead-letter queue for pushes that keep failing
 npx cf vectorize create --name git-next-sections --config-dimensions 768 --config-metric cosine
@@ -215,13 +216,14 @@ mint repo tokens and spend model credits) only answer on localhost, deployed or 
 ### 5. Deploy behind Cloudflare Access (optional)
 
 Deployed, every request (dashboard, API, MCP) must carry a Cloudflare Access token for the Worker's application, or
-it gets a 401; with `ACCESS_AUD` set to `"unset"` the Worker refuses everything that isn't localhost.
+it gets a 401; with `DEPLOY_ACCESS_AUD` unset the Worker refuses everything that isn't localhost.
 
 1. In Zero Trust → Access → Applications, add a self-hosted application for the Worker's workers.dev hostname
    (`git-next.<your-subdomain>.workers.dev`) with a policy for the people who may use it, plus the Service Auth
    policy from step 2.3.
-2. In `cloudflare.config.ts`, set `ACCESS_TEAM_DOMAIN` to your team domain (`<team>.cloudflareaccess.com`) and
-   `ACCESS_AUD` to the application's audience tag. Neither is a secret: both are sent to every visitor's browser.
+2. In `.dev.vars`, set `DEPLOY_ACCESS_TEAM_DOMAIN` to your team domain (`<team>.cloudflareaccess.com`) and
+   `DEPLOY_ACCESS_AUD` to the application's audience tag. Neither is a secret (both are sent to every visitor's
+   browser); `cloudflare.config.ts` reads them as plain-text bindings, and deploy doesn't upload `DEPLOY_*` as secrets.
 3. Put the admins (Access identities who may approve reviews and change precedence) in `.dev.vars` as
    `ADMIN_EMAILS`, then deploy. The deploy script uploads `.dev.vars` as Worker secrets, without the service token:
 
@@ -702,7 +704,6 @@ and caching for any source: Artifacts in the Worker, local git in the CLI, in-me
 | `fixtures/` | org baseline (layers, catalog, templates, org registry and profile layers), demo instruction layers (and the resolved variant), AI Gateway log fixture, mocked multi-cloud environments and cost logs |
 | `samples/` | live outputs the dashboard falls back to; `samples/demo-run/` is the last agent run |
 | `examples/hooks/` | the fail-closed pre-push hook and the Claude Code PreToolUse adapter |
-| `docs/VIDEO_SCRIPT.md` | demo video shot list |
 | `test/` | vitest suites (parsers, providers, resolver, context, cost, CLI, owners, code view) |
 
 ## License

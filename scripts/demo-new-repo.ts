@@ -17,7 +17,7 @@ import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, symlink
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { cfPublisher } from "../src/cli/artifacts-publish.ts";
-import { runCli } from "../src/cli/main.ts";
+import { readDevVars, runCli } from "../src/cli/main.ts";
 import { applyEdits, estimateUsd, gatewaySource, gatewaySpend, parseEdits, workerPost } from "./agent-lib.ts";
 
 const ROOT = resolve(dirname(new URL(import.meta.url).pathname), "..");
@@ -34,9 +34,10 @@ const BUDGET_USD = Number(opt("--budget-usd", "0.5"));
 const KEEP = argv.includes("--keep") || argv.includes("--recheck");
 /** Reuse the repos from a previous --keep run: redo the pushes and checks without calling the model again. */
 const RECHECK = argv.includes("--recheck");
-/** Live: repos in Artifacts, subscribed to git.next's push queue (--queue, default the git-next-pushes queue). */
+/** Live: repos in Artifacts, subscribed to git.next's push queue (--queue, default DEPLOY_PUSHES_QUEUE_ID from .dev.vars). */
 const ARTIFACTS = argv.includes("--artifacts");
-const QUEUE = opt("--queue", "ed972cccfcdd49bcb1fedcc313687de8");
+const QUEUE = opt("--queue", readDevVars(join(ROOT, ".dev.vars")).DEPLOY_PUSHES_QUEUE_ID ?? "");
+if (ARTIFACTS && !QUEUE) throw new Error("--artifacts needs --queue <id> or DEPLOY_PUSHES_QUEUE_ID in .dev.vars");
 if (ARTIFACTS && RECHECK) throw new Error("--recheck works on the local repos only");
 const WORKDIR = join(tmpdir(), "git-next-demo-new-repo");
 
